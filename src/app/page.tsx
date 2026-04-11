@@ -23,6 +23,7 @@ import { PERSONA_LIST } from '@/lib/personas';
 import { MODES, APP_TAGLINE, APP_NAME } from '@/lib/constants';
 import { PersonaCard } from '@/components/persona-card';
 import { ModeSelector } from '@/components/mode-selector';
+import { UserMenu } from '@/components/user-menu';
 import { cn } from '@/lib/utils';
 
 export default function HomePage() {
@@ -59,8 +60,11 @@ export default function HomePage() {
               className="flex items-center gap-2 text-sm text-text-secondary hover:text-text-primary transition-colors"
             >
               <GitFork className="w-4 h-4" />
-              GitHub
+              <span className="hidden md:inline">GitHub</span>
             </a>
+            <div className="pl-2 border-l border-border-subtle">
+              <UserMenu />
+            </div>
           </div>
         </div>
       </nav>
