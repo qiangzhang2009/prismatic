@@ -314,10 +314,10 @@ export default function HomePage() {
               <Star className="w-5 h-5 text-yellow-400" />
               <span className="text-2xl font-bold gradient-text">开源 · 可部署 · 可扩展</span>
             </div>
-            <h2 className="text-2xl font-display font-bold mb-3">成为 炼心阁 的贡献者</h2>
+            <h2 className="text-2xl font-display font-bold mb-3">成为 Prismatic 的贡献者</h2>
             <p className="text-text-secondary mb-6 max-w-xl mx-auto">
-              炼心阁 是一个开源项目。我们欢迎对以下方面的贡献：新人物蒸馏、工具脚本、UI改进、
-              文档完善、性能优化，以及将 炼心阁 部署到你自己的基础设施上。
+              Prismatic 是一个开源项目。我们欢迎对以下方面的贡献：新人物蒸馏、工具脚本、UI改进、
+              文档完善、性能优化，以及将 Prismatic 部署到你自己的基础设施上。
             </p>
             <div className="flex items-center justify-center gap-4">
               <a

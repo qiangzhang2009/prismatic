@@ -1,6 +1,6 @@
-# 炼心阁 · 认知蒸馏会客厅
+# Prismatic · 折射之光
 
-> **让古今中外的智者同堂，为你的问题各抒己见。芒格、马斯克、乔布斯、费曼……选择你的智囊团，开启多维度思考之旅。**
+> **一个汇聚人类最卓越思维的系统，让乔布斯、马斯克、芒格、费曼同时为你思考。**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Next.js](https://img.shields.io/badge/Next.js-14-black)](https://nextjs.org)

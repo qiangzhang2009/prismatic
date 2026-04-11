@@ -60,7 +60,7 @@ function SignInContent() {
           <Sparkles className="w-5 h-5 text-prism-purple absolute -top-2 -right-2" />
         </div>
         <h1 className="text-2xl font-display font-bold gradient-text mt-4">
-          登录 炼心阁
+          登录 Prismatic
         </h1>
         <p className="text-text-secondary mt-2">
           选择登录方式开始体验

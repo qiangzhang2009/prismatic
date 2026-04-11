@@ -2,7 +2,7 @@
  * Prismatic — Global Constants
  */
 
-export const APP_NAME = '炼心阁';
+export const APP_NAME = 'Prismatic · 折射之光';
 export const APP_TAGLINE = '折射之光，让每一个卓越灵魂为你思考';
 export const APP_DESCRIPTION = '汇聚人类最卓越思维的多智能体协作平台';
 

@@ -49,9 +49,9 @@ export default function ContactPage() {
           </div>
 
           <div className="mt-12 rounded-2xl p-8 border border-border-subtle bg-bg-surface">
-            <h2 className="font-semibold mb-4">关于 炼心阁</h2>
+            <h2 className="font-semibold mb-4">关于 Prismatic</h2>
             <p className="text-sm text-text-secondary leading-relaxed">
-              炼心阁 是一个开源的AI多智能体协作平台，致力于将人类卓越思维家的心智模型和决策方法论进行科学蒸馏，
+              Prismatic 是一个开源的AI多智能体协作平台，致力于将人类卓越思维家的心智模型和决策方法论进行科学蒸馏，
               为用户提供多维度的认知协作体验。项目基于 MIT License 开源，欢迎各界贡献者参与。
             </p>
             <div className="mt-4 flex items-center gap-6 text-sm text-text-muted">
@@ -67,7 +67,7 @@ export default function ContactPage() {
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <Hexagon className="w-5 h-5 text-prism-blue" strokeWidth={1.5} />
-            <span className="font-display font-semibold text-text-secondary">炼心阁</span>
+            <span className="font-display font-semibold text-text-secondary">Prismatic</span>
           </div>
           <div className="text-sm text-text-muted">
             MIT License · {new Date().getFullYear()}

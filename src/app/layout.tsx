@@ -3,13 +3,13 @@ import './globals.css';
 import { Providers } from '@/components/providers';
 
 export const metadata: Metadata = {
-  title: '炼心阁 · 认知蒸馏会客厅',
-  description: '让古今中外的智者同堂，为你的问题各抒己见。芒格、马斯克、乔布斯、费曼……选择你的智囊团，开启多维度思考之旅。',
+  title: 'Prismatic · 折射之光',
+  description: '汇聚人类最卓越思维的多智能体协作平台，让乔布斯、马斯克、芒格、费曼同时为你思考。',
   keywords: ['AI', '多智能体', '认知蒸馏', '心智模型', '思维伙伴', '协作'],
-  authors: [{ name: '炼心阁' }],
+  authors: [{ name: 'Prismatic' }],
   openGraph: {
-    title: '炼心阁 · 认知蒸馏会客厅',
-    description: '让古今中外的智者同堂，为你的问题各抒己见',
+    title: 'Prismatic · 折射之光',
+    description: '汇聚人类最卓越思维的多智能体协作平台',
     type: 'website',
   },
 };

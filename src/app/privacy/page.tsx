@@ -59,7 +59,7 @@ export default function PrivacyPage() {
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <Hexagon className="w-5 h-5 text-prism-blue" strokeWidth={1.5} />
-            <span className="font-display font-semibold text-text-secondary">炼心阁</span>
+            <span className="font-display font-semibold text-text-secondary">Prismatic</span>
           </div>
           <div className="text-sm text-text-muted">
             MIT License · {new Date().getFullYear()}
