@@ -102,6 +102,8 @@ export class PrismaticAgent {
   ): Promise<AgentResult> {
     const context = this.buildSoloContext(persona, userMessage, conversationHistory);
 
+    console.log('[PrismaticAgent] generateSolo, persona:', persona.nameZh, '| context msgs:', context.length);
+
     const response = await this.llm.chat({
       model: getModelForProvider(),
       messages: context,

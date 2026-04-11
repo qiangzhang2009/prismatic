@@ -221,6 +221,8 @@ export class DeepSeekProvider implements LLMProvider {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 30000);
 
+    console.log('[DeepSeekProvider] chat() model:', options.model ?? 'deepseek-chat', 'msgs:', options.messages.length, 'key present:', !!this.apiKey);
+
     try {
       const response = await fetch(`${this.baseURL}/chat/completions`, {
         method: 'POST',
@@ -237,14 +239,17 @@ export class DeepSeekProvider implements LLMProvider {
         }),
         signal: controller.signal,
       });
+      console.log('[DeepSeekProvider] Response status:', response.status);
       clearTimeout(timeout);
 
       if (!response.ok) {
         const error = await response.text();
+        console.error('[DeepSeekProvider] API error:', response.status, error);
         throw new Error(`DeepSeek API error: ${response.status} - ${error}`);
       }
 
       const data = await response.json();
+      console.log('[DeepSeekProvider] Success, content length:', data.choices?.[0]?.message?.content?.length);
 
       return {
         content: data.choices[0]?.message?.content ?? '',

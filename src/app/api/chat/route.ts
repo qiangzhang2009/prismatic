@@ -21,6 +21,8 @@ function getLLMType(): 'deepseek' | 'openai' | 'anthropic' {
 // Use Node.js runtime (default) — compatible with Vercel environment variables
 
 export async function POST(request: NextRequest) {
+  console.log('[Chat API] Request received, mode:', request.body ? 'parsed' : 'pending');
+
   try {
     const body = await request.json();
     const { mode, participantIds, message, conversationId } = body as {
@@ -43,8 +45,12 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'No valid personas found' }, { status: 400 });
     }
 
+    console.log('[Chat API] Mode:', mode, '| Personas:', personas.map(p => p.nameZh).join(', '));
+
     // Initialize LLM provider and agent
-    const llm = createLLMProvider(getLLMType());
+    const llmType = getLLMType();
+    console.log('[Chat API] LLM type:', llmType);
+    const llm = createLLMProvider(llmType);
     const agent = new PrismaticAgent(llm);
 
     const convId = conversationId ?? nanoid();
@@ -53,7 +59,9 @@ export async function POST(request: NextRequest) {
 
     switch (mode) {
       case 'solo':
+        console.log('[Chat API] Calling generateSolo...');
         result = await agent.generateSolo(personas[0], message, []);
+        console.log('[Chat API] generateSolo complete, response length:', result.response?.length);
         return NextResponse.json({
           conversationId: convId,
           messages: [
@@ -116,7 +124,9 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: `Unknown mode: ${mode}` }, { status: 400 });
     }
   } catch (error) {
-    console.error('Chat API error:', error);
+    console.error('[Chat API] Error:', error);
+    console.error('[Chat API] Error name:', error instanceof Error ? error.name : 'unknown');
+    console.error('[Chat API] Error message:', error instanceof Error ? error.message : String(error));
     return NextResponse.json(
       { error: 'Internal server error', details: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }
