@@ -6,6 +6,25 @@
 import { OpenAIProvider, AnthropicProvider, type LLMProvider } from './llm';
 import type { Persona, AgentMessage, Mode, ConsensusStatement } from './types';
 
+// Model mapping per provider
+const MODEL_MAP: Record<string, string> = {
+  'openai': 'gpt-4o',
+  'anthropic': 'claude-sonnet-4-20250514',
+  'deepseek': 'deepseek-chat',
+};
+
+function getModelForProvider(): string {
+  const provider = process.env.LLM_PROVIDER;
+  return MODEL_MAP[provider ?? 'deepseek'] ?? 'deepseek-chat';
+}
+
+function getLLMType(): 'deepseek' | 'openai' | 'anthropic' {
+  const provider = process.env.LLM_PROVIDER;
+  if (provider === 'openai') return 'openai';
+  if (provider === 'anthropic') return 'anthropic';
+  return 'deepseek';
+}
+
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 interface AgentContext {
@@ -84,7 +103,7 @@ export class PrismaticAgent {
     const context = this.buildSoloContext(persona, userMessage, conversationHistory);
 
     const response = await this.llm.chat({
-      model: 'gpt-4o',
+      model: getModelForProvider(),
       messages: context,
       temperature: this.temperatureMap[persona.id] ?? 0.7,
       maxTokens: 1200,
@@ -143,7 +162,7 @@ export class PrismaticAgent {
     });
 
     const response = await this.llm.chat({
-      model: 'gpt-4o',
+      model: getModelForProvider(),
       messages: context,
       temperature: this.temperatureMap[persona.id] ?? 0.7,
       maxTokens: 800,
@@ -342,7 +361,7 @@ Be direct, use your characteristic voice, state your core position clearly.`;
     messages.push({ role: 'user', content: prompt });
 
     const response = await this.llm.chat({
-      model: 'gpt-4o',
+      model: getModelForProvider(),
       messages,
       temperature: this.temperatureMap[persona.id] ?? 0.7,
       maxTokens: 400,
@@ -395,7 +414,7 @@ You are cross-examining other perspectives. Challenge them intellectually, but f
     messages.push({ role: 'user', content: prompt });
 
     const response = await this.llm.chat({
-      model: 'gpt-4o',
+      model: getModelForProvider(),
       messages,
       temperature: this.temperatureMap[speaker.id] ?? 0.7,
       maxTokens: 400,
@@ -439,7 +458,7 @@ Debate transcript:
 ${turnSummary}`;
 
     const response = await this.llm.chat({
-      model: 'gpt-4o',
+      model: getModelForProvider(),
       messages: [
         { role: 'system', content: 'You are a debate synthesizer. Extract consensus, divergences, and provide a unified synthesis.' },
         { role: 'user', content: consensusPrompt },
@@ -470,7 +489,7 @@ ${turnSummary}`;
       .join('; ');
 
     const response = await this.llm.chat({
-      model: 'gpt-4o',
+      model: getModelForProvider(),
       messages: [
         {
           role: 'system',
@@ -505,7 +524,7 @@ ${turnSummary}`;
 Provide a concise summary highlighting the key insights and conclusions.`;
 
     const response = await this.llm.chat({
-      model: 'gpt-4o',
+      model: getModelForProvider(),
       messages: [
         { role: 'system', content: 'You are summarizing a debate. Be concise and insightful.' },
         { role: 'user', content: summaryPrompt },
@@ -528,7 +547,7 @@ Provide a concise summary highlighting the key insights and conclusions.`;
       .join('\n');
 
     const response = await this.llm.chat({
-      model: 'gpt-4o',
+      model: getModelForProvider(),
       messages: [
         {
           role: 'system',
@@ -580,7 +599,7 @@ Complete this task using your unique perspective and expertise.`;
     ];
 
     const response = await this.llm.chat({
-      model: 'gpt-4o',
+      model: getModelForProvider(),
       messages,
       temperature: this.temperatureMap[persona.id] ?? 0.7,
       maxTokens: 600,
@@ -826,9 +845,9 @@ Provide:
 Keep it concise (200 words max).`;
 
     const { createLLMProvider } = await import('./llm');
-    const llm = createLLMProvider('openai');
+    const llm = createLLMProvider(getLLMType());
     const response = await llm.chat({
-      model: 'gpt-4o',
+      model: getModelForProvider(),
       messages: [
         { role: 'system', content: 'You are synthesizing multiple expert perspectives into a coherent analysis.' },
         { role: 'user', content: synthesisPrompt },
