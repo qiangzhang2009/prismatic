@@ -54,11 +54,11 @@ export default function AppPage() {
           <Link href="/personas" className="text-text-secondary hover:text-text-primary transition-colors">
             人物库
           </Link>
+          <Link href="/methodology" className="text-text-secondary hover:text-text-primary transition-colors">
+            方法论
+          </Link>
           <Link href="/graph" className="text-text-secondary hover:text-text-primary transition-colors">
             图谱
-          </Link>
-          <Link href="/personas" className="text-text-secondary hover:text-text-primary transition-colors">
-            文档
           </Link>
         </div>
       </header>

@@ -47,6 +47,9 @@ export default function HomePage() {
             <Link href="/personas" className="text-text-secondary hover:text-text-primary transition-colors text-sm">
               人物档案馆
             </Link>
+            <Link href="/methodology" className="text-text-secondary hover:text-text-primary transition-colors text-sm">
+              蒸馏方法论
+            </Link>
             <Link href="/graph" className="text-text-secondary hover:text-text-primary transition-colors text-sm">
               知识图谱
             </Link>
