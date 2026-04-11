@@ -489,7 +489,7 @@ export default function MethodologyPage() {
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <Hexagon className="w-5 h-5 text-prism-blue" strokeWidth={1.5} />
-            <span className="font-display font-semibold text-text-secondary">Prismatic</span>
+            <span className="font-display font-semibold text-text-secondary">炼心阁</span>
           </div>
           <div className="text-sm text-text-muted">
             蒸馏方法论 · 版本 {new Date().toISOString().slice(0, 10)}

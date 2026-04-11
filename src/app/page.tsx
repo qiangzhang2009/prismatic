@@ -64,7 +64,7 @@ export default function HomePage() {
               在线体验
             </Link>
             <a
-              href="https://github.com"
+              href="https://github.com/qiangzhang2009/prismatic"
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-2 text-sm text-text-secondary hover:text-text-primary transition-colors"
@@ -170,7 +170,7 @@ export default function HomePage() {
             transition={{ duration: 0.6, delay: 0.4 }}
           >
             {[
-              { value: '15', label: '蒸馏人物' },
+              { value: '33', label: '蒸馏人物' },
               { value: '4', label: '协作模式' },
               { value: '100+', label: '心智模型' },
               { value: '∞', label: '视角组合' },
@@ -226,7 +226,7 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-display font-bold mb-3">人物档案馆</h2>
-            <p className="text-text-secondary">15位来自不同领域的卓越思考者，等待与你对话</p>
+            <p className="text-text-secondary">33位来自不同领域的卓越思考者，等待与你对话</p>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
@@ -249,7 +249,7 @@ export default function HomePage() {
               href="/personas"
               className="inline-flex items-center gap-2 text-prism-blue hover:text-prism-purple transition-colors"
             >
-              查看全部15位人物
+              查看全部33位人物
               <ArrowRight className="w-4 h-4" />
             </Link>
           </div>
@@ -314,14 +314,14 @@ export default function HomePage() {
               <Star className="w-5 h-5 text-yellow-400" />
               <span className="text-2xl font-bold gradient-text">开源 · 可部署 · 可扩展</span>
             </div>
-            <h2 className="text-2xl font-display font-bold mb-3">成为 Prismatic 的贡献者</h2>
+            <h2 className="text-2xl font-display font-bold mb-3">成为 炼心阁 的贡献者</h2>
             <p className="text-text-secondary mb-6 max-w-xl mx-auto">
-              Prismatic 是一个开源项目。我们欢迎对以下方面的贡献：新人物蒸馏、工具脚本、UI改进、
-              文档完善、性能优化，以及将 Prismatic 部署到你自己的基础设施上。
+              炼心阁 是一个开源项目。我们欢迎对以下方面的贡献：新人物蒸馏、工具脚本、UI改进、
+              文档完善、性能优化，以及将 炼心阁 部署到你自己的基础设施上。
             </p>
             <div className="flex items-center justify-center gap-4">
               <a
-                href="https://github.com"
+                href="https://github.com/qiangzhang2009/prismatic"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="btn-primary inline-flex items-center gap-2"

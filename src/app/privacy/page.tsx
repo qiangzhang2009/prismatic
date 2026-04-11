@@ -46,7 +46,7 @@ export default function PrivacyPage() {
               <h2 className="text-xl font-semibold text-text-primary mb-3">联系我们</h2>
               <p>如有关于隐私政策的任何问题，请通过以下方式联系我们：</p>
               <ul className="list-disc pl-6 mt-2 space-y-1">
-                <li>GitHub Issues: <a href="https://github.com" className="text-prism-blue hover:underline">https://github.com</a></li>
+                <li>GitHub Issues: <a href="https://github.com/qiangzhang2009/prismatic" className="text-prism-blue hover:underline">https://github.com/qiangzhang2009/prismatic</a></li>
               </ul>
             </section>
 
@@ -59,7 +59,7 @@ export default function PrivacyPage() {
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <Hexagon className="w-5 h-5 text-prism-blue" strokeWidth={1.5} />
-            <span className="font-display font-semibold text-text-secondary">Prismatic</span>
+            <span className="font-display font-semibold text-text-secondary">炼心阁</span>
           </div>
           <div className="text-sm text-text-muted">
             MIT License · {new Date().getFullYear()}

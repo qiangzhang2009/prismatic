@@ -24,7 +24,7 @@ export default function TermsPage() {
           <div className="prose prose-invert space-y-6 text-text-secondary">
             <section>
               <h2 className="text-xl font-semibold text-text-primary mb-3">服务说明</h2>
-              <p>Prismatic 是一个AI多智能体协作平台，通过蒸馏人物（distilled personas）为您提供多角度思考和认知协作服务。平台汇聚多个人物视角的AI响应，帮助用户从不同维度分析问题。</p>
+              <p>炼心阁 是一个AI多智能体协作平台，通过蒸馏人物（distilled personas）为您提供多角度思考和认知协作服务。平台汇聚多个人物视角的AI响应，帮助用户从不同维度分析问题。</p>
             </section>
 
             <section>
@@ -40,12 +40,12 @@ export default function TermsPage() {
 
             <section>
               <h2 className="text-xl font-semibold text-text-primary mb-3">AI角色说明</h2>
-              <p>Prismatic 中的蒸馏人物（distilled personas）是通过AI技术模拟的思维伙伴，并非真实人物本人。我们尽力确保其响应的准确性和可靠性，但不保证AI响应完全忠实于真实人物的思想。AI响应仅供参考学习使用。</p>
+              <p>炼心阁 中的蒸馏人物（distilled personas）是通过AI技术模拟的思维伙伴，并非真实人物本人。我们尽力确保其响应的准确性和可靠性，但不保证AI响应完全忠实于真实人物的思想。AI响应仅供参考学习使用。</p>
             </section>
 
             <section>
               <h2 className="text-xl font-semibold text-text-primary mb-3">免责声明</h2>
-              <p>Prismatic 及其开发者不对以下情况承担责任：</p>
+              <p>炼心阁 及其开发者不对以下情况承担责任：</p>
               <ul className="list-disc pl-6 mt-2 space-y-1">
                 <li>AI响应造成的任何直接或间接损失</li>
                 <li>因服务中断造成的不便或数据丢失</li>
@@ -55,7 +55,7 @@ export default function TermsPage() {
 
             <section>
               <h2 className="text-xl font-semibold text-text-primary mb-3">开源许可</h2>
-              <p>Prismatic 基于 MIT License 开源。您可以自由使用、修改和分发本项目，但需保留原始版权声明。</p>
+              <p>炼心阁 基于 MIT License 开源。您可以自由使用、修改和分发本项目，但需保留原始版权声明。</p>
             </section>
 
             <section>
@@ -67,7 +67,7 @@ export default function TermsPage() {
               <h2 className="text-xl font-semibold text-text-primary mb-3">联系我们</h2>
               <p>如有关于使用条款的任何问题，请通过以下方式联系我们：</p>
               <ul className="list-disc pl-6 mt-2 space-y-1">
-                <li>GitHub Issues: <a href="https://github.com" className="text-prism-blue hover:underline">https://github.com</a></li>
+                <li>GitHub Issues: <a href="https://github.com/qiangzhang2009/prismatic" className="text-prism-blue hover:underline">https://github.com/qiangzhang2009/prismatic</a></li>
               </ul>
             </section>
 
@@ -80,7 +80,7 @@ export default function TermsPage() {
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <Hexagon className="w-5 h-5 text-prism-blue" strokeWidth={1.5} />
-            <span className="font-display font-semibold text-text-secondary">Prismatic</span>
+            <span className="font-display font-semibold text-text-secondary">炼心阁</span>
           </div>
           <div className="text-sm text-text-muted">
             MIT License · {new Date().getFullYear()}
