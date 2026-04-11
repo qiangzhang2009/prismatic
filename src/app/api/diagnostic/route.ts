@@ -15,8 +15,8 @@ export async function GET(request: NextRequest) {
   };
 
   // Test 1: DNS resolution
+  const start1 = Date.now();
   try {
-    const start1 = Date.now();
     await fetch('https://api.deepseek.com', { method: 'HEAD', signal: AbortSignal.timeout(5000) });
     results.tests.dns = { ok: true, time_ms: Date.now() - start1 };
   } catch (e: any) {
