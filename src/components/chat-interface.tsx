@@ -92,20 +92,26 @@ export function ChatInterface({ className, initialPersona, initialMode }: ChatIn
     const minParticipants = mode === 'solo' ? 1 : 2;
     const maxParticipants = mode === 'prism' ? 3 : mode === 'roundtable' ? 8 : 6;
 
-    if (selectedIds.length < minParticipants) {
-      const currentSet = new Set(selectedIds);
-      for (const p of PERSONA_LIST) {
-        if (!currentSet.has(p.id)) {
-          currentSet.add(p.id);
-          if (currentSet.size >= minParticipants) break;
-        }
-      }
-      setSelectedIds(Array.from(currentSet));
-    }
+    setSelectedIds((prev) => {
+      let next = [...prev];
 
-    if (selectedIds.length > maxParticipants) {
-      setSelectedIds(selectedIds.slice(0, maxParticipants));
-    }
+      if (next.length < minParticipants) {
+        const currentSet = new Set(next);
+        for (const p of PERSONA_LIST) {
+          if (!currentSet.has(p.id)) {
+            currentSet.add(p.id);
+            if (currentSet.size >= minParticipants) break;
+          }
+        }
+        next = Array.from(currentSet);
+      }
+
+      if (next.length > maxParticipants) {
+        next = next.slice(0, maxParticipants);
+      }
+
+      return next;
+    });
   }, [mode]);
 
   const setMode = useCallback((newMode: Mode) => {
