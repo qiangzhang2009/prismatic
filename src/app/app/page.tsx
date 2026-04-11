@@ -6,8 +6,10 @@
 
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import { Hexagon, Sparkles, ArrowLeft } from 'lucide-react';
 import { APP_NAME } from '@/lib/constants';
+import type { Mode } from '@/lib/types';
 
 // Dynamic import to avoid SSR issues
 const ChatInterface = dynamic(
@@ -26,7 +28,12 @@ function ChatLoadingSkeleton() {
   );
 }
 
-export default function AppPage() {
+function AppPageContent() {
+  const searchParams = useSearchParams();
+
+  const initialPersona = searchParams.get('persona') ?? undefined;
+  const initialMode = (searchParams.get('mode') as Mode) ?? undefined;
+
   return (
     <div className="h-screen flex flex-col bg-bg-base">
       {/* App Header */}
@@ -65,8 +72,16 @@ export default function AppPage() {
 
       {/* Chat area */}
       <div className="flex-1 overflow-hidden">
-        <ChatInterface className="h-full" />
+        <ChatInterface
+          className="h-full"
+          initialPersona={initialPersona}
+          initialMode={initialMode}
+        />
       </div>
     </div>
   );
+}
+
+export default function AppPage() {
+  return <AppPageContent />;
 }

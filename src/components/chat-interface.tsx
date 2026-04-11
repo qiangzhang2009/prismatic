@@ -1,22 +1,62 @@
 'use client';
 
 import { useState, useRef, useEffect, useCallback } from 'react';
+import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Send, Loader2, ChevronDown, Settings } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { PersonaCard } from '@/components/persona-card';
 import { ModeSelector } from '@/components/mode-selector';
-import { PERSONA_LIST, getPersonasByIds } from '@/lib/personas';
+import { PERSONA_LIST, getPersonasByIds, getPersona } from '@/lib/personas';
 import type { Mode, Persona, AgentMessage } from '@/lib/types';
 import { nanoid } from 'nanoid';
 
-interface ChatInterfaceProps {
-  className?: string;
+const STORAGE_KEY = 'prismatic-chat-state';
+
+function loadSavedState() {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) return JSON.parse(saved);
+  } catch {}
+  return null;
 }
 
-export function ChatInterface({ className }: ChatInterfaceProps) {
-  const [mode, setMode] = useState<Mode>('solo');
-  const [selectedIds, setSelectedIds] = useState<string[]>(['steve-jobs']);
+function saveState(state: { selectedIds: string[]; mode: Mode }) {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  } catch {}
+}
+
+interface ChatInterfaceProps {
+  className?: string;
+  initialPersona?: string;
+  initialMode?: Mode;
+}
+
+export function ChatInterface({ className, initialPersona, initialMode }: ChatInterfaceProps) {
+  const router = useRouter();
+  const pathname = usePathname();
+
+  const saved = loadSavedState();
+
+  // Priority: URL param > saved state > default (steve-jobs for backwards compat)
+  const getInitialPersonaId = () => {
+    if (initialPersona) return initialPersona;
+    if (saved?.selectedIds?.[0]) return saved.selectedIds[0];
+    return 'steve-jobs';
+  };
+
+  const getInitialMode = () => {
+    if (initialMode) return initialMode;
+    if (saved?.mode) return saved.mode;
+    return 'solo';
+  };
+
+  const [mode, setModeState] = useState<Mode>(getInitialMode);
+  const [selectedIds, setSelectedIds] = useState<string[]>(() => {
+    const id = getInitialPersonaId();
+    return saved?.selectedIds?.length > 1 ? saved.selectedIds : [id];
+  });
   const [messages, setMessages] = useState<AgentMessage[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -24,24 +64,35 @@ export function ChatInterface({ className }: ChatInterfaceProps) {
   const [showSettings, setShowSettings] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+  const initialized = useRef(false);
 
   const selectedPersonas = getPersonasByIds(selectedIds);
 
-  const scrollToBottom = useCallback(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, []);
-
+  // Sync state to localStorage & URL
   useEffect(() => {
-    scrollToBottom();
-  }, [messages, scrollToBottom]);
+    if (!initialized.current) {
+      initialized.current = true;
+      return;
+    }
+    saveState({ selectedIds, mode });
 
-  // Update selected personas when mode changes
+    // Sync to URL params (for shareability)
+    const params = new URLSearchParams();
+    if (selectedIds.length === 1) {
+      params.set('persona', selectedIds[0]);
+    } else {
+      params.set('personas', selectedIds.join(','));
+    }
+    params.set('mode', mode);
+    router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+  }, [selectedIds, mode, pathname, router]);
+
+  // Handle mode changes: adjust participant count if needed
   useEffect(() => {
-    const minParticipants = mode === 'solo' ? 1 : mode === 'prism' ? 2 : 2;
+    const minParticipants = mode === 'solo' ? 1 : 2;
     const maxParticipants = mode === 'prism' ? 3 : mode === 'roundtable' ? 8 : 6;
 
     if (selectedIds.length < minParticipants) {
-      // Add more personas
       const currentSet = new Set(selectedIds);
       for (const p of PERSONA_LIST) {
         if (!currentSet.has(p.id)) {
@@ -55,7 +106,19 @@ export function ChatInterface({ className }: ChatInterfaceProps) {
     if (selectedIds.length > maxParticipants) {
       setSelectedIds(selectedIds.slice(0, maxParticipants));
     }
-  }, [mode, selectedIds]);
+  }, [mode]);
+
+  const setMode = useCallback((newMode: Mode) => {
+    setModeState(newMode);
+  }, []);
+
+  const scrollToBottom = useCallback(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, []);
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages, scrollToBottom]);
 
   const handleSend = async () => {
     if (!input.trim() || isLoading) return;

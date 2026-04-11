@@ -8,6 +8,7 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import {
   Hexagon,
   Sparkles,
@@ -27,8 +28,14 @@ import { UserMenu } from '@/components/user-menu';
 import { cn } from '@/lib/utils';
 
 export default function HomePage() {
-  const [selectedMode, setSelectedMode] = useState('prism');
+  const router = useRouter();
+  const [selectedMode, setSelectedMode] = useState<'solo' | 'prism' | 'roundtable' | 'mission'>('prism');
   const [hoveredPersona, setHoveredPersona] = useState<string | null>(null);
+
+  const handleModeClick = (modeId: string) => {
+    setSelectedMode(modeId as any);
+    router.push(`/app?mode=${modeId}`);
+  };
 
   return (
     <div className="min-h-screen bg-bg-base">
@@ -53,7 +60,7 @@ export default function HomePage() {
             <Link href="/graph" className="text-text-secondary hover:text-text-primary transition-colors text-sm">
               知识图谱
             </Link>
-            <Link href="/personas" className="text-text-secondary hover:text-text-primary transition-colors text-sm">
+            <Link href="/app" className="text-text-secondary hover:text-text-primary transition-colors text-sm">
               在线体验
             </Link>
             <a
@@ -196,7 +203,7 @@ export default function HomePage() {
                     ? 'border-prism-blue/50 bg-bg-elevated prism-border'
                     : 'border-border-subtle bg-bg-surface hover:border-border-medium'
                 )}
-                onClick={() => setSelectedMode(mode.id)}
+                onClick={() => handleModeClick(mode.id)}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.4, delay: i * 0.1 }}
