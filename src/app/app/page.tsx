@@ -57,7 +57,7 @@ export default function AppPage() {
           <Link href="/graph" className="text-text-secondary hover:text-text-primary transition-colors">
             图谱
           </Link>
-          <Link href="/docs" className="text-text-secondary hover:text-text-primary transition-colors">
+          <Link href="/personas" className="text-text-secondary hover:text-text-primary transition-colors">
             文档
           </Link>
         </div>

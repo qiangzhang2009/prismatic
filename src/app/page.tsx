@@ -50,7 +50,7 @@ export default function HomePage() {
             <Link href="/graph" className="text-text-secondary hover:text-text-primary transition-colors text-sm">
               知识图谱
             </Link>
-            <Link href="/demo" className="text-text-secondary hover:text-text-primary transition-colors text-sm">
+            <Link href="/personas" className="text-text-secondary hover:text-text-primary transition-colors text-sm">
               在线体验
             </Link>
             <a
@@ -319,8 +319,8 @@ export default function HomePage() {
                 <GitFork className="w-4 h-4" />
                 在 GitHub 上星标
               </a>
-              <Link href="/docs" className="btn-ghost border border-border-subtle rounded-xl px-6 py-2.5">
-                阅读文档
+              <Link href="/personas" className="btn-ghost border border-border-subtle rounded-xl px-6 py-2.5">
+                浏览人物
               </Link>
             </div>
           </motion.div>
