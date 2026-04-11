@@ -1,9 +1,9 @@
 /**
- * Prismatic — NextAuth.js Authentication Configuration
- * Supports GitHub OAuth, Google OAuth, and Email/Credential authentication
+ * Prismatic — NextAuth.js v4 Authentication Configuration
+ * Supports GitHub OAuth, Google OAuth, and demo Credentials authentication
  */
 
-import NextAuth, { type DefaultSession } from 'next-auth';
+import type { NextAuthOptions, Session } from 'next-auth';
 import GithubProvider from 'next-auth/providers/github';
 import GoogleProvider from 'next-auth/providers/google';
 import CredentialsProvider from 'next-auth/providers/credentials';
@@ -12,7 +12,10 @@ declare module 'next-auth' {
   interface Session {
     user: {
       id: string;
-    } & DefaultSession['user'];
+      name?: string | null;
+      email?: string | null;
+      image?: string | null;
+    };
   }
 }
 
@@ -22,16 +25,19 @@ declare module 'next-auth/jwt' {
   }
 }
 
-const handler = NextAuth({
+export const authOptions: NextAuthOptions = {
   providers: [
+    // GitHub OAuth — configure AUTH_GITHUB_ID and AUTH_GITHUB_SECRET in env
     GithubProvider({
       clientId: process.env.AUTH_GITHUB_ID ?? '',
       clientSecret: process.env.AUTH_GITHUB_SECRET ?? '',
     }),
+    // Google OAuth — configure AUTH_GOOGLE_ID and AUTH_GOOGLE_SECRET in env
     GoogleProvider({
       clientId: process.env.AUTH_GOOGLE_ID ?? '',
       clientSecret: process.env.AUTH_GOOGLE_SECRET ?? '',
     }),
+    // Demo credentials — replace with real database auth in production
     CredentialsProvider({
       name: '邮箱登录',
       credentials: {
@@ -43,15 +49,9 @@ const handler = NextAuth({
           return null;
         }
 
-        // Demo implementation - replace with actual database lookup
-        // In production, verify against your user database with hashed passwords
+        // Demo users — replace with database lookup in production
         const demoUsers = [
-          {
-            id: 'demo-user-1',
-            email: 'demo@prismatic.app',
-            name: 'Demo User',
-            password: 'demo123',
-          },
+          { id: 'demo-user-1', email: 'demo@prismatic.app', name: 'Demo User', password: 'demo123' },
         ];
 
         const user = demoUsers.find(
@@ -59,21 +59,13 @@ const handler = NextAuth({
         );
 
         if (user) {
-          return {
-            id: user.id,
-            email: user.email,
-            name: user.name,
-          };
+          return { id: user.id, email: user.email, name: user.name };
         }
 
         return null;
       },
     }),
   ],
-
-  // Use Prisma adapter for database persistence (optional)
-  // Uncomment when using with a database
-  // adapter: PrismaAdapter(prisma) as Adapter,
 
   callbacks: {
     async jwt({ token, user }) {
@@ -84,15 +76,9 @@ const handler = NextAuth({
     },
     async session({ session, token }) {
       if (session.user) {
-        session.user.id = token.id;
+        session.user.id = token.id as string;
       }
       return session;
-    },
-    async redirect({ url, baseUrl }) {
-      if (url.startsWith(baseUrl)) {
-        return url;
-      }
-      return baseUrl + '/app';
     },
   },
 
@@ -106,11 +92,8 @@ const handler = NextAuth({
     maxAge: 30 * 24 * 60 * 60, // 30 days
   },
 
-  secret: process.env.AUTH_SECRET,
+  // Secret is required — Vercel env var AUTH_SECRET
+  secret: process.env.AUTH_SECRET ?? 'dev-secret-change-in-production-prismatic-2024',
 
   debug: process.env.NODE_ENV === 'development',
-});
-
-export const { handlers, auth, signIn, signOut } = handler;
-
-export const authOptions = handler;
+};

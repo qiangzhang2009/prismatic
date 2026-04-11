@@ -1,6 +1,6 @@
 /**
- * Prismatic — NextAuth API Route
- * Handles authentication requests at /api/auth/*
+ * Prismatic — NextAuth v4 API Route
+ * GET and POST handlers for NextAuth
  */
 
 import NextAuth from 'next-auth';
