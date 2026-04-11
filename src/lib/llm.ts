@@ -45,7 +45,9 @@ export class OpenAIProvider implements LLMProvider {
 
   async chat(options: LLMOptions): Promise<LLMResponse> {
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 30000);
+    // Vercel Hobby plan: function execution limit is 10s
+    // Use 7s timeout so the error is caught gracefully before Vercel kills the function
+    const timeout = setTimeout(() => controller.abort(), 7000);
 
     try {
       const response = await fetch(`${this.baseURL}/chat/completions`, {
@@ -86,7 +88,7 @@ export class OpenAIProvider implements LLMProvider {
     } catch (err) {
       clearTimeout(timeout);
       if ((err as Error).name === 'AbortError') {
-        throw new Error('OpenAI API request timed out after 30 seconds');
+        throw new Error('OpenAI API request timed out after 7 seconds (Vercel Hobby limit)');
       }
       throw err;
     }
@@ -151,7 +153,9 @@ export class AnthropicProvider implements LLMProvider {
 
   async chat(options: LLMOptions): Promise<LLMResponse> {
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 30000);
+    // Vercel Hobby plan: function execution limit is 10s
+    // Use 7s timeout so the error is caught gracefully before Vercel kills the function
+    const timeout = setTimeout(() => controller.abort(), 7000);
 
     try {
       // Convert messages to Anthropic format
@@ -199,7 +203,7 @@ export class AnthropicProvider implements LLMProvider {
     } catch (err) {
       clearTimeout(timeout);
       if ((err as Error).name === 'AbortError') {
-        throw new Error('Anthropic API request timed out after 30 seconds');
+        throw new Error('Anthropic API request timed out after 7 seconds (Vercel Hobby limit)');
       }
       throw err;
     }
@@ -219,7 +223,9 @@ export class DeepSeekProvider implements LLMProvider {
 
   async chat(options: LLMOptions): Promise<LLMResponse> {
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 30000);
+    // Vercel Hobby plan: function execution limit is 10s
+    // Use 7s timeout so the error is caught gracefully before Vercel kills the function
+    const timeout = setTimeout(() => controller.abort(), 7000);
 
     console.log('[DeepSeekProvider] chat() model:', options.model ?? 'deepseek-chat', 'msgs:', options.messages.length, 'key present:', !!this.apiKey);
 
@@ -265,7 +271,7 @@ export class DeepSeekProvider implements LLMProvider {
     } catch (err) {
       clearTimeout(timeout);
       if ((err as Error).name === 'AbortError') {
-        throw new Error('DeepSeek API request timed out after 30 seconds');
+        throw new Error('DeepSeek API request timed out after 7 seconds (Vercel Hobby limit)');
       }
       throw err;
     }
