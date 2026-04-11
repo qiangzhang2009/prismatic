@@ -13,17 +13,24 @@ export type Domain =
   | 'education'
   | 'negotiation'
   | 'science'
-  | 'risk';
+  | 'risk'
+  | 'ethics'
+  | 'psychology'
+  | 'spirituality';
 
 export type Mode = 'solo' | 'prism' | 'roundtable' | 'mission';
 
 // ─── Persona ──────────────────────────────────────────────────────────────────
 
 export interface Source {
-  type: 'primary' | 'secondary';
+  type: 'primary' | 'secondary' | 'book' | 'interview' | 'lecture' | 'weibo';
   title: string;
   url?: string;
   description?: string;
+  source?: string;
+  priority?: string;
+  count?: string;
+  sample?: string[];
 }
 
 export interface Evidence {
@@ -62,6 +69,8 @@ export interface ExpressionDNA {
   rhetoricalHabit: string;
   quotePatterns: string[];
   chineseAdaptation: string;
+  verbalMarkers?: string[];
+  speakingStyle?: string;
 }
 
 export interface Tension {
@@ -75,6 +84,7 @@ export interface Value {
   name: string;
   nameZh: string;
   priority: number;
+  description?: string;
 }
 
 export interface HonestBoundary {
@@ -128,6 +138,54 @@ export interface Persona {
   // System prompts
   systemPromptTemplate: string;
   identityPrompt: string;
+
+  // Extended fields (optional, used by specific personas)
+  lifePhilosophy?: {
+    core: string;
+    threeLevels?: {
+      person: string;
+      becoming: string;
+      ultimate: string;
+    };
+    threeValues?: {
+      immediate: string;
+      longterm: string;
+      ultimate: string;
+    };
+  };
+  threeLevelSystem?: {
+    overview: string;
+    fiveElements: { name: string; description: string }[];
+    threeLevels: { name: string; focus: string; topics: string[]; goal: string }[];
+  };
+  signatureQuotes?: {
+    onSuffering?: string[];
+    onMind?: string[];
+    onLiberation?: string[];
+    onPractice?: string[];
+    onBusiness?: string[];
+    onBuddhismMisconceptions?: string[];
+  };
+  qaStyle?: {
+    characteristics: string[];
+    typicalResponses?: {
+      opening: string[];
+      transition: string[];
+      closing: string[];
+    };
+  };
+  biographicalDetails?: {
+    born?: string;
+    family?: string;
+    earlyLife?: string;
+    ordination?: string;
+    education?: string;
+    earlyTraining?: { place: string; years: string; style: string; note: string }[];
+    threeMasters?: Record<string, string>;
+    careerMilestones?: { year: string; event: string }[];
+    currentBase?: string;
+    writing?: string;
+  };
 }
 
 // ─── Conversation ─────────────────────────────────────────────────────────────

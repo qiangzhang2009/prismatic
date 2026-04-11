@@ -1,14 +1,13 @@
 /**
- * Prismatic — NextAuth Middleware
- * Protects routes that require authentication
+ * Prismatic — Middleware
+ * Protects /app routes — requires valid session
  */
 
 import { withAuth } from 'next-auth/middleware';
 import { NextResponse } from 'next/server';
 
 export default withAuth(
-  function middleware(req) {
-    // Add any additional middleware logic here
+  function middleware() {
     return NextResponse.next();
   },
   {
@@ -19,9 +18,5 @@ export default withAuth(
 );
 
 export const config = {
-  matcher: [
-    '/app/:path*',
-    '/settings/:path*',
-    '/api/user/:path*',
-  ],
+  matcher: ['/app/:path*'],
 };

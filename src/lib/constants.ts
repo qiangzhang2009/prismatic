@@ -6,6 +6,18 @@ export const APP_NAME = 'Prismatic · 折射之光';
 export const APP_TAGLINE = '折射之光，让每一个卓越灵魂为你思考';
 export const APP_DESCRIPTION = '汇聚人类最卓越思维的多智能体协作平台';
 
+// ─── Demo / Experience Accounts ───────────────────────────────────────────────
+// Shared between auth.ts and sign-in page (no DB required)
+// DO NOT display prominently on the UI. Share privately with clients.
+
+export const DEMO_ACCOUNTS = [
+  { email: 'demo1@prismatic.app', password: 'Prismatic2024!', label: '演示账号 1' },
+  { email: 'demo2@prismatic.app', password: 'Prismatic2024!', label: '演示账号 2' },
+  { email: 'demo3@prismatic.app', password: 'Prismatic2024!', label: '演示账号 3' },
+  { email: 'demo4@prismatic.app', password: 'Prismatic2024!', label: '演示账号 4' },
+  { email: 'demo5@prismatic.app', password: 'Prismatic2024!', label: '演示账号 5' },
+] as const;
+
 // Supported languages
 export const LANGUAGES = {
   zh: '中文',
@@ -13,13 +25,15 @@ export const LANGUAGES = {
   auto: '自动',
 } as const;
 
-// Conversation modes
+// Conversation modes — each has a distinct user intent
 export const MODES = {
   solo: {
     id: 'solo',
     label: '单人对话',
     labelEn: 'Solo Chat',
-    description: '选择一个思维伙伴，深入探讨',
+    description: '选择一个思维伙伴，连续追问，挖掘深层思维',
+    when: '想深入学透一个思想家的思维方式时',
+    how: '问 → 答 → 追问 → 再答，像真正的师徒对话',
     minParticipants: 1,
     maxParticipants: 1,
     icon: '👤',
@@ -27,8 +41,10 @@ export const MODES = {
   prism: {
     id: 'prism',
     label: '折射视图',
-    labelEn: 'Prism View',
-    description: '2-3个视角同时分析，全面透视',
+    labelEn: 'Multi-Perspective',
+    description: '多视角全面分析，系统自动输出综合结论',
+    when: '想快速全面了解一个问题时',
+    how: '2-3人并行回答 → 系统综合共识与分歧 → 你获得完整认知地图',
     minParticipants: 2,
     maxParticipants: 3,
     icon: '🔺',
@@ -37,16 +53,20 @@ export const MODES = {
     id: 'roundtable',
     label: '圆桌辩论',
     labelEn: 'Round Table',
-    description: '4+人物实时辩论，收敛共识',
-    minParticipants: 4,
-    maxParticipants: 8,
+    description: '多个思想家真正来回碰撞，发现你没想到的盲点',
+    when: '想被挑战、找到思维漏洞时',
+    how: 'A说 → B反驳 → A回应 → C补充 → 观点碰撞收敛 → 盲点显现',
+    minParticipants: 3,
+    maxParticipants: 6,
     icon: '🏛️',
   },
   mission: {
     id: 'mission',
     label: '任务模式',
     labelEn: 'Mission Mode',
-    description: '多角色分工协作，完成复杂任务',
+    description: '多角色分工协作，产出完整可用的结构化成果',
+    when: '需要一个完整可用的产出物时',
+    how: '分解任务 → 各角色执行 → 整合输出完整作品（计划/大纲/方案）',
     minParticipants: 2,
     maxParticipants: 6,
     icon: '🎯',

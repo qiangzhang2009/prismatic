@@ -197,7 +197,7 @@ export default function HomePage() {
               <motion.button
                 key={mode.id}
                 className={cn(
-                  'relative rounded-2xl p-6 text-left transition-all duration-300',
+                  'relative rounded-2xl p-5 text-left transition-all duration-300',
                   'border',
                   selectedMode === mode.id
                     ? 'border-prism-blue/50 bg-bg-elevated prism-border'
@@ -211,8 +211,11 @@ export default function HomePage() {
               >
                 <div className="text-3xl mb-3">{mode.icon}</div>
                 <div className="font-medium mb-1">{mode.label}</div>
-                <div className="text-sm text-text-secondary">{mode.description}</div>
-                <div className="text-xs text-text-muted mt-3">
+                <div className="text-sm text-text-secondary mb-2">{mode.description}</div>
+                <div className="text-xs text-text-muted">
+                  何时用：{mode.when}
+                </div>
+                <div className="text-xs text-text-muted mt-1">
                   {mode.minParticipants}-{mode.maxParticipants}人
                 </div>
               </motion.button>

@@ -1,6 +1,6 @@
 /**
  * Prismatic — NextAuth v4 API Route
- * GET and POST handlers for NextAuth
+ * Supports: GitHub OAuth + Demo accounts
  */
 
 import NextAuth from 'next-auth';

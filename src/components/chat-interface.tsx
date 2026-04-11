@@ -150,22 +150,114 @@ export function ChatInterface({ className, initialPersona, initialMode }: ChatIn
           participantIds: selectedIds,
           message: input.trim(),
           conversationId: 'local',
+          // Pass history for solo mode (deep questioning continuity)
+          history: mode === 'solo' ? messages.slice(-8).map(m => ({
+            content: m.content,
+            response: m.role === 'agent' ? m.content : undefined,
+          })) : undefined,
         }),
       });
 
       if (!response.ok) throw new Error('API error');
-
       const data = await response.json();
 
-      // Add agent responses
+      // ── Roundtable: Multi-Agent Dialogue ──────────────────────────────────────
+      if (data.debate) {
+        for (const turn of data.debate.turns ?? []) {
+          setMessages((prev) => [
+            ...prev,
+            {
+              id: nanoid(),
+              personaId: turn.speakerId,
+              role: 'agent',
+              content: turn.content,
+              round: turn.round,
+              timestamp: new Date(turn.timestamp),
+            },
+          ]);
+        }
+        // Convergence: blind spots and key insights
+        if (data.debate.convergence?.content) {
+          setMessages((prev) => [
+            ...prev,
+            {
+              id: nanoid(),
+              personaId: 'system',
+              role: 'system',
+              content: `🔍 多元对话总结\n\n${data.debate.convergence.content}`,
+              timestamp: new Date(data.debate.convergence.timestamp),
+            },
+          ]);
+        }
+        return;
+      }
+
+      // ── Mission: Collaborative Output ──────────────────────────────────────────
+      if (data.mission) {
+        // Show task plan (who is doing what)
+        if (data.mission.taskPlan?.length) {
+          const planText = data.mission.taskPlan
+            .map((t: any) => `• **${t.aspect ?? t.assignedTo}**: ${t.description} (${t.status === 'done' ? '✓' : '○'})`)
+            .join('\n');
+          setMessages((prev) => [
+            ...prev,
+            {
+              id: nanoid(),
+              personaId: 'system',
+              role: 'system',
+              content: `📋 协作任务分解\n\n${planText}`,
+              timestamp: new Date(),
+            },
+          ]);
+        }
+        // Show individual contributions
+        if (data.mission.results?.length) {
+          for (const r of data.mission.results) {
+            setMessages((prev) => [
+              ...prev,
+              {
+                id: nanoid(),
+                personaId: r.personaId,
+                role: 'agent',
+                content: `**【${r.aspect ?? r.personaId}】**\n\n${r.result}`,
+                timestamp: new Date(),
+              },
+            ]);
+          }
+        }
+        // Show final integrated output
+        if (data.mission.output?.content) {
+          setMessages((prev) => [
+            ...prev,
+            {
+              id: nanoid(),
+              personaId: 'system',
+              role: 'system',
+              content: `✨ 协作产出\n\n${data.mission.output.content}`,
+              timestamp: new Date(data.mission.output.timestamp),
+            },
+          ]);
+        }
+        return;
+      }
+
+      // ── Prism: Multi-Perspective + Synthesis ──────────────────────────────────
       if (data.messages) {
         for (const msg of data.messages) {
           setMessages((prev) => [
             ...prev,
+            { ...msg, id: nanoid(), timestamp: new Date(msg.timestamp ?? Date.now()) },
+          ]);
+        }
+        if (data.synthesis?.content) {
+          setMessages((prev) => [
+            ...prev,
             {
-              ...msg,
               id: nanoid(),
-              timestamp: new Date(),
+              personaId: 'system',
+              role: 'system',
+              content: `🔬 折射综合\n\n${data.synthesis.content}`,
+              timestamp: new Date(data.synthesis.timestamp ?? Date.now()),
             },
           ]);
         }
