@@ -18,7 +18,7 @@ function getLLMType(): 'deepseek' | 'openai' | 'anthropic' {
   return 'deepseek'; // default to DeepSeek
 }
 
-export const runtime = 'edge';
+// Use Node.js runtime (default) — compatible with Vercel environment variables
 
 export async function POST(request: NextRequest) {
   try {
