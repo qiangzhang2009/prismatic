@@ -27,8 +27,11 @@ export async function PUT(req: NextRequest) {
   if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   try {
     const body = await req.json();
-    const { name } = body;
-    if (name !== undefined) await updateUserName(session.userId, name);
+    const { name, gender, province } = body;
+    await updateUserName(session.userId, name);
+    if (gender !== undefined || province !== undefined) {
+      await import('@/lib/user-management').then(m => m.updateUserProfile(session.userId, { name, gender, province }));
+    }
     const user = await getUserById(session.userId);
     return NextResponse.json({ user });
   } catch (error) {
