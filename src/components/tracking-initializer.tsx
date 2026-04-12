@@ -20,6 +20,8 @@ export function TrackingInitializer() {
           tenant: 'prismatic',
           debug: false,
           autoTrack: true,
+          // Send events to Prismatic's built-in API (stores directly in Neon DB)
+          apiUrl: '/api/tracking/internal',
         });
         // 手动触发一次 pageview（SDK autoTrack 在 load 事件时触发，
         // 但 Next.js 的 App Router 页面切换是 SPA 内部路由，load 事件不会重新触发）
