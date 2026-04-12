@@ -108,7 +108,6 @@ export default function SignInPage() {
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
                   required
-                  minLength={8}
                   className="w-full pl-10 pr-10 py-2.5 rounded-xl bg-bg-elevated border border-border-subtle text-text-primary placeholder:text-text-muted focus:outline-none focus:border-prism-blue focus:ring-1 focus:ring-prism-blue/30 transition-all"
                 />
                 <button

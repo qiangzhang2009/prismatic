@@ -9,7 +9,7 @@ import { z } from 'zod';
 
 const registerSchema = z.object({
   email: z.string().email('请输入有效的邮箱地址'),
-  password: z.string().min(8, '密码至少8位').max(100, '密码最多100位'),
+  password: z.string().min(1, '请输入密码').max(100, '密码最多100位'),
   name: z.string().min(1, '请输入昵称').max(50, '昵称最多50字').optional().default(''),
   gender: z.enum(['male', 'female']).optional(),
   province: z.string().max(50).optional(),

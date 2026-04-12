@@ -97,8 +97,6 @@ export default function SignUpPage() {
     if (!gender) { setError('请选择性别'); return; }
     if (!province) { setError('请选择所在省份'); return; }
     if (!email) { setError('请填写邮箱'); return; }
-    if (password.length < 8) { setError('密码至少8位'); return; }
-    if (password !== confirmPassword) { setError('两次密码不一致'); return; }
     if (!agreed) { setError('请先阅读并同意用户协议'); return; }
 
     sendCode();
