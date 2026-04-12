@@ -5,6 +5,7 @@ import { MODES } from '@/lib/constants';
 import type { Mode } from '@/lib/types';
 import { motion } from 'framer-motion';
 import { CheckCircle2 } from 'lucide-react';
+import { trackModeSwitch } from '@/lib/use-tracking';
 
 interface ModeSelectorProps {
   value: Mode;
@@ -22,6 +23,13 @@ export function ModeSelector({ value, onChange, participantCount = 1 }: ModeSele
 
   const recommended = getRecommendedModes();
 
+  const handleModeChange = (newMode: Mode) => {
+    if (newMode !== value) {
+      trackModeSwitch(value, newMode);
+    }
+    onChange(newMode);
+  };
+
   return (
     <div className="space-y-3">
       <div className="flex items-center gap-2 p-1 rounded-xl bg-bg-elevated border border-border-subtle">
@@ -36,7 +44,7 @@ export function ModeSelector({ value, onChange, participantCount = 1 }: ModeSele
                 'relative flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200',
                 isActive ? 'text-text-primary' : 'text-text-secondary hover:text-text-primary'
               )}
-              onClick={() => onChange(mode.id as Mode)}
+              onClick={() => handleModeChange(mode.id as Mode)}
               whileTap={{ scale: 0.97 }}
             >
               <span>{mode.icon}</span>

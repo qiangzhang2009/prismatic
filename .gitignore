@@ -52,3 +52,4 @@ prisma/migrations/
 
 # Cursor project config
 .specstory/
+.gstack/

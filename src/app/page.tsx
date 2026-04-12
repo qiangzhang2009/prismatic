@@ -1,39 +1,83 @@
-/**
- * Prismatic — Main Landing Page
- * The prism that refracts the best minds into action
- */
-
 'use client';
 
-import { useState } from 'react';
+/**
+ * Prismatic — Main Landing Page
+ * Refined: World-class data analyst perspective + visual optimization
+ * Tagline: "人可以是书，书也可以是人"
+ */
+
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import {
-  Hexagon,
-  Sparkles,
-  Users,
-  Network,
-  Zap,
-  ArrowRight,
-  Star,
-  GitFork,
-  Play,
+  Hexagon, Sparkles, ArrowRight, Play, GitFork,
+  Target, Brain, Layers, BarChart3, TrendingUp, Sparkle,
+  BookOpen, MessageSquare, GitMerge, Zap, Crown, LogIn, UserPlus, GitBranch,
 } from 'lucide-react';
 import { PERSONA_LIST } from '@/lib/personas';
-import { MODES, APP_TAGLINE, APP_NAME } from '@/lib/constants';
+import { MODES, APP_NAME } from '@/lib/constants';
 import { PersonaCard } from '@/components/persona-card';
 import { ModeSelector } from '@/components/mode-selector';
-import { UserMenu } from '@/components/user-menu';
+import { UserMenu, SignInButton } from '@/components/user-menu';
+import { Footer } from '@/components/footer';
 import { cn } from '@/lib/utils';
+
+// ─── Persona Domain Colors ────────────────────────────────────────────────────
+const DOMAIN_COLORS: Record<string, { from: string; to: string; label: string }> = {
+  philosophy: { from: '#4d96ff', to: '#6bcb77', label: '哲学' },
+  technology: { from: '#6bcb77', to: '#ffd93d', label: '科技' },
+  investment: { from: '#ffd93d', to: '#ff6b6b', label: '投资' },
+  entrepreneurship: { from: '#ff6b6b', to: '#c77dff', label: '创业' },
+  science: { from: '#c77dff', to: '#4d96ff', label: '科学' },
+  default: { from: '#4d96ff', to: '#8e44ad', label: '其他' },
+};
+
+function getDomainGradient(domains: string[]) {
+  const d = domains?.[0] || 'default';
+  return DOMAIN_COLORS[d] || DOMAIN_COLORS.default;
+}
+
+// ─── Hero Stats ────────────────────────────────────────────────────────────────
+const HERO_STATS = [
+  { value: '40+', label: '蒸馏人物', icon: BookOpen, color: '#4d96ff' },
+  { value: '4', label: '协作模式', icon: Layers, color: '#6bcb77' },
+  { value: '1.2GB+', label: '训练语料', icon: BarChart3, color: '#c77dff' },
+  { value: '∞', label: '视角组合', icon: TrendingUp, color: '#ff9f43' },
+];
+
+// ─── Data Visualization Bar ─────────────────────────────────────────────────────
+const CORPUS_DATA = [
+  { label: '古典哲学', value: 0.92, color: '#4d96ff' },
+  { label: '斯多葛学派', value: 0.95, color: '#8e44ad' },
+  { label: '东方智慧', value: 0.88, color: '#ff6b6b' },
+  { label: '科技思想', value: 0.72, color: '#6bcb77' },
+  { label: '投资哲学', value: 0.80, color: '#ffd93d' },
+  { label: '科学思维', value: 0.75, color: '#c77dff' },
+];
+
+// ─── Featured Personas ─────────────────────────────────────────────────────────
+const FEATURED_PERSONAS = PERSONA_LIST.slice(0, 6);
+
+// ─── Mode Cards ────────────────────────────────────────────────────────────────
+const MODE_ICONS: Record<string, React.ReactNode> = {
+  solo: <MessageSquare className="w-6 h-6" />,
+  prism: <Layers className="w-6 h-6" />,
+  roundtable: <GitMerge className="w-6 h-6" />,
+  mission: <Target className="w-6 h-6" />,
+};
 
 export default function HomePage() {
   const router = useRouter();
-  const [selectedMode, setSelectedMode] = useState<'solo' | 'prism' | 'roundtable' | 'mission'>('prism');
-  const [hoveredPersona, setHoveredPersona] = useState<string | null>(null);
+  const [selectedMode, setSelectedMode] = useState<string>('prism');
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    setVisible(true);
+  }, []);
 
   const handleModeClick = (modeId: string) => {
-    setSelectedMode(modeId as any);
+    setSelectedMode(modeId);
     router.push(`/app?mode=${modeId}`);
   };
 
@@ -42,36 +86,28 @@ export default function HomePage() {
       {/* ── Navigation ────────────────────────────────────────────────── */}
       <nav className="fixed top-0 left-0 right-0 z-50 glass border-b border-border-subtle">
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-3">
+          <Link href="/" className="flex items-center gap-3">
             <div className="relative">
               <Hexagon className="w-8 h-8 text-prism-blue" strokeWidth={1.5} />
-              <Sparkles className="w-3 h-3 text-prism-purple absolute -top-1 -right-1" />
+              <Sparkles className="w-3 h-3 text-prism-purple absolute -top-0.5 -right-0.5" />
             </div>
             <span className="font-display font-bold text-lg gradient-text">{APP_NAME}</span>
-          </div>
+          </Link>
 
-          <div className="flex items-center gap-6">
-            <Link href="/personas" className="text-text-secondary hover:text-text-primary transition-colors text-sm">
+          <div className="flex items-center gap-5">
+            <Link href="/personas" className="text-text-secondary hover:text-text-primary transition-colors text-sm hidden md:block">
               人物档案馆
             </Link>
-            <Link href="/methodology" className="text-text-secondary hover:text-text-primary transition-colors text-sm">
-              蒸馏方法论
+            <Link href="/graph" className="text-text-secondary hover:text-text-primary transition-colors text-sm hidden lg:flex items-center gap-1">
+              <GitBranch className="w-3.5 h-3.5" />
+              认知图谱
             </Link>
-            <Link href="/graph" className="text-text-secondary hover:text-text-primary transition-colors text-sm">
-              知识图谱
+            <Link href="/methodology" className="text-text-secondary hover:text-text-primary transition-colors text-sm hidden md:block">
+            蒸馏方法论
+          </Link>
+          <Link href="/app" className="text-sm bg-prism-gradient text-white px-4 py-1.5 rounded-lg hover:opacity-90 transition-opacity">
+              开始体验
             </Link>
-            <Link href="/app" className="text-text-secondary hover:text-text-primary transition-colors text-sm">
-              在线体验
-            </Link>
-            <a
-              href="https://github.com/qiangzhang2009/prismatic"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-2 text-sm text-text-secondary hover:text-text-primary transition-colors"
-            >
-              <GitFork className="w-4 h-4" />
-              <span className="hidden md:inline">GitHub</span>
-            </a>
             <div className="pl-2 border-l border-border-subtle">
               <UserMenu />
             </div>
@@ -79,284 +115,369 @@ export default function HomePage() {
         </div>
       </nav>
 
-      {/* ── Hero ──────────────────────────────────────────────────── */}
-      <section className="pt-32 pb-20 px-6">
-        <div className="max-w-5xl mx-auto text-center">
-          {/* Animated prism */}
-          <motion.div
-            className="relative w-24 h-24 mx-auto mb-10"
-            animate={{ rotate: 360 }}
-            transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
-          >
-            <div className="absolute inset-0 rounded-2xl bg-prism-gradient opacity-20 blur-xl" />
-            <div className="absolute inset-2 rounded-xl bg-bg-surface flex items-center justify-center">
-              <Hexagon className="w-12 h-12 text-prism-blue" strokeWidth={1} />
-            </div>
-            {/* Orbit particles */}
-            {[0, 60, 120, 180, 240, 300].map((angle, i) => (
-              <motion.div
-                key={angle}
-                className="absolute w-2 h-2 rounded-full"
-                style={{
-                  background: ['#ff6b6b', '#ffd93d', '#6bcb77', '#4d96ff', '#c77dff', '#ff9f43'][i],
-                  top: '50%',
-                  left: '50%',
-                  transformOrigin: '0 40px',
-                  transform: `rotate(${angle}deg) translateX(40px)`,
-                }}
-                animate={{ scale: [1, 1.5, 1] }}
-                transition={{ duration: 2, delay: i * 0.3, repeat: Infinity }}
-              />
-            ))}
-          </motion.div>
+      {/* ── Hero Section ────────────────────────────────────────────────── */}
+      <section className="pt-36 pb-20 px-6 relative overflow-hidden">
+        {/* Background gradient orbs */}
+        <div className="absolute top-20 left-1/4 w-96 h-96 rounded-full bg-prism-blue/5 blur-3xl" />
+        <div className="absolute top-40 right-1/4 w-80 h-80 rounded-full bg-prism-purple/5 blur-3xl" />
 
-          {/* Headline */}
-          <motion.h1
-            className="text-5xl md:text-6xl font-display font-bold mb-6 leading-tight"
-            initial={{ opacity: 0, y: 20 }}
+        <div className="max-w-5xl mx-auto relative">
+          {/* Tagline */}
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
+            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-border-subtle bg-bg-elevated mb-8"
           >
-            <span className="gradient-text">{APP_NAME}</span>
-          </motion.h1>
+            <Sparkle className="w-3.5 h-3.5 text-prism-blue" />
+            <span className="text-xs text-text-secondary">「人可以是书，那么，书也可以是人」</span>
+          </motion.div>
 
-          <motion.p
-            className="text-xl md:text-2xl text-text-secondary mb-4 font-light"
+          {/* Main headline */}
+          <motion.h1
+            className="text-5xl md:text-6xl lg:text-7xl font-display font-bold mb-6 leading-none tracking-tight"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.1 }}
           >
-            {APP_TAGLINE}
-          </motion.p>
+            <span className="gradient-text">折射之光</span>
+          </motion.h1>
 
           <motion.p
-            className="text-base text-text-muted max-w-2xl mx-auto mb-10"
+            className="text-xl md:text-2xl text-text-secondary mb-3 font-light max-w-2xl"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
           >
-            不是单个人物的角色扮演——是多个蒸馏人物的实时协作辩论、联合分析与协同任务执行。
-            汇聚人类最卓越的认知操作系统，让决策质量产生质的飞跃。
+            汇聚人类最卓越思维的多智能体协作平台
           </motion.p>
 
-          {/* CTA Buttons */}
-          <motion.div
-            className="flex items-center justify-center gap-4"
+          <motion.p
+            className="text-base text-text-muted max-w-xl mb-10 leading-relaxed"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.3 }}
           >
+            每个人的一生都是一本书，每本书都是一个人的灵魂。
+            当我们阅读那些卓越人物的著作时，不仅是在获取知识，更是在与一个伟大的灵魂对话。
+            <br />Prismatic 让乔布斯、马斯克、芒格、费曼同时为你思考——不是引用他们说过的话，而是用他们的方式去思考你的问题。
+          </motion.p>
+
+          {/* CTA */}
+          <motion.div
+            className="flex flex-wrap items-center gap-3 mb-16"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.4 }}
+          >
             <Link
               href="/app"
-              className="btn-primary flex items-center gap-2"
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-prism-gradient text-white font-medium hover:opacity-90 transition-all shadow-lg shadow-prism-blue/20"
             >
               <Play className="w-4 h-4" />
               开始体验
             </Link>
             <Link
               href="/personas"
-              className="btn-ghost flex items-center gap-2 border border-border-subtle rounded-xl px-6 py-2.5"
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-xl border border-border-subtle text-text-primary font-medium hover:bg-bg-elevated transition-all"
             >
-              探索人物库
+              探索 40+ 蒸馏人物
               <ArrowRight className="w-4 h-4" />
             </Link>
           </motion.div>
 
-          {/* Stats */}
+          {/* Stats Row */}
           <motion.div
-            className="flex items-center justify-center gap-12 mt-16"
+            className="grid grid-cols-2 md:grid-cols-4 gap-4"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ duration: 0.6, delay: 0.4 }}
+            transition={{ duration: 0.6, delay: 0.5 }}
           >
-            {[
-              { value: '33', label: '蒸馏人物' },
-              { value: '4', label: '协作模式' },
-              { value: '100+', label: '心智模型' },
-              { value: '∞', label: '视角组合' },
-            ].map((stat) => (
-              <div key={stat.label} className="text-center">
-                <div className="text-3xl font-bold gradient-text">{stat.value}</div>
-                <div className="text-sm text-text-muted mt-1">{stat.label}</div>
-              </div>
+            {HERO_STATS.map((stat, i) => (
+              <motion.div
+                key={stat.label}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.5 + i * 0.08 }}
+                className="rounded-xl border border-border-subtle bg-bg-elevated p-4 text-center"
+              >
+                <stat.icon className="w-5 h-5 mx-auto mb-2" style={{ color: stat.color }} />
+                <div className="text-2xl font-bold gradient-text mb-0.5">{stat.value}</div>
+                <div className="text-xs text-text-muted">{stat.label}</div>
+              </motion.div>
             ))}
           </motion.div>
         </div>
       </section>
 
-      {/* ── Mode Showcase ───────────────────────────────────────────── */}
-      <section className="py-20 px-6 bg-bg-surface/50">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-display font-bold mb-3">选择你的协作模式</h2>
-            <p className="text-text-secondary">从单人深度对话到多智能体协作，找到最适合你的思维伙伴组合</p>
-          </div>
+      {/* ── Data Quality Visualization ────────────────────────────────────────── */}
+      <section className="py-16 px-6 bg-bg-surface/50">
+        <div className="max-w-5xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center mb-10"
+          >
+            <h2 className="text-2xl md:text-3xl font-display font-bold text-text-primary mb-3">
+              语料置信度分布
+            </h2>
+            <p className="text-text-muted text-sm max-w-lg mx-auto">
+              基于全网可获取的完整语料，从零开始系统梳理。每个领域的置信度代表数据的完整程度与质量
+            </p>
+          </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {Object.values(MODES).map((mode, i) => (
-              <motion.button
-                key={mode.id}
-                className={cn(
-                  'relative rounded-2xl p-5 text-left transition-all duration-300',
-                  'border',
-                  selectedMode === mode.id
-                    ? 'border-prism-blue/50 bg-bg-elevated prism-border'
-                    : 'border-border-subtle bg-bg-surface hover:border-border-medium'
-                )}
-                onClick={() => handleModeClick(mode.id)}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.4, delay: i * 0.1 }}
-                whileHover={{ y: -4 }}
+          {/* Horizontal bar chart */}
+          <motion.div
+            className="space-y-4 max-w-2xl mx-auto"
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.2 }}
+          >
+            {CORPUS_DATA.map((item, i) => (
+              <motion.div
+                key={item.label}
+                initial={{ opacity: 0, x: -20 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.1 * i }}
+                className="flex items-center gap-4"
               >
-                <div className="text-3xl mb-3">{mode.icon}</div>
-                <div className="font-medium mb-1">{mode.label}</div>
-                <div className="text-sm text-text-secondary mb-2">{mode.description}</div>
-                <div className="text-xs text-text-muted">
-                  何时用：{mode.when}
+                <div className="w-20 text-sm text-text-secondary text-right flex-shrink-0">{item.label}</div>
+                <div className="flex-1 h-6 bg-bg-elevated rounded-lg overflow-hidden relative">
+                  <motion.div
+                    className="h-full rounded-lg"
+                    style={{ backgroundColor: item.color }}
+                    initial={{ width: 0 }}
+                    whileInView={{ width: `${item.value * 100}%` }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.8, delay: 0.1 * i, ease: 'easeOut' }}
+                  />
+                  <div className="absolute inset-0 flex items-center justify-end pr-3">
+                    <span className="text-xs font-bold text-white drop-shadow">{Math.round(item.value * 100)}%</span>
+                  </div>
                 </div>
-                <div className="text-xs text-text-muted mt-1">
-                  {mode.minParticipants}-{mode.maxParticipants}人
+                <div className="w-16 text-xs text-text-muted flex-shrink-0">
+                  {item.value >= 0.9 ? '⭐⭐⭐⭐⭐' : item.value >= 0.75 ? '⭐⭐⭐⭐' : '⭐⭐⭐'}
                 </div>
-              </motion.button>
+              </motion.div>
             ))}
+          </motion.div>
+
+          <motion.p
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.6 }}
+            className="text-center text-xs text-text-muted mt-6"
+          >
+            数据来源：PerseusDL 古希腊语料库 · Guopop/chinese-philosophy · The-Digital-Stoic-Library · HuggingFace Lex Fridman 数据集
+          </motion.p>
+        </div>
+      </section>
+
+      {/* ── Mode Showcase ────────────────────────────────────────────────── */}
+      <section className="py-20 px-6">
+        <div className="max-w-6xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center mb-12"
+          >
+            <h2 className="text-2xl md:text-3xl font-display font-bold text-text-primary mb-3">
+              选择你的协作模式
+            </h2>
+            <p className="text-text-muted text-sm max-w-lg mx-auto">
+              从单人深度追问到多智能体实时辩论，找到最适合你的思维伙伴组合
+            </p>
+          </motion.div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+            {Object.values(MODES).map((mode, i) => {
+              const isSelected = selectedMode === mode.id;
+              return (
+                <motion.button
+                  key={mode.id}
+                  onClick={() => handleModeClick(mode.id)}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: i * 0.08 }}
+                  whileHover={{ y: -4, scale: 1.01 }}
+                  whileTap={{ scale: 0.99 }}
+                  className={cn(
+                    'relative rounded-2xl p-5 text-left transition-all duration-300 border',
+                    isSelected
+                      ? 'border-prism-blue/60 bg-gradient-to-b from-prism-blue/5 to-bg-elevated shadow-lg shadow-prism-blue/10'
+                      : 'border-border-subtle bg-bg-surface hover:border-border-medium hover:bg-bg-elevated'
+                  )}
+                >
+                  {isSelected && (
+                    <div className="absolute top-3 right-3 w-2 h-2 rounded-full bg-prism-blue" />
+                  )}
+                  <div className={cn('mb-4', isSelected ? 'text-prism-blue' : 'text-text-muted')}>
+                    {MODE_ICONS[mode.id]}
+                  </div>
+                  <div className="font-medium text-text-primary mb-1.5">{mode.label}</div>
+                  <div className="text-xs text-text-secondary mb-3 leading-relaxed">{mode.description}</div>
+                  <div className="text-xs text-text-muted">
+                    <span className="bg-bg-elevated px-1.5 py-0.5 rounded">
+                      {mode.minParticipants}-{mode.maxParticipants}人 · {mode.when.slice(0, 12)}...
+                    </span>
+                  </div>
+                </motion.button>
+              );
+            })}
           </div>
         </div>
       </section>
 
-      {/* ── Personas Grid ────────────────────────────────────────────── */}
-      <section className="py-20 px-6">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-display font-bold mb-3">人物档案馆</h2>
-            <p className="text-text-secondary">33位来自不同领域的卓越思考者，等待与你对话</p>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
-            {PERSONA_LIST.slice(0, 10).map((persona, i) => (
-              <motion.div
-                key={persona.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.4, delay: i * 0.05 }}
-                onHoverStart={() => setHoveredPersona(persona.id)}
-                onHoverEnd={() => setHoveredPersona(null)}
-              >
-                <PersonaCard persona={persona} compact />
-              </motion.div>
-            ))}
-          </div>
-
-          <div className="text-center mt-8">
+      {/* ── Featured Personas ──────────────────────────────────────────────── */}
+      <section className="py-20 px-6 bg-bg-surface/50">
+        <div className="max-w-6xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="flex items-end justify-between mb-10"
+          >
+            <div>
+              <h2 className="text-2xl md:text-3xl font-display font-bold text-text-primary mb-2">
+                蒸馏人物
+              </h2>
+              <p className="text-text-muted text-sm">
+                覆盖哲学、投资、科技、科学、东方智慧等多个领域
+              </p>
+            </div>
             <Link
               href="/personas"
-              className="inline-flex items-center gap-2 text-prism-blue hover:text-prism-purple transition-colors"
+              className="hidden md:flex items-center gap-1 text-sm text-prism-blue hover:underline"
             >
-              查看全部33位人物
-              <ArrowRight className="w-4 h-4" />
+              查看全部
+              <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
+          </motion.div>
+
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+            {FEATURED_PERSONAS.map((persona, i) => {
+              const gradient = getDomainGradient(persona.domain);
+              return (
+                <motion.div
+                  key={persona.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: i * 0.06 }}
+                  whileHover={{ y: -4 }}
+                >
+                  <Link href={`/personas/${persona.slug}`}>
+                    <div className="group rounded-xl border border-border-subtle bg-bg-elevated p-4 hover:border-border-medium transition-all">
+                      <div
+                        className="w-12 h-12 rounded-lg mb-3 flex items-center justify-center text-lg font-medium text-white"
+                        style={{ background: `linear-gradient(135deg, ${gradient.from}, ${gradient.to})` }}
+                      >
+                        {typeof persona.avatar === 'string' && persona.avatar.startsWith('http') ? (
+                          <img src={persona.avatar} alt={persona.name} className="w-full h-full object-cover rounded-lg" />
+                        ) : (
+                          persona.nameZh?.[0] || persona.name?.[0] || '?'
+                        )}
+                      </div>
+                      <p className="text-sm font-medium text-text-primary group-hover:text-prism-blue transition-colors truncate">
+                        {persona.nameZh || persona.name}
+                      </p>
+                      <p className="text-xs text-text-muted truncate">{persona.tagline || persona.taglineZh}</p>
+                    </div>
+                  </Link>
+                </motion.div>
+              );
+            })}
+          </div>
+
+          <div className="text-center mt-8 md:hidden">
+            <Link href="/personas" className="text-sm text-prism-blue hover:underline flex items-center justify-center gap-1">
+              查看全部人物
+              <ArrowRight className="w-3.5 h-3.5" />
             </Link>
           </div>
         </div>
       </section>
 
-      {/* ── Feature Highlights ──────────────────────────────────────── */}
-      <section className="py-20 px-6 bg-bg-surface/50">
-        <div className="max-w-6xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+      {/* ── About Section ─────────────────────────────────────────────────── */}
+      <section id="about" className="py-20 px-6">
+        <div className="max-w-4xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center mb-12"
+          >
+            <h2 className="text-2xl md:text-3xl font-display font-bold text-text-primary mb-4">
+              关于 Prismatic
+            </h2>
+            <p className="text-text-secondary leading-relaxed max-w-2xl mx-auto">
+              Prismatic 基于「认知蒸馏」技术，通过深度访谈、文献研究、著作分析等方式，
+              对人类历史上最卓越的思考者进行系统性分析，重构他们的思维模型、决策框架和表达 DNA。
+            </p>
+          </motion.div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {[
-              {
-                icon: <Users className="w-8 h-8" />,
-                title: '折射视图',
-                description: '2-3个视角同时分析，全面透视问题本质。每个人物卡片实时展示置信度和引用来源。',
-                color: '#4d96ff',
-              },
-              {
-                icon: <Network className="w-8 h-8" />,
-                title: '圆桌辩论',
-                description: '4+人物实时辩论，系统识别分歧点，引导辩论收敛，输出多方共识陈述和行动建议。',
-                color: '#c77dff',
-              },
-              {
-                icon: <Zap className="w-8 h-8" />,
-                title: '任务模式',
-                description: '多角色分工协作，系统自动分解复杂任务，分别执行后综合输出完整解决方案。',
-                color: '#ffd93d',
-              },
-            ].map((feature, i) => (
+              { icon: Brain, title: '深度蒸馏', desc: '从原始文本中提取思维模式和决策框架，而非简单的角色扮演' },
+              { icon: Layers, title: '多视角协作', desc: '不同领域的蒸馏人物可以同时参与讨论，碰撞出单一视角无法产生的洞见' },
+              { icon: Target, title: '解决实际问题', desc: '不只是提供观点，而是将智慧应用于你的具体问题' },
+            ].map((item, i) => (
               <motion.div
-                key={feature.title}
-                className="rounded-2xl p-8 border border-border-subtle bg-bg-surface"
+                key={item.title}
                 initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.4, delay: i * 0.1 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.1 }}
+                className="text-center p-6 rounded-2xl border border-border-subtle bg-bg-elevated"
               >
-                <div
-                  className="w-14 h-14 rounded-xl flex items-center justify-center mb-5"
-                  style={{ backgroundColor: `${feature.color}20`, color: feature.color }}
-                >
-                  {feature.icon}
+                <div className="w-12 h-12 rounded-xl bg-prism-blue/10 flex items-center justify-center mx-auto mb-4">
+                  <item.icon className="w-6 h-6 text-prism-blue" />
                 </div>
-                <h3 className="text-xl font-semibold mb-3">{feature.title}</h3>
-                <p className="text-text-secondary text-sm leading-relaxed">{feature.description}</p>
+                <h3 className="font-medium text-text-primary mb-2">{item.title}</h3>
+                <p className="text-sm text-text-muted leading-relaxed">{item.desc}</p>
               </motion.div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ── Open Source Banner ─────────────────────────────────────── */}
-      <section className="py-16 px-6">
-        <div className="max-w-4xl mx-auto text-center">
+      {/* ── CTA ──────────────────────────────────────────────────────────── */}
+      <section className="py-20 px-6">
+        <div className="max-w-3xl mx-auto text-center">
           <motion.div
-            className="rounded-2xl p-10 border border-border-subtle bg-gradient-to-br from-bg-surface to-bg-elevated"
-            initial={{ opacity: 0, scale: 0.98 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.5 }}
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="rounded-2xl border border-border-subtle bg-gradient-to-b from-prism-blue/5 to-bg-elevated p-10 md:p-16"
           >
-            <div className="flex items-center justify-center gap-2 mb-4">
-              <Star className="w-5 h-5 text-yellow-400" />
-              <span className="text-2xl font-bold gradient-text">开源 · 可部署 · 可扩展</span>
-            </div>
-            <h2 className="text-2xl font-display font-bold mb-3">成为 Prismatic 的贡献者</h2>
-            <p className="text-text-secondary mb-6 max-w-xl mx-auto">
-              Prismatic 是一个开源项目。我们欢迎对以下方面的贡献：新人物蒸馏、工具脚本、UI改进、
-              文档完善、性能优化，以及将 Prismatic 部署到你自己的基础设施上。
+            <Crown className="w-10 h-10 text-amber-400 mx-auto mb-6" />
+            <h2 className="text-2xl md:text-3xl font-display font-bold text-text-primary mb-4">
+              开始你的思维进化之旅
+            </h2>
+            <p className="text-text-secondary mb-8 max-w-md mx-auto">
+              无论是深入探索一个思想家的智慧，还是让多个领域的顶尖头脑同时为你思考，Prismatic 都是你的认知升级工具
             </p>
-            <div className="flex items-center justify-center gap-4">
-              <a
-                href="https://github.com/qiangzhang2009/prismatic"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="btn-primary inline-flex items-center gap-2"
+            <div className="flex flex-wrap items-center justify-center gap-3">
+              <Link
+                href="/app"
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-prism-gradient text-white font-medium hover:opacity-90 transition-all shadow-lg shadow-prism-blue/20"
               >
-                <GitFork className="w-4 h-4" />
-                在 GitHub 上星标
-              </a>
-              <Link href="/personas" className="btn-ghost border border-border-subtle rounded-xl px-6 py-2.5">
-                浏览人物
+                <Zap className="w-4 h-4" />
+                免费开始体验
               </Link>
             </div>
           </motion.div>
         </div>
       </section>
 
-      {/* ── Footer ────────────────────────────────────────────────── */}
-      <footer className="py-12 px-6 border-t border-border-subtle">
-        <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <Hexagon className="w-6 h-6 text-prism-blue" strokeWidth={1.5} />
-            <span className="font-display font-semibold text-text-secondary">{APP_NAME}</span>
-          </div>
-          <div className="text-sm text-text-muted">
-            MIT License · Built with Next.js & AI · {new Date().getFullYear()}
-          </div>
-          <div className="flex items-center gap-4 text-sm text-text-muted">
-            <Link href="/privacy" className="hover:text-text-secondary">隐私政策</Link>
-            <Link href="/terms" className="hover:text-text-secondary">使用条款</Link>
-            <Link href="/contact" className="hover:text-text-secondary">联系我们</Link>
-          </div>
-        </div>
-      </footer>
+      {/* ── Footer ───────────────────────────────────────────────────────── */}
+      <Footer />
     </div>
   );
 }

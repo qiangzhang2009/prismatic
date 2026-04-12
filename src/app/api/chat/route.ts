@@ -13,6 +13,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { nanoid } from 'nanoid';
 import { createLLMProvider } from '@/lib/llm';
 import { getPersonasByIds } from '@/lib/personas';
+import { getSession } from '@/lib/user-management';
 import type { Mode } from '@/lib/types';
 
 export const runtime = 'nodejs';
@@ -144,14 +145,21 @@ async function handleRoundtable(personas: any[], topic: string) {
   // Limit to 5 personas max for a clean dialogue
   const speakers = personas.slice(0, 5);
 
+  // Build a mapping of persona IDs to names for reliable speaker matching
+  const speakerMap = Object.fromEntries(speakers.map((p) => [p.nameZh, p.id]));
+
   // Minimal persona descriptions to keep input token count low
   const speakerList = speakers.map((p, i) =>
     `${i + 1}. ${p.nameZh}（${p.strengths.slice(0, 2).join('、')}）`
   ).join('\n');
 
-  const systemPrompt = `你是圆桌辩论主持人。多个思想家就话题展开对话，每人说一句（60字以内），2轮，共${speakers.length * 2}条发言，最后50字总结：盲点+碰撞点。
+  const systemPrompt = `你是圆桌辩论主持人。多个思想家就话题展开对话，每人说一句（60字以内），2轮，共${speakers.length * 2}条发言，最后一段50字以内的总结。
 
-格式：{turns:[{speakerName,content}],convergence:""}`;
+格式（markdown，每行一条发言）：
+**人物名**: 发言内容
+
+最后一行：
+【总结】: 盲点+碰撞点（50字以内）`;
 
   const userPrompt = `话题：${topic}
 思想家：${speakerList}
@@ -160,40 +168,84 @@ async function handleRoundtable(personas: any[], topic: string) {
 
   const result = await llmChat(llm,
     [{ role: 'system', content: systemPrompt }, { role: 'user', content: userPrompt }],
-    { temperature: 0.7, maxTokens: 400 }
+    { temperature: 0.7, maxTokens: 500 }
   );
 
-  // Parse the JSON response
-  let turns: any[] = [];
-  let convergence = result.content;
+  const rawContent = result.content.trim();
 
-  // Try to extract JSON from the response
-  const jsonMatch = result.content.match(/\{[\s\S]*\}/);
-  if (jsonMatch) {
-    try {
-      const parsed = JSON.parse(jsonMatch[0]);
-      turns = (parsed.turns ?? []).map((t: any, i: number) => ({
-        round: t.round ?? Math.floor(i / speakers.length),
-        speakerId: t.speakerId ?? speakers[i % speakers.length]?.id ?? 'unknown',
-        speakerName: t.speakerName ?? '',
-        content: t.content ?? '',
-        timestamp: new Date().toISOString(),
-      }));
-      convergence = parsed.convergence ?? convergence;
-    } catch {
-      // If JSON parsing fails, treat entire content as convergence
-      convergence = result.content;
+  // Strategy 1: Try markdown speaker pattern (primary)
+  const speakerRegex = /^\*\*(.+?)\*\*[:：]\s*(.+)$/gm;
+  const markdownMatches: { speakerName: string; content: string }[] = [];
+  let match;
+  while ((match = speakerRegex.exec(rawContent)) !== null) {
+    markdownMatches.push({ speakerName: match[1].trim(), content: match[2].trim() });
+  }
+
+  let turns: any[] = [];
+  let convergence = '';
+
+  if (markdownMatches.length > 0) {
+    // Find the summary line
+    const summaryMatch = markdownMatches.find(m =>
+      m.speakerName.includes('总结') || m.speakerName.includes('盲点')
+    );
+    const dialogueMatches = summaryMatch
+      ? markdownMatches.filter(m => m !== summaryMatch)
+      : markdownMatches;
+
+    turns = dialogueMatches.map((m, i) => ({
+      round: Math.floor(i / speakers.length),
+      speakerId: speakerMap[m.speakerName] ?? speakers[i % speakers.length]?.id ?? 'unknown',
+      speakerName: m.speakerName,
+      content: m.content,
+      timestamp: new Date().toISOString(),
+    }));
+
+    if (summaryMatch) {
+      convergence = summaryMatch.content;
+    } else if (dialogueMatches.length > 0) {
+      convergence = dialogueMatches[dialogueMatches.length - 1].content;
     }
   } else {
-    // Fallback: treat the whole thing as a convergence summary
-    convergence = result.content;
+    // Strategy 2: Try JSON (fallback)
+    const jsonMatch = rawContent.match(/\{[\s\S]*\}/);
+    if (jsonMatch) {
+      try {
+        const parsed = JSON.parse(jsonMatch[0]);
+        turns = (parsed.turns ?? []).map((t: any, i: number) => ({
+          round: t.round ?? Math.floor(i / speakers.length),
+          speakerId: t.speakerId ?? speakers[i % speakers.length]?.id ?? 'unknown',
+          speakerName: t.speakerName ?? '',
+          content: t.content ?? '',
+          timestamp: new Date().toISOString(),
+        }));
+        convergence = parsed.convergence ?? '';
+      } catch {
+        // JSON parse failed — treat as plain text
+        convergence = rawContent.replace(/[{}]/g, '').trim();
+      }
+    } else {
+      // Strategy 3: Last resort — use raw content as summary
+      convergence = rawContent;
+    }
+  }
+
+  // If no meaningful turns extracted, create a single summary turn
+  if (turns.length === 0 && convergence) {
+    turns = speakers.map((p, i) => ({
+      round: 0,
+      speakerId: p.id,
+      speakerName: p.nameZh,
+      content: `关于「${topic.slice(0, 20)}...」发表了自己的看法。`,
+      timestamp: new Date().toISOString(),
+    }));
   }
 
   return {
     turns,
     convergence: {
       id: nanoid(),
-      content: convergence,
+      content: convergence || '各方观点已呈现。',
       timestamp: new Date().toISOString(),
     },
   };
@@ -215,22 +267,18 @@ async function handleMission(personas: any[], mission: string) {
 
   const systemPrompt = `你是任务协作专家，将复杂任务分解并由多个专家角色协作完成，最终整合为完整输出。
 
-输出格式（JSON）：
-{
-  "taskPlan": [
-    {"description": "子任务描述", "assignedTo": "persona-id", "aspect": "负责方面", "status": "done"}
-  ],
-  "results": [
-    {"personaId": "persona-id", "personaName": "姓名", "aspect": "方面", "result": "贡献内容（150字以内）"}
-  ],
-  "output": "整合后的完整最终输出（200字以内，结构清晰、可直接使用）"
-}
+输出格式（markdown）：
+📋 任务分解
+• **方面1**: 子任务描述 → 负责人：人物名
+• **方面2**: 子任务描述 → 负责人：人物名
 
-规则：
-- 每个角色只负责自己擅长的方面，不要越界
-- 最终输出要整合所有角色的贡献，形成完整连贯的结果
-- 用中文回复，第一人称
-- 最终输出要结构化（可用列表、分段等格式）`;
+**【人物名1】方面1**（100字以内，用第一人称）:
+贡献内容...
+
+**【人物名2】方面2**（100字以内，用第一人称）:
+贡献内容...
+
+✨ 最终整合（200字以内，结构清晰、可直接使用）`;
 
   const userPrompt = `任务：${mission}
 
@@ -241,31 +289,87 @@ ${personaList}
 
   const result = await llmChat(llm,
     [{ role: 'system', content: systemPrompt }, { role: 'user', content: userPrompt }],
-    { temperature: 0.5, maxTokens: 600 }
+    { temperature: 0.5, maxTokens: 800 }
   );
 
-  // Parse JSON response
+  const rawContent = result.content.trim();
+
+  // Build persona name → id map for matching
+  const personaNameMap: Record<string, string> = {};
+  for (const p of participants) {
+    personaNameMap[p.nameZh] = p.id;
+  }
+
+  // Strategy 1: Try markdown structured output
   let taskPlan: any[] = [];
   let results: any[] = [];
-  let output = result.content;
+  let output = '';
 
-  const jsonMatch = result.content.match(/\{[\s\S]*\}/);
-  if (jsonMatch) {
-    try {
-      const parsed = JSON.parse(jsonMatch[0]);
-      taskPlan = (parsed.taskPlan ?? []).map((t: any, i: number) => ({
-        ...t,
-        assignedTo: t.assignedTo ?? participants[i % participants.length]?.id ?? 'unknown',
-        status: 'done',
-      }));
-      results = (parsed.results ?? []).map((r: any, i: number) => ({
-        ...r,
-        personaId: r.personaId ?? participants[i % participants.length]?.id ?? 'unknown',
-      }));
-      output = parsed.output ?? output;
-    } catch {
-      // Keep fallback
+  // Extract task plan section
+  const planMatch = rawContent.match(/📋\s*任务分解\n([\s\S]*?)(?=\n\*\*【|\n✨|$)/i);
+  if (planMatch) {
+    const planLines = planMatch[1].split('\n').filter(l => l.trim());
+    for (const line of planLines) {
+      const m = line.match(/^\s*•\s+\*\*(.+?)\*\*[:：]\s*(.+?)\s*(?:→|->)\s*负责人[：:]\s*(.+?)\s*$/);
+      if (m) {
+        taskPlan.push({
+          description: m[2].trim(),
+          aspect: m[1].trim(),
+          assignedTo: personaNameMap[m[3].trim()] ?? participants[0]?.id ?? 'unknown',
+          status: 'done',
+        });
+      } else {
+        const simpleM = line.match(/^\s*•\s+\*\*(.+?)\*\*[:：]\s*(.+)$/);
+        if (simpleM) {
+          taskPlan.push({
+            description: simpleM[2].trim(),
+            aspect: simpleM[1].trim(),
+            assignedTo: participants[0]?.id ?? 'unknown',
+            status: 'done',
+          });
+        }
+      }
     }
+  }
+
+  // Extract individual contributions
+  const contribRegex = /\*\*【(.+?)】(.+?)\*\*\s*\((?:.*?)\)?\s*\n([\s\S]*?)(?=\n(?:✨|\*\*【|\n|$))/g;
+  let contribMatch;
+  while ((contribMatch = contribRegex.exec(rawContent)) !== null) {
+    const personaName = contribMatch[1].trim();
+    const aspect = contribMatch[2].trim().replace(/[【】]/g, '');
+    const resultText = contribMatch[3].trim();
+    results.push({
+      personaId: personaNameMap[personaName] ?? participants[0]?.id ?? 'unknown',
+      personaName,
+      aspect,
+      result: resultText.slice(0, 300),
+    });
+  }
+
+  // Extract final output
+  const outputMatch = rawContent.match(/(?:✨|最终整合)[^\n]*\n([\s\S]*)$/i);
+  if (outputMatch) {
+    output = outputMatch[1].trim();
+  } else {
+    // Fallback: use everything after the last contribution
+    const lastContribIndex = rawContent.lastIndexOf('**【');
+    if (lastContribIndex > 0) {
+      output = rawContent.slice(lastContribIndex).replace(/\*\*【[\s\S]+?\*\*\s*\([\s\S]+?\)\n/, '').trim();
+    } else {
+      output = rawContent;
+    }
+  }
+
+  // Fallback: if parsing produced nothing meaningful, use the raw content
+  if (taskPlan.length === 0 && results.length === 0) {
+    output = rawContent;
+    taskPlan = participants.map((p, i) => ({
+      description: `${p.nameZh}从自己的专业视角分析了任务`,
+      aspect: p.domain?.[0] ?? '综合分析',
+      assignedTo: p.id,
+      status: 'done',
+    }));
   }
 
   return {
@@ -273,7 +377,7 @@ ${personaList}
     results,
     output: {
       id: nanoid(),
-      content: output,
+      content: output || rawContent,
       timestamp: new Date().toISOString(),
     },
   };
@@ -283,6 +387,16 @@ ${personaList}
 
 export async function POST(request: NextRequest) {
   try {
+    // Auth check: require login
+    const token = request.cookies.get('prismatic_token')?.value;
+    if (!token) {
+      return NextResponse.json({ error: '请先登录后再使用对话功能' }, { status: 401 });
+    }
+    const session = await getSession(token);
+    if (!session) {
+      return NextResponse.json({ error: '请先登录后再使用对话功能' }, { status: 401 });
+    }
+
     const body = await request.json().catch(() => ({}));
     const { mode, participantIds, message, conversationId, history } = body as {
       mode: Mode;

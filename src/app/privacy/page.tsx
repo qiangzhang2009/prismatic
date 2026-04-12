@@ -39,7 +39,7 @@ export default function PrivacyPage() {
 
             <section>
               <h2 className="text-xl font-semibold text-text-primary mb-3">第三方服务</h2>
-              <p>我们使用 DeepSeek API 处理您的对话内容以生成AI响应。DeepSeek 的服务条款和隐私政策适用于该服务。</p>
+              <p>我们使用大语言模型 API 处理您的对话内容以生成AI响应。所有对话数据均为一次性处理，不会被用于模型训练。</p>
             </section>
 
             <section>

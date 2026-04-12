@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { cn, hexToRgba } from '@/lib/utils';
 import type { Persona } from '@/lib/types';
+import { trackPersonaView } from '@/lib/use-tracking';
 
 interface PersonaCardProps {
   persona: Persona;
@@ -79,7 +80,9 @@ export function PersonaCard({
 
   // Full card — link to detail page
   return (
-    <Link href={`/personas/${persona.slug}`}>
+    <Link href={`/personas/${persona.slug}`} onClick={() => {
+      trackPersonaView(persona.id, persona.nameZh, persona.domain[0]);
+    }}>
       <motion.div
         className="persona-card cursor-pointer"
         style={{ background: gradient }}

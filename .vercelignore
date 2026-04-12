@@ -1,0 +1,3 @@
+# Exclude scrapers directory and large data from deployment
+scrapers/
+docs/

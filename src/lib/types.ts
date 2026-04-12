@@ -16,14 +16,26 @@ export type Domain =
   | 'risk'
   | 'ethics'
   | 'psychology'
-  | 'spirituality';
+  | 'spirituality'
+  | 'stoicism'
+  | 'zen-buddhism'
+  | 'AI'
+  | 'semiconductor'
+  | 'e-commerce'
+  | 'space'
+  | 'economics'
+  | 'startup'
+  | 'technology'
+  | 'investing'
+  | 'innovation'
+  | 'principles';
 
 export type Mode = 'solo' | 'prism' | 'roundtable' | 'mission';
 
 // ─── Persona ──────────────────────────────────────────────────────────────────
 
 export interface Source {
-  type: 'primary' | 'secondary' | 'book' | 'interview' | 'lecture' | 'weibo';
+  type: 'primary' | 'secondary' | 'book' | 'interview' | 'lecture' | 'weibo' | 'speech' | 'tweet' | 'archive' | 'blog' | 'essay' | 'podcast' | 'classical_text' | 'video' | 'shareholder-letter' | 'ceo-quotes' | 'earnings' | 'gtc' | 'YC';
   title: string;
   url?: string;
   description?: string;
@@ -185,6 +197,21 @@ export interface Persona {
     careerMilestones?: { year: string; event: string }[];
     currentBase?: string;
     writing?: string;
+  };
+
+  // Training corpus tracking (2026-04-12)
+  trainingCorpusPath?: string;
+  trainingCorpusStats?: {
+    tweets?: number;
+    topTweets?: number;
+    essays?: number;
+    files?: number;
+    estimatedWords?: number;
+    tweets_pre?: number;
+    tweets_office?: number;
+    truth_social?: number;
+    campaign_speeches?: string;
+    sources?: string;
   };
 }
 

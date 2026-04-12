@@ -3,15 +3,51 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Send, Loader2, ChevronDown, Settings } from 'lucide-react';
+import { Send, Loader2, ChevronDown, Settings, Trash2, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { PersonaCard } from '@/components/persona-card';
 import { ModeSelector } from '@/components/mode-selector';
-import { PERSONA_LIST, getPersonasByIds, getPersona } from '@/lib/personas';
+import { MessageContent } from '@/components/message-content';
+import { PERSONA_LIST, getPersonasByIds } from '@/lib/personas';
+import { useChatHistory } from '@/lib/use-chat-history';
+import { useAuthStore } from '@/lib/auth-store';
 import type { Mode, Persona, AgentMessage } from '@/lib/types';
 import { nanoid } from 'nanoid';
+import { trackChatStart, trackChatMessage } from '@/lib/use-tracking';
 
 const STORAGE_KEY = 'prismatic-chat-state';
+
+const DAILY_LIMIT = 200;
+const DAILY_LIMIT_KEY = 'prismatic-daily-messages';
+const DAILY_DATE_KEY = 'prismatic-daily-date';
+
+function getDailyCount(): { count: number; date: string } {
+  try {
+    const date = new Date().toDateString();
+    const savedDate = localStorage.getItem(DAILY_DATE_KEY);
+    if (savedDate !== date) {
+      // Reset for new day
+      localStorage.setItem(DAILY_LIMIT_KEY, '0');
+      localStorage.setItem(DAILY_DATE_KEY, date);
+      return { count: 0, date };
+    }
+    const count = parseInt(localStorage.getItem(DAILY_LIMIT_KEY) ?? '0', 10);
+    return { count, date };
+  } catch {
+    return { count: 0, date: new Date().toDateString() };
+  }
+}
+
+function incrementDailyCount(): number {
+  try {
+    const { count } = getDailyCount();
+    const newCount = count + 1;
+    localStorage.setItem(DAILY_LIMIT_KEY, String(newCount));
+    return newCount;
+  } catch {
+    return 1;
+  }
+}
 
 function loadSavedState() {
   try {
@@ -36,8 +72,12 @@ interface ChatInterfaceProps {
 export function ChatInterface({ className, initialPersona, initialMode }: ChatInterfaceProps) {
   const router = useRouter();
   const pathname = usePathname();
+  const { user, init } = useAuthStore();
 
   const saved = loadSavedState();
+  const { count: dailyCount } = getDailyCount();
+  const dailyRemaining = Math.max(0, DAILY_LIMIT - dailyCount);
+  const limitReached = dailyCount >= DAILY_LIMIT;
 
   // Priority: URL param > saved state > default (steve-jobs for backwards compat)
   const getInitialPersonaId = () => {
@@ -57,11 +97,14 @@ export function ChatInterface({ className, initialPersona, initialMode }: ChatIn
     const id = getInitialPersonaId();
     return saved?.selectedIds?.length > 1 ? saved.selectedIds : [id];
   });
-  const [messages, setMessages] = useState<AgentMessage[]>([]);
+  const { messages, setMessages, clearHistory } = useChatHistory(selectedIds);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [showPersonaPicker, setShowPersonaPicker] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
+  const [isPickerOpen, setIsPickerOpen] = useState(false); // compact header mode
+  const pickerRef = useRef<HTMLDivElement>(null);
+  const [turnCount, setTurnCount] = useState(0);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const initialized = useRef(false);
@@ -86,6 +129,36 @@ export function ChatInterface({ className, initialPersona, initialMode }: ChatIn
     params.set('mode', mode);
     router.replace(`${pathname}?${params.toString()}`, { scroll: false });
   }, [selectedIds, mode, pathname, router]);
+
+  // React to URL param changes (navigating from persona page or graph → update selection)
+  useEffect(() => {
+    if (!initialPersona) return;
+    if (initialPersona !== selectedIds[0] && initialPersona !== saved?.selectedIds?.[0]) {
+      setSelectedIds([initialPersona]);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialPersona]);
+
+  useEffect(() => {
+    if (!initialMode) return;
+    if (initialMode !== mode && initialMode !== saved?.mode) {
+      setModeState(initialMode);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialMode]);
+
+  // Close picker on outside click
+  useEffect(() => {
+    if (!isPickerOpen) return;
+    const handler = (e: MouseEvent) => {
+      if (pickerRef.current && !pickerRef.current.contains(e.target as Node)) {
+        setIsPickerOpen(false);
+        setShowPersonaPicker(false);
+      }
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [isPickerOpen]);
 
   // Handle mode changes: adjust participant count if needed
   useEffect(() => {
@@ -129,6 +202,13 @@ export function ChatInterface({ className, initialPersona, initialMode }: ChatIn
   const handleSend = async () => {
     if (!input.trim() || isLoading) return;
 
+    // Daily limit check
+    const { count } = getDailyCount();
+    if (count >= DAILY_LIMIT) {
+      alert('今日对话额度已用完（每天 200 条），明天再来吧');
+      return;
+    }
+
     const userMessage: AgentMessage = {
       id: nanoid(),
       personaId: 'user',
@@ -140,6 +220,14 @@ export function ChatInterface({ className, initialPersona, initialMode }: ChatIn
     setMessages((prev) => [...prev, userMessage]);
     setInput('');
     setIsLoading(true);
+
+    // 追踪对话开始（首条消息）
+    if (messages.length === 0) {
+      const primaryPersona = selectedPersonas[0];
+      if (primaryPersona) {
+        trackChatStart(primaryPersona.id, primaryPersona.nameZh, mode, primaryPersona.domain?.[0]);
+      }
+    }
 
     try {
       const response = await fetch('/api/chat', {
@@ -158,8 +246,21 @@ export function ChatInterface({ className, initialPersona, initialMode }: ChatIn
         }),
       });
 
-      if (!response.ok) throw new Error('API error');
+      if (!response.ok) {
+        if (response.status === 401) {
+          router.push('/auth/signin');
+          return;
+        }
+        throw new Error('API error');
+      }
       const data = await response.json();
+
+      // 追踪 AI 响应延迟
+      const aiLatencyMs = Date.now() - (window._lastMessageSentTime || Date.now());
+      window._lastMessageSentTime = Date.now();
+      const currentTurn = turnCount + 1;
+      setTurnCount(currentTurn);
+      incrementDailyCount();
 
       // ── Roundtable: Multi-Agent Dialogue ──────────────────────────────────────
       if (data.debate) {
@@ -188,6 +289,11 @@ export function ChatInterface({ className, initialPersona, initialMode }: ChatIn
               timestamp: new Date(data.debate.convergence.timestamp),
             },
           ]);
+        }
+        // 追踪回合消息
+        const primaryPersona = selectedPersonas[0];
+        if (primaryPersona) {
+          trackChatMessage(primaryPersona.id, mode, currentTurn, aiLatencyMs, data.model || 'claude');
         }
         return;
       }
@@ -238,6 +344,11 @@ export function ChatInterface({ className, initialPersona, initialMode }: ChatIn
             },
           ]);
         }
+        // 追踪回合消息
+        const primaryPersona2 = selectedPersonas[0];
+        if (primaryPersona2) {
+          trackChatMessage(primaryPersona2.id, mode, currentTurn, aiLatencyMs, data.model || 'claude');
+        }
         return;
       }
 
@@ -261,10 +372,19 @@ export function ChatInterface({ className, initialPersona, initialMode }: ChatIn
             },
           ]);
         }
+        // 追踪回合消息
+        const primaryPersona3 = selectedPersonas[0];
+        if (primaryPersona3) {
+          trackChatMessage(primaryPersona3.id, mode, currentTurn, aiLatencyMs, data.model || 'claude');
+        }
       }
     } catch (error) {
       console.error('Chat error:', error);
-      // Add error message
+      const errMsg = error instanceof Error ? error.message : '';
+      if (errMsg === '401' || errMsg.includes('请先登录')) {
+        router.push('/auth/signin');
+        return;
+      }
       setMessages((prev) => [
         ...prev,
         {
@@ -300,31 +420,60 @@ export function ChatInterface({ className, initialPersona, initialMode }: ChatIn
     <div className={cn('flex flex-col h-full', className)}>
       {/* ── Header ─────────────────────────────────────────── */}
       <div className="flex-shrink-0 px-4 py-3 border-b border-border-subtle bg-bg-surface/80 backdrop-blur-sm">
-        <div className="flex items-center gap-3 mb-3">
+        <div className="flex items-center gap-3">
           {/* Mode selector */}
           <ModeSelector value={mode} onChange={setMode} participantCount={selectedIds.length} />
 
-          {/* Persona picker toggle */}
-          <button
-            className="ml-auto flex items-center gap-2 text-sm text-text-secondary hover:text-text-primary transition-colors"
-            onClick={() => setShowPersonaPicker(!showPersonaPicker)}
-          >
-            <div className="flex -space-x-2">
-              {selectedPersonas.slice(0, 3).map((p) => (
-                <div
-                  key={p.id}
-                  className="w-6 h-6 rounded-full border-2 border-bg-base flex items-center justify-center text-[10px] font-bold text-white"
-                  style={{ background: `linear-gradient(135deg, ${p.gradientFrom}, ${p.gradientTo})` }}
-                >
-                  {p.nameZh.slice(0, 1)}
-                </div>
-              ))}
+          {/* Persona picker toggle — only show when picker is closed */}
+          {!isPickerOpen ? (
+            <button
+              className="ml-auto flex items-center gap-2 text-sm text-text-secondary hover:text-text-primary transition-colors"
+              onClick={() => setIsPickerOpen(true)}
+            >
+              <div className="flex -space-x-2">
+                {selectedPersonas.slice(0, 3).map((p) => (
+                  <div
+                    key={p.id}
+                    className="w-6 h-6 rounded-full border-2 border-bg-base flex items-center justify-center text-[10px] font-bold text-white"
+                    style={{ background: `linear-gradient(135deg, ${p.gradientFrom}, ${p.gradientTo})` }}
+                  >
+                    {p.nameZh.slice(0, 1)}
+                  </div>
+                ))}
+              </div>
+              <span className="hidden sm:inline">
+                {selectedIds.length}人参与
+              </span>
+              <ChevronDown className="w-4 h-4" />
+            </button>
+          ) : (
+            /* Compact view when picker is open — shows active personas + collapse button */
+            <div className="ml-auto flex items-center gap-2 overflow-hidden flex-1">
+              <div className="flex -space-x-1.5">
+                {selectedPersonas.slice(0, 4).map((p) => (
+                  <div
+                    key={p.id}
+                    className="w-7 h-7 rounded-full border-2 border-bg-base flex items-center justify-center text-[10px] font-bold text-white flex-shrink-0"
+                    style={{ background: `linear-gradient(135deg, ${p.gradientFrom}, ${p.gradientTo})` }}
+                    title={p.nameZh}
+                  >
+                    {p.nameZh.slice(0, 1)}
+                  </div>
+                ))}
+              </div>
+              <span className="text-xs text-text-muted flex-shrink-0">
+                {selectedIds.length}人
+              </span>
+              {/* Collapse button */}
+              <button
+                className="flex-shrink-0 p-1 rounded-lg hover:bg-bg-elevated text-text-muted hover:text-text-primary transition-colors"
+                onClick={() => { setIsPickerOpen(false); setShowPersonaPicker(false); }}
+                title="收起人物选择"
+              >
+                <X className="w-4 h-4" />
+              </button>
             </div>
-            <span className="hidden sm:inline">
-              {selectedIds.length}人参与
-            </span>
-            <ChevronDown className={cn('w-4 h-4 transition-transform', showPersonaPicker && 'rotate-180')} />
-          </button>
+          )}
 
           {/* Settings */}
           <button
@@ -333,12 +482,42 @@ export function ChatInterface({ className, initialPersona, initialMode }: ChatIn
           >
             <Settings className="w-4 h-4" />
           </button>
+
+          {/* Daily limit indicator */}
+          {limitReached ? (
+            <span className="text-xs text-red-400 font-medium" title="今日额度已用完">
+              今日额度已用完
+            </span>
+          ) : (
+            <span
+              className="text-xs text-text-muted hidden sm:inline"
+              title={`今日对话额度，剩余 ${Math.max(0, DAILY_LIMIT - dailyCount)}/${DAILY_LIMIT} 条`}
+            >
+              {Math.max(0, DAILY_LIMIT - dailyCount)}/{DAILY_LIMIT}
+            </span>
+          )}
+
+          {/* Clear history */}
+          {messages.length > 0 && (
+            <button
+              className="text-text-muted hover:text-red-400 transition-colors"
+              onClick={() => {
+                if (window.confirm('确定清空当前对话历史？此操作不可撤销。')) {
+                  clearHistory();
+                }
+              }}
+              title="清空对话历史"
+            >
+              <Trash2 className="w-4 h-4" />
+            </button>
+          )}
         </div>
 
         {/* Persona picker dropdown */}
         <AnimatePresence>
-          {showPersonaPicker && (
+          {showPersonaPicker && isPickerOpen && (
             <motion.div
+              ref={pickerRef}
               className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2 mt-3 pt-3 border-t border-border-subtle"
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: 'auto' }}
@@ -360,7 +539,34 @@ export function ChatInterface({ className, initialPersona, initialMode }: ChatIn
 
       {/* ── Messages ─────────────────────────────────────── */}
       <div className="flex-1 overflow-y-auto px-4 py-6 space-y-4">
-        {messages.length === 0 && (
+        {/* Not logged in notice */}
+        {!user && (
+          <div className="flex flex-col items-center justify-center h-full text-center px-4 pb-8">
+            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-prism-blue/20 to-prism-purple/20 flex items-center justify-center mb-4">
+              <span className="text-2xl">🔒</span>
+            </div>
+            <h3 className="text-lg font-medium mb-2">登录后即可开启对话</h3>
+            <p className="text-sm text-text-muted max-w-sm mb-6">
+              与顶尖思想家对话，限时体验中
+            </p>
+            <div className="flex gap-3">
+              <button
+                className="px-5 py-2 rounded-xl bg-prism-gradient text-white text-sm font-medium hover:opacity-90 transition-opacity"
+                onClick={() => router.push('/auth/signin')}
+              >
+                登录
+              </button>
+              <button
+                className="px-5 py-2 rounded-xl border border-border-subtle text-text-secondary text-sm hover:bg-bg-surface transition-colors"
+                onClick={() => router.push('/auth/signup')}
+              >
+                注册
+              </button>
+            </div>
+          </div>
+        )}
+
+        {messages.length === 0 && user && (
           <div className="flex flex-col items-center justify-center h-full text-center px-4">
             <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-prism-blue/20 to-prism-purple/20 flex items-center justify-center mb-4">
               <span className="text-2xl">
@@ -393,7 +599,7 @@ export function ChatInterface({ className, initialPersona, initialMode }: ChatIn
                 transition={{ duration: 0.3 }}
               >
                 <div className="chat-bubble chat-bubble-user max-w-[80%]">
-                  {message.content}
+                  <MessageContent content={message.content} role="user" />
                 </div>
               </motion.div>
             );
@@ -407,8 +613,8 @@ export function ChatInterface({ className, initialPersona, initialMode }: ChatIn
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
               >
-                <div className="text-sm text-text-muted px-4 py-2 rounded-lg bg-bg-elevated">
-                  {message.content}
+                <div className="max-w-[90%] px-4 py-3 rounded-xl bg-gradient-to-r from-prism-blue/8 to-prism-purple/8 border border-prism-blue/15 text-sm">
+                  <MessageContent content={message.content} role="system" />
                 </div>
               </motion.div>
             );
@@ -437,11 +643,11 @@ export function ChatInterface({ className, initialPersona, initialMode }: ChatIn
 
               {/* Content */}
               <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 mb-1">
-                  <span className="text-sm font-medium">{persona.nameZh}</span>
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="text-sm font-semibold text-text-primary">{persona.nameZh}</span>
                   {message.confidence !== undefined && (
                     <div className="flex items-center gap-1">
-                      <div className="w-12 h-1 rounded-full bg-bg-elevated overflow-hidden">
+                      <div className="w-16 h-1 rounded-full bg-bg-elevated overflow-hidden">
                         <motion.div
                           className="h-full rounded-full"
                           style={{ backgroundColor: persona.accentColor }}
@@ -457,9 +663,7 @@ export function ChatInterface({ className, initialPersona, initialMode }: ChatIn
                   )}
                 </div>
                 <div className="chat-bubble chat-bubble-agent">
-                  <div className="prose prose-sm prose-invert max-w-none">
-                    {message.content}
-                  </div>
+                  <MessageContent content={message.content} role="agent" />
                 </div>
               </div>
             </motion.div>
@@ -521,7 +725,7 @@ export function ChatInterface({ className, initialPersona, initialMode }: ChatIn
           <motion.button
             className="btn-primary flex-shrink-0 px-5 py-2.5 flex items-center gap-2"
             onClick={handleSend}
-            disabled={!input.trim() || isLoading}
+            disabled={!input.trim() || isLoading || limitReached}
             whileTap={{ scale: 0.97 }}
           >
             <Send className="w-4 h-4" />

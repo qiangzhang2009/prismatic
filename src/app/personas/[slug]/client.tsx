@@ -4,7 +4,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import {
@@ -19,24 +19,53 @@ import {
   ChevronDown,
   ChevronUp,
   ExternalLink,
+  BookOpen,
+  Mic,
+  Clock,
+  Layers,
+  CheckCircle2,
+  Star,
+  AlertCircle,
+  TrendingUp,
 } from 'lucide-react';
 import type { Persona } from '@/lib/types';
 import { cn } from '@/lib/utils';
+import { PERSONA_CONFIDENCE, getConfidenceLevel } from '@/lib/confidence';
+import type { ConfidenceScore } from '@/lib/confidence';
+import { trackModelExpand } from '@/lib/use-tracking';
 
 interface Props {
   persona: Persona;
   colors: { accent: string; from: string; to: string };
 }
 
+const DIMENSION_LABELS = {
+  dataCoverage: { label: '数据覆盖', icon: <BookOpen className="w-3.5 h-3.5" /> },
+  rawMaterial: { label: '原始素材', icon: <Mic className="w-3.5 h-3.5" /> },
+  timeSpan: { label: '时间跨度', icon: <Clock className="w-3.5 h-3.5" /> },
+  contentDiversity: { label: '内容多样', icon: <Layers className="w-3.5 h-3.5" /> },
+  sourceVerifiability: { label: '来源可验证', icon: <CheckCircle2 className="w-3.5 h-3.5" /> },
+} as const;
+
+const DIMENSION_KEYS = Object.keys(DIMENSION_LABELS) as Array<keyof typeof DIMENSION_LABELS>;
+
 const TABS = [
   { id: 'mental-models', label: '心智模型', icon: <Brain className="w-4 h-4" /> },
   { id: 'voice', label: '表达DNA', icon: <Zap className="w-4 h-4" /> },
   { id: 'quotes', label: '核心引用', icon: <Quote className="w-4 h-4" /> },
   { id: 'tensions', label: '内在张力', icon: <Eye className="w-4 h-4" /> },
+  { id: 'confidence', label: '置信度', icon: <TrendingUp className="w-4 h-4" /> },
 ];
 
-function MentalModelCard({ model, accentColor }: { model: Persona['mentalModels'][0]; accentColor: string }) {
+function MentalModelCard({ model, accentColor, personaId }: { model: Persona['mentalModels'][0]; accentColor: string; personaId: string }) {
   const [expanded, setExpanded] = useState(false);
+
+  const handleToggle = () => {
+    if (!expanded) {
+      trackModelExpand(personaId, model.id, model.nameZh);
+    }
+    setExpanded(!expanded);
+  };
 
   return (
     <motion.div
@@ -46,7 +75,7 @@ function MentalModelCard({ model, accentColor }: { model: Persona['mentalModels'
     >
       <button
         className="w-full flex items-start gap-4 p-5 text-left"
-        onClick={() => setExpanded(!expanded)}
+        onClick={handleToggle}
       >
         <div
           className="w-1.5 h-1.5 rounded-full mt-2 flex-shrink-0"
@@ -146,6 +175,18 @@ function DecisionHeuristicCard({ h, accentColor }: { h: Persona['decisionHeurist
 export function PersonaDetailClient({ persona, colors }: Props) {
   const [activeTab, setActiveTab] = useState('mental-models');
 
+  // 追踪人物详情页浏览
+  useEffect(() => {
+    if (window.zxqTrackV2) {
+      window.zxqTrackV2.track('persona_view', {
+        persona_id: persona.id,
+        persona_name: persona.nameZh,
+        domain: persona.domain?.[0],
+        page_path: window.location.pathname,
+      });
+    }
+  }, [persona]);
+
   return (
     <div className="min-h-screen bg-bg-base">
       {/* Header */}
@@ -211,6 +252,26 @@ export function PersonaDetailClient({ persona, colors }: Props) {
                 <span className="text-xs px-2.5 py-0.5 rounded-full bg-bg-elevated text-text-muted border border-border-subtle">
                   v{persona.version}
                 </span>
+              </div>
+
+              {/* Scroll CTA */}
+              <div className="flex items-center gap-3 mt-4">
+                <Link
+                  href={`/personas/${persona.slug}/scroll`}
+                  className="inline-flex items-center gap-2 text-xs px-3 py-1.5 rounded-lg font-medium transition-colors"
+                  style={{
+                    background: `${colors.accent}15`,
+                    color: colors.accent,
+                    border: `1px solid ${colors.accent}33`,
+                  }}
+                >
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+                    <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+                  </svg>
+                  展开画卷
+                </Link>
+                <span className="text-xs text-text-muted">沉浸式体验这个灵魂</span>
               </div>
             </div>
           </div>
@@ -282,7 +343,7 @@ export function PersonaDetailClient({ persona, colors }: Props) {
           {activeTab === 'mental-models' && (
             <div className="space-y-3">
               {persona.mentalModels.map((m) => (
-                <MentalModelCard key={m.id} model={m} accentColor={colors.accent} />
+                <MentalModelCard key={m.id} model={m} accentColor={colors.accent} personaId={persona.id} />
               ))}
             </div>
           )}
@@ -474,6 +535,210 @@ export function PersonaDetailClient({ persona, colors }: Props) {
               )}
             </div>
           )}
+
+          {/* Confidence Tab */}
+          {activeTab === 'confidence' && (() => {
+            const confidence: ConfidenceScore | undefined = PERSONA_CONFIDENCE[persona.id];
+            if (!confidence) {
+              return (
+                <div className="text-center py-12 text-text-muted text-sm">
+                  暂无置信度数据，该人物正在完善中
+                </div>
+              );
+            }
+            const level = getConfidenceLevel(confidence.overall);
+            return (
+              <div className="space-y-6">
+                {/* Score hero */}
+                <div className="flex items-center gap-6">
+                  <div className="relative w-24 h-24 flex-shrink-0">
+                    <svg width="96" height="96" viewBox="0 0 96 96">
+                      <circle cx="48" cy="48" r="40" fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="8" />
+                      <circle
+                        cx="48" cy="48" r="40" fill="none"
+                        stroke={level.color} strokeWidth="8" strokeLinecap="round"
+                        strokeDasharray={`${(confidence.overall / 100) * 251} 251`}
+                        strokeDashoffset="62.75"
+                        transform="rotate(-90 48 48)"
+                      />
+                    </svg>
+                    <div className="absolute inset-0 flex flex-col items-center justify-center">
+                      <span className="text-2xl font-bold" style={{ color: level.color }}>{confidence.overall}</span>
+                      <span className="text-[10px] text-text-muted">/ 100</span>
+                    </div>
+                  </div>
+                  <div>
+                    <h3 className="text-base font-medium text-text-primary mb-1">综合置信度</h3>
+                    <div
+                      className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium border mb-2"
+                      style={{ color: level.color, backgroundColor: level.bgColor, borderColor: level.borderColor }}
+                    >
+                      {level.label}
+                    </div>
+                    <p className="text-xs text-text-secondary leading-relaxed max-w-sm">
+                      基于 5 维度评估：数据覆盖（30%）、原始素材（25%）、时间跨度（15%）、内容多样（15%）、来源可验证（15%）
+                    </p>
+                  </div>
+                </div>
+
+                {/* Five-dimension bars */}
+                <div className="rounded-2xl border border-border-subtle bg-bg-surface p-5">
+                  <h4 className="text-sm font-medium text-text-primary mb-4">五维评分</h4>
+                  <div className="space-y-3">
+                    {DIMENSION_KEYS.map((key) => {
+                      const dim = DIMENSION_LABELS[key];
+                      const weights: Record<string, number> = {
+                        dataCoverage: 30, rawMaterial: 25, timeSpan: 15, contentDiversity: 15, sourceVerifiability: 15,
+                      };
+                      return (
+                        <div key={key} className="space-y-1.5">
+                          <div className="flex justify-between text-xs">
+                            <span className="flex items-center gap-1.5 text-text-secondary">
+                              {dim.icon}
+                              {dim.label}
+                              <span className="text-text-muted">×{weights[key]}%</span>
+                            </span>
+                            <span className="font-medium" style={{ color: level.color }}>{confidence[key]}</span>
+                          </div>
+                          <div className="h-1.5 bg-bg-base rounded-full overflow-hidden">
+                            <div
+                              className="h-full rounded-full"
+                              style={{ width: `${confidence[key]}%`, backgroundColor: level.color }}
+                            />
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Radar chart (simplified CSS version) */}
+                <div className="rounded-2xl border border-border-subtle bg-bg-surface p-5">
+                  <h4 className="text-sm font-medium text-text-primary mb-4">能力雷达图</h4>
+                  <div className="flex items-center justify-center">
+                    <div className="relative w-40 h-40">
+                      <svg width="160" height="160" viewBox="0 0 160 160">
+                        {/* Grid circles */}
+                        {[25, 50, 75, 100].map((level) => (
+                          <circle
+                            key={level}
+                            cx="80" cy="80"
+                            r={(level / 100) * 65}
+                            fill="none"
+                            stroke="rgba(255,255,255,0.05)"
+                            strokeWidth="1"
+                          />
+                        ))}
+                        {/* Axis lines */}
+                        {DIMENSION_KEYS.map((_, i) => {
+                          const angle = (i * 360 / DIMENSION_KEYS.length) - 90;
+                          const rad = (angle * Math.PI) / 180;
+                          return (
+                            <line
+                              key={i}
+                              x1="80" y1="80"
+                              x2={80 + 65 * Math.cos(rad)}
+                              y2={80 + 65 * Math.sin(rad)}
+                              stroke="rgba(255,255,255,0.08)"
+                              strokeWidth="1"
+                            />
+                          );
+                        })}
+                        {/* Score polygon */}
+                        {(() => {
+                          const points = DIMENSION_KEYS.map((key, i) => {
+                            const angle = (i * 360 / DIMENSION_KEYS.length) - 90;
+                            const rad = (angle * Math.PI) / 180;
+                            const r = (confidence[key] / 100) * 65;
+                            return `${80 + r * Math.cos(rad)},${80 + r * Math.sin(rad)}`;
+                          }).join(' ');
+                          return (
+                            <polygon
+                              points={points}
+                              fill={`${level.color}25`}
+                              stroke={level.color}
+                              strokeWidth="1.5"
+                            />
+                          );
+                        })()}
+                        {/* Axis labels */}
+                        {DIMENSION_KEYS.map((key, i) => {
+                          const angle = (i * 360 / DIMENSION_KEYS.length) - 90;
+                          const rad = (angle * Math.PI) / 180;
+                          const label = DIMENSION_LABELS[key].label;
+                          return (
+                            <text
+                              key={key}
+                              x={80 + 78 * Math.cos(rad)}
+                              y={80 + 78 * Math.sin(rad)}
+                              textAnchor="middle"
+                              dominantBaseline="middle"
+                              fill="rgba(255,255,255,0.45)"
+                              fontSize="8"
+                            >
+                              {label}
+                            </text>
+                          );
+                        })}
+                      </svg>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Data sources */}
+                {confidence.dataSources.length > 0 && (
+                  <div className="rounded-2xl border border-border-subtle bg-bg-surface p-5">
+                    <h4 className="text-sm font-medium text-text-primary mb-4 flex items-center gap-2">
+                      <BookOpen className="w-4 h-4" style={{ color: colors.accent }} />
+                      数据来源
+                    </h4>
+                    <div className="space-y-2">
+                      {confidence.dataSources.map((src, i) => (
+                        <div key={i} className="flex items-start justify-between p-3 bg-bg-base rounded-lg border border-border-subtle">
+                          <div className="min-w-0">
+                            <p className="text-xs font-medium text-text-primary">{src.type}</p>
+                            <p className="text-xs text-text-muted">{src.source} · {src.quantity}</p>
+                          </div>
+                          <div className="flex items-center gap-0.5 flex-shrink-0 ml-2">
+                            {[1, 2, 3, 4, 5].map((s) => (
+                              <Star
+                                key={s}
+                                className="w-2.5 h-2.5"
+                                fill={parseInt(src.quality) >= s ? '#f59e0b' : 'transparent'}
+                                stroke={parseInt(src.quality) >= s ? '#f59e0b' : 'rgba(255,255,255,0.15)'}
+                              />
+                            ))}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Gaps */}
+                {confidence.mainGaps.length > 0 && (
+                  <div className="rounded-2xl border border-border-subtle bg-bg-surface p-5">
+                    <h4 className="text-sm font-medium text-text-primary mb-3 flex items-center gap-2">
+                      <AlertCircle className="w-4 h-4 text-prism-orange" />
+                      主要缺口
+                    </h4>
+                    <div className="space-y-2">
+                      {confidence.mainGaps.map((gap, i) => (
+                        <div key={i} className="flex items-start gap-2 text-xs text-text-secondary">
+                          <span className="text-prism-orange mt-0.5">▸</span>
+                          {gap}
+                        </div>
+                      ))}
+                    </div>
+                    <div className="mt-3 flex items-center gap-1.5 text-xs text-text-muted">
+                      <Shield className="w-3.5 h-3.5" />
+                      置信度越高，人物蒸馏越接近真实人物思维
+                    </div>
+                  </div>
+                )}
+              </div>
+            );
+          })()}
         </div>
       </section>
 

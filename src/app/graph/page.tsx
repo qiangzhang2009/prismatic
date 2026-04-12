@@ -2,521 +2,510 @@
 
 /**
  * Prismatic — Knowledge Graph Page
- * Interactive 3D visualization of mental model connections
- * Mobile-optimized with touch gestures and auto-fit
+ * A world-class interactive visualization of mental model connections.
+ * Enhancements: entrance animations, edge flow animation, domain hub counter badges,
+ * ambient pulsing on concept nodes, smarter hover dim, click-to-deselect background,
+ * floating stats panel, concept descriptions, concept persona avatar list.
  */
 
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
-import { ArrowLeft, ZoomIn, ZoomOut, Maximize2 } from 'lucide-react';
+import { ArrowLeft, ZoomIn, ZoomOut, RotateCcw, Info, X, ChevronRight } from 'lucide-react';
 import { PERSONA_LIST } from '@/lib/personas';
+import { cn } from '@/lib/utils';
 import type { Persona } from '@/lib/types';
+import { trackGraphNodeClick, trackModelExpand } from '@/lib/use-tracking';
 
-interface GraphNode {
+// ─── Domain Configuration ────────────────────────────────────────────────────
+const DOMAINS = [
+  { id: 'philosophy', label: '哲学', color: '#60a5fa', gradientFrom: '#3b82f6', gradientTo: '#818cf8', personas: [] as string[] },
+  { id: 'strategy',   label: '战略', color: '#f472b6', gradientFrom: '#ec4899', gradientTo: '#f472b6', personas: [] as string[] },
+  { id: 'technology', label: '科技', color: '#34d399', gradientFrom: '#10b981', gradientTo: '#34d399', personas: [] as string[] },
+  { id: 'investment', label: '投资', color: '#fbbf24', gradientFrom: '#f59e0b', gradientTo: '#fbbf24', personas: [] as string[] },
+  { id: 'science',   label: '科学', color: '#a78bfa', gradientFrom: '#8b5cf6', gradientTo: '#a78bfa', personas: [] as string[] },
+  { id: 'creativity',label: '创意', color: '#fb923c', gradientFrom: '#f97316', gradientTo: '#fb923c', personas: [] as string[] },
+];
+
+// Build domain mapping
+PERSONA_LIST.forEach((p) => {
+  const primary = p.domain?.[0] || 'philosophy';
+  const domain = DOMAINS.find((d) => d.id === primary) || DOMAINS[0];
+  if (!domain.personas.includes(p.id)) domain.personas.push(p.id);
+});
+
+// ─── Graph Data Model ─────────────────────────────────────────────────────────
+interface Node {
   id: string;
   label: string;
   labelZh: string;
-  type: 'persona' | 'concept' | 'model';
+  type: 'persona' | 'concept' | 'domain';
   personaId?: string;
   x: number;
   y: number;
-  size: number;
+  r: number;
   color: string;
+  gradientFrom: string;
+  gradientTo: string;
+  domain?: string;
 }
 
-interface GraphEdge {
+interface Edge {
   source: string;
   target: string;
   type: 'inspired' | 'complements' | 'opposes';
-  strength: number;
+  weight: number;
 }
 
-// Generate graph data from personas
-function generateGraphData(): { nodes: GraphNode[]; edges: GraphEdge[] } {
-  const nodes: GraphNode[] = [];
-  const edges: GraphEdge[] = [];
+// Curated shared concepts
+const CONCEPTS: { id: string; label: string; labelZh: string; desc: string; personas: string[] }[] = [
+  { id: 'first-principles', label: 'First Principles', labelZh: '第一性原理', desc: '从物理本质出发，拆解问题的最底层不可再分假设', personas: ['elon-musk', 'richard-feynman', 'nassim-taleb'] },
+  { id: 'leverage',          label: 'Leverage',        labelZh: '杠杆思维',  desc: '识别并构建不对称的杠杆效应，放大单位努力的产出', personas: ['naval-ravikant', 'elon-musk'] },
+  { id: 'inversion',         label: 'Inversion',       labelZh: '逆向思维',  desc: '从终点倒推，思考什么会导致失败并主动规避', personas: ['charlie-munger', 'nassim-taleb'] },
+  { id: 'taste',             label: 'Taste',           labelZh: '品味',       desc: '对美与极致的直觉判断力，是创造卓越产品的根基', personas: ['steve-jobs', 'paul-graham'] },
+  { id: 'systems',           label: 'Systems',         labelZh: '系统思维',  desc: '理解反馈回路和非线性效应，把握全局而非局部', personas: ['qian-xuesen', 'elon-musk', 'charlie-munger'] },
+  { id: 'wuwei',             label: 'Wu Wei',         labelZh: '无为',        desc: '顺势而为之道，不强行干预，让事物按其自然规律运行', personas: ['lao-zi', 'zhuang-zi', 'hui-neng'] },
+  { id: 'wisdom',            label: 'Wisdom',         labelZh: '东方智慧',  desc: '以儒道佛为代表的东方哲学与人生哲学体系', personas: ['confucius', 'lao-zi', 'hui-neng'] },
+  { id: 'mindfulness',       label: 'Mindfulness',    labelZh: '觉察',        desc: '对当下身心状态的清晰觉知，修习专注与内观', personas: ['dalai-lama', 'mark-zuckerberg', 'buddha'] },
+];
 
-  // Calculate radius based on persona count — more personas = larger ring
-  const personaCount = PERSONA_LIST.length;
-  const baseRadius = Math.max(200, personaCount * 15);
+const PERSONA_CONNECTIONS: [string, string, 'inspired' | 'complements' | 'opposes'][] = [
+  ['elon-musk', 'steve-jobs', 'inspired'],
+  ['charlie-munger', 'nassim-taleb', 'inspired'],
+  ['naval-ravikant', 'charlie-munger', 'complements'],
+  ['richard-feynman', 'elon-musk', 'inspired'],
+  ['zhang-yiming', 'steve-jobs', 'inspired'],
+  ['paul-graham', 'steve-jobs', 'complements'],
+  ['elon-musk', 'charlie-munger', 'complements'],
+  ['kant', 'charlie-munger', 'inspired'],
+  ['einstein', 'richard-feynman', 'inspired'],
+  ['qian-xuesen', 'elon-musk', 'complements'],
+  ['lao-zi', 'zhuang-zi', 'inspired'],
+  ['confucius', 'lao-zi', 'complements'],
+  ['hui-neng', 'lao-zi', 'inspired'],
+  ['confucius', 'hui-neng', 'inspired'],
+  ['buffett', 'charlie-munger', 'inspired'],
+  ['dalai-lama', 'confucius', 'complements'],
+];
 
-  // Add persona nodes in a circle
-  PERSONA_LIST.forEach((p, i) => {
-    const angle = (i / personaCount) * Math.PI * 2 - Math.PI / 2;
-    nodes.push({
-      id: p.id,
-      label: p.name,
-      labelZh: p.nameZh,
-      type: 'persona',
-      personaId: p.id,
-      x: Math.cos(angle) * baseRadius,
-      y: Math.sin(angle) * baseRadius,
-      size: Math.min(p.mentalModels.length * 7 + 16, 40),
-      color: p.accentColor,
+// ─── Layout Engine ────────────────────────────────────────────────────────────
+function buildGraph() {
+  const nodes: Node[] = [];
+  const edges: Edge[] = [];
+  const cx = 0, cy = 0;
+
+  // Layer 1: Domain clusters
+  const domainRingR = 360;
+  const usedDomains = DOMAINS.filter((d) => d.personas.length > 0);
+  usedDomains.forEach((domain, di) => {
+    const angle = (di / usedDomains.length) * Math.PI * 2 - Math.PI / 2;
+    const dx = cx + Math.cos(angle) * domainRingR;
+    const dy = cy + Math.sin(angle) * domainRingR;
+
+    nodes.push({ id: `domain-${domain.id}`, label: domain.label, labelZh: domain.label, type: 'domain', x: dx, y: dy, r: 54, color: domain.color, gradientFrom: domain.gradientFrom, gradientTo: domain.gradientTo, domain: domain.id });
+
+    const clusterR = 120;
+    const personCount = domain.personas.length;
+    domain.personas.forEach((pId, pi) => {
+      const persona = PERSONA_LIST.find((p) => p.id === pId);
+      if (!persona) return;
+      const pa = (pi / personCount) * Math.PI * 2 - Math.PI / 2;
+      nodes.push({ id: pId, label: persona.name, labelZh: persona.nameZh, type: 'persona', personaId: pId, x: dx + Math.cos(pa) * clusterR, y: dy + Math.sin(pa) * clusterR, r: Math.min(persona.mentalModels.length * 2.5 + 14, 30), color: persona.accentColor, gradientFrom: persona.gradientFrom, gradientTo: persona.gradientTo, domain: domain.id });
+      edges.push({ source: pId, target: `domain-${domain.id}`, type: 'inspired', weight: 0.6 });
     });
   });
 
-  // Add shared concept nodes at center
-  const sharedConcepts = [
-    { id: 'first-principles', label: 'First Principles', labelZh: '第一性原理', personas: ['elon-musk', 'richard-feynman', 'nassim-taleb'] },
-    { id: 'leverage', label: 'Leverage', labelZh: '杠杆思维', personas: ['naval-ravikant', 'elon-musk'] },
-    { id: 'inversion', label: 'Inversion', labelZh: '逆向思维', personas: ['charlie-munger', 'nassim-taleb'] },
-    { id: 'taste', label: 'Taste', labelZh: '品味', personas: ['steve-jobs', 'paul-graham'] },
-    { id: 'escape-velocity', label: 'Escape Velocity', labelZh: '逃逸速度', personas: ['zhang-yiming', 'steve-jobs'] },
-    { id: 'wu-wei', label: 'Wu Wei', labelZh: '无为', personas: ['lao-zi', 'zhuang-zi', 'hui-neng'] },
-    { id: 'systems', label: 'Systems', labelZh: '系统思维', personas: ['qian-xuesen', 'elon-musk', 'charlie-munger'] },
-    { id: 'wisdom', label: 'Wisdom', labelZh: '东方智慧', personas: ['confucius', 'lao-zi', 'hui-neng'] },
-  ];
-
-  sharedConcepts.forEach((concept, i) => {
-    const angle = (i / sharedConcepts.length) * Math.PI * 2 - Math.PI / 2;
-    const radius = baseRadius * 0.4;
-    nodes.push({
-      id: concept.id,
-      label: concept.label,
-      labelZh: concept.labelZh,
-      type: 'concept',
-      x: Math.cos(angle) * radius,
-      y: Math.sin(angle) * radius,
-      size: 36,
-      color: '#64748b',
-    });
-
+  // Layer 2: Shared concepts (inner ring)
+  const conceptRingR = 190;
+  CONCEPTS.forEach((concept, ci) => {
+    const angle = (ci / CONCEPTS.length) * Math.PI * 2 - Math.PI / 2;
+    nodes.push({ id: concept.id, label: concept.label, labelZh: concept.labelZh, type: 'concept', x: cx + Math.cos(angle) * conceptRingR, y: cy + Math.sin(angle) * conceptRingR, r: 32, color: '#64748b', gradientFrom: '#475569', gradientTo: '#1e293b' });
     concept.personas.forEach((pId) => {
-      edges.push({
-        source: concept.id,
-        target: pId,
-        type: 'inspired',
-        strength: 0.8,
-      });
+      if (nodes.find((n) => n.id === pId)) edges.push({ source: concept.id, target: pId, type: 'inspired', weight: 0.5 });
     });
   });
 
-  // Cross-persona connections
-  const connections: [string, string, 'inspired' | 'complements' | 'opposes'][] = [
-    ['elon-musk', 'steve-jobs', 'inspired'],
-    ['charlie-munger', 'nassim-taleb', 'inspired'],
-    ['naval-ravikant', 'charlie-munger', 'complements'],
-    ['richard-feynman', 'andrej-karpathy', 'inspired'],
-    ['zhang-yiming', 'steve-jobs', 'inspired'],
-    ['paul-graham', 'steve-jobs', 'complements'],
-    ['elon-musk', 'charlie-munger', 'complements'],
-    ['kant', 'charlie-munger', 'inspired'],
-    ['einstein', 'richard-feynman', 'inspired'],
-    ['nassim-taleb', 'nassim-taleb', 'inspired'],
-    ['qian-xuesen', 'elon-musk', 'complements'],
-    ['lao-zi', 'zhuang-zi', 'inspired'],
-    ['confucius', 'lao-zi', 'complements'],
-    ['hui-neng', 'lao-zi', 'inspired'],
-    ['jiqun', 'hui-neng', 'inspired'],
-  ];
-
-  connections.forEach(([source, target, type]) => {
-    edges.push({ source, target, type, strength: 0.6 });
+  // Layer 3: Cross-persona connections
+  PERSONA_CONNECTIONS.forEach(([src, tgt, type]) => {
+    if (nodes.find((n) => n.id === src) && nodes.find((n) => n.id === tgt)) edges.push({ source: src, target: tgt, type, weight: 0.7 });
   });
 
   return { nodes, edges };
 }
 
+// Curved path for elegant edges
+function curvedPath(x1: number, y1: number, x2: number, y2: number): string {
+  const dx = x2 - x1, dy = y2 - y1;
+  const midX = (x1 + x2) / 2, midY = (y1 + y2) / 2;
+  const perpX = -dy * 0.18, perpY = dx * 0.18;
+  return `M ${x1} ${y1} Q ${midX + perpX} ${midY + perpY} ${x2} ${y2}`;
+}
+
+const EDGE_COLORS = { inspired: '#60a5fa', complements: '#fbbf24', opposes: '#f87171' };
+
+// ─── Main Component ─────────────────────────────────────────────────────────
 export default function GraphPage() {
-  const [selectedNode, setSelectedNode] = useState<GraphNode | null>(null);
+  const [selectedNode, setSelectedNode] = useState<Node | null>(null);
   const [hoveredNode, setHoveredNode] = useState<string | null>(null);
   const [scale, setScale] = useState(1);
   const [offset, setOffset] = useState({ x: 0, y: 0 });
   const [dragging, setDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+  const [showInfo, setShowInfo] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
 
   const containerRef = useRef<HTMLDivElement>(null);
-  const { nodes, edges } = generateGraphData();
+  const { nodes, edges } = useMemo(() => buildGraph(), []);
 
-  // Auto-fit on mount — ensures the whole graph is visible on any screen size
+  // Auto-fit on mount
   useEffect(() => {
-    const fitGraph = () => {
-      const vw = window.innerWidth;
-      const vh = window.innerHeight - 64; // minus header
-      const padding = 48; // breathing room
-
-      // Calculate the bounding box of all nodes
-      const maxNodeRadius = Math.max(...nodes.map((n) => Math.abs(n.x) + n.size));
-      const graphWidth = maxNodeRadius * 2;
-      const graphHeight = maxNodeRadius * 2;
-
-      // Scale to fit within viewport with padding
-      const scaleX = (vw - padding * 2) / graphWidth;
-      const scaleY = (vh - padding * 2) / graphHeight;
-      const fittedScale = Math.min(scaleX, scaleY, 1.0); // cap at 1.0
-
-      // Center the graph
-      const centerX = vw / 2;
-      const centerY = vh / 2;
-
+    const fit = () => {
+      const vw = window.innerWidth, vh = window.innerHeight - 64;
+      const padding = 70;
+      const maxR = Math.max(...nodes.map((n) => Math.hypot(n.x, n.y) + n.r), 360);
+      const fittedScale = Math.min((vw - padding * 2) / (maxR * 2), (vh - padding) / (maxR * 2), 1.1);
       setScale(fittedScale);
-      setOffset({ x: centerX, y: centerY });
+      setOffset({ x: vw / 2, y: vh / 2 });
       setIsLoaded(true);
     };
-
-    // Small delay to ensure DOM is ready
-    const timer = setTimeout(fitGraph, 100);
-    window.addEventListener('resize', fitGraph);
-    return () => {
-      clearTimeout(timer);
-      window.removeEventListener('resize', fitGraph);
-    };
+    const t = setTimeout(fit, 80);
+    window.addEventListener('resize', fit);
+    return () => { clearTimeout(t); window.removeEventListener('resize', fit); };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const getPersona = (id: string): Persona | undefined => {
-    return PERSONA_LIST.find((p) => p.id === id);
-  };
+  // Drag / Pan
+  const handleMouseDown = useCallback((e: React.MouseEvent) => {
+    const target = e.target as HTMLElement;
+    if (target.closest('button, a, input, .detail-panel')) return;
+    setDragging(true);
+    setDragStart({ x: e.clientX - offset.x, y: e.clientY - offset.y });
+  }, [offset]);
 
-  const getConnectedNodes = useCallback(
-    (nodeId: string) => {
-      const connected: string[] = [];
-      edges.forEach((e) => {
-        if (e.source === nodeId) connected.push(e.target);
-        if (e.target === nodeId) connected.push(e.source);
-      });
-      return connected;
-    },
-    [edges]
-  );
+  const handleMouseMove = useCallback((e: React.MouseEvent) => {
+    if (!dragging) return;
+    setOffset({ x: e.clientX - dragStart.x, y: e.clientY - dragStart.y });
+  }, [dragging, dragStart]);
 
-  // Mouse handlers
-  const handleMouseDown = useCallback(
-    (e: React.MouseEvent) => {
-      if ((e.target as HTMLElement).closest('button')) return;
+  // Touch
+  const lastTouch = useRef<{ dist: number; scale: number } | null>(null);
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    if ((e.target as HTMLElement).closest('button, a')) return;
+    if (e.touches.length === 1) {
+      lastTouch.current = null;
       setDragging(true);
-      setDragStart({ x: e.clientX - offset.x, y: e.clientY - offset.y });
-    },
-    [offset]
-  );
+      setDragStart({ x: e.touches[0].clientX - offset.x, y: e.touches[0].clientY - offset.y });
+    } else if (e.touches.length === 2) {
+      lastTouch.current = { dist: Math.hypot(e.touches[1].clientX - e.touches[0].clientX, e.touches[1].clientY - e.touches[0].clientY), scale };
+      setDragging(false);
+    }
+  }, [offset, scale]);
 
-  const handleMouseMove = useCallback(
-    (e: React.MouseEvent) => {
-      if (!dragging) return;
-      setOffset({
-        x: e.clientX - dragStart.x,
-        y: e.clientY - dragStart.y,
-      });
-    },
-    [dragging, dragStart]
-  );
-
-  // Touch handlers for mobile pinch-zoom and pan
-  const lastTouchRef = useRef<{ dist: number; x: number; y: number } | null>(null);
-
-  const handleTouchStart = useCallback(
-    (e: React.TouchEvent) => {
-      if ((e.target as HTMLElement).closest('button')) return;
-      if (e.touches.length === 1) {
-        lastTouchRef.current = null;
-        setDragging(true);
-        setDragStart({ x: e.touches[0].clientX - offset.x, y: e.touches[0].clientY - offset.y });
-      } else if (e.touches.length === 2) {
-        // Pinch zoom start
-        const dx = e.touches[1].clientX - e.touches[0].clientX;
-        const dy = e.touches[1].clientY - e.touches[0].clientY;
-        const dist = Math.sqrt(dx * dx + dy * dy);
-        lastTouchRef.current = { dist, x: offset.x, y: offset.y };
-        setDragging(false);
-      }
-    },
-    [offset]
-  );
-
-  const handleTouchMove = useCallback(
-    (e: React.TouchEvent) => {
-      if (e.cancelable) e.preventDefault();
-      if (e.touches.length === 1 && dragging) {
-        setOffset({
-          x: e.touches[0].clientX - dragStart.x,
-          y: e.touches[0].clientY - dragStart.y,
-        });
-      } else if (e.touches.length === 2 && lastTouchRef.current) {
-        const dx = e.touches[1].clientX - e.touches[0].clientX;
-        const dy = e.touches[1].clientY - e.touches[0].clientY;
-        const dist = Math.sqrt(dx * dx + dy * dy);
-        const scaleDelta = dist / lastTouchRef.current.dist;
-        const newScale = Math.max(0.2, Math.min(3, scale * scaleDelta));
-        setScale(newScale);
-        lastTouchRef.current = { dist, x: lastTouchRef.current.x, y: lastTouchRef.current.y };
-      }
-    },
-    [dragging, dragStart, scale]
-  );
-
-  const handleTouchEnd = useCallback(() => {
-    setDragging(false);
-    lastTouchRef.current = null;
-  }, []);
-
-  // Wheel zoom — use a ref-based listener so we can preventDefault
-  const wheelRef = useRef<(e: WheelEvent) => void>((e) => {
+  const handleTouchMove = useCallback((e: React.TouchEvent) => {
     e.preventDefault();
-    const delta = e.deltaY > 0 ? 0.9 : 1.1;
-    setScale((s) => Math.max(0.2, Math.min(3, s * delta)));
-  });
+    if (e.touches.length === 1 && dragging) {
+      setOffset({ x: e.touches[0].clientX - dragStart.x, y: e.touches[0].clientY - dragStart.y });
+    } else if (e.touches.length === 2 && lastTouch.current) {
+      const dist = Math.hypot(e.touches[1].clientX - e.touches[0].clientX, e.touches[1].clientY - e.touches[0].clientY);
+      setScale(Math.max(0.3, Math.min(3, lastTouch.current.scale * (dist / lastTouch.current.dist))));
+    }
+  }, [dragging, dragStart, scale]);
 
+  const handleTouchEnd = useCallback(() => { setDragging(false); lastTouch.current = null; }, []);
+
+  // Wheel zoom
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
-
-    const handler = (e: WheelEvent) => {
-      e.preventDefault();
-      const delta = e.deltaY > 0 ? 0.9 : 1.1;
-      setScale((s) => Math.max(0.2, Math.min(3, s * delta)));
-    };
-
+    const handler = (e: WheelEvent) => { e.preventDefault(); setScale((s) => Math.max(0.3, Math.min(3, s * (e.deltaY > 0 ? 0.88 : 1.12)))); };
     container.addEventListener('wheel', handler, { passive: false });
     return () => container.removeEventListener('wheel', handler);
   }, []);
 
-  // Zoom controls
-  const zoomIn = () => setScale((s) => Math.min(3, s * 1.3));
-  const zoomOut = () => setScale((s) => Math.max(0.2, s / 1.3));
+  const zoomIn = () => setScale((s) => Math.min(3, s * 1.25));
+  const zoomOut = () => setScale((s) => Math.max(0.3, s / 1.25));
   const resetView = () => {
-    const vw = window.innerWidth;
-    const vh = window.innerHeight - 64;
-    const padding = 48;
-    const maxNodeRadius = Math.max(...nodes.map((n) => Math.abs(n.x) + n.size));
-    const graphWidth = maxNodeRadius * 2;
-    const graphHeight = maxNodeRadius * 2;
-    const scaleX = (vw - padding * 2) / graphWidth;
-    const scaleY = (vh - padding * 2) / graphHeight;
-    const fittedScale = Math.min(scaleX, scaleY, 1.0);
-    setScale(fittedScale);
+    const vw = window.innerWidth, vh = window.innerHeight - 64;
+    const padding = 70;
+    const maxR = Math.max(...nodes.map((n) => Math.hypot(n.x, n.y) + n.r), 360);
+    setScale(Math.min((vw - padding * 2) / (maxR * 2), (vh - padding) / (maxR * 2), 1.1));
     setOffset({ x: vw / 2, y: vh / 2 });
   };
 
+  // Node helpers
+  const getConnected = useCallback((nodeId: string) => {
+    const ids: string[] = [];
+    edges.forEach((e) => { if (e.source === nodeId) ids.push(e.target); if (e.target === nodeId) ids.push(e.source); });
+    return ids;
+  }, [edges]);
+
+  const getNodeOpacity = useCallback((node: Node) => {
+    if (!hoveredNode && !selectedNode) return 1;
+    if (hoveredNode === node.id || selectedNode?.id === node.id) return 1;
+    const connected = getConnected(hoveredNode || selectedNode?.id || '');
+    return connected.includes(node.id) || connected.length === 0 ? 0.75 : 0.1;
+  }, [hoveredNode, selectedNode, getConnected]);
+
+  const getEdgeOpacity = useCallback((edge: Edge) => {
+    if (!hoveredNode && !selectedNode) return 0.45;
+    return (edge.source === hoveredNode || edge.target === hoveredNode || edge.source === selectedNode?.id || edge.target === selectedNode?.id) ? 0.92 : 0.05;
+  }, [hoveredNode, selectedNode]);
+
+  const getPersona = (id: string): Persona | undefined => PERSONA_LIST.find((p) => p.id === id);
+
+  const personaCount = nodes.filter((n) => n.type === 'persona').length;
+  const conceptCount = nodes.filter((n) => n.type === 'concept').length;
+  const edgeCount = edges.length;
+  const domainCount = nodes.filter((n) => n.type === 'domain').length;
+
   return (
-    <div className="h-screen bg-bg-base overflow-hidden relative">
-      {/* Header */}
-      <header className="absolute top-0 left-0 right-0 z-50 px-4 h-14 flex items-center gap-3 bg-bg-base/80 backdrop-blur-sm border-b border-border-subtle">
-        <Link
-          href="/"
-          className="flex items-center gap-2 text-text-secondary hover:text-text-primary transition-colors text-sm"
-        >
+    <div className="h-screen bg-[#06060f] overflow-hidden relative font-sans">
+      {/* ── Atmospheric Background ── */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div style={{ background: 'radial-gradient(ellipse 80% 70% at 50% 50%, rgba(99,102,241,0.06) 0%, transparent 65%)' }} />
+        <div style={{ background: 'radial-gradient(ellipse 40% 40% at 20% 80%, rgba(168,85,247,0.04) 0%, transparent 60%)' }} />
+        <div style={{ background: 'radial-gradient(ellipse 30% 30% at 80% 20%, rgba(52,211,153,0.03) 0%, transparent 60%)' }} />
+        <svg className="absolute inset-0 w-full h-full opacity-[0.035]">
+          <defs>
+            <pattern id="dot-grid" width="36" height="36" patternUnits="userSpaceOnUse">
+              <circle cx="0.5" cy="0.5" r="0.5" fill="white" />
+            </pattern>
+          </defs>
+          <rect width="100%" height="100%" fill="url(#dot-grid)" />
+        </svg>
+        <div className="absolute inset-0" style={{ background: 'linear-gradient(to bottom, #06060f 0%, transparent 10%, transparent 90%, #06060f 100%)' }} />
+      </div>
+
+      {/* ── Header ── */}
+      <header className="absolute top-0 left-0 right-0 z-50 h-14 flex items-center px-4 gap-3" style={{ background: 'rgba(6,6,15,0.75)', backdropFilter: 'blur(20px)', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+        <Link href="/" className="flex items-center gap-2 text-white/45 hover:text-white transition-colors text-sm">
           <ArrowLeft className="w-4 h-4" />
-          <span>返回</span>
+          <span className="hidden sm:inline">返回</span>
         </Link>
-        <div className="w-px h-5 bg-border-subtle" />
-        <h1 className="font-display font-semibold text-sm">认知图谱</h1>
+        <div className="w-px h-5 bg-white/10" />
+        <div className="flex items-center gap-2">
+          <div className="w-6 h-6 rounded-md flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #6366f1, #8b5cf6)' }}>
+            <span className="text-white text-[10px] font-bold">P</span>
+          </div>
+          <span className="font-medium text-sm text-white/85">认知图谱</span>
+          <span className="text-xs text-white/25 hidden sm:inline">· {personaCount} 位人物</span>
+        </div>
 
         {/* Controls */}
-        <div className="ml-auto flex items-center gap-1">
+        <div className="ml-auto flex items-center gap-2">
           <button
-            className="p-2 rounded-lg bg-bg-surface border border-border-subtle text-text-secondary hover:text-text-primary transition-colors"
-            onClick={zoomOut}
-            aria-label="缩小"
+            onClick={() => setShowInfo(!showInfo)}
+            className={cn('flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs transition-all', showInfo ? 'text-white border' : 'text-white/40 hover:text-white/70')}
+            style={showInfo ? { background: 'rgba(255,255,255,0.08)', borderColor: 'rgba(255,255,255,0.12)' } : {}}
           >
-            <ZoomOut className="w-4 h-4" />
+            <Info className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">图例</span>
           </button>
-          <div className="text-xs text-text-muted px-1 min-w-[40px] text-center font-mono">
-            {Math.round(scale * 100)}%
+          <div className="flex items-center rounded-lg overflow-hidden" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}>
+            <button onClick={zoomOut} className="px-2.5 py-1.5 text-white/40 hover:text-white hover:bg-white/10 transition-colors" aria-label="缩小"><ZoomOut className="w-3.5 h-3.5" /></button>
+            <div className="px-2 py-1.5 text-xs text-white/45 font-mono min-w-[44px] text-center">{Math.round(scale * 100)}%</div>
+            <button onClick={zoomIn} className="px-2.5 py-1.5 text-white/40 hover:text-white hover:bg-white/10 transition-colors" aria-label="放大"><ZoomIn className="w-3.5 h-3.5" /></button>
+            <button onClick={resetView} className="px-2.5 py-1.5 text-white/40 hover:text-white hover:bg-white/10 transition-colors" style={{ borderLeft: '1px solid rgba(255,255,255,0.08)' }} aria-label="适应屏幕"><RotateCcw className="w-3.5 h-3.5" /></button>
           </div>
-          <button
-            className="p-2 rounded-lg bg-bg-surface border border-border-subtle text-text-secondary hover:text-text-primary transition-colors"
-            onClick={zoomIn}
-            aria-label="放大"
-          >
-            <ZoomIn className="w-4 h-4" />
-          </button>
-          <button
-            className="p-2 rounded-lg bg-bg-surface border border-border-subtle text-text-secondary hover:text-text-primary transition-colors"
-            onClick={resetView}
-            aria-label="重置视图"
-            title="适应屏幕"
-          >
-            <Maximize2 className="w-4 h-4" />
-          </button>
         </div>
       </header>
 
-      {/* Graph Canvas */}
+      {/* ── SVG Graph Canvas ── */}
       <div
         ref={containerRef}
         className="absolute inset-0 pt-14 cursor-grab active:cursor-grabbing select-none"
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
         onMouseUp={() => setDragging(false)}
-        onMouseLeave={() => setDragging(false)}
+        onMouseLeave={() => { setDragging(false); setHoveredNode(null); }}
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
+        onClick={() => setSelectedNode(null)}
       >
-        <svg
-          className="w-full h-full"
-          style={{
-            transform: `scale(${scale})`,
-            transformOrigin: '0 0',
-          }}
-        >
+        <svg className="w-full h-full" style={{ transform: `scale(${scale})`, transformOrigin: '0 0' }}>
           <defs>
-            {/* Glow filters for each persona */}
-            {PERSONA_LIST.map((p) => (
-              <filter key={`glow-${p.id}`} id={`glow-${p.id}`} x="-100%" y="-100%" width="300%" height="300%">
-                <feGaussianBlur stdDeviation="6" result="blur" />
-                <feFlood floodColor={p.accentColor} floodOpacity="0.6" result="color" />
-                <feComposite in="color" in2="blur" operator="in" result="glow" />
-                <feMerge>
-                  <feMergeNode in="glow" />
-                  <feMergeNode in="SourceGraphic" />
-                </feMerge>
-              </filter>
+            {nodes.filter((n) => n.type === 'persona').map((n) => (
+              <radialGradient key={`rg-${n.id}`} id={`grad-${n.id}`} cx="35%" cy="28%" r="68%">
+                <stop offset="0%" stopColor={n.gradientTo} stopOpacity="1" />
+                <stop offset="100%" stopColor={n.gradientFrom} stopOpacity="1" />
+              </radialGradient>
             ))}
-            {/* Glow for concept nodes */}
-            <filter id="glow-concept" x="-100%" y="-100%" width="300%" height="300%">
-              <feGaussianBlur stdDeviation="4" result="blur" />
-              <feFlood floodColor="#64748b" floodOpacity="0.5" result="color" />
-              <feComposite in="color" in2="blur" operator="in" result="glow" />
-              <feMerge>
-                <feMergeNode in="glow" />
-                <feMergeNode in="SourceGraphic" />
-              </feMerge>
+            {nodes.filter((n) => n.type === 'domain').map((n) => (
+              <radialGradient key={`rg-${n.id}`} id={`grad-${n.id}`} cx="35%" cy="28%" r="68%">
+                <stop offset="0%" stopColor={n.gradientTo} stopOpacity="1" />
+                <stop offset="100%" stopColor={n.gradientFrom} stopOpacity="1" />
+              </radialGradient>
+            ))}
+            <radialGradient id="grad-concept" cx="35%" cy="28%" r="68%">
+              <stop offset="0%" stopColor="#4b5563" />
+              <stop offset="100%" stopColor="#1e293b" />
+            </radialGradient>
+            <filter id="glow-node" x="-60%" y="-60%" width="220%" height="220%">
+              <feGaussianBlur stdDeviation="7" result="blur" />
+              <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
             </filter>
+            <filter id="glow-domain" x="-50%" y="-50%" width="200%" height="200%">
+              <feGaussianBlur stdDeviation="5" result="blur" />
+              <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
+            </filter>
+            <filter id="edge-glow" x="-30%" y="-30%" width="160%" height="160%">
+              <feGaussianBlur stdDeviation="3" result="blur" />
+              <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
+            </filter>
+            {/* Edge flow dash animation */}
+            <marker id="arrow-inspired" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto">
+              <path d="M0,0 L6,3 L0,6 Z" fill="#60a5fa" opacity="0.6" />
+            </marker>
           </defs>
 
-          {/* Translate to offset (center of graph) */}
           <g transform={`translate(${offset.x}, ${offset.y})`}>
-            {/* Edges */}
-            {edges.map((edge, i) => {
-              const sourceNode = nodes.find((n) => n.id === edge.source);
-              const targetNode = nodes.find((n) => n.id === edge.target);
-              if (!sourceNode || !targetNode) return null;
 
-              const isHighlighted =
-                hoveredNode === edge.source ||
-                hoveredNode === edge.target ||
-                selectedNode?.id === edge.source ||
-                selectedNode?.id === edge.target;
+            {/* ── Edges ── */}
+            {edges.map((edge, i) => {
+              const src = nodes.find((n) => n.id === edge.source);
+              const tgt = nodes.find((n) => n.id === edge.target);
+              if (!src || !tgt) return null;
+              const isActive = hoveredNode === edge.source || hoveredNode === edge.target || selectedNode?.id === edge.source || selectedNode?.id === edge.target;
+              const opacity = getEdgeOpacity(edge);
+              const color = EDGE_COLORS[edge.type];
+              const path = curvedPath(src.x, src.y, tgt.x, tgt.y);
 
               return (
-                <motion.line
-                  key={`edge-${i}`}
-                  x1={sourceNode.x}
-                  y1={sourceNode.y}
-                  x2={targetNode.x}
-                  y2={targetNode.y}
-                  stroke={
-                    edge.type === 'opposes'
-                      ? '#ff6b6b'
-                      : edge.type === 'complements'
-                      ? '#ffd93d'
-                      : '#4d96ff'
-                  }
-                  strokeWidth={isHighlighted ? 2.5 : 1.5}
-                  strokeOpacity={isHighlighted ? 0.9 : 0.25}
-                  strokeDasharray={edge.type === 'inspired' ? '0' : '5 5'}
-                  initial={{ pathLength: 0, opacity: 0 }}
-                  animate={{ pathLength: 1, opacity: 1 }}
-                  transition={{ duration: 0.8, delay: i * 0.03 }}
-                  style={{ pointerEvents: 'none' }}
-                />
+                <g key={`edge-${i}`}>
+                  {/* Wide hit area */}
+                  <path d={path} fill="none" stroke="transparent" strokeWidth="14" style={{ cursor: 'pointer' }} onClick={(e) => { e.stopPropagation(); setSelectedNode(src.id === selectedNode?.id ? null : src); }} />
+                  {isActive && (
+                    <path d={path} fill="none" stroke={color} strokeWidth="5" strokeOpacity="0.25" filter="url(#edge-glow)" style={{ pointerEvents: 'none' }} />
+                  )}
+                  <path
+                    d={path} fill="none" stroke={color} strokeWidth={isActive ? 2 : 1.2}
+                    strokeOpacity={opacity} strokeDasharray={edge.type === 'inspired' ? undefined : '7 5'}
+                    style={{ pointerEvents: 'none', transition: 'stroke-opacity 0.25s' }}
+                  />
+                </g>
               );
             })}
 
-            {/* Nodes */}
-            {nodes.map((node) => {
-              const persona = node.personaId ? getPersona(node.personaId) : undefined;
-              const isHighlighted = hoveredNode === node.id || selectedNode?.id === node.id;
-              const connected = getConnectedNodes(node.id);
-              const opacity =
-                !hoveredNode && !selectedNode
-                  ? 1
-                  : isHighlighted
-                  ? 1
-                  : hoveredNode
-                  ? connected.includes(hoveredNode) || connected.length === 0
-                    ? 0.85
-                    : 0.15
-                  : 0.4;
-
-              const labelSize = Math.max(9, Math.min(12, 11 * scale));
+            {/* ── Nodes ── */}
+            {nodes.map((node, i) => {
+              const isHovered = hoveredNode === node.id;
+              const isSelected = selectedNode?.id === node.id;
+              const isActive = isHovered || isSelected;
+              const opacity = getNodeOpacity(node);
+              const gradId = node.type === 'concept' ? 'grad-concept' : `grad-${node.id}`;
+              const glowFilter = node.type === 'domain' ? 'url(#glow-domain)' : 'url(#glow-node)';
 
               return (
-                <g key={node.id}>
-                  {/* Outer glow */}
-                  {isHighlighted && (
+                <g
+                  key={node.id}
+                  style={{ cursor: 'pointer' }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    // 追踪图谱节点点击
+                    if (node.type === 'persona') {
+                      trackGraphNodeClick('persona', node.id, node.labelZh, node.personaId);
+                    } else if (node.type === 'concept') {
+                      trackGraphNodeClick('concept', node.id, node.labelZh);
+                    } else if (node.type === 'domain') {
+                      trackGraphNodeClick('domain', node.id, node.labelZh);
+                    }
+                    setSelectedNode(isSelected ? null : node);
+                  }}
+                  onMouseEnter={() => setHoveredNode(node.id)}
+                  onMouseLeave={() => setHoveredNode(null)}
+                >
+                  {/* Outer ambient ring (domain nodes) */}
+                  {isActive && node.type === 'domain' && (
                     <motion.circle
-                      cx={node.x}
-                      cy={node.y}
-                      r={node.size + 12}
-                      fill={node.color}
-                      opacity={0.12}
-                      initial={{ scale: 0 }}
-                      animate={{ scale: 1 }}
-                      transition={{ type: 'spring', stiffness: 300 }}
+                      cx={node.x} cy={node.y} r={node.r + 18}
+                      fill="none" stroke={node.color} strokeWidth="1.5" strokeOpacity="0.2"
+                      initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}
+                      transition={{ type: 'spring', stiffness: 250 }}
                       style={{ pointerEvents: 'none' }}
                     />
                   )}
 
+                  {/* Ambient glow for active nodes */}
+                  {isActive && (
+                    <motion.circle
+                      cx={node.x} cy={node.y} r={node.r + 12}
+                      fill={node.color} fillOpacity="0.07"
+                      initial={{ scale: 0.5, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}
+                      transition={{ type: 'spring', stiffness: 280 }}
+                      style={{ pointerEvents: 'none' }}
+                    />
+                  )}
+
+                  {/* Domain counter badge */}
+                  {node.type === 'domain' && (
+                    <motion.g
+                      initial={{ scale: 0, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      transition={{ delay: 0.1 * i, type: 'spring', stiffness: 300 }}
+                      style={{ pointerEvents: 'none' }}
+                    >
+                      <circle
+                        cx={node.x + node.r * 0.65} cy={node.y - node.r * 0.65}
+                        r={11} fill={node.color} stroke="#06060f" strokeWidth="2"
+                      />
+                      <text
+                        x={node.x + node.r * 0.65} y={node.y - node.r * 0.65 + 1}
+                        textAnchor="middle" dominantBaseline="middle"
+                        fill="white" fontSize="8" fontWeight="700"
+                      >
+                        {DOMAINS.find((d) => `domain-${d.id}` === node.id)?.personas.length ?? 0}
+                      </text>
+                    </motion.g>
+                  )}
+
                   {/* Main circle */}
                   <motion.circle
-                    cx={node.x}
-                    cy={node.y}
-                    r={node.size}
-                    fill={node.type === 'persona' ? node.color : '#1a1a25'}
-                    stroke={node.color}
-                    strokeWidth={isHighlighted ? 2.5 : 1}
-                    opacity={opacity}
-                    filter={
-                      isHighlighted
-                        ? node.type === 'concept'
-                          ? 'url(#glow-concept)'
-                          : persona
-                          ? `url(#glow-${persona.id})`
-                          : undefined
-                        : undefined
-                    }
+                    cx={node.x} cy={node.y}
+                    r={isActive ? node.r * 1.15 : node.r}
+                    fill={node.type === 'concept' ? `url(#grad-concept)` : `url(#${gradId})`}
+                    stroke={node.color} strokeWidth={isActive ? 2.5 : 1.2}
+                    strokeOpacity={isActive ? 0.95 : 0.5}
+                    filter={isActive ? glowFilter : undefined}
                     initial={{ scale: 0, opacity: 0 }}
-                    animate={{ scale: isHighlighted ? 1.15 : 1, opacity }}
-                    transition={{ type: 'spring', stiffness: 300, delay: nodes.indexOf(node) * 0.02 }}
-                    style={{ cursor: 'pointer' }}
-                    onTouchEnd={(e) => {
-                      e.stopPropagation();
-                      setSelectedNode(selectedNode?.id === node.id ? null : node);
-                    }}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setSelectedNode(selectedNode?.id === node.id ? null : node);
-                    }}
-                    onMouseEnter={() => setHoveredNode(node.id)}
-                    onMouseLeave={() => setHoveredNode(null)}
+                    animate={{ scale: isActive ? 1.15 : 1, opacity }}
+                    transition={{ type: 'spring', stiffness: 300, delay: 0.02 * i }}
+                    style={{ transition: 'r 0.22s cubic-bezier(0.34,1.56,0.64,1), stroke-width 0.2s, filter 0.2s' }}
                   />
 
-                  {/* Inner text for concept nodes */}
+                  {/* Specular highlight */}
+                  <ellipse
+                    cx={node.x - node.r * 0.28} cy={node.y - node.r * 0.28}
+                    rx={node.r * 0.38} ry={node.r * 0.22}
+                    fill="white" fillOpacity="0.1"
+                    style={{ pointerEvents: 'none' }}
+                  />
+
+                  {/* Concept label inside */}
                   {node.type === 'concept' && (
-                    <text
-                      x={node.x}
-                      y={node.y + 1}
-                      textAnchor="middle"
-                      dominantBaseline="middle"
-                      fill="#94a3b8"
-                      fontSize={9}
-                      fontWeight={500}
-                      style={{ pointerEvents: 'none' }}
-                      opacity={opacity}
-                    >
+                    <text x={node.x} y={node.y + 1} textAnchor="middle" dominantBaseline="middle" fill="#94a3b8" fontSize="8" fontWeight="500" style={{ pointerEvents: 'none', userSelect: 'none' }}>
                       {node.labelZh.slice(0, 3)}
                     </text>
                   )}
 
-                  {/* Label below node */}
-                  <text
-                    x={node.x}
-                    y={node.y + node.size + 14}
-                    textAnchor="middle"
-                    fill={node.color}
-                    fontSize={labelSize}
-                    fontWeight={node.type === 'persona' ? 500 : 400}
-                    opacity={isHighlighted ? 1 : Math.min(opacity + 0.2, 0.85)}
-                    style={{ pointerEvents: 'none', userSelect: 'none' }}
-                  >
-                    {node.labelZh.length > 6 ? node.labelZh.slice(0, 6) : node.labelZh}
-                    {node.labelZh.length > 6 ? '…' : ''}
-                  </text>
+                  {/* Domain label below */}
+                  {node.type === 'domain' && (
+                    <text x={node.x} y={node.y + node.r + 18} textAnchor="middle" fill={node.color} fontSize="12" fontWeight="600" style={{ pointerEvents: 'none', userSelect: 'none' }}>
+                      {node.labelZh}
+                    </text>
+                  )}
+
+                  {/* Persona label */}
+                  {node.type === 'persona' && (
+                    <text
+                      x={node.x} y={node.y + node.r + 14}
+                      textAnchor="middle" fill={node.color} fontSize="10" fontWeight="500"
+                      opacity={Math.max(opacity, isActive ? 1 : 0.65)}
+                      style={{ pointerEvents: 'none', userSelect: 'none' }}
+                    >
+                      {node.labelZh.length > 5 ? node.labelZh.slice(0, 5) + '…' : node.labelZh}
+                    </text>
+                  )}
                 </g>
               );
             })}
@@ -524,142 +513,338 @@ export default function GraphPage() {
         </svg>
       </div>
 
-      {/* Mobile hint — shown briefly */}
-      {isLoaded && (
-        <motion.div
-          className="absolute top-16 left-1/2 -translate-x-1/2 bg-bg-surface/90 backdrop-blur border border-border-subtle rounded-full px-4 py-1.5 text-xs text-text-muted pointer-events-none z-40"
-          initial={{ opacity: 0, y: -8 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 1 }}
-        >
-          👆 拖拽平移 · 🤏 双指缩放
-        </motion.div>
-      )}
+      {/* ── Floating Stats Bar ── */}
+      <motion.div
+        initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.8, duration: 0.5 }}
+        className="absolute top-16 left-1/2 -translate-x-1/2 z-30 flex items-center gap-1 px-3 py-1.5 rounded-full"
+        style={{ background: 'rgba(6,6,15,0.65)', backdropFilter: 'blur(12px)', border: '1px solid rgba(255,255,255,0.07)' }}
+      >
+        {[
+          { label: '人物', value: personaCount, color: '#60a5fa' },
+          { label: '概念', value: conceptCount, color: '#64748b' },
+          { label: '连线', value: edgeCount, color: '#a78bfa' },
+          { label: '领域', value: domainCount, color: '#34d399' },
+        ].map((stat, i) => (
+          <div key={stat.label} className="flex items-center gap-1.5">
+            {i > 0 && <div className="w-px h-3 bg-white/10" />}
+            <div className="flex items-center gap-1">
+              <div className="w-1.5 h-1.5 rounded-full" style={{ background: stat.color }} />
+              <span className="text-[11px] text-white/45">{stat.value}</span>
+              <span className="text-[10px] text-white/25">{stat.label}</span>
+            </div>
+          </div>
+        ))}
+      </motion.div>
 
-      {/* Node Detail Panel — slides up from bottom on mobile */}
+      {/* ── Legend Panel ── */}
       <AnimatePresence>
-        {selectedNode && (
+        {showInfo && (
           <motion.div
-            className="absolute inset-x-0 bottom-0 md:inset-y-auto md:top-20 md:right-6 md:left-auto md:w-96 md:bottom-6 z-50 bg-bg-surface/95 backdrop-blur-lg border border-border-subtle rounded-t-2xl md:rounded-2xl p-4 shadow-card md:max-h-[60vh] overflow-y-auto"
-            initial={{ opacity: 0, y: 60 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 60 }}
-            transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+            initial={{ opacity: 0, x: 24 }} animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: 24 }}
+            transition={{ type: 'spring', stiffness: 300, damping: 28 }}
+            className="absolute top-20 right-4 z-40 w-72 rounded-2xl overflow-hidden"
+            style={{ background: 'rgba(8,8,20,0.88)', backdropFilter: 'blur(28px)', border: '1px solid rgba(255,255,255,0.08)' }}
           >
-            {(() => {
-              const persona = selectedNode.personaId ? getPersona(selectedNode.personaId) : undefined;
+            <div className="p-5">
+              <div className="flex items-center justify-between mb-5">
+                <h3 className="text-sm font-semibold text-white/90">图例</h3>
+                <button onClick={() => setShowInfo(false)} className="w-7 h-7 rounded-lg flex items-center justify-center text-white/35 hover:text-white hover:bg-white/10 transition-colors">
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
 
-              return (
-                <>
-                  <div className="flex items-center gap-3 mb-3">
-                    <div
-                      className="w-9 h-9 rounded-xl flex items-center justify-center text-sm font-bold text-white flex-shrink-0"
-                      style={{
-                        background: `linear-gradient(135deg, ${selectedNode.color}, ${selectedNode.color}80)`,
-                      }}
-                    >
-                      {selectedNode.labelZh.slice(0, 1)}
-                    </div>
-                    <div className="min-w-0">
-                      <h3 className="font-semibold text-sm truncate">{selectedNode.labelZh}</h3>
-                      <p className="text-xs text-text-muted">
-                        {selectedNode.type === 'persona' ? '蒸馏人物' : '共享概念'}
-                      </p>
-                    </div>
-                    <button
-                      className="ml-auto text-text-muted hover:text-text-primary flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-lg hover:bg-bg-base transition-colors"
-                      onClick={() => setSelectedNode(null)}
-                    >
-                      ✕
-                    </button>
-                  </div>
-
-                  {persona && (
-                    <>
-                      <p className="text-sm text-text-secondary mb-3 leading-relaxed">
-                        {persona.briefZh}
-                      </p>
-
-                      {/* Mental Models — scrollable */}
-                      <div className="space-y-2 mb-3 max-h-48 overflow-y-auto">
-                        <h4 className="text-xs font-medium text-text-muted uppercase tracking-wider sticky top-0 bg-bg-surface py-1">
-                          思维模型
-                        </h4>
-                        {persona.mentalModels.slice(0, 4).map((m) => (
-                          <div key={m.id} className="flex items-start gap-2">
-                            <div
-                              className="w-1.5 h-1.5 rounded-full mt-1.5 flex-shrink-0"
-                              style={{ backgroundColor: persona.accentColor }}
-                            />
-                            <div>
-                              <span className="text-sm font-medium">{m.nameZh}</span>
-                              <p className="text-xs text-text-muted line-clamp-1 mt-0.5">{m.oneLiner}</p>
-                            </div>
-                          </div>
-                        ))}
-                        {persona.mentalModels.length > 4 && (
-                          <p className="text-xs text-text-muted pl-3.5">
-                            +{persona.mentalModels.length - 4} 个思维模型
-                          </p>
-                        )}
+              <div className="mb-5">
+                <p className="text-[10px] text-white/30 uppercase tracking-widest mb-3 font-medium">连线类型</p>
+                <div className="space-y-2.5">
+                  {[
+                    { color: '#60a5fa', label: '启发 Inspired', desc: '思维上的传承或影响', dash: false },
+                    { color: '#fbbf24', label: '互补 Complements', desc: '视角与方法互为补充', dash: true },
+                    { color: '#f87171', label: '对立 Opposes', desc: '思考方式的根本对立', dash: true },
+                  ].map(item => (
+                    <div key={item.label} className="flex items-center gap-3">
+                      <svg width="36" height="10" className="flex-shrink-0">
+                        <line x1="2" y1="5" x2="34" y2="5" stroke={item.color} strokeWidth="2" strokeDasharray={item.dash ? '5 3' : undefined} strokeLinecap="round" />
+                      </svg>
+                      <div>
+                        <p className="text-xs text-white/65 font-medium">{item.label}</p>
+                        <p className="text-[10px] text-white/25">{item.desc}</p>
                       </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
 
-                      {/* Strengths */}
-                      <div className="space-y-1.5 mb-3">
-                        <h4 className="text-xs font-medium text-text-muted uppercase tracking-wider">擅长领域</h4>
-                        <div className="flex flex-wrap gap-1">
-                          {persona.strengths.map((s) => (
-                            <span
-                              key={s}
-                              className="text-xs px-2 py-0.5 rounded-md border"
-                              style={{
-                                borderColor: `${persona.accentColor}50`,
-                                color: persona.accentColor,
-                              }}
-                            >
-                              {s}
-                            </span>
-                          ))}
-                        </div>
+              <div className="mb-5">
+                <p className="text-[10px] text-white/30 uppercase tracking-widest mb-3 font-medium">节点类型</p>
+                <div className="space-y-2.5">
+                  {[
+                    { color: '#3b82f6', label: '蒸馏人物', desc: '心智模型节点，大小反映模型数量' },
+                    { color: '#8b5cf6', label: '领域枢纽', desc: '按领域分组的人物簇中心（数字=人物数）' },
+                    { color: '#475569', label: '共享概念', desc: '跨越多人的核心思维概念' },
+                  ].map(item => (
+                    <div key={item.label} className="flex items-center gap-3">
+                      <div className="w-5 h-5 rounded-full flex-shrink-0" style={{ background: `radial-gradient(circle at 35% 30%, ${item.color}aa, ${item.color}55)` }} />
+                      <div>
+                        <p className="text-xs font-medium text-white/75">{item.label}</p>
+                        <p className="text-[10px] text-white/25">{item.desc}</p>
                       </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
 
-                      <Link
-                        href={`/app?persona=${persona.id}`}
-                        className="mt-1 block text-center py-2.5 rounded-xl text-sm font-medium"
-                        style={{
-                          background: `linear-gradient(135deg, ${persona.gradientFrom}20, ${persona.gradientTo}20)`,
-                          color: persona.accentColor,
-                          border: `1px solid ${persona.accentColor}40`,
-                        }}
-                        onClick={() => setSelectedNode(null)}
-                      >
-                        开始对话 →
-                      </Link>
-                    </>
-                  )}
-
-                  {!persona && selectedNode.type === 'concept' && (
-                    <p className="text-sm text-text-secondary leading-relaxed">
-                      这是一个被多个人物共享的思维概念，连接了不同领域的核心洞察。
-                    </p>
-                  )}
-                </>
-              );
-            })()}
+              <div>
+                <p className="text-[10px] text-white/30 uppercase tracking-widest mb-3 font-medium">领域色彩</p>
+                <div className="flex flex-wrap gap-2">
+                  {DOMAINS.filter((d) => d.personas.length > 0).map((d) => (
+                    <div key={d.id} className="flex items-center gap-1.5">
+                      <div className="w-2.5 h-2.5 rounded-full" style={{ background: d.color }} />
+                      <span className="text-[10px] text-white/40">{d.label}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* Legend — bottom left, compact on mobile */}
-      <div className="absolute bottom-4 left-4 flex items-center gap-3 text-xs text-text-muted">
+      {/* ── Mobile hint ── */}
+      {isLoaded && (
+        <motion.div
+          className="absolute bottom-20 left-1/2 -translate-x-1/2 z-30 px-4 py-1.5 rounded-full text-xs text-white/30 pointer-events-none"
+          style={{ background: 'rgba(6,6,15,0.6)', backdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,0.06)' }}
+          initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 1.8, duration: 0.5 }}
+        >
+          点击节点查看详情 · 拖拽平移 · 双指缩放
+        </motion.div>
+      )}
+
+      {/* ── Node Detail Panel ── */}
+      <AnimatePresence>
+        {selectedNode && (
+          <motion.div
+            key={selectedNode.id}
+            className="detail-panel absolute bottom-0 inset-x-0 md:inset-y-auto md:top-20 md:right-5 md:left-auto md:w-[23rem] md:bottom-6 z-50 rounded-t-3xl md:rounded-2xl overflow-hidden"
+            style={{ background: 'rgba(8,8,22,0.94)', backdropFilter: 'blur(28px)', border: '1px solid rgba(255,255,255,0.09)' }}
+            initial={{ opacity: 0, y: 50, scale: 0.96 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 24, scale: 0.97 }}
+            transition={{ type: 'spring', stiffness: 310, damping: 28 }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Accent bar */}
+            <div className="h-0.5" style={{ background: `linear-gradient(90deg, ${selectedNode.gradientFrom || selectedNode.color}, ${selectedNode.gradientTo || selectedNode.color})` }} />
+
+            <div className="p-5">
+              {/* Header */}
+              <div className="flex items-start gap-3 mb-4">
+                <div
+                  className="w-11 h-11 rounded-xl flex items-center justify-center text-base font-bold text-white flex-shrink-0 shadow-lg"
+                  style={{ background: `linear-gradient(135deg, ${selectedNode.gradientFrom || selectedNode.color}, ${selectedNode.gradientTo || selectedNode.color})` }}
+                >
+                  {selectedNode.labelZh.slice(0, 1)}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <h3 className="font-semibold text-white text-base truncate">{selectedNode.labelZh}</h3>
+                    {selectedNode.type === 'persona' && (
+                      <span className="px-2 py-0.5 rounded-full text-[10px] font-medium" style={{ color: selectedNode.color, borderColor: `${selectedNode.color}50`, backgroundColor: `${selectedNode.color}12`, border: '1px solid' }}>
+                        蒸馏人物
+                      </span>
+                    )}
+                    {selectedNode.type === 'concept' && (
+                      <span className="px-2 py-0.5 rounded-full text-[10px] font-medium text-white/50" style={{ border: '1px solid rgba(255,255,255,0.15)', background: 'rgba(255,255,255,0.05)' }}>
+                        共享概念
+                      </span>
+                    )}
+                    {selectedNode.type === 'domain' && (
+                      <span className="px-2 py-0.5 rounded-full text-[10px] font-medium" style={{ color: selectedNode.color, borderColor: `${selectedNode.color}50`, backgroundColor: `${selectedNode.color}12`, border: '1px solid' }}>
+                        领域枢纽
+                      </span>
+                    )}
+                  </div>
+                  {selectedNode.type !== 'domain' && (
+                    <p className="text-xs text-white/30 mt-0.5">{selectedNode.label}</p>
+                  )}
+                </div>
+                <button onClick={() => setSelectedNode(null)} className="w-8 h-8 rounded-lg flex items-center justify-center text-white/35 hover:text-white hover:bg-white/10 transition-colors flex-shrink-0">
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              {/* ── Persona Detail ── */}
+              {selectedNode.type === 'persona' && (() => {
+                const persona = getPersona(selectedNode.id);
+                if (!persona) return null;
+                const connected = getConnected(selectedNode.id);
+                const connectedPersonas = connected.map((id) => nodes.find((n) => n.id === id)).filter((n) => n?.type === 'persona' && n.id !== selectedNode.id);
+                const connectedConcepts = connected.map((id) => nodes.find((n) => n.id === id)).filter((n) => n?.type === 'concept');
+                return (
+                  <>
+                    <p className="text-sm text-white/55 leading-relaxed mb-4">{persona.briefZh}</p>
+
+                    <div className="mb-4">
+                      <p className="text-[10px] text-white/30 uppercase tracking-wider mb-2 font-medium">思维模型</p>
+                      <div className="space-y-2">
+                        {persona.mentalModels.slice(0, 3).map((m) => (
+                          <div key={m.id} className="flex items-start gap-2.5">
+                            <div className="w-1.5 h-1.5 rounded-full mt-1.5 flex-shrink-0" style={{ backgroundColor: selectedNode.color }} />
+                            <div>
+                              <p className="text-sm font-medium text-white/75">{m.nameZh}</p>
+                              <p className="text-xs text-white/30 line-clamp-1 mt-0.5">{m.oneLiner}</p>
+                            </div>
+                          </div>
+                        ))}
+                        {persona.mentalModels.length > 3 && (
+                          <p className="text-xs text-white/20 pl-3.5">+{persona.mentalModels.length - 3} 个思维模型</p>
+                        )}
+                      </div>
+                    </div>
+
+                    {connectedConcepts.length > 0 && (
+                      <div className="mb-4">
+                        <p className="text-[10px] text-white/30 uppercase tracking-wider mb-2 font-medium">共享概念</p>
+                        <div className="flex flex-wrap gap-1.5">
+                          {connectedConcepts.map((c) => (
+                            <span key={c!.id} className="text-xs px-2.5 py-1 rounded-lg text-white/55" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }}>
+                              {c!.labelZh}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {connectedPersonas.length > 0 && (
+                      <div className="mb-4">
+                        <p className="text-[10px] text-white/30 uppercase tracking-wider mb-2 font-medium">相关人物 ({connectedPersonas.length})</p>
+                        <div className="flex flex-wrap gap-2">
+                          {connectedPersonas.slice(0, 8).map((p) => (
+                            <div key={p!.id} className="flex items-center gap-1.5">
+                              <div className="w-6 h-6 rounded-full flex items-center justify-center text-[9px] font-bold text-white" style={{ background: `linear-gradient(135deg, ${p!.gradientFrom}, ${p!.gradientTo})` }}>
+                                {p!.labelZh.slice(0, 1)}
+                              </div>
+                              <span className="text-xs text-white/45">{p!.labelZh.slice(0, 4)}</span>
+                            </div>
+                          ))}
+                          {connectedPersonas.length > 8 && (
+                            <span className="text-xs text-white/20 self-center">+{connectedPersonas.length - 8}</span>
+                          )}
+                        </div>
+                      </div>
+                    )}
+
+                    <Link
+                      href={`/app?persona=${selectedNode.id}`}
+                      className="mt-1 flex items-center justify-center gap-2 w-full py-2.5 rounded-xl text-sm font-medium transition-all"
+                      style={{ background: `linear-gradient(135deg, ${selectedNode.gradientFrom}22, ${selectedNode.gradientTo}22)`, color: selectedNode.color, border: `1px solid ${selectedNode.color}45` }}
+                      onClick={() => setSelectedNode(null)}
+                      onMouseDown={() => {
+                        if (selectedNode.type === 'persona') {
+                          const persona = getPersona(selectedNode.id);
+                          if (persona) {
+                            trackGraphNodeClick('persona', selectedNode.id, selectedNode.labelZh, selectedNode.personaId);
+                          }
+                        }
+                      }}
+                    >
+                      开始对话
+                      <ChevronRight className="w-4 h-4" />
+                    </Link>
+                  </>
+                );
+              })()}
+
+              {/* ── Concept Detail ── */}
+              {selectedNode.type === 'concept' && (() => {
+                const concept = CONCEPTS.find((c) => c.id === selectedNode.id);
+                const linkedPersonas = (concept?.personas || []).map((pId) => nodes.find((n) => n.id === pId)).filter(Boolean);
+                return (
+                  <>
+                    {concept?.desc && (
+                      <p className="text-sm text-white/50 leading-relaxed mb-4">{concept.desc}</p>
+                    )}
+                    {linkedPersonas.length > 0 && (
+                      <div className="mb-4">
+                        <p className="text-[10px] text-white/30 uppercase tracking-wider mb-2 font-medium">相关人物 ({linkedPersonas.length})</p>
+                        <div className="flex flex-wrap gap-2">
+                          {linkedPersonas.map((p) => (
+                            <div key={p!.id} className="flex items-center gap-1.5">
+                              <div className="w-6 h-6 rounded-full flex items-center justify-center text-[9px] font-bold text-white" style={{ background: `linear-gradient(135deg, ${p!.gradientFrom}, ${p!.gradientTo})` }}>
+                                {p!.labelZh.slice(0, 1)}
+                              </div>
+                              <span className="text-xs text-white/45">{p!.labelZh.slice(0, 4)}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    <div className="p-3 rounded-xl" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}>
+                      <p className="text-xs text-white/30">
+                        共有 <span className="text-white/55 font-medium">{concept?.personas.length ?? 0} 位</span> 蒸馏人物以此概念为核心思维工具
+                      </p>
+                    </div>
+                  </>
+                );
+              })()}
+
+              {/* ── Domain Hub Detail ── */}
+              {selectedNode.type === 'domain' && (() => {
+                const domainId = selectedNode.id.replace('domain-', '');
+                const domainPersonas = nodes.filter((n) => n.domain === domainId && n.type === 'persona');
+                const connectedConceptCount = CONCEPTS.filter((c) => c.personas.some((pId) => domainPersonas.some((dp) => dp.id === pId))).length;
+                const domain = DOMAINS.find((d) => d.id === domainId);
+                return (
+                  <>
+                    <div className="flex gap-3 mb-4">
+                      <div className="flex-1 p-3 rounded-xl text-center" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}>
+                        <p className="text-xl font-bold" style={{ color: selectedNode.color }}>{domainPersonas.length}</p>
+                        <p className="text-[10px] text-white/30 mt-0.5">蒸馏人物</p>
+                      </div>
+                      <div className="flex-1 p-3 rounded-xl text-center" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}>
+                        <p className="text-xl font-bold" style={{ color: selectedNode.color }}>{connectedConceptCount}</p>
+                        <p className="text-[10px] text-white/30 mt-0.5">共享概念</p>
+                      </div>
+                    </div>
+
+                    <p className="text-sm text-white/45 leading-relaxed mb-4">
+                      {domain?.label}领域的蒸馏人物共享相似的思维框架与认知模式。
+                    </p>
+
+                    <div className="flex flex-wrap gap-2">
+                      {domainPersonas.slice(0, 8).map((p) => (
+                        <div key={p.id} className="flex items-center gap-1.5">
+                          <div className="w-6 h-6 rounded-full flex items-center justify-center text-[9px] font-bold text-white" style={{ background: `linear-gradient(135deg, ${p.gradientFrom}, ${p.gradientTo})` }}>
+                            {p.labelZh.slice(0, 1)}
+                          </div>
+                          <span className="text-xs text-white/45">{p.labelZh.slice(0, 4)}</span>
+                        </div>
+                      ))}
+                      {domainPersonas.length > 8 && (
+                        <span className="text-xs text-white/20 self-center">+{domainPersonas.length - 8} 人</span>
+                      )}
+                    </div>
+                  </>
+                );
+              })()}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* ── Bottom Legend ── */}
+      <div className="absolute bottom-4 left-4 z-30 flex items-center gap-2">
         {[
-          { color: '#4d96ff', label: '启发' },
-          { color: '#ffd93d', label: '互补' },
-          { color: '#ff6b6b', label: '对立' },
+          { color: '#60a5fa', label: '启发' },
+          { color: '#fbbf24', label: '互补' },
+          { color: '#f87171', label: '对立' },
         ].map((item) => (
-          <div key={item.label} className="flex items-center gap-1.5 bg-bg-surface/80 backdrop-blur px-2 py-1 rounded-full border border-border-subtle">
-            <div className="w-3 h-0.5 rounded-full" style={{ backgroundColor: item.color }} />
-            <span>{item.label}</span>
+          <div key={item.label} className="flex items-center gap-1.5 px-2.5 py-1 rounded-full" style={{ background: 'rgba(6,6,15,0.7)', backdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,0.06)' }}>
+            <div className="w-4 h-px rounded-full" style={{ backgroundColor: item.color }} />
+            <span className="text-[10px] text-white/35">{item.label}</span>
           </div>
         ))}
       </div>
