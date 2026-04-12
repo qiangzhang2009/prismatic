@@ -7,7 +7,9 @@ node_modules/
 .next/
 out/
 build/
-dist/
+/dist/
+# 取消忽略 public/dist/（用于追踪脚本）
+!public/dist/
 
 # Testing
 coverage/

@@ -32,7 +32,7 @@
 
 ## 在线体验
 
-访问 **[prismatic-app.vercel.app](https://prismatic-app.vercel.app)** 直接使用。
+访问 **[prismatic.zxqconsulting.com](https://prismatic.zxqconsulting.com)** 直接使用。
 
 ---
 

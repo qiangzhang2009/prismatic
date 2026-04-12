@@ -26,11 +26,11 @@ export default function RootLayout({
         <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        {/* Prismatic Analytics Tracking SDK */}
+        {/* Prismatic Analytics Tracking SDK — manual preload to ensure crossorigin matches */}
+        <link rel="preload" href="/dist/zxq-tracking-v2.min.js" as="script" crossOrigin="anonymous" />
         <Script
           src="/dist/zxq-tracking-v2.min.js"
           strategy="afterInteractive"
-          crossOrigin="anonymous"
         />
       </head>
       <body className="min-h-screen bg-bg-base antialiased">

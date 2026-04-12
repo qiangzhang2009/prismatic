@@ -145,6 +145,7 @@ export function useTracking(config: TrackingConfig = {}) {
       const script = document.createElement('script');
       const baseUrl = window.location.origin;
       script.src = `${baseUrl}/dist/zxq-tracking-v2.min.js`;
+      script.crossOrigin = 'anonymous';
       script.async = true;
       script.onload = () => {
         initTracker(config);
