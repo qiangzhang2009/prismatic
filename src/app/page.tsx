@@ -374,8 +374,7 @@ export default function HomePage() {
                 >
                   <Link href={`/personas/${persona.slug}`}>
                     <div className="group rounded-xl border border-border-subtle bg-bg-elevated p-4 hover:border-border-medium hover:-translate-y-1 transition-all duration-200">
-                      <div
-                        className="w-12 h-12 rounded-lg mb-3 flex items-center justify-center text-lg font-medium text-white"
+                      <div className="w-12 h-12 rounded-lg mb-3 flex items-center justify-center text-lg font-medium text-white"
                         style={{ background: `linear-gradient(135deg, ${gradient.from}, ${gradient.to})` }}
                       >
                         {typeof persona.avatar === 'string' && persona.avatar.startsWith('http') ? (

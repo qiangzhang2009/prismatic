@@ -2,6 +2,9 @@
  * GET /api/analytics/overview — Prismatic Analytics Overview
  * Public endpoint for backend-admin dashboard (tenant=prismatic)
  * No auth required — only returns aggregate stats, not user data
+ *
+ * NOTE: Uses sequential queries (not Promise.all) to avoid Neon cold-start
+ * timeout when multiple DB connections are needed simultaneously.
  */
 import { NextRequest, NextResponse } from 'next/server';
 import { getTrackingOverview, getTrackingFunnel, getTrackingTrend } from '@/lib/tracking';
@@ -11,11 +14,10 @@ export async function GET(req: NextRequest) {
   const days = parseInt(searchParams.get('days') || '7', 10);
 
   try {
-    const [overview, funnel, trend] = await Promise.all([
-      getTrackingOverview(days),
-      getTrackingFunnel(days),
-      getTrackingTrend(days),
-    ]);
+    // Sequential queries to reduce Neon cold-start connection overhead
+    const overview = await getTrackingOverview(days);
+    const funnel = await getTrackingFunnel(days);
+    const trend = await getTrackingTrend(days);
 
     return NextResponse.json({
       overview: {
