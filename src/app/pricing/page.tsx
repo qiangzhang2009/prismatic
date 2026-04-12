@@ -364,8 +364,8 @@ export default function PricingPage() {
           </p>
 
           <div className="inline-flex flex-col items-center gap-4 p-8 rounded-2xl border border-border-subtle bg-bg-elevated">
-            <div className="w-48 h-48 rounded-xl overflow-hidden border border-border-subtle">
-              <Image unoptimized src="/wechat-qr.png" alt="微信二维码" className="w-full h-full object-cover" fill />
+            <div className="relative w-48 h-48 rounded-xl overflow-hidden border border-border-subtle">
+              <Image unoptimized src="/wechat-qr.png" alt="微信二维码" className="object-cover" fill />
             </div>
             <div>
               <p className="text-sm text-text-secondary mb-1">微信号</p>

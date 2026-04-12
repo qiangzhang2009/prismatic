@@ -11,7 +11,7 @@ import Link from 'next/link';
 import {
   ArrowLeft, Users, Crown, Shield, Search,
   ChevronDown, Check, X, RefreshCw,
-  Trash2, Edit3, ShieldCheck,
+  Trash2, Edit3, ShieldCheck, Info,
   TrendingUp, AlertTriangle, CheckCircle, XCircle, Save
 } from 'lucide-react';
 import { APP_NAME } from '@/lib/constants';
@@ -180,7 +180,18 @@ export default function AdminUsersPage() {
   const planOptions: SubscriptionPlan[] = ['FREE', 'MONTHLY', 'YEARLY', 'LIFETIME'];
   const roleOptions: UserRole[] = ['FREE', 'PRO', 'ADMIN'];
   const planLabels: Record<SubscriptionPlan, string> = { FREE: '免费', MONTHLY: '月度', YEARLY: '年度', LIFETIME: '终身' };
+  const planDescriptions: Record<SubscriptionPlan, string> = {
+    FREE: '每日10条，3个人物，Solo模式',
+    MONTHLY: '每月600条，全部人物，4种模式',
+    YEARLY: '全年7200条，全部人物，4种模式',
+    LIFETIME: '无限条数，全部人物，4种模式',
+  };
   const roleLabels: Record<UserRole, string> = { FREE: '普通', PRO: '高级', ADMIN: '管理员' };
+  const roleDescriptions: Record<UserRole, string> = {
+    FREE: '基础功能',
+    PRO: '高级功能体验',
+    ADMIN: '全部权限',
+  };
   const genderLabels = { male: '男', female: '女', null: '未设置' };
 
   return (
@@ -271,8 +282,18 @@ export default function AdminUsersPage() {
                       <th className="px-4 py-3 font-medium">用户</th>
                       <th className="px-4 py-3 font-medium">性别/省份</th>
                       <th className="px-4 py-3 font-medium">邮箱验证</th>
-                      <th className="px-4 py-3 font-medium">角色</th>
-                      <th className="px-4 py-3 font-medium">套餐</th>
+                      <th className="px-4 py-3 font-medium">
+                        <div className="flex items-center gap-1">
+                          角色
+                          <TooltipIcon title="普通：基础功能体验 | 高级：解锁高级功能 | 管理员：全部权限" />
+                        </div>
+                      </th>
+                      <th className="px-4 py-3 font-medium">
+                        <div className="flex items-center gap-1">
+                          套餐
+                          <TooltipIcon title="免费：每日10条，3人物，Solo | 月度：每月600条，全部人物，4模式 | 年度：全年7200条 | 终身：无限条数" />
+                        </div>
+                      </th>
                       <th className="px-4 py-3 font-medium">注册时间</th>
                       <th className="px-4 py-3 font-medium">最近登录</th>
                       <th className="px-4 py-3 font-medium text-right">操作</th>
@@ -342,20 +363,30 @@ export default function AdminUsersPage() {
 
                         {/* Role */}
                         <td className="px-4 py-3">
-                          <Dropdown value={user.role} options={roleOptions} labels={roleLabels} onChange={async (r) => {
-                            await fetch('/api/admin/users', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, credentials: 'include', body: JSON.stringify({ userId: user.id, role: r }) });
-                            setUsers(users.map(u => u.id === user.id ? { ...u, role: r as UserRole } : u));
-                            showSuccess('角色已更新');
-                          }} colorMap={{ FREE: 'gray', PRO: 'amber', ADMIN: 'purple' }} />
+                          <div className="group relative">
+                            <Dropdown value={user.role} options={roleOptions} labels={roleLabels} onChange={async (r) => {
+                              await fetch('/api/admin/users', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, credentials: 'include', body: JSON.stringify({ userId: user.id, role: r }) });
+                              setUsers(users.map(u => u.id === user.id ? { ...u, role: r as UserRole } : u));
+                              showSuccess('角色已更新');
+                            }} colorMap={{ FREE: 'gray', PRO: 'amber', ADMIN: 'purple' }} />
+                            <div className="absolute left-0 top-full mt-1 hidden group-hover:block z-30 w-48 p-2 rounded-lg bg-bg-elevated border border-border-subtle shadow-lg text-xs text-text-secondary">
+                              {roleDescriptions[user.role as UserRole]}
+                            </div>
+                          </div>
                         </td>
 
                         {/* Plan */}
                         <td className="px-4 py-3">
-                          <Dropdown value={user.plan} options={planOptions} labels={planLabels} onChange={async (p) => {
-                            await fetch('/api/admin/users', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, credentials: 'include', body: JSON.stringify({ userId: user.id, plan: p }) });
-                            setUsers(users.map(u => u.id === user.id ? { ...u, plan: p as SubscriptionPlan } : u));
-                            showSuccess('套餐已更新');
-                          }} colorMap={{ FREE: 'gray', MONTHLY: 'blue', YEARLY: 'green', LIFETIME: 'purple' }} />
+                          <div className="group relative">
+                            <Dropdown value={user.plan} options={planOptions} labels={planLabels} onChange={async (p) => {
+                              await fetch('/api/admin/users', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, credentials: 'include', body: JSON.stringify({ userId: user.id, plan: p }) });
+                              setUsers(users.map(u => u.id === user.id ? { ...u, plan: p as SubscriptionPlan } : u));
+                              showSuccess('套餐已更新');
+                            }} colorMap={{ FREE: 'gray', MONTHLY: 'blue', YEARLY: 'green', LIFETIME: 'purple' }} />
+                            <div className="absolute left-0 top-full mt-1 hidden group-hover:block z-30 w-56 p-2 rounded-lg bg-bg-elevated border border-border-subtle shadow-lg text-xs text-text-secondary leading-relaxed">
+                              {planDescriptions[user.plan as SubscriptionPlan]}
+                            </div>
+                          </div>
                         </td>
 
                         {/* Dates */}
@@ -463,6 +494,24 @@ function Dropdown<T extends string>({ value, options, labels, onChange, colorMap
               {opt === value && <Check className="w-3 h-3 text-prism-blue" />}
             </button>
           ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function TooltipIcon({ title }: { title: string }) {
+  const [show, setShow] = useState(false);
+  return (
+    <div className="relative inline-flex items-center">
+      <Info
+        className="w-3.5 h-3.5 text-text-muted cursor-help"
+        onMouseEnter={() => setShow(true)}
+        onMouseLeave={() => setShow(false)}
+      />
+      {show && (
+        <div className="absolute left-0 top-full mt-1 z-50 w-64 p-2.5 rounded-lg bg-bg-elevated border border-border-subtle shadow-xl text-xs text-text-secondary leading-relaxed whitespace-pre-wrap">
+          {title}
         </div>
       )}
     </div>
