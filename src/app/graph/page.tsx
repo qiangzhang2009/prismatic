@@ -209,7 +209,7 @@ export default function GraphPage() {
       const dist = Math.hypot(e.touches[1].clientX - e.touches[0].clientX, e.touches[1].clientY - e.touches[0].clientY);
       setScale(Math.max(0.3, Math.min(3, lastTouch.current.scale * (dist / lastTouch.current.dist))));
     }
-  }, [dragging, dragStart, scale]);
+  }, [dragging, dragStart]);
 
   const handleTouchEnd = useCallback(() => { setDragging(false); lastTouch.current = null; }, []);
 

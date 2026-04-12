@@ -195,7 +195,7 @@ export function MentalModelMap({ persona, theme }: Props) {
       cancelled = true;
       if (simulation) simulation.stop();
     };
-  }, [persona.slug, theme.primaryColor]);
+  }, [persona.slug, persona.mentalModels, theme.primaryColor]);
 
   return (
     <section

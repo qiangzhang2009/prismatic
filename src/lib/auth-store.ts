@@ -36,6 +36,7 @@ interface AuthState {
   logout: () => Promise<void>;
   updateUser: (data: Partial<AuthUser>) => void;
   fetchUser: () => Promise<void>;
+  refresh: () => Promise<void>;
   canUsePro: () => boolean;
 }
 
@@ -122,6 +123,16 @@ export const useAuthStore = create<AuthState>()(
       },
 
       fetchUser: async () => {
+        try {
+          const res = await fetch('/api/auth/me', { credentials: 'include' });
+          const data = await res.json();
+          set({ user: data.user || null });
+        } catch {
+          // ignore
+        }
+      },
+
+      refresh: async () => {
         try {
           const res = await fetch('/api/auth/me', { credentials: 'include' });
           const data = await res.json();

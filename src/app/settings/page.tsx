@@ -4,6 +4,7 @@
  * Prismatic — Account Settings Page
  */
 import { useState } from 'react';
+import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import {
@@ -12,7 +13,7 @@ import {
   ChevronRight, Smartphone, Github, Crown,
   Edit3, X, Check, Eye, EyeOff
 } from 'lucide-react';
-import { useAuthStore } from '@/lib/auth-store';
+import { useAuthStore, AuthUser } from '@/lib/auth-store';
 
 const PROVINCES = [
   '北京', '上海', '天津', '重庆',
@@ -145,7 +146,7 @@ export default function SettingsPage() {
 
 /* ─── Profile Tab ─── */
 function ProfileTab({ user, onSuccess, onError, onLoading }: {
-  user: NonNullable<ReturnType<typeof useAuthStore>['user']>;
+  user: AuthUser;
   onSuccess: (m: string) => void;
   onError: (m: string) => void;
   onLoading: (b: boolean) => void;
@@ -187,7 +188,7 @@ function ProfileTab({ user, onSuccess, onError, onLoading }: {
         {/* Avatar */}
         <div className="flex items-center gap-4 p-4 rounded-xl border border-border-subtle bg-bg-elevated">
           {user.avatar ? (
-            <img src={user.avatar} alt="" className="w-16 h-16 rounded-full object-cover" />
+            <Image unoptimized src={user.avatar} alt="" className="w-16 h-16 rounded-full object-cover" width={64} height={64} />
           ) : (
             <div className="w-16 h-16 rounded-full bg-prism-gradient flex items-center justify-center text-white text-xl font-medium">
               {user.name?.[0] || user.email[0].toUpperCase()}
@@ -258,7 +259,7 @@ function ProfileTab({ user, onSuccess, onError, onLoading }: {
 
 /* ─── Account Tab ─── */
 function AccountTab({ user, onSuccess, onError }: {
-  user: NonNullable<ReturnType<typeof useAuthStore>['user']>;
+  user: AuthUser;
   onSuccess: (m: string) => void;
   onError: (m: string) => void;
 }) {
@@ -337,7 +338,7 @@ function AccountTab({ user, onSuccess, onError }: {
 
 /* ─── Security Tab ─── */
 function SecurityTab({ user, onSuccess, onError }: {
-  user: NonNullable<ReturnType<typeof useAuthStore>['user']>;
+  user: AuthUser;
   onSuccess: (m: string) => void;
   onError: (m: string) => void;
 }) {

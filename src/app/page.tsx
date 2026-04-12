@@ -7,6 +7,7 @@
  */
 
 import { useState, useEffect } from 'react';
+import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -379,7 +380,7 @@ export default function HomePage() {
                         style={{ background: `linear-gradient(135deg, ${gradient.from}, ${gradient.to})` }}
                       >
                         {typeof persona.avatar === 'string' && persona.avatar.startsWith('http') ? (
-                          <img src={persona.avatar} alt={persona.name} className="w-full h-full object-cover rounded-lg" />
+                          <Image unoptimized priority src={persona.avatar} alt={persona.name} className="w-full h-full object-cover rounded-lg" fill />
                         ) : (
                           persona.nameZh?.[0] || persona.name?.[0] || '?'
                         )}

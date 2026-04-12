@@ -6,6 +6,7 @@
  */
 
 import { useState, useRef, useEffect } from 'react';
+import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import {
@@ -66,7 +67,7 @@ export function UserMenu() {
         {user ? (
           <>
             {user.avatar ? (
-              <img src={user.avatar} alt="" className="w-8 h-8 rounded-full object-cover" />
+              <Image unoptimized src={user.avatar} alt="" className="w-8 h-8 rounded-full object-cover" width={32} height={32} />
             ) : (
               <div className="w-8 h-8 rounded-full bg-prism-gradient flex items-center justify-center text-white text-sm font-medium">
                 {user.name?.[0] || user.email[0].toUpperCase()}
@@ -105,7 +106,7 @@ export function UserMenu() {
                   <div className="px-4 py-3 border-b border-border-subtle">
                     <div className="flex items-center gap-3">
                       {user.avatar ? (
-                        <img src={user.avatar} alt="" className="w-10 h-10 rounded-full object-cover" />
+                        <Image unoptimized src={user.avatar} alt="" className="w-10 h-10 rounded-full object-cover" width={40} height={40} />
                       ) : (
                         <div className="w-10 h-10 rounded-full bg-prism-gradient flex items-center justify-center text-white font-medium">
                           {user.name?.[0] || user.email[0].toUpperCase()}

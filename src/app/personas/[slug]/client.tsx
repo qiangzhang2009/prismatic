@@ -5,6 +5,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Image from 'next/image';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import {
@@ -198,11 +199,7 @@ export function PersonaDetailClient({ persona, colors }: Props) {
           </Link>
           <div className="w-px h-5 bg-border-subtle" />
           <div className="flex items-center gap-3">
-            <img
-              src={persona.avatar}
-              alt={persona.nameZh}
-              className="w-7 h-7 rounded-full object-cover"
-            />
+            <Image unoptimized src={persona.avatar} alt={persona.nameZh} className="w-7 h-7 rounded-full object-cover" width={28} height={28} />
             <span className="font-display font-semibold text-sm">{persona.nameZh}</span>
           </div>
           <Link
@@ -223,13 +220,8 @@ export function PersonaDetailClient({ persona, colors }: Props) {
       {/* Hero */}
       <section className="px-6 py-12">
         <div className="max-w-4xl mx-auto">
-          <div className="flex items-start gap-6">
-            <img
-              src={persona.avatar}
-              alt={persona.nameZh}
-              className="w-20 h-20 rounded-2xl object-cover flex-shrink-0"
-              style={{ border: `2px solid ${colors.accent}40` }}
-            />
+            <div className="flex items-start gap-6">
+            <Image unoptimized src={persona.avatar} alt={persona.nameZh} className="w-20 h-20 rounded-2xl object-cover flex-shrink-0" width={80} height={80} style={{ border: `2px solid ${colors.accent}40` }} />
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-3 mb-2">
                 <h1 className="text-3xl font-display font-bold">{persona.nameZh}</h1>
