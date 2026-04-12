@@ -194,8 +194,8 @@ export async function getTrackingOverview(days: number = 7): Promise<{
 // ─── Persona Stats ─────────────────────────────────────────────────────────────
 
 export async function getTrackingPersonas(days: number = 30, limit: number = 50): Promise<Array<{
-  personaId: string; personaName: string; domain: string;
-  views: number; conversations: number; avgTurns: number; graphClicks: number;
+  persona_id: string; persona_name: string; domain: string;
+  views: number; conversations: number; avg_turns: number; graph_clicks: number;
 }>> {
   if (!sql) return [];
 
@@ -206,7 +206,10 @@ export async function getTrackingPersonas(days: number = 30, limit: number = 50)
       COALESCE(domain, '') as domain,
       COUNT(CASE WHEN event_type = 'persona_view' THEN 1 END)::int as views,
       COUNT(CASE WHEN event_type = 'chat_start' THEN 1 END)::int as conversations,
-      COALESCE(ROUND(AVG(CASE WHEN event_type = 'chat_message' THEN conversation_turn END)::numeric, 1), 0) as avg_turns,
+      CASE
+        WHEN COUNT(CASE WHEN event_type = 'chat_message' THEN 1 END) = 0 THEN 0
+        ELSE ROUND(AVG(CASE WHEN event_type = 'chat_message' THEN conversation_turn END)::numeric, 1)
+      END as avg_turns,
       COUNT(CASE WHEN event_type = 'graph_node_click' THEN 1 END)::int as graph_clicks
     FROM public.prismatic_events
     WHERE tenant_id = ${PRISMATIC_TENANT_ID}
@@ -218,13 +221,13 @@ export async function getTrackingPersonas(days: number = 30, limit: number = 50)
   `;
 
   return rows.map((r: Record<string, unknown>) => ({
-    personaId: String(r.persona_id ?? ''),
-    personaName: String(r.persona_name ?? ''),
+    persona_id: String(r.persona_id ?? ''),
+    persona_name: String(r.persona_name ?? ''),
     domain: String(r.domain ?? ''),
     views: Number(r.views),
     conversations: Number(r.conversations),
-    avgTurns: parseFloat(String(r.avg_turns)) || 0,
-    graphClicks: Number(r.graph_clicks),
+    avg_turns: parseFloat(String(r.avg_turns)) || 0,
+    graph_clicks: Number(r.graph_clicks),
   }));
 }
 
@@ -271,11 +274,11 @@ export async function getTrackingVisitors(limit: number = 100): Promise<Array<{
     SELECT
       visitor_id,
       COUNT(*)::int as visit_count,
-      SUM(session_duration_ms)::int / 1000 as total_duration_seconds,
+      COALESCE(SUM(session_duration_ms), 0)::int / 1000 as total_duration_seconds,
       MIN(created_at) as first_visit,
       MAX(created_at) as last_visit,
-      MAX(device_type) as device_type,
-      MAX(country) as country
+      COALESCE(MAX(device_type), 'desktop') as device_type,
+      COALESCE(MAX(country), '') as country
     FROM public.page_events
     WHERE tenant_id = ${PRISMATIC_TENANT_ID}
       AND visitor_id IS NOT NULL
@@ -290,7 +293,7 @@ export async function getTrackingVisitors(limit: number = 100): Promise<Array<{
     total_duration_seconds: Number(r.total_duration_seconds) || 0,
     first_visit: String(r.first_visit ?? ''),
     last_visit: String(r.last_visit ?? ''),
-    device_type: String(r.device_type ?? 'unknown'),
+    device_type: String(r.device_type ?? 'desktop'),
     country: String(r.country ?? ''),
   }));
 }
@@ -369,10 +372,13 @@ export async function getTrackingContentHealth(days: number = 30, limit: number 
       url_path,
       COUNT(*)::int as pv,
       COUNT(DISTINCT visitor_id)::int as uv,
-      ROUND(
-        COUNT(CASE WHEN page_count = 1 THEN 1 END)::numeric /
-        NULLIF(COUNT(DISTINCT session_id), 0) * 100, 1
-      ) as bounce_rate
+      CASE
+        WHEN COUNT(DISTINCT session_id) = 0 THEN 0
+        ELSE ROUND(
+          COUNT(CASE WHEN page_count = 1 THEN 1 END)::numeric /
+          COUNT(DISTINCT session_id)::numeric * 100, 1
+        )
+      END as bounce_rate
     FROM public.page_events
     WHERE tenant_id = ${PRISMATIC_TENANT_ID}
       AND event_type = 'pageview'

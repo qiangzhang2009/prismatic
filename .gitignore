@@ -55,3 +55,8 @@ prisma/migrations/
 # Cursor project config
 .specstory/
 .gstack/
+
+# Training data & scrapers — DO NOT commit to source control
+scrapers/
+docs/
+migrations/

@@ -1,10 +1,34 @@
 /**
  * Diagnostic API — test DeepSeek connectivity from Vercel serverless
+ * WARNING: This endpoint is open for debugging. Remove or add admin auth before production.
+ * Currently: requires ADMIN role cookie check.
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { neon } from '@neondatabase/serverless';
 
-export async function GET(request: NextRequest) {
+async function getSessionUser(sessionToken: string): Promise<{ userId: string; role: string } | null> {
+  try {
+    const sql = neon(process.env.DATABASE_URL!);
+    const rows = await sql`SELECT user_id, role FROM public.sessions WHERE id = ${sessionToken} LIMIT 1`;
+    if (!rows || rows.length === 0) return null;
+    return { userId: String(rows[0].user_id), role: String(rows[0].role ?? 'FREE') };
+  } catch {
+    return null;
+  }
+}
+
+export async function GET(req: NextRequest) {
+  // Auth check — only admins can access diagnostic endpoint
+  const sessionToken = req.cookies.get('prismatic-session')?.value;
+  if (!sessionToken) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+  const sessionUser = await getSessionUser(sessionToken);
+  if (!sessionUser || sessionUser.role !== 'ADMIN') {
+    return NextResponse.json({ error: 'Forbidden — admin only' }, { status: 403 });
+  }
+
   const results: Record<string, any> = {
     timestamp: new Date().toISOString(),
     env: {
