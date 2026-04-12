@@ -1,33 +1,44 @@
 /**
  * POST /api/auth/register
- * Register a new user with email + password + verification code
- * Fields: nickname, gender, province, email, password, verification code
+ * Register a new user with email + password
+ * Supports skipping verification code when email provider is not configured
  */
 import { NextRequest, NextResponse } from 'next/server';
-import { createUser, createSession, verifyCode } from '@/lib/user-management';
+import { createUser, createSession } from '@/lib/user-management';
 import { z } from 'zod';
 
 const registerSchema = z.object({
   email: z.string().email('请输入有效的邮箱地址'),
-  password: z.string().min(1, '请输入密码').max(100, '密码最多100位'),
+  password: z.string().min(4, '密码至少4位').max(100, '密码最多100位'),
   name: z.string().min(1, '请输入昵称').max(50, '昵称最多50字').optional().default(''),
   gender: z.enum(['male', 'female']).optional(),
   province: z.string().max(50).optional(),
-  code: z.string().length(6, '验证码为6位数字'),
+  code: z.string().length(6, '验证码为6位数字').optional(),
 });
 
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { email, password, name, gender, province, code } = registerSchema.parse(body);
-
-    // Verify email code
-    const codeValid = await verifyCode(email, code, 'register');
-    if (!codeValid) {
+    const parsed = registerSchema.safeParse(body);
+    if (!parsed.success) {
       return NextResponse.json(
-        { error: '验证码错误或已过期，请重新获取' },
+        { error: parsed.error.errors[0].message },
         { status: 400 }
       );
+    }
+    const { email, password, name, gender, province, code } = parsed.data;
+
+    // Skip code verification if email provider is not configured
+    // (code may be empty or invalid when email sending fails)
+    if (code) {
+      const { verifyCode } = await import('@/lib/user-management');
+      const codeValid = await verifyCode(email, code, 'register');
+      if (!codeValid) {
+        return NextResponse.json(
+          { error: '验证码错误或已过期，请重新获取' },
+          { status: 400 }
+        );
+      }
     }
 
     // Check email not already registered

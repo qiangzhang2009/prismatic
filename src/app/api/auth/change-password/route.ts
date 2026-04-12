@@ -18,8 +18,8 @@ export async function POST(req: NextRequest) {
     if (!currentPassword || !newPassword) {
       return NextResponse.json({ error: '缺少参数' }, { status: 400 });
     }
-    if (newPassword.length < 6) {
-      return NextResponse.json({ error: '新密码长度不能少于6位' }, { status: 400 });
+    if (newPassword.length < 4) {
+      return NextResponse.json({ error: '新密码长度不能少于4位' }, { status: 400 });
     }
 
     const valid = await verifyPassword(session.userId, currentPassword);

@@ -350,7 +350,7 @@ function SecurityTab({ user, onSuccess, onError }: {
 
   const handleChangePassword = async () => {
     if (newPassword !== confirmPassword) { onError('两次输入的密码不一致'); return; }
-    if (newPassword.length < 6) { onError('密码长度不能少于6位'); return; }
+    if (newPassword.length < 4) { onError('密码长度不能少于4位'); return; }
     setLoading(true);
     try {
       const res = await fetch('/api/auth/change-password', {
