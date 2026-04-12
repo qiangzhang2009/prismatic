@@ -155,12 +155,8 @@ export function AstroProfile({ persona, theme }: Props) {
             className="flex flex-wrap justify-center gap-2"
           >
             {traits.map((trait, i) => (
-              <motion.span
+              <span
                 key={trait}
-                initial={{ opacity: 0, scale: 0.9 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.4, delay: 0.5 + i * 0.08 }}
                 className="px-4 py-1.5 rounded-full text-xs font-medium"
                 style={{
                   color: theme.primaryColor,
@@ -170,7 +166,7 @@ export function AstroProfile({ persona, theme }: Props) {
                 }}
               >
                 {trait}
-              </motion.span>
+              </span>
             ))}
           </motion.div>
 

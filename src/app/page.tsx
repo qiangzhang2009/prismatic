@@ -367,13 +367,13 @@ export default function HomePage() {
               return (
                 <motion.div
                   key={persona.id}
-                  initial={{ opacity: 0 }}
-                  whileInView={{ opacity: 1 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: i * 0.06 }}
+                  initial={{ opacity: 0, y: 10 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: '-50px' }}
+                  transition={{ delay: i * 0.06, duration: 0.4 }}
                 >
                   <Link href={`/personas/${persona.slug}`}>
-                    <div className="group rounded-xl border border-border-subtle bg-bg-elevated p-4 hover:border-border-medium hover:-translate-y-1 transition-all duration-200">
+                    <div className="group rounded-xl border border-border-subtle bg-bg-elevated p-4 hover:border-border-medium transition-all duration-200">
                       <div className="w-12 h-12 rounded-lg mb-3 flex items-center justify-center text-lg font-medium text-white"
                         style={{ background: `linear-gradient(135deg, ${gradient.from}, ${gradient.to})` }}
                       >
