@@ -3,14 +3,14 @@
 /**
  * Prismatic — Account Settings Page
  */
-import { useState, useEffect, useCallback } from 'react';
+import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import {
   ArrowLeft, User, Mail, Lock, Shield, Bell, Trash2,
   Save, CheckCircle, AlertTriangle, RefreshCw,
-  ChevronRight, Globe, Smartphone, Github, Crown,
-  Edit3, X, Check
+  ChevronRight, Smartphone, Github, Crown,
+  Edit3, X, Check, Eye, EyeOff
 } from 'lucide-react';
 import { useAuthStore } from '@/lib/auth-store';
 
