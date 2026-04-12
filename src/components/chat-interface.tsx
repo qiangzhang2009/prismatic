@@ -428,7 +428,7 @@ export function ChatInterface({ className, initialPersona, initialMode }: ChatIn
           {!isPickerOpen ? (
             <button
               className="ml-auto flex items-center gap-2 text-sm text-text-secondary hover:text-text-primary transition-colors"
-              onClick={() => setIsPickerOpen(true)}
+              onClick={() => { setIsPickerOpen(true); setShowPersonaPicker(true); }}
             >
               <div className="flex -space-x-2">
                 {selectedPersonas.slice(0, 3).map((p) => (
