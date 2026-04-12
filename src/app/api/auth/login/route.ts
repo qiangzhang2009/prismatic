@@ -1,21 +1,69 @@
 /**
  * POST /api/auth/login
  * Login with email + password
+ * Supports both database users and demo accounts
  */
 import { NextRequest, NextResponse } from 'next/server';
 import { verifyCredentials, createSession } from '@/lib/user-management';
 import { z } from 'zod';
+import bcrypt from 'bcryptjs';
+
+const DEMO_ACCOUNTS = [
+  { email: 'demo1@prismatic.app', password: 'Prismatic2024!' },
+  { email: 'demo2@prismatic.app', password: 'Prismatic2024!' },
+  { email: 'demo3@prismatic.app', password: 'Prismatic2024!' },
+  { email: 'demo4@prismatic.app', password: 'Prismatic2024!' },
+  { email: 'demo5@prismatic.app', password: 'Prismatic2024!' },
+];
 
 const loginSchema = z.object({
   email: z.string().email('Invalid email address'),
   password: z.string().min(1, 'Password is required'),
 });
 
+function isDemoAccount(email: string, password: string) {
+  return DEMO_ACCOUNTS.some(
+    (demo) => demo.email.toLowerCase() === email.toLowerCase() && demo.password === password
+  );
+}
+
+function createDemoUser(email: string) {
+  const num = email.match(/demo(\d+)/)?.[1] || '1';
+  return {
+    id: `demo_${Buffer.from(email).toString('base64').slice(0, 8)}`,
+    email: email.toLowerCase(),
+    name: `演示账号 ${num}`,
+    nameZh: `演示账号 ${num}`,
+    gender: null,
+    province: null,
+    emailVerified: true,
+    role: 'PRO' as const,
+    plan: 'LIFETIME' as const,
+    avatar: null,
+    canUseProFeatures: true,
+  };
+}
+
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
     const { email, password } = loginSchema.parse(body);
-    
+
+    // Check demo accounts first
+    if (isDemoAccount(email, password)) {
+      const demoUser = createDemoUser(email);
+      const token = await createSession(demoUser.id);
+      const res = NextResponse.json({ user: demoUser, message: 'Login successful' });
+      res.cookies.set('prismatic_token', token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        maxAge: 30 * 24 * 60 * 60,
+        path: '/',
+      });
+      return res;
+    }
+
     const user = await verifyCredentials(email, password);
     if (!user) {
       return NextResponse.json(
@@ -23,10 +71,10 @@ export async function POST(req: NextRequest) {
         { status: 401 }
       );
     }
-    
+
     const token = await createSession(user.id);
-    
-    const res = NextResponse.json({ 
+
+    const res = NextResponse.json({
       user: {
         id: user.id,
         email: user.email,
@@ -37,7 +85,7 @@ export async function POST(req: NextRequest) {
       },
       message: 'Login successful'
     });
-    
+
     res.cookies.set('prismatic_token', token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
@@ -45,7 +93,7 @@ export async function POST(req: NextRequest) {
       maxAge: 30 * 24 * 60 * 60,
       path: '/',
     });
-    
+
     return res;
   } catch (error) {
     if (error instanceof z.ZodError) {
