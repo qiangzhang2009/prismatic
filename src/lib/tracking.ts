@@ -262,8 +262,8 @@ export async function getTrackingFunnel(days: number = 30): Promise<Array<{ name
 // ─── Visitor Profiles ──────────────────────────────────────────────────────────
 
 export async function getTrackingVisitors(limit: number = 100): Promise<Array<{
-  visitorId: string; visitCount: number; totalDuration: number;
-  firstVisit: string; lastVisit: string; deviceType: string; country: string;
+  visitor_id: string; visit_count: number; total_duration_seconds: number;
+  first_visit: string; last_visit: string; device_type: string; country: string;
 }>> {
   if (!sql) return [];
 
@@ -285,12 +285,12 @@ export async function getTrackingVisitors(limit: number = 100): Promise<Array<{
   `;
 
   return rows.map((r: Record<string, unknown>) => ({
-    visitorId: String(r.visitor_id ?? ''),
-    visitCount: Number(r.visit_count),
-    totalDuration: Number(r.total_duration_seconds) || 0,
-    firstVisit: String(r.first_visit ?? ''),
-    lastVisit: String(r.last_visit ?? ''),
-    deviceType: String(r.device_type ?? 'unknown'),
+    visitor_id: String(r.visitor_id ?? ''),
+    visit_count: Number(r.visit_count),
+    total_duration_seconds: Number(r.total_duration_seconds) || 0,
+    first_visit: String(r.first_visit ?? ''),
+    last_visit: String(r.last_visit ?? ''),
+    device_type: String(r.device_type ?? 'unknown'),
     country: String(r.country ?? ''),
   }));
 }
@@ -334,7 +334,7 @@ export async function getTrackingTrend(days: number = 7): Promise<Array<{
 // ─── Device Stats ─────────────────────────────────────────────────────────────
 
 export async function getTrackingDeviceStats(days: number = 30): Promise<Array<{
-  deviceType: string; count: number; percentage: number;
+  device_type: string; count: number; percentage: number;
 }>> {
   if (!sql) return [];
 
@@ -351,7 +351,7 @@ export async function getTrackingDeviceStats(days: number = 30): Promise<Array<{
 
   const total = rows.reduce((s: number, r: Record<string, unknown>) => s + Number(r.count), 0) || 1;
   return rows.map((r: Record<string, unknown>) => ({
-    deviceType: String(r.device_type ?? 'unknown'),
+    device_type: String(r.device_type ?? 'unknown'),
     count: Number(r.count),
     percentage: Math.round((Number(r.count) / total) * 100),
   }));
@@ -360,7 +360,7 @@ export async function getTrackingDeviceStats(days: number = 30): Promise<Array<{
 // ─── Content Health ────────────────────────────────────────────────────────────
 
 export async function getTrackingContentHealth(days: number = 30, limit: number = 50): Promise<Array<{
-  urlPath: string; pv: number; uv: number; bounceRate: number;
+  url_path: string; pv: number; uv: number; bounceRate: number; avgScrollDepth: number;
 }>> {
   if (!sql) return [];
 
@@ -384,9 +384,10 @@ export async function getTrackingContentHealth(days: number = 30, limit: number 
   `;
 
   return rows.map((r: Record<string, unknown>) => ({
-    urlPath: String(r.url_path ?? ''),
+    url_path: String(r.url_path ?? ''),
     pv: Number(r.pv),
     uv: Number(r.uv),
     bounceRate: parseFloat(String(r.bounce_rate)) || 0,
+    avgScrollDepth: 0,
   }));
 }
