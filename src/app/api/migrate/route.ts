@@ -83,7 +83,7 @@ export async function POST(req: NextRequest) {
       if (Number(existingComments[0]?.count || 0) === 0) {
         await sql`
           INSERT INTO public.prismatic_comments (content, author_name, author_avatar, display_name, is_pinned)
-          VALUES 
+          VALUES
             ('这个产品太棒了！让乔布斯和芒格同时思考我的问题，感觉打开了新世界的大门 🚀', '产品爱好者', '🚀', '产品爱好者', true),
             ('作为一个哲学爱好者，终于找到了可以深入探讨斯多葛主义的工具。费曼的思维方式也让人受益匪浅！', '哲学探索者', '🦉', '哲学探索者', false),
             ('张一鸣的实用主义思维对我做产品很有启发，强力推荐！', '创业者小明', '💡', '创业者小明', false)
@@ -92,6 +92,32 @@ export async function POST(req: NextRequest) {
       }
     } catch (e: any) {
       results.push(`Sample data: ${e.message}`);
+    }
+
+    // Create debate visitor contributions table
+    try {
+      await sql`
+        CREATE TABLE IF NOT EXISTS public.prismatic_forum_debate_visitors (
+          id            BIGSERIAL PRIMARY KEY,
+          debate_id     BIGINT NOT NULL,
+          visitor_id    VARCHAR(64),
+          content       TEXT NOT NULL CHECK (char_length(content) >= 2 AND char_length(content) <= 300),
+          ip_hash       VARCHAR(64),
+          is_ai_response BOOLEAN DEFAULT FALSE,
+          created_at    TIMESTAMPTZ DEFAULT NOW()
+        )
+      `;
+      results.push('Created prismatic_forum_debate_visitors table');
+    } catch (e: any) {
+      results.push(`Debate visitors table: ${e.message}`);
+    }
+
+    // Create index
+    try {
+      await sql`CREATE INDEX IF NOT EXISTS idx_debate_visitors_debate_id ON public.prismatic_forum_debate_visitors(debate_id)`;
+      results.push('Created debate visitor index');
+    } catch (e: any) {
+      results.push(`Debate visitor index: ${e.message}`);
     }
 
     return NextResponse.json({ success: true, results });
