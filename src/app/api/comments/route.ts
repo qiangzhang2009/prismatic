@@ -296,7 +296,7 @@ export async function POST(req: NextRequest) {
         avatar_url: avatarUrl,
         display_name: displayName,
         gender: gender || null,
-        location,
+        location: locationStr,
         created_at: new Date().toISOString(),
         is_pinned: false,
         is_edited: false,

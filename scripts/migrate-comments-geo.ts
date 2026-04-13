@@ -23,7 +23,7 @@ async function migrate() {
 
   for (const [col, type] of columns) {
     try {
-      await sql.unsafe(`ALTER TABLE public.prismatic_comments ADD COLUMN IF NOT EXISTS "${col}" ${type}`);
+      await sql.unsafe(`ALTER TABLE public.prismatic_comments ADD COLUMN IF NOT EXISTS "${col}" ${type}`).raw();
       console.log(`✅ ${col} column added`);
     } catch (e: any) {
       console.log(`⚠️ ${col}: ${e.message.split('\n')[0]}`);
@@ -47,7 +47,7 @@ async function migrate() {
         updated_at TIMESTAMPTZ DEFAULT NOW(),
         UNIQUE(persona_id, duty_date)
       )
-    `);
+    `).raw();
     console.log('✅ guardian_duties table created');
   } catch (e: any) {
     console.log(`⚠️ guardian_duties: ${e.message.split('\n')[0]}`);
@@ -55,7 +55,7 @@ async function migrate() {
 
   // Index on duty_date
   try {
-    await sql.unsafe(`CREATE INDEX IF NOT EXISTS idx_guardian_duties_date ON public.guardian_duties(duty_date)`);
+    await sql.unsafe(`CREATE INDEX IF NOT EXISTS idx_guardian_duties_date ON public.guardian_duties(duty_date)`).raw();
     console.log('✅ guardian_duties date index');
   } catch (e: any) {
     console.log(`⚠️ guardian_duties date index: ${e.message.split('\n')[0]}`);
@@ -63,14 +63,14 @@ async function migrate() {
 
   // ── Indexes for geo columns ───────────────────────────────────────────────
   try {
-    await sql.unsafe(`CREATE INDEX IF NOT EXISTS idx_comments_geo_country ON public.prismatic_comments(geo_country)`);
+    await sql.unsafe(`CREATE INDEX IF NOT EXISTS idx_comments_geo_country ON public.prismatic_comments(geo_country)`).raw();
     console.log('✅ geo_country index');
   } catch (e: any) {
     console.log(`⚠️ geo_country index: ${e.message.split('\n')[0]}`);
   }
 
   try {
-    await sql.unsafe(`CREATE INDEX IF NOT EXISTS idx_comments_geo_region ON public.prismatic_comments(geo_region)`);
+    await sql.unsafe(`CREATE INDEX IF NOT EXISTS idx_comments_geo_region ON public.prismatic_comments(geo_region)`).raw();
     console.log('✅ geo_region index');
   } catch (e: any) {
     console.log(`⚠️ geo_region index: ${e.message.split('\n')[0]}`);
