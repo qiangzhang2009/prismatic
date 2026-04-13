@@ -167,7 +167,7 @@ export function DebateArenaClient({ debate, preview, error }: DebateArenaClientP
         setContributions(data.contributions ?? []);
       }
     } catch { /* silent */ }
-  }, [debate?.id, debate]);
+  }, [debate]);
 
   useEffect(() => {
     if (tab === 'history') loadHistory();

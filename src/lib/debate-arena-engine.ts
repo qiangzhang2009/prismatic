@@ -127,6 +127,7 @@ export async function createDebate(
   participantIds: string[],
   topicSource: 'auto' | 'manual' | 'user_suggested' = 'auto'
 ): Promise<number> {
+  const today = new Date().toISOString().slice(0, 10);
   let insertedId: number | undefined;
   await safeQueryVoid(async (sql) => {
     const rows = await sql`
