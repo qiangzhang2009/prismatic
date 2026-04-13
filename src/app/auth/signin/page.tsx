@@ -4,21 +4,26 @@
  * Prismatic — Sign In Page
  */
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/lib/auth-store';
-import { Hexagon, Sparkles, Mail, Lock, Eye, EyeOff, AlertCircle, ArrowLeft, LogIn } from 'lucide-react';
+import { Hexagon, Mail, Lock, Eye, EyeOff, AlertCircle, ArrowLeft, LogIn } from 'lucide-react';
 import { APP_NAME } from '@/lib/constants';
 
 export default function SignInPage() {
-  const router = useRouter();
-  const { login, isLoading } = useAuthStore();
+  const { login, isLoading, user, isInitialized } = useAuthStore();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
+
+  // If already logged in, redirect to /app
+  useEffect(() => {
+    if (isInitialized && user) {
+      window.location.href = '/app';
+    }
+  }, [user, isInitialized]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -26,7 +31,7 @@ export default function SignInPage() {
     
     const result = await login(email, password);
     if (result.success) {
-      router.push('/app');
+      window.location.href = '/app';
     } else {
       setError(result.error || 'Login failed');
     }

@@ -57,6 +57,7 @@ model User {
   // Usage
   conversations Conversation[]
   messages      Message[]
+  comments      Comment[]
 
   // Auth events
   authEvents    AuthEvent[]
@@ -276,4 +277,70 @@ model Message {
   @@index([conversationId, createdAt])
   @@index([userId, createdAt])
   @@map("messages")
+}
+
+// ─── Comment ─────────────────────────────────────────────────────────────────────
+
+model Comment {
+  id        String   @id @default(cuid())
+  content   String
+  userId    String?  // null = anonymous
+  user      User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Anonymous user fields
+  nickname    String?
+  gender      String?  // male | female | null
+  avatarSeed  String?  // random seed for DiceBear avatar
+  ipHash      String?
+
+  // Geo (filled by server-side IP lookup)
+  geoCountryCode String?
+  geoCountry     String?  // formatted, e.g. "中国香港"
+  geoRegion      String?
+  geoCity        String?
+
+  // Threading
+  parentId   String?
+  parent     Comment?  @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies    Comment[] @relation("CommentReplies")
+
+  // Type: root comment or reply
+  type       String   @default("comment")  // comment | reply
+
+  // Reactions stored as JSON { emoji: count }
+  reactions  Json     @default("{}")
+
+  // Status
+  status     String   @default("published")  // published | deleted | flagged
+
+  // Persona context (which persona page this was left on)
+  personaSlug String?
+
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([userId, createdAt])
+  @@index([parentId])
+  @@index([status, createdAt])
+  @@index([personaSlug, createdAt])
+  @@map("comments")
+}
+
+// ─── Guardian Duty ─────────────────────────────────────────────────────────────
+
+model GuardianDuty {
+  id               String   @id @default(cuid())
+  personaId        String
+  dutyDate         DateTime @db.Date
+  interactionCount Int      @default(0)
+  interactionIds   String[] @default([])
+  status           String   @default("pending")  // pending | completed | overdue
+  completedAt      DateTime?
+
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@unique([personaId, dutyDate])
+  @@index([dutyDate, status])
+  @@map("guardian_duties")
 }

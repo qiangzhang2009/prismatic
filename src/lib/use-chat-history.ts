@@ -8,7 +8,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import type { AgentMessage } from '@/lib/types';
 
-const STORAGE_VERSION = 1;
+const STORAGE_VERSION = 2;
 
 interface ConversationStore {
   version: number;
@@ -56,19 +56,28 @@ export function useChatHistory(personaIds: string[]) {
   const [messages, setMessages] = useState<AgentMessage[]>(() => loadConversation(personaIds));
   const isInitialized = useRef(false);
   const prevIdsRef = useRef<string[]>(personaIds);
+  const hasMessagesRef = useRef(false);
 
-  // Load history when persona selection changes
+  // Load history when persona selection changes (only if no messages currently)
   useEffect(() => {
     const prev = prevIdsRef.current;
     const changed = prev.length !== personaIds.length ||
       prev.some((id, i) => id !== personaIds[i]);
 
     if (changed) {
-      isInitialized.current = false;
-      prevIdsRef.current = personaIds;
-      setMessages(loadConversation(personaIds));
+      // Only switch history if current messages are empty
+      // This prevents "accidental" history disappearance
+      if (!hasMessagesRef.current) {
+        prevIdsRef.current = personaIds;
+        setMessages(loadConversation(personaIds));
+      }
     }
   }, [personaIds]);
+
+  // Track if we have messages
+  useEffect(() => {
+    hasMessagesRef.current = messages.length > 0;
+  }, [messages]);
 
   // Initial mount: mark as initialized
   useEffect(() => {
@@ -89,6 +98,7 @@ export function useChatHistory(personaIds: string[]) {
   const clearHistory = useCallback(() => {
     deleteConversation(personaIds);
     setMessages([]);
+    hasMessagesRef.current = false;
   }, [personaIds]);
 
   return { messages, setMessages: setMessagesAndSave, clearHistory };

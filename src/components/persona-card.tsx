@@ -38,7 +38,6 @@ export function PersonaCard({
         )}
         style={{ background: gradient }}
         onClick={onClick}
-        whileHover={{ y: -2, scale: 1.01 }}
         whileTap={{ scale: 0.99 }}
       >
         <div className="flex items-center gap-3 mb-3">
@@ -88,7 +87,6 @@ export function PersonaCard({
         style={{ background: gradient }}
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        whileHover={{ y: -4 }}
       >
         <div className="flex items-start gap-4 mb-4">
           <div

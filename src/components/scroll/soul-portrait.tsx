@@ -33,7 +33,7 @@ function GeometricPortrait({ theme, domains }: { theme: PersonaScrollTheme; doma
     // Classical: circle + cross composition — like a compass rose / astronomical diagram
     return (
       <div className="relative flex items-center justify-center w-full max-w-xs mx-auto">
-        <svg viewBox="0 0 280 320" className="w-full" aria-hidden="true">
+        <svg viewBox="0 0 280 320" className="w-full will-change-opacity" aria-hidden="true">
           {/* Outer circle */}
           <motion.circle
             cx="140" cy="150" r="110"
@@ -100,7 +100,7 @@ function GeometricPortrait({ theme, domains }: { theme: PersonaScrollTheme; doma
     // Geometric: hex + triangle mesh — like circuit / architecture
     return (
       <div className="relative flex items-center justify-center w-full max-w-xs mx-auto">
-        <svg viewBox="0 0 280 300" className="w-full" aria-hidden="true">
+        <svg viewBox="0 0 280 300" className="w-full will-change-opacity" aria-hidden="true">
           {/* Hexagon outline */}
           {['M 140 60 L 205 95 L 205 175 L 140 210 L 75 175 L 75 95 Z'].map((d, i) => (
             <motion.path
@@ -157,7 +157,7 @@ function GeometricPortrait({ theme, domains }: { theme: PersonaScrollTheme; doma
     // Flowing: wave forms — organic, musical
     return (
       <div className="relative flex items-center justify-center w-full max-w-xs mx-auto">
-        <svg viewBox="0 0 280 300" className="w-full" aria-hidden="true">
+        <svg viewBox="0 0 280 300" className="w-full will-change-opacity" aria-hidden="true">
           {/* Wave layers */}
           {[0.7, 0.5, 0.3].map((scale, i) => (
             <motion.path
@@ -192,7 +192,7 @@ function GeometricPortrait({ theme, domains }: { theme: PersonaScrollTheme; doma
   // Default: angular — clean intersecting lines
   return (
     <div className="relative flex items-center justify-center w-full max-w-xs mx-auto">
-      <svg viewBox="0 0 280 320" className="w-full" aria-hidden="true">
+      <svg viewBox="0 0 280 320" className="w-full will-change-opacity" aria-hidden="true">
         {/* Outer diamond */}
         <motion.polygon
           points="140,40 240,150 140,260 40,150"

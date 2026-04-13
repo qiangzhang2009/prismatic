@@ -9,7 +9,6 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/lib/auth-store';
 import {
   Hexagon, Mail, Lock, Eye, EyeOff, AlertCircle, ArrowLeft,
@@ -34,8 +33,7 @@ const GENDER_OPTIONS = [
 ];
 
 export default function SignUpPage() {
-  const router = useRouter();
-  const { register, isLoading } = useAuthStore();
+  const { register, isLoading, user, isInitialized } = useAuthStore();
 
   // Form fields
   const [name, setName] = useState('');
@@ -61,6 +59,13 @@ export default function SignUpPage() {
     return () => clearTimeout(timer);
   }, [countdown]);
 
+  // If already logged in, redirect to /app
+  useEffect(() => {
+    if (isInitialized && user) {
+      window.location.href = '/app';
+    }
+  }, [user, isInitialized]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
@@ -75,7 +80,8 @@ export default function SignUpPage() {
 
     const result = await register(email, password, name, gender as 'male' | 'female', province);
     if (result.success) {
-      router.push('/app');
+      // Force refresh auth state and redirect
+      window.location.href = '/app';
     } else {
       setError(result.error || '注册失败');
     }

@@ -4,7 +4,7 @@
  * Supports skipping verification code when email provider is not configured
  */
 import { NextRequest, NextResponse } from 'next/server';
-import { createUser, createSession } from '@/lib/user-management';
+import { createUser, createJWTToken } from '@/lib/user-management';
 import { z } from 'zod';
 
 const registerSchema = z.object({
@@ -16,6 +16,11 @@ const registerSchema = z.object({
   code: z.string().length(6, '验证码为6位数字').optional(),
 });
 
+const NO_CACHE_HEADERS = {
+  'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+  'Pragma': 'no-cache',
+};
+
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
@@ -23,49 +28,49 @@ export async function POST(req: NextRequest) {
     if (!parsed.success) {
       return NextResponse.json(
         { error: parsed.error.errors[0].message },
-        { status: 400 }
+        { status: 400, headers: NO_CACHE_HEADERS }
       );
     }
     const { email, password, name, gender, province, code } = parsed.data;
 
-    // Skip code verification if email provider is not configured
-    // (code may be empty or invalid when email sending fails)
     if (code) {
       const { verifyCode } = await import('@/lib/user-management');
       const codeValid = await verifyCode(email, code, 'register');
       if (!codeValid) {
         return NextResponse.json(
           { error: '验证码错误或已过期，请重新获取' },
-          { status: 400 }
+          { status: 400, headers: NO_CACHE_HEADERS }
         );
       }
     }
 
-    // Check email not already registered
     const existing = await createUser({ email, password, name, gender, province, emailVerified: true });
     if (!existing) {
       return NextResponse.json(
         { error: '该邮箱已注册，请直接登录' },
-        { status: 409 }
+        { status: 409, headers: NO_CACHE_HEADERS }
       );
     }
 
-    const token = await createSession(existing.id);
+    const token = createJWTToken(existing.id, existing.email);
 
-    const res = NextResponse.json({
-      user: {
-        id: existing.id,
-        email: existing.email,
-        name: existing.name,
-        gender: existing.gender,
-        province: existing.province,
-        role: existing.role,
-        plan: existing.plan,
+    const response = NextResponse.json(
+      {
+        user: {
+          id: existing.id,
+          email: existing.email,
+          name: existing.name,
+          gender: existing.gender,
+          province: existing.province,
+          role: existing.role,
+          plan: existing.plan,
+        },
+        message: '注册成功',
       },
-      message: '注册成功',
-    });
+      { status: 200, headers: NO_CACHE_HEADERS }
+    );
 
-    res.cookies.set('prismatic_token', token, {
+    response.cookies.set('prismatic_token', token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
@@ -73,18 +78,18 @@ export async function POST(req: NextRequest) {
       path: '/',
     });
 
-    return res;
+    return response;
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
         { error: error.errors[0].message },
-        { status: 400 }
+        { status: 400, headers: NO_CACHE_HEADERS }
       );
     }
     console.error('Register error:', error);
     return NextResponse.json(
       { error: '注册失败，请稍后重试' },
-      { status: 500 }
+      { status: 500, headers: NO_CACHE_HEADERS }
     );
   }
 }

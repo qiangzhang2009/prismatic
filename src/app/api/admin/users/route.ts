@@ -4,19 +4,10 @@
  * DELETE /api/admin/users — Deactivate user
  */
 import { NextRequest, NextResponse } from 'next/server';
-import { getSession, getAllUsers, getUserById, updateUserRole, updateUserPlan, updateUserName, updateUserProfile, updateUserEmail, deleteUser, isAdmin } from '@/lib/user-management';
-
-async function checkAdmin(token: string | undefined): Promise<string | null> {
-  if (!token) return null;
-  const session = await getSession(token);
-  if (!session) return null;
-  const user = await getUserById(session.userId);
-  if (!user || !isAdmin(user.role)) return null;
-  return session.userId;
-}
+import { authenticateAdminRequest, getAllUsers, getUserById, updateUserRole, updateUserPlan, updateUserName, updateUserProfile, updateUserEmail, deleteUser } from '@/lib/user-management';
 
 export async function GET(req: NextRequest) {
-  const adminId = await checkAdmin(req.cookies.get('prismatic_token')?.value);
+  const adminId = await authenticateAdminRequest(req);
   if (!adminId) {
     return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
   }
@@ -25,7 +16,7 @@ export async function GET(req: NextRequest) {
 }
 
 export async function PUT(req: NextRequest) {
-  const adminId = await checkAdmin(req.cookies.get('prismatic_token')?.value);
+  const adminId = await authenticateAdminRequest(req);
   if (!adminId) {
     return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
   }
@@ -51,7 +42,7 @@ export async function PUT(req: NextRequest) {
 }
 
 export async function DELETE(req: NextRequest) {
-  const adminId = await checkAdmin(req.cookies.get('prismatic_token')?.value);
+  const adminId = await authenticateAdminRequest(req);
   if (!adminId) {
     return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
   }

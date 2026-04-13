@@ -60,3 +60,4 @@ prisma/migrations/
 scrapers/
 docs/
 migrations/
+.env*.local

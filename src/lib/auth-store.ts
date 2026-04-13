@@ -28,7 +28,7 @@ interface AuthState {
   user: AuthUser | null;
   isLoading: boolean;
   isInitialized: boolean;
-  
+
   // Actions
   init: () => Promise<void>;
   login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
@@ -69,12 +69,12 @@ export const useAuthStore = create<AuthState>()(
             body: JSON.stringify({ email, password }),
           });
           const data = await res.json();
-          
+
           if (!res.ok) {
             set({ isLoading: false });
             return { success: false, error: data.error || 'Login failed' };
           }
-          
+
           set({ user: data.user, isLoading: false });
           return { success: true };
         } catch (err) {
@@ -93,12 +93,12 @@ export const useAuthStore = create<AuthState>()(
             body: JSON.stringify({ email, password, name, gender, province, code }),
           });
           const data = await res.json();
-          
+
           if (!res.ok) {
             set({ isLoading: false });
             return { success: false, error: data.error || '注册失败' };
           }
-          
+
           set({ user: data.user, isLoading: false });
           return { success: true };
         } catch {
@@ -108,11 +108,17 @@ export const useAuthStore = create<AuthState>()(
       },
 
       logout: async () => {
-        await fetch('/api/auth/logout', {
-          method: 'POST',
-          credentials: 'include',
-        });
-        set({ user: null });
+        try {
+          await fetch('/api/auth/logout', {
+            method: 'POST',
+            credentials: 'include',
+          });
+        } catch {
+          // best-effort: clear local state even if network fails
+        }
+        // Clear persisted user and reset initialization state
+        useAuthStore.persist.clearStorage();
+        set({ user: null, isInitialized: true });
       },
 
       updateUser: (data: Partial<AuthUser>) => {
@@ -150,6 +156,12 @@ export const useAuthStore = create<AuthState>()(
     {
       name: 'prismatic-auth',
       partialize: (state) => ({ user: state.user }),
+      onRehydrateStorage: () => (state) => {
+        // Mark as initialized after hydration completes
+        if (state) {
+          state.isInitialized = true;
+        }
+      },
     }
   )
 );

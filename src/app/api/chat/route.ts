@@ -13,7 +13,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { nanoid } from 'nanoid';
 import { createLLMProvider } from '@/lib/llm';
 import { getPersonasByIds } from '@/lib/personas';
-import { getSession } from '@/lib/user-management';
+import { authenticateRequest } from '@/lib/user-management';
+import { recordMessage } from '@/lib/message-stats';
 import type { Mode } from '@/lib/types';
 
 export const runtime = 'nodejs';
@@ -388,12 +389,8 @@ ${personaList}
 export async function POST(request: NextRequest) {
   try {
     // Auth check: require login
-    const token = request.cookies.get('prismatic_token')?.value;
-    if (!token) {
-      return NextResponse.json({ error: '请先登录后再使用对话功能' }, { status: 401 });
-    }
-    const session = await getSession(token);
-    if (!session) {
+    const userId = await authenticateRequest(request);
+    if (!userId) {
       return NextResponse.json({ error: '请先登录后再使用对话功能' }, { status: 401 });
     }
 
@@ -435,6 +432,13 @@ export async function POST(request: NextRequest) {
         break;
       default:
         return NextResponse.json({ error: 'Unknown mode' }, { status: 400 });
+    }
+
+    // Record message usage for admin stats
+    try {
+      await recordMessage(userId);
+    } catch (err) {
+      console.error('[Chat API] Failed to record message:', err);
     }
 
     return NextResponse.json(data);

@@ -32,7 +32,6 @@ function BookCard({
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: '-60px' }}
       transition={{ duration: 0.6, delay: index * 0.1, ease: [0.4, 0, 0.2, 1] }}
-      whileHover={{ y: -8 }}
       className="relative flex-shrink-0"
       style={{ width: '160px', perspective: '800px' }}
     >

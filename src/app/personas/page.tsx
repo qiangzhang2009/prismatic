@@ -72,7 +72,7 @@ export default function PersonasPage() {
   return (
     <div className="min-h-screen bg-bg-base">
       {/* Header */}
-      <header className="sticky top-0 z-50 glass border-b border-border-subtle">
+      <div className="border-b border-border-subtle">
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center gap-4">
           <Link
             href="/"
@@ -85,7 +85,7 @@ export default function PersonasPage() {
           <h1 className="font-display font-semibold">人物档案馆</h1>
           <span className="text-text-muted text-sm ml-auto">{sorted.length}位人物</span>
         </div>
-      </header>
+      </div>
 
       <div className="max-w-7xl mx-auto px-6 py-8">
         {/* Search & Controls */}

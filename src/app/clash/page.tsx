@@ -352,7 +352,6 @@ export default function ClashPage() {
                     key={clash.id}
                     onClick={() => runPremadeClash(clash)}
                     className="text-left rounded-2xl border border-border-subtle bg-bg-elevated p-5 hover:border-border-medium transition-all group"
-                    whileHover={{ y: -2 }}
                   >
                     <div className="flex items-center justify-between mb-3">
                       <div className="flex -space-x-2">

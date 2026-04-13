@@ -102,9 +102,9 @@ export function AstroProfile({ persona, theme }: Props) {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: '-80px' }}
-          transition={{ duration: 0.7, ease: [0.4, 0, 0.2, 1] }}
-          className="relative text-center"
+          viewport={{ once: true, margin: '-100px' }}
+          transition={{ duration: 0.6, ease: [0.4, 0, 0.2, 1] }}
+          className="relative text-center will-change-transform"
         >
           {/* Symbol */}
           <motion.div
@@ -152,11 +152,15 @@ export function AstroProfile({ persona, theme }: Props) {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5, delay: 0.4 }}
-            className="flex flex-wrap justify-center gap-2"
+            className="flex flex-wrap justify-center gap-2 will-change-opacity"
           >
             {traits.map((trait, i) => (
-              <span
+              <motion.span
                 key={trait}
+                initial={{ opacity: 0, scale: 0.9 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.4, delay: 0.5 + i * 0.08 }}
                 className="px-4 py-1.5 rounded-full text-xs font-medium"
                 style={{
                   color: theme.primaryColor,
@@ -166,7 +170,7 @@ export function AstroProfile({ persona, theme }: Props) {
                 }}
               >
                 {trait}
-              </span>
+              </motion.span>
             ))}
           </motion.div>
 

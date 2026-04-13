@@ -4,9 +4,8 @@
  * Supports both database users and demo accounts
  */
 import { NextRequest, NextResponse } from 'next/server';
-import { verifyCredentials, createSession } from '@/lib/user-management';
+import { verifyCredentials, createJWTToken } from '@/lib/user-management';
 import { z } from 'zod';
-import bcrypt from 'bcryptjs';
 
 const DEMO_ACCOUNTS = [
   { email: 'demo1@prismatic.app', password: 'Prismatic2024!' },
@@ -20,6 +19,12 @@ const loginSchema = z.object({
   email: z.string().email('Invalid email address'),
   password: z.string().min(1, 'Password is required'),
 });
+
+// Force no-cache so Set-Cookie headers are never stripped by Vercel edge caching
+const NO_CACHE_HEADERS = {
+  'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+  'Pragma': 'no-cache',
+};
 
 function isDemoAccount(email: string, password: string) {
   return DEMO_ACCOUNTS.some(
@@ -46,47 +51,53 @@ function createDemoUser(email: string) {
 
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json();
-    const { email, password } = loginSchema.parse(body);
+    const json = await req.json();
+    const { email, password } = loginSchema.parse(json);
 
     // Check demo accounts first
     if (isDemoAccount(email, password)) {
       const demoUser = createDemoUser(email);
-      const token = await createSession(demoUser.id);
-      const res = NextResponse.json({ user: demoUser, message: 'Login successful' });
-      res.cookies.set('prismatic_token', token, {
+      const token = createJWTToken(demoUser.id, demoUser.email);
+      const response = NextResponse.json(
+        { user: demoUser, message: 'Login successful' },
+        { status: 200, headers: NO_CACHE_HEADERS }
+      );
+      response.cookies.set('prismatic_token', token, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'lax',
         maxAge: 30 * 24 * 60 * 60,
         path: '/',
       });
-      return res;
+      return response;
     }
 
     const user = await verifyCredentials(email, password);
     if (!user) {
       return NextResponse.json(
         { error: 'Invalid email or password' },
-        { status: 401 }
+        { status: 401, headers: NO_CACHE_HEADERS }
       );
     }
 
-    const token = await createSession(user.id);
+    const token = createJWTToken(user.id, user.email);
 
-    const res = NextResponse.json({
-      user: {
-        id: user.id,
-        email: user.email,
-        name: user.name,
-        role: user.role,
-        plan: user.plan,
-        avatar: user.avatar,
+    const response = NextResponse.json(
+      {
+        user: {
+          id: user.id,
+          email: user.email,
+          name: user.name,
+          role: user.role,
+          plan: user.plan,
+          avatar: user.avatar,
+        },
+        message: 'Login successful'
       },
-      message: 'Login successful'
-    });
+      { status: 200, headers: NO_CACHE_HEADERS }
+    );
 
-    res.cookies.set('prismatic_token', token, {
+    response.cookies.set('prismatic_token', token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
@@ -94,18 +105,18 @@ export async function POST(req: NextRequest) {
       path: '/',
     });
 
-    return res;
+    return response;
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
         { error: error.errors[0].message },
-        { status: 400 }
+        { status: 400, headers: NO_CACHE_HEADERS }
       );
     }
     console.error('Login error:', error);
     return NextResponse.json(
       { error: 'Internal server error' },
-      { status: 500 }
+      { status: 500, headers: NO_CACHE_HEADERS }
     );
   }
 }

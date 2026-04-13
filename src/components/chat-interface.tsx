@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Send, Loader2, ChevronDown, Settings, Trash2, X } from 'lucide-react';
+import { Send, Loader2, ChevronDown, Settings, Trash2, X, Download, FileText, Image } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { PersonaCard } from '@/components/persona-card';
 import { ModeSelector } from '@/components/mode-selector';
@@ -14,10 +14,12 @@ import { useAuthStore } from '@/lib/auth-store';
 import type { Mode, Persona, AgentMessage } from '@/lib/types';
 import { nanoid } from 'nanoid';
 import { trackChatStart, trackChatMessage } from '@/lib/use-tracking';
+import { LimitReachedModal } from '@/components/limit-reached-modal';
+import { exportChatAsImage, exportChatAsText } from '@/lib/export-chat';
 
 const STORAGE_KEY = 'prismatic-chat-state';
 
-const DAILY_LIMIT = 200;
+const DAILY_LIMIT = 60;
 const DAILY_LIMIT_KEY = 'prismatic-daily-messages';
 const DAILY_DATE_KEY = 'prismatic-daily-date';
 
@@ -103,13 +105,41 @@ export function ChatInterface({ className, initialPersona, initialMode }: ChatIn
   const [showPersonaPicker, setShowPersonaPicker] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [isPickerOpen, setIsPickerOpen] = useState(false); // compact header mode
+  const [showLimitModal, setShowLimitModal] = useState(false);
   const pickerRef = useRef<HTMLDivElement>(null);
+  const toggleRef = useRef<HTMLButtonElement>(null);
+  const isPickerOpenRef = useRef(false);
   const [turnCount, setTurnCount] = useState(0);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const initialized = useRef(false);
+  const [showExportMenu, setShowExportMenu] = useState(false);
+  const exportMenuRef = useRef<HTMLDivElement>(null);
+  const [isExporting, setIsExporting] = useState(false);
+
+  // Persona picker filter state
+  const [pickerTab, setPickerTab] = useState<string>('all');
+  const [pickerSearch, setPickerSearch] = useState('');
 
   const selectedPersonas = getPersonasByIds(selectedIds);
+
+  // Reset picker filters when picker closes
+  useEffect(() => {
+    if (!isPickerOpen) {
+      setPickerTab('all');
+      setPickerSearch('');
+    }
+  }, [isPickerOpen]);
+
+  // Filtered persona list
+  const filteredPersonas = PERSONA_LIST.filter((p) => {
+    const matchTab = pickerTab === 'all' || p.domain.includes(pickerTab as any);
+    const matchSearch = pickerSearch.trim() === '' ||
+      p.nameZh.includes(pickerSearch) ||
+      p.name.toLowerCase().includes(pickerSearch.toLowerCase()) ||
+      p.domain.some(d => d.toLowerCase().includes(pickerSearch.toLowerCase()));
+    return matchTab && matchSearch;
+  });
 
   // Sync state to localStorage & URL
   useEffect(() => {
@@ -133,11 +163,21 @@ export function ChatInterface({ className, initialPersona, initialMode }: ChatIn
   // React to URL param changes (navigating from persona page or graph → update selection)
   useEffect(() => {
     if (!initialPersona) return;
-    if (initialPersona !== selectedIds[0] && initialPersona !== saved?.selectedIds?.[0]) {
-      setSelectedIds([initialPersona]);
+    // Only change if this is a deliberate navigation from outside
+    if (initialPersona !== selectedIds[0]) {
+      // Check if this is a different conversation (user clicked from persona page)
+      const isDifferentConversation = saved?.selectedIds?.[0] !== initialPersona;
+      if (isDifferentConversation && !hasActiveMessages()) {
+        setSelectedIds([initialPersona]);
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialPersona]);
+
+  // Helper to check if current conversation has active messages
+  function hasActiveMessages(): boolean {
+    return messages.length > 0;
+  }
 
   useEffect(() => {
     if (!initialMode) return;
@@ -147,18 +187,24 @@ export function ChatInterface({ className, initialPersona, initialMode }: ChatIn
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialMode]);
 
-  // Close picker on outside click
+  // Close picker on outside click — use ref to avoid stale closure with isPickerOpen state
   useEffect(() => {
-    if (!isPickerOpen) return;
     const handler = (e: MouseEvent) => {
-      if (pickerRef.current && !pickerRef.current.contains(e.target as Node)) {
-        setIsPickerOpen(false);
-        setShowPersonaPicker(false);
+      if (!isPickerOpenRef.current) return;
+      const target = e.target as Node;
+      if (
+        pickerRef.current?.contains(target) ||
+        toggleRef.current?.contains(target)
+      ) {
+        return;
       }
+      isPickerOpenRef.current = false;
+      setIsPickerOpen(false);
+      setShowPersonaPicker(false);
     };
     document.addEventListener('mousedown', handler);
     return () => document.removeEventListener('mousedown', handler);
-  }, [isPickerOpen]);
+  }, []);
 
   // Handle mode changes: adjust participant count if needed
   useEffect(() => {
@@ -187,6 +233,42 @@ export function ChatInterface({ className, initialPersona, initialMode }: ChatIn
     });
   }, [mode]);
 
+  // Close export menu on outside click
+  useEffect(() => {
+    if (!showExportMenu) return;
+    const handler = (e: MouseEvent) => {
+      if (exportMenuRef.current && !exportMenuRef.current.contains(e.target as Node)) {
+        setShowExportMenu(false);
+      }
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [showExportMenu]);
+
+  const handleExportAsImage = async () => {
+    setShowExportMenu(false);
+    setIsExporting(true);
+    try {
+      await exportChatAsImage(messages, selectedIds, mode);
+    } catch (error) {
+      console.error('Export failed:', error);
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
+  const handleExportAsText = () => {
+    setShowExportMenu(false);
+    setIsExporting(true);
+    try {
+      exportChatAsText(messages, selectedIds, mode);
+    } catch (error) {
+      console.error('Export failed:', error);
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
   const setMode = useCallback((newMode: Mode) => {
     setModeState(newMode);
   }, []);
@@ -205,7 +287,7 @@ export function ChatInterface({ className, initialPersona, initialMode }: ChatIn
     // Daily limit check
     const { count } = getDailyCount();
     if (count >= DAILY_LIMIT) {
-      alert('今日对话额度已用完（每天 200 条），明天再来吧');
+      setShowLimitModal(true);
       return;
     }
 
@@ -254,6 +336,12 @@ export function ChatInterface({ className, initialPersona, initialMode }: ChatIn
         throw new Error('API error');
       }
       const data = await response.json();
+
+      // Record usage server-side (non-blocking, ignore failures)
+      // Only for authenticated users (guests use localStorage limits only)
+      if (user) {
+        fetch('/api/messages/record', { method: 'POST', credentials: 'include' }).catch(() => {});
+      }
 
       // 追踪 AI 响应延迟
       const aiLatencyMs = Date.now() - (window._lastMessageSentTime || Date.now());
@@ -424,56 +512,47 @@ export function ChatInterface({ className, initialPersona, initialMode }: ChatIn
           {/* Mode selector */}
           <ModeSelector value={mode} onChange={setMode} participantCount={selectedIds.length} />
 
-          {/* Persona picker toggle — only show when picker is closed */}
-          {!isPickerOpen ? (
-            <button
-              className="ml-auto flex items-center gap-2 text-sm text-text-secondary hover:text-text-primary transition-colors"
-              onClick={() => { setIsPickerOpen(true); setShowPersonaPicker(true); }}
-            >
-              <div className="flex -space-x-2">
-                {selectedPersonas.slice(0, 3).map((p) => (
-                  <div
-                    key={p.id}
-                    className="w-6 h-6 rounded-full border-2 border-bg-base flex items-center justify-center text-[10px] font-bold text-white"
-                    style={{ background: `linear-gradient(135deg, ${p.gradientFrom}, ${p.gradientTo})` }}
-                  >
-                    {p.nameZh.slice(0, 1)}
-                  </div>
-                ))}
-              </div>
-              <span className="hidden sm:inline">
-                {selectedIds.length}人参与
-              </span>
-              <ChevronDown className="w-4 h-4" />
-            </button>
-          ) : (
-            /* Compact view when picker is open — shows active personas + collapse button */
-            <div className="ml-auto flex items-center gap-2 overflow-hidden flex-1">
-              <div className="flex -space-x-1.5">
-                {selectedPersonas.slice(0, 4).map((p) => (
-                  <div
-                    key={p.id}
-                    className="w-7 h-7 rounded-full border-2 border-bg-base flex items-center justify-center text-[10px] font-bold text-white flex-shrink-0"
-                    style={{ background: `linear-gradient(135deg, ${p.gradientFrom}, ${p.gradientTo})` }}
-                    title={p.nameZh}
-                  >
-                    {p.nameZh.slice(0, 1)}
-                  </div>
-                ))}
-              </div>
-              <span className="text-xs text-text-muted flex-shrink-0">
-                {selectedIds.length}人
-              </span>
-              {/* Collapse button */}
-              <button
-                className="flex-shrink-0 p-1 rounded-lg hover:bg-bg-elevated text-text-muted hover:text-text-primary transition-colors"
-                onClick={() => { setIsPickerOpen(false); setShowPersonaPicker(false); }}
-                title="收起人物选择"
-              >
-                <X className="w-4 h-4" />
-              </button>
+          {/* Persona picker toggle — always visible */}
+          <button
+            ref={toggleRef}
+            className={cn(
+              "flex items-center gap-2 text-sm transition-colors",
+              isPickerOpen
+                ? "text-text-primary bg-bg-surface px-2 py-1 rounded-lg"
+                : "text-text-secondary hover:text-text-primary"
+            )}
+            onClick={() => {
+              const next = !isPickerOpen;
+              isPickerOpenRef.current = next;
+              setIsPickerOpen(next);
+              setShowPersonaPicker(next);
+            }}
+          >
+            <div className="flex -space-x-1">
+              {selectedPersonas.slice(0, 3).map((p) => (
+                <div
+                  key={p.id}
+                  className="w-6 h-6 rounded-full border-2 border-bg-base flex items-center justify-center text-[10px] font-bold text-white"
+                  style={{ background: `linear-gradient(135deg, ${p.gradientFrom}, ${p.gradientTo})` }}
+                >
+                  {p.nameZh.slice(0, 1)}
+                </div>
+              ))}
+              {selectedIds.length > 3 && (
+                <div className="w-6 h-6 rounded-full border-2 border-bg-base bg-bg-elevated flex items-center justify-center text-[10px] font-bold text-text-muted">
+                  +{selectedIds.length - 3}
+                </div>
+              )}
             </div>
-          )}
+            <span className="text-xs text-text-muted">
+              {selectedIds.length}人
+            </span>
+            {isPickerOpen ? (
+              <X className="w-4 h-4" />
+            ) : (
+              <ChevronDown className="w-4 h-4" />
+            )}
+          </button>
 
           {/* Settings */}
           <button
@@ -483,15 +562,61 @@ export function ChatInterface({ className, initialPersona, initialMode }: ChatIn
             <Settings className="w-4 h-4" />
           </button>
 
+          {/* Export */}
+          {messages.length > 0 && (
+            <div className="relative" ref={exportMenuRef}>
+              <button
+                className="text-text-secondary hover:text-text-primary transition-colors flex items-center gap-1"
+                onClick={() => setShowExportMenu(!showExportMenu)}
+                disabled={isExporting}
+              >
+                {isExporting ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <Download className="w-4 h-4" />
+                )}
+              </button>
+              <AnimatePresence>
+                {showExportMenu && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: -10, scale: 0.95 }}
+                    className="absolute right-0 top-full mt-2 w-48 bg-bg-elevated border border-border-subtle rounded-xl shadow-xl overflow-hidden z-50"
+                  >
+                    <button
+                      className="w-full flex items-center gap-3 px-4 py-3 text-sm text-text-primary hover:bg-bg-surface transition-colors"
+                      onClick={handleExportAsImage}
+                    >
+                      <Image className="w-4 h-4 text-prism-blue" />
+                      导出为图片
+                    </button>
+                    <button
+                      className="w-full flex items-center gap-3 px-4 py-3 text-sm text-text-primary hover:bg-bg-surface transition-colors"
+                      onClick={handleExportAsText}
+                    >
+                      <FileText className="w-4 h-4 text-prism-purple" />
+                      导出为文本
+                    </button>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          )}
+
           {/* Daily limit indicator */}
           {limitReached ? (
-            <span className="text-xs text-red-400 font-medium" title="今日额度已用完">
-              今日额度已用完
-            </span>
+            <button
+              className="text-xs text-orange-400 font-medium hover:text-orange-300 transition-colors"
+              title="今日额度已用完，点击查看如何开通"
+              onClick={() => setShowLimitModal(true)}
+            >
+              额度已用完
+            </button>
           ) : (
             <span
               className="text-xs text-text-muted hidden sm:inline"
-              title={`今日对话额度，剩余 ${Math.max(0, DAILY_LIMIT - dailyCount)}/${DAILY_LIMIT} 条`}
+              title="今日对话额度，剩余次数"
             >
               {Math.max(0, DAILY_LIMIT - dailyCount)}/{DAILY_LIMIT}
             </span>
@@ -512,30 +637,190 @@ export function ChatInterface({ className, initialPersona, initialMode }: ChatIn
             </button>
           )}
         </div>
-
-        {/* Persona picker dropdown */}
-        <AnimatePresence>
-          {showPersonaPicker && isPickerOpen && (
-            <motion.div
-              ref={pickerRef}
-              className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2 mt-3 pt-3 border-t border-border-subtle"
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              exit={{ opacity: 0, height: 0 }}
-            >
-              {PERSONA_LIST.map((persona) => (
-                <PersonaCard
-                  key={persona.id}
-                  persona={persona}
-                  compact
-                  selected={selectedIds.includes(persona.id)}
-                  onClick={() => togglePersona(persona.id)}
-                />
-              ))}
-            </motion.div>
-          )}
-        </AnimatePresence>
       </div>
+
+      {/* ── Persona Picker Overlay ─────────────────────────────── */}
+      <AnimatePresence>
+        {showPersonaPicker && isPickerOpen && (
+          <motion.div
+            ref={pickerRef}
+            className="fixed inset-0 z-[200] flex items-end sm:items-center justify-center"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            {/* Backdrop */}
+            <motion.div
+              className="absolute inset-0 bg-black/50"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => { isPickerOpenRef.current = false; setIsPickerOpen(false); setShowPersonaPicker(false); }}
+            />
+
+            {/* Picker panel */}
+            <motion.div
+              className="relative w-full max-w-lg max-h-[85vh] sm:max-h-[75vh] bg-bg-elevated border border-border-subtle sm:rounded-2xl shadow-2xl flex flex-col overflow-hidden"
+              initial={{ y: '100%', opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: '100%', opacity: 0 }}
+              transition={{ type: 'spring', stiffness: 400, damping: 35 }}
+            >
+              {/* Drag handle (mobile) */}
+              <div className="flex items-center justify-center pt-3 pb-2 sm:hidden">
+                <div className="w-9 h-1 rounded-full bg-border-subtle" />
+              </div>
+
+              {/* Header */}
+              <div className="px-5 py-3 border-b border-border-subtle flex items-center justify-between flex-shrink-0">
+                <div>
+                  <h3 className="text-sm font-semibold text-text-primary">选择人物</h3>
+                  <p className="text-xs text-text-muted mt-0.5">
+                    {selectedIds.length}人已选 · {mode === 'solo' ? '单人模式' : mode === 'prism' ? '折射模式(最多3人)' : '圆桌模式(最多8人)'}
+                  </p>
+                </div>
+                <button
+                  onClick={() => { isPickerOpenRef.current = false; setIsPickerOpen(false); setShowPersonaPicker(false); }}
+                  className="w-8 h-8 rounded-full bg-bg-surface hover:bg-bg-base flex items-center justify-center text-text-muted hover:text-text-primary transition-colors"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              {/* Search */}
+              <div className="px-4 py-2 border-b border-border-subtle flex-shrink-0">
+                <div className="relative">
+                  <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  </svg>
+                  <input
+                    type="text"
+                    placeholder="搜索姓名或领域..."
+                    value={pickerSearch}
+                    onChange={(e) => { setPickerSearch(e.target.value); setPickerTab('all'); }}
+                    className="w-full pl-8 pr-3 py-2 text-xs bg-bg-base border border-border-subtle rounded-lg text-text-primary placeholder:text-text-muted focus:outline-none focus:border-prism-purple"
+                  />
+                  {pickerSearch && (
+                    <button
+                      onClick={() => setPickerSearch('')}
+                      className="absolute right-2 top-1/2 -translate-y-1/2 text-text-muted hover:text-text-primary"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {/* Domain tabs */}
+              <div className="flex-shrink-0 border-b border-border-subtle overflow-x-auto scrollbar-none">
+                <div className="flex gap-1 px-4 py-1.5 min-w-max">
+                  {([
+                    ['all', '全部', PERSONA_LIST.length],
+                    ['strategy', '策略', 34],
+                    ['philosophy', '哲学', 33],
+                    ['leadership', '领导力', 18],
+                    ['creativity', '创造力', 10],
+                    ['technology', '科技', 8],
+                    ['science', '科学', 7],
+                    ['education', '教育', 7],
+                    ['investment', '投资', 4],
+                    ['product', '产品', 3],
+                  ] as [string, string, number][]).map(([key, label, count]) => (
+                    <button
+                      key={key}
+                      onClick={() => { setPickerTab(key); setPickerSearch(''); }}
+                      className={cn(
+                        'flex items-center gap-1 px-2.5 py-1 rounded-full text-xs transition-colors whitespace-nowrap',
+                        pickerTab === key && key === 'all' ? 'bg-prism-purple text-white' :
+                        pickerTab === key ? 'bg-bg-surface text-text-primary' :
+                        'text-text-muted hover:text-text-primary hover:bg-bg-surface'
+                      )}
+                    >
+                      {label}
+                      <span className={cn(
+                        'text-[10px]',
+                        pickerTab === key && key === 'all' ? 'text-white/70' :
+                        pickerTab === key ? 'text-text-muted' :
+                        'text-text-muted'
+                      )}>{count}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Cards grid */}
+              <div className="flex-1 overflow-y-auto p-4">
+                {filteredPersonas.length === 0 ? (
+                  <div className="flex flex-col items-center justify-center h-32 text-center">
+                    <svg className="w-8 h-8 text-text-muted mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <p className="text-xs text-text-muted">没有找到匹配的人物</p>
+                    <button
+                      onClick={() => { setPickerSearch(''); setPickerTab('all'); }}
+                      className="mt-2 text-xs text-prism-purple hover:underline"
+                    >
+                      清除筛选
+                    </button>
+                  </div>
+                ) : (
+                  <>
+                    <p className="text-[11px] text-text-muted mb-3">
+                      {pickerSearch ? `搜索「${pickerSearch}」找到 ${filteredPersonas.length} 人` :
+                       pickerTab !== 'all' ? `共 ${filteredPersonas.length} 人` : null}
+                    </p>
+                    <div className="grid grid-cols-4 gap-3">
+                      {filteredPersonas.map((persona) => {
+                        const isSelected = selectedIds.includes(persona.id);
+                        return (
+                          <button
+                            key={persona.id}
+                            onClick={() => togglePersona(persona.id)}
+                            className={cn(
+                              'flex flex-col items-center gap-1.5 p-2 rounded-xl transition-all duration-150',
+                              isSelected
+                                ? 'bg-bg-surface border-2'
+                                : 'bg-bg-base border border-border-subtle hover:border-border-medium'
+                            )}
+                            style={isSelected ? { borderColor: persona.accentColor } : undefined}
+                          >
+                            <div className="relative">
+                              <div
+                                className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold text-white flex-shrink-0"
+                                style={{ background: `linear-gradient(135deg, ${persona.gradientFrom}, ${persona.gradientTo})` }}
+                              >
+                                {persona.nameZh.slice(0, 1)}
+                              </div>
+                              {isSelected && (
+                                <div
+                                  className="absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full flex items-center justify-center"
+                                  style={{ backgroundColor: persona.accentColor }}
+                                >
+                                  <svg className="w-2.5 h-2.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                                  </svg>
+                                </div>
+                              )}
+                            </div>
+                            <span className="text-[11px] text-text-secondary text-center leading-tight">
+                              {persona.nameZh}
+                            </span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </>
+                )}
+              </div>
+
+              {/* Footer hint */}
+              <div className="px-5 py-3 border-t border-border-subtle flex-shrink-0 sm:hidden">
+                <p className="text-xs text-text-muted text-center">点击头像添加/移除人物，上滑关闭</p>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* ── Messages ─────────────────────────────────────── */}
       <div className="flex-1 overflow-y-auto px-4 py-6 space-y-4">
@@ -751,6 +1036,9 @@ export function ChatInterface({ className, initialPersona, initialMode }: ChatIn
           ))}
         </div>
       </div>
+
+      {/* ── Limit Reached Modal ─────────────────────────────── */}
+      <LimitReachedModal isOpen={showLimitModal} onClose={() => setShowLimitModal(false)} />
     </div>
   );
 }

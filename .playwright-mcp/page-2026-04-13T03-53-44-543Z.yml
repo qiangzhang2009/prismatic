@@ -1,0 +1,75 @@
+- generic [active] [ref=e1]:
+  - navigation [ref=e2]:
+    - generic [ref=e3]:
+      - link "Prismatic · 折射之光" [ref=e4] [cursor=pointer]:
+        - /url: /
+        - generic [ref=e5]:
+          - img [ref=e6]
+          - img [ref=e8]
+        - generic [ref=e10]: Prismatic · 折射之光
+      - generic [ref=e11]:
+        - link "开始体验" [ref=e12] [cursor=pointer]:
+          - /url: /app
+        - button "用户菜单" [ref=e15] [cursor=pointer]:
+          - generic [ref=e764]: 演
+          - img [ref=e765]
+  - alert [ref=e435]
+  - generic [ref=e767]:
+    - banner [ref=e768]:
+      - generic [ref=e769]:
+        - link [ref=e770] [cursor=pointer]:
+          - /url: /
+          - img [ref=e771]
+        - generic [ref=e774]:
+          - generic [ref=e775]:
+            - img [ref=e776]
+            - img [ref=e778]
+          - generic [ref=e780]: Prismatic · 折射之光
+      - generic [ref=e781]:
+        - link "人物库" [ref=e782] [cursor=pointer]:
+          - /url: /personas
+        - link "方法论" [ref=e783] [cursor=pointer]:
+          - /url: /methodology
+        - link "图谱" [ref=e784] [cursor=pointer]:
+          - /url: /graph
+    - generic [ref=e786]:
+      - generic [ref=e788]:
+        - generic [ref=e789]:
+          - generic [ref=e790]:
+            - button "👤" [ref=e791] [cursor=pointer]:
+              - generic [ref=e792]: 👤
+            - button "🔺" [ref=e794] [cursor=pointer]:
+              - generic [ref=e795]: 🔺
+            - button "🏛️" [ref=e796] [cursor=pointer]:
+              - generic [ref=e797]: 🏛️
+            - button "🎯" [ref=e798] [cursor=pointer]:
+              - generic [ref=e799]: 🎯
+          - generic [ref=e801]:
+            - generic [ref=e802]:
+              - generic [ref=e803]: 👤
+              - generic [ref=e804]: 单人对话
+              - generic [ref=e805]: 1-1人
+            - paragraph [ref=e806]: 何时用：想深入学透一个思想家的思维方式时
+            - paragraph [ref=e807]: 如何运行：问 → 答 → 追问 → 再答，像真正的师徒对话
+        - button "史 1人" [ref=e809] [cursor=pointer]:
+          - generic [ref=e811]: 史
+          - generic [ref=e812]: 1人
+          - img [ref=e813]
+        - button [ref=e815] [cursor=pointer]:
+          - img [ref=e816]
+      - generic [ref=e820]:
+        - generic [ref=e822]: 史
+        - heading "史蒂夫·乔布斯" [level=3] [ref=e823]
+        - paragraph [ref=e824]: 向史蒂夫·乔布斯提出你的问题
+      - generic [ref=e825]:
+        - generic [ref=e826]:
+          - generic [ref=e827]:
+            - textbox "向史蒂夫·乔布斯提问..." [ref=e828]
+            - generic [ref=e829]: Enter 发送 / Shift+Enter 换行
+          - button [disabled] [ref=e830]:
+            - img [ref=e831]
+        - generic [ref=e834]:
+          - button "帮我分析这个创业方向" [ref=e835] [cursor=pointer]
+          - button "用第一性原理拆解这个问题" [ref=e836] [cursor=pointer]
+          - button "多元思维模型怎么看这件事" [ref=e837] [cursor=pointer]
+          - button "评估一下这个投资机会" [ref=e838] [cursor=pointer]

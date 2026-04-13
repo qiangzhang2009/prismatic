@@ -3,28 +3,28 @@
  * Add ?debug=true to see raw query results including inactive users
  */
 import { NextRequest, NextResponse } from 'next/server';
-import { getSession, getUserById, getUserStats, isAdmin } from '@/lib/user-management';
+import { authenticateAdminRequest, getUserStats } from '@/lib/user-management';
 import { neon } from '@neondatabase/serverless';
 
-export async function GET(req: NextRequest) {
-  const token = req.cookies.get('prismatic_token')?.value;
-  if (!token) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
-  const session = await getSession(token);
-  if (!session) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
-  const user = await getUserById(session.userId);
-  if (!user || !isAdmin(user.role)) {
-    return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
-  }
+// Add timeout wrapper for database operations
+async function withTimeout<T>(promise: Promise<T>, timeoutMs: number = 8000): Promise<T | null> {
+  const timeout = new Promise<null>((resolve) => setTimeout(() => resolve(null), timeoutMs));
+  return Promise.race([promise, timeout]);
+}
 
+export async function GET(req: NextRequest) {
+  const adminId = await authenticateAdminRequest(req);
+  if (!adminId) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
   // Debug mode: show all users (including inactive) and raw counts
   if (req.nextUrl.searchParams.get('debug') === 'true') {
     try {
       const sql = neon(process.env.DATABASE_URL!);
-      const allRows = await sql`SELECT id, email, role, plan, email_verified, is_active, created_at FROM prismatic_users ORDER BY created_at DESC`;
+      const allRows = await withTimeout(sql`SELECT id, email, role, plan, email_verified, is_active, created_at FROM prismatic_users ORDER BY created_at DESC`, 8000);
+      if (!allRows) {
+        return NextResponse.json({ error: 'Database timeout' }, { status: 503 });
+      }
       return NextResponse.json({
         mode: 'debug',
         totalRows: allRows.length,
@@ -37,6 +37,17 @@ export async function GET(req: NextRequest) {
     }
   }
 
-  const stats = await getUserStats();
+  const stats = await withTimeout(getUserStats(), 8000);
+  if (!stats) {
+    // Return empty stats if timeout
+    return NextResponse.json({
+      total: 0,
+      byRole: {},
+      byPlan: {},
+      recent: 0,
+      verified: 0,
+      note: 'Data temporarily unavailable',
+    });
+  }
   return NextResponse.json(stats);
 }

@@ -6,6 +6,7 @@
  * Single focal point: the name. Nothing else competes.
  */
 import { motion, useScroll, useTransform } from 'framer-motion';
+import { useRef } from 'react';
 import type { Persona } from '@/lib/types';
 import type { PersonaScrollTheme } from '@/lib/persona-scroll-themes';
 
@@ -16,14 +17,21 @@ interface Props {
 
 export function OpeningSection({ persona, theme }: Props) {
   const tagline = theme.taglineOverride ?? persona.taglineZh;
-  const { scrollY } = useScroll();
+  const sectionRef = useRef<HTMLElement>(null);
+  
+  // Use section-specific scroll tracking for better performance
+  const { scrollYProgress } = useScroll({
+    target: sectionRef,
+    offset: ['start start', 'end start'],
+  });
 
-  // Parallax subtle shift on scroll
-  const y = useTransform(scrollY, [0, 600], [0, 80]);
-  const opacity = useTransform(scrollY, [0, 400], [1, 0]);
+  // Parallax subtle shift on scroll - optimized with will-change
+  const y = useTransform(scrollYProgress, [0, 1], [0, 80]);
+  const opacity = useTransform(scrollYProgress, [0, 0.5], [1, 0]);
 
   return (
     <section
+      ref={sectionRef}
       className="relative flex flex-col items-center justify-center overflow-hidden"
       style={{ minHeight: '100svh' }}
     >
@@ -59,7 +67,7 @@ export function OpeningSection({ persona, theme }: Props) {
 
       {/* ── Main content ───────────────────────────────────────── */}
       <motion.div
-        className="relative z-10 flex flex-col items-center px-8 py-32 text-center"
+        className="relative z-10 flex flex-col items-center px-8 py-32 text-center will-change-transform"
         style={{ y, opacity }}
       >
         {/* Decorative top mark */}

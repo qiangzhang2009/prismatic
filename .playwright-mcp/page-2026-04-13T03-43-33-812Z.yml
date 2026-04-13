@@ -1,0 +1,54 @@
+- generic [active] [ref=e1]:
+  - navigation [ref=e2]:
+    - generic [ref=e3]:
+      - link "Prismatic · 折射之光" [ref=e4] [cursor=pointer]:
+        - /url: /
+        - generic [ref=e5]:
+          - img [ref=e6]
+          - img [ref=e8]
+        - generic [ref=e10]: Prismatic · 折射之光
+      - generic [ref=e11]:
+        - link "开始体验" [ref=e12] [cursor=pointer]:
+          - /url: /app
+        - button "用户菜单" [ref=e15] [cursor=pointer]:
+          - generic [ref=e16]: 演
+          - img [ref=e17]
+  - generic [ref=e19]:
+    - banner [ref=e20]:
+      - link "返回首页" [ref=e21] [cursor=pointer]:
+        - /url: /
+        - img [ref=e22]
+        - generic [ref=e24]: 返回首页
+    - main [ref=e25]:
+      - generic [ref=e26]:
+        - generic [ref=e27]:
+          - img [ref=e29]
+          - heading "Prismatic · 折射之光" [level=1] [ref=e31]
+          - paragraph [ref=e32]: 登录你的账号
+        - generic [ref=e33]:
+          - generic [ref=e34]:
+            - generic [ref=e35]: 邮箱地址
+            - generic [ref=e36]:
+              - img [ref=e37]
+              - textbox "your@email.com" [ref=e40]: demo1@prismatic.app
+          - generic [ref=e41]:
+            - generic [ref=e42]:
+              - generic [ref=e43]: 密码
+              - link "忘记密码？" [ref=e44] [cursor=pointer]:
+                - /url: /auth/forgot-password
+            - generic [ref=e45]:
+              - img [ref=e46]
+              - textbox "••••••••" [ref=e49]: Prismatic2024!
+              - button [ref=e50] [cursor=pointer]:
+                - img [ref=e51]
+          - button "登录" [ref=e54] [cursor=pointer]:
+            - img [ref=e67]
+            - text: 登录
+        - generic [ref=e62]: 还没有账号？
+        - link "免费注册" [ref=e63] [cursor=pointer]:
+          - /url: /auth/signup
+        - paragraph [ref=e64]:
+          - text: 也可以
+          - link "跳过登录直接体验" [ref=e65] [cursor=pointer]:
+            - /url: /app
+  - alert [ref=e66]

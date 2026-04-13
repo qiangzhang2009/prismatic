@@ -1,0 +1,540 @@
+- generic [ref=e1]:
+  - navigation [ref=e2]:
+    - generic [ref=e3]:
+      - link "Prismatic · 折射之光" [ref=e4] [cursor=pointer]:
+        - /url: /
+        - generic [ref=e5]:
+          - img [ref=e6]
+          - img [ref=e8]
+        - generic [ref=e10]: Prismatic · 折射之光
+      - generic [ref=e11]:
+        - link "开始体验" [ref=e12] [cursor=pointer]:
+          - /url: /app
+        - button "用户菜单" [active] [ref=e15] [cursor=pointer]:
+          - img [ref=e17]
+  - generic [ref=e20]:
+    - generic [ref=e26]:
+      - generic [ref=e27]:
+        - img [ref=e28]
+        - generic [ref=e30]: 「人可以是书，那么，书也可以是人」
+      - heading "折射之光" [level=1] [ref=e31]
+      - paragraph [ref=e32]: 汇聚人类最卓越思维的多智能体协作平台
+      - paragraph [ref=e33]:
+        - text: 每个人的一生都是一本书，每本书都是一个人的灵魂。 当我们阅读那些卓越人物的著作时，不仅是在获取知识，更是在与一个伟大的灵魂对话。
+        - text: Prismatic 让乔布斯、马斯克、芒格、费曼同时为你思考——不是引用他们说过的话，而是用他们的方式去思考你的问题。
+      - generic [ref=e34]:
+        - link "开始体验" [ref=e35] [cursor=pointer]:
+          - /url: /app
+          - img [ref=e36]
+          - text: 开始体验
+        - link "探索 40+ 蒸馏人物" [ref=e38] [cursor=pointer]:
+          - /url: /personas
+          - text: 探索 40+ 蒸馏人物
+          - img [ref=e39]
+      - generic [ref=e41]:
+        - generic [ref=e42]:
+          - img [ref=e43]
+          - generic [ref=e46]: 40+
+          - generic [ref=e47]: 蒸馏人物
+        - generic [ref=e48]:
+          - img [ref=e49]
+          - generic [ref=e53]: "4"
+          - generic [ref=e54]: 协作模式
+        - generic [ref=e55]:
+          - img [ref=e56]
+          - generic [ref=e58]: 1.2GB+
+          - generic [ref=e59]: 训练语料
+        - generic [ref=e60]:
+          - img [ref=e61]
+          - generic [ref=e64]: ∞
+          - generic [ref=e65]: 视角组合
+    - generic [ref=e67]:
+      - generic [ref=e68]:
+        - heading "语料置信度分布" [level=2] [ref=e69]
+        - paragraph [ref=e70]: 基于全网可获取的完整语料，从零开始系统梳理。每个领域的置信度代表数据的完整程度与质量
+      - generic [ref=e71]:
+        - generic [ref=e72]:
+          - generic [ref=e73]: 古典哲学
+          - generic [ref=e76]: 92%
+          - generic [ref=e77]: "5.0"
+        - generic [ref=e78]:
+          - generic [ref=e79]: 斯多葛学派
+          - generic [ref=e82]: 95%
+          - generic [ref=e83]: "5.0"
+        - generic [ref=e84]:
+          - generic [ref=e85]: 东方智慧
+          - generic [ref=e88]: 88%
+          - generic [ref=e89]: "4.0"
+        - generic [ref=e90]:
+          - generic [ref=e91]: 科技思想
+          - generic [ref=e94]: 72%
+          - generic [ref=e95]: "3.0"
+        - generic [ref=e96]:
+          - generic [ref=e97]: 投资哲学
+          - generic [ref=e100]: 80%
+          - generic [ref=e101]: "4.0"
+        - generic [ref=e102]:
+          - generic [ref=e103]: 科学思维
+          - generic [ref=e106]: 75%
+          - generic [ref=e107]: "4.0"
+      - paragraph [ref=e108]: 数据来源：PerseusDL · Guopop/chinese-philosophy · The-Digital-Stoic-Library · HuggingFace Lex Fridman
+    - generic [ref=e110]:
+      - generic [ref=e111]:
+        - heading "选择你的协作模式" [level=2] [ref=e112]
+        - paragraph [ref=e113]: 从单人深度追问到多智能体实时辩论，找到最适合你的思维伙伴组合
+      - generic [ref=e114]:
+        - button "单人对话 选择一个思维伙伴，连续追问，挖掘深层思维 1-1人 · 想深入学透一个思想家..." [ref=e115] [cursor=pointer]:
+          - img [ref=e117]
+          - generic [ref=e119]: 单人对话
+          - generic [ref=e120]: 选择一个思维伙伴，连续追问，挖掘深层思维
+          - generic [ref=e121]:
+            - generic [ref=e122]: 1-1人
+            - generic [ref=e123]: ·
+            - generic [ref=e124]: 想深入学透一个思想家...
+        - button "折射视图 多视角全面分析，系统自动输出综合结论 2-3人 · 想快速全面了解一个问..." [ref=e125] [cursor=pointer]:
+          - img [ref=e128]
+          - generic [ref=e132]: 折射视图
+          - generic [ref=e133]: 多视角全面分析，系统自动输出综合结论
+          - generic [ref=e134]:
+            - generic [ref=e135]: 2-3人
+            - generic [ref=e136]: ·
+            - generic [ref=e137]: 想快速全面了解一个问...
+        - button "圆桌辩论 多个思想家真正来回碰撞，发现你没想到的盲点 3-6人 · 想被挑战、找到思维漏..." [ref=e138] [cursor=pointer]:
+          - img [ref=e140]
+          - generic [ref=e144]: 圆桌辩论
+          - generic [ref=e145]: 多个思想家真正来回碰撞，发现你没想到的盲点
+          - generic [ref=e146]:
+            - generic [ref=e147]: 3-6人
+            - generic [ref=e148]: ·
+            - generic [ref=e149]: 想被挑战、找到思维漏...
+        - button "任务模式 多角色分工协作，产出完整可用的结构化成果 2-6人 · 需要一个完整可用的产..." [ref=e150] [cursor=pointer]:
+          - img [ref=e152]
+          - generic [ref=e156]: 任务模式
+          - generic [ref=e157]: 多角色分工协作，产出完整可用的结构化成果
+          - generic [ref=e158]:
+            - generic [ref=e159]: 2-6人
+            - generic [ref=e160]: ·
+            - generic [ref=e161]: 需要一个完整可用的产...
+    - generic [ref=e163]:
+      - generic [ref=e165]:
+        - heading "蒸馏人物" [level=2] [ref=e166]
+        - paragraph [ref=e167]: 覆盖哲学、投资、科技、科学、东方智慧等多个领域
+      - generic [ref=e168]:
+        - link "史 史蒂夫·乔布斯 Stay Hungry, Stay Foolish" [ref=e170] [cursor=pointer]:
+          - /url: /personas/steve-jobs
+          - generic [ref=e171]:
+            - generic [ref=e172]: 史
+            - paragraph [ref=e173]: 史蒂夫·乔布斯
+            - paragraph [ref=e174]: Stay Hungry, Stay Foolish
+        - link "埃 埃隆·马斯克 The only rules are the laws of physics" [ref=e176] [cursor=pointer]:
+          - /url: /personas/elon-musk
+          - generic [ref=e177]:
+            - generic [ref=e178]: 埃
+            - paragraph [ref=e179]: 埃隆·马斯克
+            - paragraph [ref=e180]: The only rules are the laws of physics
+        - link "查 查理·芒格 Invert, always invert" [ref=e182] [cursor=pointer]:
+          - /url: /personas/charlie-munger
+          - generic [ref=e183]:
+            - generic [ref=e184]: 查
+            - paragraph [ref=e185]: 查理·芒格
+            - paragraph [ref=e186]: Invert, always invert
+        - link "纳 纳瓦尔·拉威康特 Seek wealth, not money or status" [ref=e188] [cursor=pointer]:
+          - /url: /personas/naval-ravikant
+          - generic [ref=e189]:
+            - generic [ref=e190]: 纳
+            - paragraph [ref=e191]: 纳瓦尔·拉威康特
+            - paragraph [ref=e192]: Seek wealth, not money or status
+        - link "理 理查德·费曼 What I cannot create, I do not understand" [ref=e194] [cursor=pointer]:
+          - /url: /personas/richard-feynman
+          - generic [ref=e195]:
+            - generic [ref=e196]: 理
+            - paragraph [ref=e197]: 理查德·费曼
+            - paragraph [ref=e198]: What I cannot create, I do not understand
+        - link "张 张一鸣 Mediocrity has gravity, requires escape velocity" [ref=e200] [cursor=pointer]:
+          - /url: /personas/zhang-yiming
+          - generic [ref=e201]:
+            - generic [ref=e202]: 张
+            - paragraph [ref=e203]: 张一鸣
+            - paragraph [ref=e204]: Mediocrity has gravity, requires escape velocity
+      - link "查看全部人物" [ref=e206] [cursor=pointer]:
+        - /url: /personas
+        - text: 查看全部人物
+        - img [ref=e207]
+    - generic [ref=e210]:
+      - generic [ref=e211]:
+        - heading "关于 Prismatic" [level=2] [ref=e212]
+        - paragraph [ref=e213]: Prismatic 基于「认知蒸馏」技术，通过深度访谈、文献研究、著作分析等方式， 对人类历史上最卓越的思考者进行系统性分析，重构他们的思维模型、决策框架和表达 DNA。
+      - generic [ref=e214]:
+        - generic [ref=e215]:
+          - img [ref=e216]
+          - heading "深度蒸馏" [level=3] [ref=e226]
+          - paragraph [ref=e227]: 从原始文本中提取思维模式和决策框架，而非简单的角色扮演
+        - generic [ref=e228]:
+          - img [ref=e229]
+          - heading "多视角协作" [level=3] [ref=e233]
+          - paragraph [ref=e234]: 不同领域的蒸馏人物可以同时参与讨论，碰撞出单一视角无法产生的洞见
+        - generic [ref=e235]:
+          - img [ref=e236]
+          - heading "解决实际问题" [level=3] [ref=e240]
+          - paragraph [ref=e241]: 不只是提供观点，而是将智慧应用于你的具体问题
+    - generic [ref=e248]:
+      - img [ref=e249]
+      - heading "开始你的思维进化之旅" [level=2] [ref=e251]
+      - paragraph [ref=e252]: 无论是深入探索一个思想家的智慧，还是让多个领域的顶尖头脑同时为你思考，Prismatic 都是你的认知升级工具
+      - link "免费开始体验" [ref=e254] [cursor=pointer]:
+        - /url: /app
+        - img [ref=e255]
+        - text: 免费开始体验
+    - generic [ref=e258]:
+      - generic [ref=e259]:
+        - generic [ref=e260]:
+          - img [ref=e261]
+          - generic [ref=e263]: 用户留言
+          - generic [ref=e264]: ·
+          - generic [ref=e265]: 6 条留言
+        - heading "听听大家怎么说" [level=2] [ref=e266]
+        - paragraph [ref=e267]: 分享你的使用体验，与其他用户交流心得
+      - generic [ref=e274]:
+        - generic [ref=e275]:
+          - generic [ref=e276]:
+            - img [ref=e278]
+            - generic [ref=e280]:
+              - generic [ref=e281]:
+                - heading "守望者计划" [level=2] [ref=e282]
+                - generic [ref=e283]: 上午好
+              - paragraph [ref=e284]: 每日三位思想家轮值，守护社区智慧
+          - generic [ref=e285]:
+            - button [ref=e286] [cursor=pointer]:
+              - img [ref=e287]
+            - button [ref=e289] [cursor=pointer]:
+              - img [ref=e290]
+        - generic [ref=e295]:
+          - generic [ref=e436]:
+            - generic [ref=e437]: 守望者 壹
+            - generic [ref=e438]:
+              - generic [ref=e439]: 史
+              - generic [ref=e440]:
+                - paragraph [ref=e441]: 史蒂夫·乔布斯
+                - paragraph [ref=e442]: 保持饥饿，保持愚蠢
+            - generic "今日话题：请分享你最近在思考的一个问题" [ref=e444]:
+              - img [ref=e445]
+              - text: 今日话题：请分享你最近在思考的一个问题
+          - generic [ref=e447]:
+            - generic [ref=e448]: 守望者 贰
+            - generic [ref=e449]:
+              - generic [ref=e450]: w
+              - generic [ref=e451]:
+                - paragraph [ref=e452]: warren-buffett
+                - paragraph
+            - generic "哲学时间：简单解释一个改变你人生的观念" [ref=e454]:
+              - img [ref=e455]
+              - text: 哲学时间：简单解释一个改变你人生的观念
+          - generic [ref=e457]:
+            - generic [ref=e458]: 守望者 叁
+            - generic [ref=e459]:
+              - generic [ref=e460]: 理
+              - generic [ref=e461]:
+                - paragraph [ref=e462]: 理查德·费曼
+                - paragraph [ref=e463]: 凡是我不能创造的，都是我不理解的
+            - generic "实践派：分享一个你正在尝试的习惯或方法" [ref=e465]:
+              - img [ref=e466]
+              - text: 实践派：分享一个你正在尝试的习惯或方法
+        - generic [ref=e308]:
+          - img [ref=e309]
+          - generic [ref=e312]: 发表评论，即有机会获得守望者回复
+      - generic [ref=e314]:
+        - img [ref=e316]
+        - heading "登录后参与讨论" [level=3] [ref=e318]
+        - paragraph [ref=e319]:
+          - text: 守望者计划需要登录后才能发表评论
+          - text: 登录后，你的观点可能被思想家们关注
+        - generic [ref=e320]:
+          - link "登录" [ref=e321] [cursor=pointer]:
+            - /url: /auth/signin
+            - img [ref=e322]
+            - text: 登录
+          - link "注册" [ref=e325] [cursor=pointer]:
+            - /url: /auth/signup
+            - img [ref=e326]
+            - text: 注册
+      - generic [ref=e329]:
+        - button "最新" [ref=e330] [cursor=pointer]:
+          - img [ref=e331]
+          - text: 最新
+        - button "最热" [ref=e334] [cursor=pointer]:
+          - img [ref=e335]
+          - text: 最热
+      - generic [ref=e338]:
+        - generic [ref=e470]:
+          - generic [ref=e471]:
+            - generic [ref=e472]: 🦉
+            - generic [ref=e473]:
+              - generic [ref=e474]:
+                - generic [ref=e475]: ZXQ管理员
+                - generic [ref=e476]:
+                  - img [ref=e477]
+                  - text: 置顶
+                - generic [ref=e479]: 2小时前
+              - generic "2026/04/13 09:02" [ref=e480]: 0 阅读
+            - button [ref=e482] [cursor=pointer]:
+              - img [ref=e483]
+          - paragraph [ref=e487]: 欢迎大家多提宝贵建议💯，我们会不断更新和改进！
+          - generic [ref=e488]:
+            - button [ref=e490] [cursor=pointer]:
+              - img [ref=e491]
+            - button "回复" [ref=e494] [cursor=pointer]:
+              - img [ref=e495]
+              - generic [ref=e497]: 回复
+            - button "举报" [ref=e498] [cursor=pointer]:
+              - img [ref=e499]
+        - generic [ref=e503]:
+          - generic [ref=e504]:
+            - generic [ref=e505]: 🚀
+            - generic [ref=e506]:
+              - generic [ref=e507]:
+                - generic [ref=e508]: 产品爱好者
+                - generic [ref=e509]:
+                  - img [ref=e510]
+                  - text: 置顶
+                - generic [ref=e512]: 11小时前
+              - generic "2026/04/13 00:06" [ref=e513]: 0 阅读
+            - button [ref=e515] [cursor=pointer]:
+              - img [ref=e516]
+          - paragraph [ref=e520]: 这个产品太棒了！让乔布斯和芒格同时思考我的问题，感觉打开了新世界的大门 🚀
+          - generic [ref=e521]:
+            - button "1" [ref=e523] [cursor=pointer]:
+              - img [ref=e524]
+              - generic [ref=e526]: "1"
+            - button "👍 1" [ref=e527] [cursor=pointer]:
+              - generic [ref=e528]: 👍
+              - generic [ref=e529]: "1"
+            - button "回复" [ref=e531] [cursor=pointer]:
+              - img [ref=e532]
+              - generic [ref=e534]: 回复
+            - button "举报" [ref=e535] [cursor=pointer]:
+              - img [ref=e536]
+        - generic [ref=e540]:
+          - generic [ref=e541]:
+            - generic [ref=e542]: 🦉
+            - generic [ref=e543]:
+              - generic [ref=e544]:
+                - generic [ref=e545]: 哲学探索者
+                - generic [ref=e546]: 11小时前
+              - generic "2026/04/13 00:06" [ref=e547]: 0 阅读
+            - button [ref=e549] [cursor=pointer]:
+              - img [ref=e550]
+          - paragraph [ref=e554]: 作为一个哲学爱好者，终于找到了可以深入探讨斯多葛主义的工具。费曼的思维方式也让人受益匪浅！
+          - generic [ref=e555]:
+            - button "1" [ref=e557] [cursor=pointer]:
+              - img [ref=e558]
+              - generic [ref=e560]: "1"
+            - button "❤️ 1" [ref=e561] [cursor=pointer]:
+              - generic [ref=e562]: ❤️
+              - generic [ref=e563]: "1"
+            - button "回复" [ref=e565] [cursor=pointer]:
+              - img [ref=e566]
+              - generic [ref=e568]: 回复
+            - button "举报" [ref=e569] [cursor=pointer]:
+              - img [ref=e570]
+        - generic [ref=e574]:
+          - generic [ref=e575]:
+            - generic [ref=e576]: 💡
+            - generic [ref=e577]:
+              - generic [ref=e578]:
+                - generic [ref=e579]: 创业者小明
+                - generic [ref=e580]: 11小时前
+              - generic "2026/04/13 00:06" [ref=e581]: 0 阅读
+            - button [ref=e583] [cursor=pointer]:
+              - img [ref=e584]
+          - paragraph [ref=e588]: 张一鸣的实用主义思维对我做产品很有启发，强力推荐！
+          - generic [ref=e589]:
+            - button "1" [ref=e591] [cursor=pointer]:
+              - img [ref=e592]
+              - generic [ref=e594]: "1"
+            - button "💯 1" [ref=e595] [cursor=pointer]:
+              - generic [ref=e596]: 💯
+              - generic [ref=e597]: "1"
+            - button "回复" [ref=e599] [cursor=pointer]:
+              - img [ref=e600]
+              - generic [ref=e602]: 回复
+            - button "举报" [ref=e603] [cursor=pointer]:
+              - img [ref=e604]
+        - generic [ref=e608]:
+          - generic [ref=e609]:
+            - generic [ref=e610]: 🎨
+            - generic [ref=e611]:
+              - generic [ref=e612]:
+                - generic [ref=e613]: 设计师阿杰
+                - generic [ref=e614]: 11小时前
+              - generic "2026/04/13 00:06" [ref=e615]: 0 阅读
+            - button [ref=e617] [cursor=pointer]:
+              - img [ref=e618]
+          - paragraph [ref=e622]: 界面设计很优雅，使用体验流畅，期待更多功能！
+          - generic [ref=e623]:
+            - button "1" [ref=e625] [cursor=pointer]:
+              - img [ref=e626]
+              - generic [ref=e628]: "1"
+            - button "🎉 1" [ref=e629] [cursor=pointer]:
+              - generic [ref=e630]: 🎉
+              - generic [ref=e631]: "1"
+            - button "回复" [ref=e633] [cursor=pointer]:
+              - img [ref=e634]
+              - generic [ref=e636]: 回复
+            - button "举报" [ref=e637] [cursor=pointer]:
+              - img [ref=e638]
+        - generic [ref=e642]:
+          - generic [ref=e643]:
+            - generic [ref=e644]: 🔥
+            - generic [ref=e645]:
+              - generic [ref=e646]:
+                - generic [ref=e647]: 科技迷
+                - generic [ref=e648]: 11小时前
+              - generic "2026/04/13 00:06" [ref=e649]: 0 阅读
+            - button [ref=e651] [cursor=pointer]:
+              - img [ref=e652]
+          - paragraph [ref=e656]: 和乔布斯、马斯克、芒格同时对话，这种体验太神奇了！
+          - generic [ref=e657]:
+            - button "1" [ref=e659] [cursor=pointer]:
+              - img [ref=e660]
+              - generic [ref=e662]: "1"
+            - button "✨ 1" [ref=e663] [cursor=pointer]:
+              - generic [ref=e664]: ✨
+              - generic [ref=e665]: "1"
+            - button "回复" [ref=e667] [cursor=pointer]:
+              - img [ref=e668]
+              - generic [ref=e670]: 回复
+            - button "举报" [ref=e671] [cursor=pointer]:
+              - img [ref=e672]
+    - contentinfo [ref=e342]:
+      - generic [ref=e343]:
+        - generic [ref=e344]:
+          - generic [ref=e345]:
+            - img [ref=e346]
+            - generic [ref=e349]: 集团站点
+          - generic [ref=e350]:
+            - link "集团官网" [ref=e351] [cursor=pointer]:
+              - /url: https://www.zxqconsulting.com/
+              - img [ref=e352]
+              - text: 集团官网
+            - link "全球贸易" [ref=e356] [cursor=pointer]:
+              - /url: https://global-trade.zxqconsulting.com/
+              - img [ref=e357]
+              - text: 全球贸易
+            - link "非洲业务" [ref=e361] [cursor=pointer]:
+              - /url: https://africa.zxqconsulting.com/
+              - img [ref=e362]
+              - text: 非洲业务
+            - link "外资入华" [ref=e366] [cursor=pointer]:
+              - /url: https://global2china.zxqconsulting.com/
+              - img [ref=e367]
+              - text: 外资入华
+            - link "日本报价" [ref=e371] [cursor=pointer]:
+              - /url: https://quotation-japan.zxqconsulting.com/zh
+              - img [ref=e372]
+              - text: 日本报价
+            - link "全球法务" [ref=e376] [cursor=pointer]:
+              - /url: https://global-legal-info.zxqconsulting.com/
+              - img [ref=e377]
+              - text: 全球法务
+        - generic [ref=e381]:
+          - generic [ref=e382]:
+            - generic [ref=e383]:
+              - img [ref=e384]
+              - generic [ref=e386]: Prismatic · 折射之光
+            - paragraph [ref=e387]: 折射人类最卓越的思维之光，让卓越灵魂为你思考、辩论与协作。
+          - generic [ref=e388]:
+            - heading "产品" [level=4] [ref=e389]
+            - list [ref=e390]:
+              - listitem [ref=e391]:
+                - link "在线体验" [ref=e392] [cursor=pointer]:
+                  - /url: /app
+              - listitem [ref=e393]:
+                - link "人物档案馆" [ref=e394] [cursor=pointer]:
+                  - /url: /personas
+              - listitem [ref=e395]:
+                - link "关公战秦琼" [ref=e396] [cursor=pointer]:
+                  - /url: /clash
+              - listitem [ref=e397]:
+                - link "蒸馏方法论" [ref=e398] [cursor=pointer]:
+                  - /url: /methodology
+          - generic [ref=e399]:
+            - heading "资源" [level=4] [ref=e400]
+            - list [ref=e401]:
+              - listitem [ref=e402]:
+                - link "置信度说明" [ref=e403] [cursor=pointer]:
+                  - /url: /confidence
+              - listitem [ref=e404]:
+                - link "知识图谱" [ref=e405] [cursor=pointer]:
+                  - /url: /graph
+              - listitem [ref=e406]:
+                - link "跨视角对比" [ref=e407] [cursor=pointer]:
+                  - /url: /compare
+              - listitem [ref=e408]:
+                - link "GitHub" [ref=e409] [cursor=pointer]:
+                  - /url: https://github.com/qiangzhang2009/prismatic
+                  - img [ref=e410]
+                  - text: GitHub
+          - generic [ref=e413]:
+            - heading "法律" [level=4] [ref=e414]
+            - list [ref=e415]:
+              - listitem [ref=e416]:
+                - link "使用条款" [ref=e417] [cursor=pointer]:
+                  - /url: /terms
+              - listitem [ref=e418]:
+                - link "隐私政策" [ref=e419] [cursor=pointer]:
+                  - /url: /privacy
+              - listitem [ref=e420]:
+                - link "联系我们" [ref=e421] [cursor=pointer]:
+                  - /url: /contact
+        - generic [ref=e422]:
+          - generic [ref=e423]:
+            - heading "免责声明" [level=4] [ref=e424]
+            - paragraph [ref=e425]:
+              - strong [ref=e426]: 重要提示：
+              - text: Prismatic 的人物对话功能基于公开文献和资料进行「认知蒸馏」，生成的回复代表的是对特定人物思维方式的分析和重构， 并不意味着这些人物认同或支持平台上的任何观点、内容或建议。 所有输出仅供学习和参考用途，不构成任何形式的投资建议、医疗建议、法律建议或其他专业建议。 用户应自行判断内容的适用性，并对使用本平台产生的结果承担全部责任。 本平台不保证内容的准确性、完整性或时效性。
+          - generic [ref=e427]:
+            - heading "AI 使用说明" [level=4] [ref=e428]
+            - paragraph [ref=e429]: 本平台使用大语言模型（LLM）技术生成回复。AI 生成的内容可能包含不准确、虚构或过时的信息。 我们鼓励用户批判性地对待所有 AI 输出，并结合独立研究和专业意见做出决策。 涉及重要决策时，请咨询相关领域的专业人士。
+        - generic [ref=e430]:
+          - generic [ref=e431]:
+            - paragraph [ref=e432]: © 2026 上海张小强企业咨询事务所 版权所有
+            - paragraph [ref=e433]: "微信公众号/视频号: 张小强出海"
+          - paragraph [ref=e434]: Made with curiosity & conviction
+  - alert [ref=e435]
+  - generic [ref=e675]:
+    - generic [ref=e677]:
+      - img [ref=e679]
+      - generic [ref=e682]:
+        - paragraph [ref=e683]: 访客
+        - paragraph [ref=e684]: 免费体验，无需注册
+    - generic [ref=e685]:
+      - generic [ref=e686]:
+        - generic [ref=e687]:
+          - img [ref=e688]
+          - generic [ref=e690]: 今日对话额度
+        - generic [ref=e691]: 60 条
+      - paragraph [ref=e692]: 注册登录后可保存对话历史，享受高级功能
+    - generic [ref=e693]:
+      - link "历史对话" [ref=e694] [cursor=pointer]:
+        - /url: /app
+        - img [ref=e695]
+        - text: 历史对话
+      - link "收藏人物" [ref=e699] [cursor=pointer]:
+        - /url: /personas
+        - img [ref=e700]
+        - text: 收藏人物
+      - link "关于 Prismatic" [ref=e702] [cursor=pointer]:
+        - /url: /#about
+        - img [ref=e703]
+        - text: 关于 Prismatic
+      - generic [ref=e706]:
+        - paragraph [ref=e707]: 注册后可保存对话历史，享受高级功能
+        - generic [ref=e708]:
+          - link "登录" [ref=e709] [cursor=pointer]:
+            - /url: /auth/signin
+            - img [ref=e710]
+            - text: 登录
+          - link "免费注册" [ref=e713] [cursor=pointer]:
+            - /url: /auth/signup
+            - img [ref=e714]
+            - text: 免费注册

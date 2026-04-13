@@ -3,9 +3,11 @@
 /**
  * Prismatic — User Menu Component (Auth Mode)
  * Supports both guest mode and full authentication
+ * Shows user identity, permissions, and remaining daily quota
  */
 
 import { useState, useRef, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
@@ -22,14 +24,61 @@ import {
   Shield,
   Crown,
   ShieldCheck,
+  MessageSquare,
+  Zap,
+  Calendar,
+  TrendingUp,
+  ChevronRight,
+  Star,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuthStore } from '@/lib/auth-store';
 
+// Daily message limit configuration
+const DAILY_LIMIT = 60;
+const DAILY_LIMIT_KEY = 'prismatic-daily-messages';
+const DAILY_DATE_KEY = 'prismatic-daily-date';
+
+// Get daily message count from localStorage
+function getDailyCount(): { count: number; remaining: number; resetDate: string } {
+  try {
+    const today = new Date().toISOString().slice(0, 10);
+    const savedDate = localStorage.getItem(DAILY_DATE_KEY);
+
+    let count = 0;
+    if (savedDate !== today) {
+      // Reset for new day
+      localStorage.setItem(DAILY_LIMIT_KEY, '0');
+      localStorage.setItem(DAILY_DATE_KEY, today);
+    } else {
+      count = parseInt(localStorage.getItem(DAILY_LIMIT_KEY) ?? '0', 10);
+    }
+
+    return {
+      count,
+      remaining: Math.max(0, DAILY_LIMIT - count),
+      resetDate: today,
+    };
+  } catch {
+    return { count: 0, remaining: DAILY_LIMIT, resetDate: '' };
+  }
+}
+
 export function UserMenu() {
-  const { user, logout, isInitialized } = useAuthStore();
+  const { user, logout } = useAuthStore();
   const [isOpen, setIsOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
+  const [dailyInfo, setDailyInfo] = useState({ count: 0, remaining: DAILY_LIMIT });
   const menuRef = useRef<HTMLDivElement>(null);
+
+  // Handle hydration - localStorage is not available during SSR
+  useEffect(() => {
+    setMounted(true);
+    // Update daily info when menu opens
+    if (isOpen) {
+      setDailyInfo(getDailyCount());
+    }
+  }, [isOpen]);
 
   // Close menu when clicking outside
   useEffect(() => {
@@ -45,22 +94,69 @@ export function UserMenu() {
   const handleLogout = async () => {
     await logout();
     setIsOpen(false);
+    window.location.href = '/';
   };
 
-  const planLabel = user?.plan === 'FREE' ? '免费用户' 
-    : user?.plan === 'MONTHLY' ? '月度会员' 
-    : user?.plan === 'YEARLY' ? '年度会员' 
-    : user?.plan === 'LIFETIME' ? '终身会员' 
-    : '免费用户';
+  // Plan labels and info
+  const planInfo = {
+    FREE: {
+      label: '免费用户',
+      color: 'text-text-muted',
+      bg: 'bg-bg-surface',
+      features: ['每日 60 条消息', '3 个人物角色', '基础对话功能'],
+      upgrade: true,
+    },
+    MONTHLY: {
+      label: '月度会员',
+      color: 'text-prism-blue',
+      bg: 'bg-prism-blue/10',
+      features: ['每日无限消息', '全部人物角色', '优先响应'],
+      upgrade: false,
+    },
+    YEARLY: {
+      label: '年度会员',
+      color: 'text-green-400',
+      bg: 'bg-green-400/10',
+      features: ['每日无限消息', '全部人物角色', '优先响应', '年费优惠'],
+      upgrade: false,
+    },
+    LIFETIME: {
+      label: '终身会员',
+      color: 'text-amber-400',
+      bg: 'bg-amber-400/10',
+      features: ['每日无限消息', '全部人物角色', '优先响应', '永久会员'],
+      upgrade: false,
+    },
+  };
 
-  const planColor = user?.plan === 'FREE' ? 'text-text-muted'
-    : user?.role === 'ADMIN' ? 'text-prism-purple'
-    : 'text-amber-400';
+  const currentPlan = user?.plan ? planInfo[user.plan as keyof typeof planInfo] : null;
+
+  // Role labels
+  const roleLabels: Record<string, { label: string; color: string; icon: typeof Shield }> = {
+    ADMIN: { label: '管理员', color: 'text-prism-purple', icon: ShieldCheck },
+    PRO: { label: '高级用户', color: 'text-amber-400', icon: Star },
+    FREE: { label: '普通用户', color: 'text-text-muted', icon: User },
+  };
+
+  // Handle hydration - show placeholder until mounted to prevent mismatch
+  if (!mounted) {
+    return (
+      <div className="flex items-center gap-2 p-1.5 rounded-full">
+        <div className="w-8 h-8 rounded-full bg-bg-elevated border border-border-subtle" />
+      </div>
+    );
+  }
 
   return (
     <div className="relative" ref={menuRef}>
+      {/* Trigger button only — portal renders dropdown to body */}
       <button
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={() => {
+          setIsOpen(!isOpen);
+          if (!isOpen) {
+            setDailyInfo(getDailyCount());
+          }
+        }}
         className="flex items-center gap-2 p-1.5 rounded-full hover:bg-bg-elevated transition-colors"
         aria-label="用户菜单"
       >
@@ -90,50 +186,55 @@ export function UserMenu() {
         />
       </button>
 
-      <AnimatePresence>
-        {isOpen && (
-          <motion.div
-            initial={{ opacity: 0, y: 8, scale: 0.95 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 8, scale: 0.95 }}
-            transition={{ duration: 0.15 }}
-            className="absolute right-0 mt-2 w-72 origin-top-right z-50"
-          >
-            <div className="rounded-xl border border-border-subtle bg-bg-elevated shadow-lg overflow-hidden">
+      {/* Portal: render dropdown to body to avoid z-index stacking context issues */}
+      {typeof document !== 'undefined' && createPortal(
+        <AnimatePresence>
+          {isOpen && (
+            <motion.div
+              initial={{ opacity: 0, y: 8, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 8, scale: 0.95 }}
+              transition={{ duration: 0.15 }}
+              className="fixed right-6 top-[68px] w-80 origin-top-right z-[9999]"
+              style={{ position: 'fixed' }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="rounded-xl border border-border-subtle bg-bg-elevated shadow-xl shadow-black/30 overflow-hidden">
               {user ? (
                 <>
-                  {/* Authenticated user info */}
-                  <div className="px-4 py-3 border-b border-border-subtle">
+                  {/* User Info Header */}
+                  <div className="px-4 py-3 border-b border-border-subtle bg-gradient-to-r from-transparent via-bg-surface/50 to-transparent">
                     <div className="flex items-center gap-3">
                       {user.avatar ? (
-                        <Image unoptimized src={user.avatar} alt="" className="w-10 h-10 rounded-full object-cover" width={40} height={40} />
+                        <Image unoptimized src={user.avatar} alt="" className="w-12 h-12 rounded-full object-cover ring-2 ring-border-subtle" width={48} height={48} />
                       ) : (
-                        <div className="w-10 h-10 rounded-full bg-prism-gradient flex items-center justify-center text-white font-medium">
+                        <div className="w-12 h-12 rounded-full bg-prism-gradient flex items-center justify-center text-white text-lg font-medium ring-2 ring-border-subtle">
                           {user.name?.[0] || user.email[0].toUpperCase()}
                         </div>
                       )}
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-text-primary truncate">
+                        <p className="text-base font-semibold text-text-primary truncate">
                           {user.name || user.email.split('@')[0]}
                         </p>
                         <p className="text-xs text-text-muted truncate">{user.email}</p>
-                        <div className="flex items-center gap-1 mt-0.5">
+                        <div className="flex items-center gap-2 mt-1.5">
+                          {/* Role Badge */}
                           {user.role === 'ADMIN' && (
-                            <span className="inline-flex items-center gap-0.5 text-xs text-prism-purple bg-prism-purple/10 px-1.5 py-0.5 rounded">
+                            <span className="inline-flex items-center gap-1 text-xs text-prism-purple bg-prism-purple/10 px-2 py-0.5 rounded-full font-medium">
                               <ShieldCheck className="w-3 h-3" />
                               管理员
                             </span>
                           )}
-                          {user.plan !== 'FREE' && user.role !== 'ADMIN' && (
-                            <span className="inline-flex items-center gap-0.5 text-xs text-amber-400 bg-amber-400/10 px-1.5 py-0.5 rounded">
-                              <Crown className="w-3 h-3" />
-                              {planLabel}
+                          {user.role === 'PRO' && (
+                            <span className="inline-flex items-center gap-1 text-xs text-amber-400 bg-amber-400/10 px-2 py-0.5 rounded-full font-medium">
+                              <Star className="w-3 h-3" />
+                              高级用户
                             </span>
                           )}
-                          {user.plan === 'FREE' && (
-                            <span className="inline-flex items-center gap-0.5 text-xs text-text-muted">
-                              <Shield className="w-3 h-3" />
-                              免费用户
+                          {user.role === 'FREE' && (
+                            <span className="inline-flex items-center gap-1 text-xs text-text-muted bg-bg-surface px-2 py-0.5 rounded-full">
+                              <User className="w-3 h-3" />
+                              普通用户
                             </span>
                           )}
                         </div>
@@ -141,12 +242,67 @@ export function UserMenu() {
                     </div>
                   </div>
 
-                  {/* Menu items */}
+                  {/* Daily Quota Section */}
+                  <div className="px-4 py-3 border-b border-border-subtle bg-gradient-to-b from-transparent to-bg-surface/30">
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center gap-2">
+                        <MessageSquare className="w-4 h-4 text-prism-blue" />
+                        <span className="text-sm font-medium text-text-primary">今日对话额度</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        {user.plan === 'FREE' ? (
+                          <span className="text-sm font-bold">
+                            <span className={dailyInfo.remaining < 10 ? 'text-amber-400' : 'text-prism-blue'}>
+                              {dailyInfo.remaining}
+                            </span>
+                            <span className="text-text-muted"> / {DAILY_LIMIT}</span>
+                          </span>
+                        ) : (
+                          <span className="text-xs text-green-400 font-medium">无限</span>
+                        )}
+                      </div>
+                    </div>
+                    {user.plan === 'FREE' && (
+                      <div className="w-full h-1.5 bg-bg-surface rounded-full overflow-hidden">
+                        <div
+                          className={cn(
+                            'h-full rounded-full transition-all',
+                            dailyInfo.remaining < 10 ? 'bg-amber-400' : 'bg-prism-blue'
+                          )}
+                          style={{ width: `${(dailyInfo.remaining / DAILY_LIMIT) * 100}%` }}
+                        />
+                      </div>
+                    )}
+                    {user.plan === 'FREE' && dailyInfo.remaining < 10 && (
+                      <p className="text-xs text-amber-400 mt-2 flex items-center gap-1">
+                        <Zap className="w-3 h-3" />
+                        额度不足？联系我们升级高级版
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Member Benefits */}
+                  <div className="px-4 py-3 border-b border-border-subtle">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Crown className={cn('w-4 h-4', currentPlan?.color)} />
+                      <span className="text-sm font-medium text-text-primary">{currentPlan?.label}</span>
+                    </div>
+                    <div className="space-y-1">
+                      {currentPlan?.features.map((feature, i) => (
+                        <div key={i} className="flex items-center gap-2 text-xs text-text-muted">
+                          <div className="w-1 h-1 rounded-full bg-current" />
+                          {feature}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Menu Items */}
                   <div className="py-1">
                     <MenuItem icon={History} label="历史对话" href="/app" onClick={() => setIsOpen(false)} />
                     <MenuItem icon={Bookmark} label="收藏人物" href="/personas" onClick={() => setIsOpen(false)} />
                     <MenuItem icon={Settings} label="账号设置" href="/settings" onClick={() => setIsOpen(false)} />
-                    
+
                     {user.role === 'ADMIN' && (
                       <>
                         <div className="h-px bg-border-subtle my-1" />
@@ -154,23 +310,33 @@ export function UserMenu() {
                         <MenuItem icon={Shield} label="系统概览" href="/admin" onClick={() => setIsOpen(false)} />
                       </>
                     )}
-                    
+
                     <div className="h-px bg-border-subtle my-1" />
-                    
+
                     <MenuItem icon={Info} label="关于 Prismatic" href="/#about" onClick={() => setIsOpen(false)} />
-                    
+
                     {user.plan === 'FREE' && (
-                      <div className="px-4 py-3 mx-2 my-1 rounded-lg bg-gradient-to-r from-amber-500/10 to-prism-purple/10 border border-amber-500/20">
+                      <div className="px-4 py-3 mx-2 my-2 rounded-lg bg-gradient-to-r from-amber-500/10 to-prism-purple/10 border border-amber-500/20">
                         <p className="text-xs text-text-secondary mb-1.5">
                           <Crown className="w-3 h-3 inline mr-1 text-amber-400" />
                           升级到高级版
                         </p>
                         <p className="text-xs text-text-muted mb-2">
-                          联系我们开通
+                          无限对话 + 全部人物角色
                         </p>
+                        <a
+                          href="/contact"
+                          className="text-xs text-prism-blue hover:underline flex items-center gap-1"
+                          onClick={() => setIsOpen(false)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          联系我们
+                          <ChevronRight className="w-3 h-3" />
+                        </a>
                       </div>
                     )}
-                    
+
                     <button
                       type="button"
                       onClick={handleLogout}
@@ -183,27 +349,41 @@ export function UserMenu() {
                 </>
               ) : (
                 <>
-                  {/* Guest user info */}
-                  <div className="px-4 py-3 border-b border-border-subtle">
+                  {/* Guest User Info */}
+                  <div className="px-4 py-3 border-b border-border-subtle bg-gradient-to-r from-transparent via-bg-surface/30 to-transparent">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-bg-elevated border border-border-subtle flex items-center justify-center">
-                        <User className="w-5 h-5 text-text-muted" />
+                      <div className="w-12 h-12 rounded-full bg-bg-elevated border border-border-subtle flex items-center justify-center">
+                        <User className="w-6 h-6 text-text-muted" />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-text-primary">访客</p>
+                        <p className="text-base font-semibold text-text-primary">访客</p>
                         <p className="text-xs text-text-muted">免费体验，无需注册</p>
                       </div>
                     </div>
                   </div>
 
-                  {/* Menu items */}
+                  {/* Guest Quota Info */}
+                  <div className="px-4 py-3 border-b border-border-subtle bg-gradient-to-b from-transparent to-bg-surface/30">
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center gap-2">
+                        <MessageSquare className="w-4 h-4 text-prism-blue" />
+                        <span className="text-sm font-medium text-text-primary">今日对话额度</span>
+                      </div>
+                      <span className="text-sm font-bold text-prism-blue">{DAILY_LIMIT} 条</span>
+                    </div>
+                    <p className="text-xs text-text-muted">
+                      注册登录后可保存对话历史，享受高级功能
+                    </p>
+                  </div>
+
+                  {/* Menu Items */}
                   <div className="py-1">
                     <MenuItem icon={History} label="历史对话" href="/app" onClick={() => setIsOpen(false)} />
                     <MenuItem icon={Bookmark} label="收藏人物" href="/personas" onClick={() => setIsOpen(false)} />
                     <MenuItem icon={Info} label="关于 Prismatic" href="/#about" onClick={() => setIsOpen(false)} />
-                    
+
                     <div className="h-px bg-border-subtle my-1" />
-                    
+
                     <div className="px-4 py-2">
                       <p className="text-xs text-text-muted mb-2">
                         注册后可保存对话历史，享受高级功能
@@ -233,9 +413,11 @@ export function UserMenu() {
             </div>
           </motion.div>
         )}
-      </AnimatePresence>
-    </div>
-  );
+      </AnimatePresence>,
+      document.body
+    )}
+  </div>
+);
 }
 
 function MenuItem({
@@ -263,7 +445,7 @@ function MenuItem({
       </Link>
     );
   }
-  
+
   return (
     <button
       type="button"

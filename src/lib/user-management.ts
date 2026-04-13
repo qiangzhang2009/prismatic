@@ -9,6 +9,7 @@
 import { neon, NeonQueryFunction } from '@neondatabase/serverless';
 import bcrypt from 'bcryptjs';
 import { randomBytes } from 'crypto';
+import jwt from 'jsonwebtoken';
 
 export type UserRole = 'FREE' | 'PRO' | 'ADMIN';
 export type SubscriptionPlan = 'FREE' | 'MONTHLY' | 'YEARLY' | 'LIFETIME';
@@ -278,6 +279,91 @@ export async function changePassword(userId: string, newPassword: string): Promi
   return true;
 }
 
+// ─── Demo User Helpers (shared) ────────────────────────────────────────────────
+
+export function isDemoUserId(userId: string) {
+  return userId.startsWith('demo_');
+}
+
+export function createDemoUserFromId(userId: string) {
+  const base64 = userId.replace('demo_', '');
+  let email = 'demo1@prismatic.app';
+  try {
+    const decoded = Buffer.from(base64, 'base64').toString();
+    if (decoded.includes('@')) email = decoded;
+  } catch {}
+  const num = email.match(/demo(\d+)/)?.[1] || '1';
+  return {
+    id: userId,
+    email,
+    name: `演示账号 ${num}`,
+    nameZh: `演示账号 ${num}`,
+    gender: null,
+    province: null,
+    emailVerified: true,
+    role: 'PRO' as UserRole,
+    plan: 'LIFETIME' as SubscriptionPlan,
+    avatar: null,
+    canUseProFeatures: true,
+    createdAt: new Date().toISOString(),
+    lastLoginAt: null,
+  };
+}
+
+// ─── JWT (for middleware auth) ─────────────────────────────────────────────────
+
+const AUTH_SECRET = process.env.AUTH_SECRET ?? 'prismatic-dev-secret-2024';
+const JWT_EXPIRY = '30d';
+
+export interface JWTPayload {
+  userId: string;
+  email?: string;
+  iat?: number;
+  exp?: number;
+}
+
+/** Create a signed JWT token for a user (used in login/register) */
+export function createJWTToken(userId: string, email?: string): string {
+  return jwt.sign({ userId, email }, AUTH_SECRET, { expiresIn: JWT_EXPIRY });
+}
+
+/** Verify a JWT token and return the payload (used in middleware + API routes) */
+export function verifyJWTToken(token: string): JWTPayload | null {
+  try {
+    const payload = jwt.verify(token, AUTH_SECRET) as JWTPayload;
+    return payload;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Server-side auth helper — verifies prismatic_token from request cookies.
+ * Returns the userId if valid, null otherwise.
+ * Use this instead of getSession() for all API routes.
+ */
+export async function authenticateRequest(req: { cookies: { get: (name: string) => { value?: string } | undefined } }): Promise<string | null> {
+  const token = req.cookies.get('prismatic_token')?.value;
+  if (!token) return null;
+  const payload = verifyJWTToken(token);
+  if (!payload) return null;
+  return payload.userId;
+}
+
+/**
+ * Admin-only auth helper — verifies JWT and checks role=ADMIN.
+ * Also handles demo users (they are never admins).
+ */
+export async function authenticateAdminRequest(req: { cookies: { get: (name: string) => { value?: string } | undefined } }): Promise<string | null> {
+  const userId = await authenticateRequest(req);
+  if (!userId) return null;
+  // Demo users are never admins
+  if (isDemoUserId(userId)) return null;
+  const user = await getUserById(userId);
+  if (!user || !isAdmin(user.role)) return null;
+  return userId;
+}
+
 // ─── Sessions ─────────────────────────────────────────────────────────────────
 
 export async function createSession(userId: string): Promise<string> {
@@ -363,23 +449,26 @@ export async function getUserStats(): Promise<{
   byRole: Record<string, number>;
   byPlan: Record<string, number>;
   recent: number;
+  verified: number;
 }> {
   const sql = getSql();
   const rows = await sql`
-    SELECT role, plan, created_at FROM prismatic_users WHERE is_active = TRUE
+    SELECT role, plan, created_at, email_verified FROM prismatic_users WHERE is_active = TRUE
   `;
   const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
   const byRole: Record<string, number> = {};
   const byPlan: Record<string, number> = {};
   let recent = 0;
+  let verified = 0;
 
   for (const row of rows) {
     byRole[row.role] = (byRole[row.role] || 0) + 1;
     byPlan[row.plan] = (byPlan[row.plan] || 0) + 1;
     if (new Date(row.created_at) > thirtyDaysAgo) recent++;
+    if (row.email_verified) verified++;
   }
 
-  return { total: rows.length, byRole, byPlan, recent };
+  return { total: rows.length, byRole, byPlan, recent, verified };
 }
 
 // ─── Permission Helpers ───────────────────────────────────────────────────────

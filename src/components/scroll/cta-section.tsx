@@ -90,7 +90,6 @@ export function CTASection({ persona, theme }: Props) {
           whileInView={{ opacity: 1, scale: 1 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6, delay: 0.5, type: 'spring', stiffness: 200, damping: 20 }}
-          whileHover={{ scale: 1.04 }}
           whileTap={{ scale: 0.97 }}
           className="relative inline-flex items-center gap-3 px-10 py-4 rounded-2xl text-white font-semibold text-base transition-all"
           style={{

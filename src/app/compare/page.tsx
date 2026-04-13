@@ -302,7 +302,6 @@ export default function ComparePage() {
                   key={comp.id}
                   onClick={() => runPremade(comp)}
                   className="text-left rounded-2xl border border-border-subtle bg-bg-elevated p-5 hover:border-border-medium transition-all"
-                  whileHover={{ y: -2 }}
                 >
                   <h4 className="font-semibold text-sm text-text-primary mb-1">{comp.title}</h4>
                   <p className="text-xs text-text-muted mb-3">{comp.topic.slice(0, 30)}...</p>

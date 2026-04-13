@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import Script from 'next/script';
 import './globals.css';
 import { Providers } from '@/components/providers';
+import { NavBar } from '@/components/nav-bar';
 
 export const metadata: Metadata = {
   title: 'Prismatic · 折射之光',
@@ -34,6 +35,7 @@ export default function RootLayout({
         />
       </head>
       <body className="min-h-screen bg-bg-base antialiased">
+        <NavBar />
         <Providers>{children}</Providers>
       </body>
     </html>

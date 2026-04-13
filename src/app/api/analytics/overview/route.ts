@@ -1,42 +1,49 @@
 /**
  * GET /api/analytics/overview — Prismatic Analytics Overview
- * Public endpoint for backend-admin dashboard (tenant=prismatic)
- * No auth required — only returns aggregate stats, not user data
- *
- * NOTE: Uses sequential queries (not Promise.all) to avoid Neon cold-start
- * timeout when multiple DB connections are needed simultaneously.
+ * Direct query from Prismatic's own Neon PostgreSQL tracking tables.
  */
 import { NextRequest, NextResponse } from 'next/server';
 import { getTrackingOverview, getTrackingFunnel, getTrackingTrend } from '@/lib/tracking';
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
-  const days = parseInt(searchParams.get('days') || '7', 10);
+  const days = Math.min(parseInt(searchParams.get('days') || '7', 10), 30);
 
   try {
-    // Sequential queries to reduce Neon cold-start connection overhead
-    const overview = await getTrackingOverview(days);
-    const funnel = await getTrackingFunnel(days);
-    const trend = await getTrackingTrend(days);
+    const [overview, funnel, trend] = await Promise.all([
+      getTrackingOverview(days),
+      getTrackingFunnel(days),
+      getTrackingTrend(days),
+    ]);
+
+    // Build DAU/WAU/MAU from the same data source
+    const dau = overview.dau ?? 0;
+    const wau = overview.wau ?? 0;
+    const mau = overview.mau ?? 0;
+    const sessions = overview.sessions ?? 0;
+    const totalEvents = overview.totalEvents ?? 0;
+    const totalPersonas = overview.totalPersonas ?? 0;
+    const totalConversations = overview.totalConversations ?? 0;
 
     return NextResponse.json({
       overview: {
-        dau: overview.dau,
-        wau: overview.wau,
-        mau: overview.mau,
-        sessions: overview.sessions,
+        dau,
+        wau,
+        mau,
+        sessions,
         avgSessionDuration: 0,
-        totalEvents: overview.totalEvents,
-        totalPersonas: overview.totalPersonas,
-        totalConversations: overview.totalConversations,
-        avgConversationsPerVisitor: overview.totalConversations > 0 && overview.mau > 0
-          ? parseFloat((overview.totalConversations / overview.mau).toFixed(2)) : 0,
+        totalEvents,
+        totalPersonas,
+        totalConversations,
+        avgConversationsPerVisitor: totalConversations > 0 && dau > 0
+          ? parseFloat((totalConversations / dau).toFixed(2))
+          : 0,
       },
       funnel,
       trend,
     });
   } catch (error) {
-    console.error('Analytics overview error:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    console.error('[Analytics Overview] Error:', error);
+    return NextResponse.json({ overview: null, funnel: [], trend: [] }, { status: 500 });
   }
 }
