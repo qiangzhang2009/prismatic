@@ -389,3 +389,344 @@ export interface MissionPlan {
   tasks: MissionTask[];
   status: 'planning' | 'executing' | 'completed';
 }
+
+// ─── Distillation Pipeline ─────────────────────────────────────────────────────
+
+export type PipelineStage = 'discover' | 'collect' | 'extract' | 'build' | 'test';
+export type PipelineStatus = 'pending' | 'running' | 'completed' | 'failed';
+export type PipelineWave = 1 | 2 | 3 | 4;
+
+export interface PipelineTaskDependency {
+  taskId: string;
+  dependsOn: string[];
+}
+
+export interface PipelineTask {
+  id: string;
+  personaId: string;
+  stage: PipelineStage;
+  description: string;
+  descriptionZh: string;
+  status: PipelineStatus;
+  dependencies: string[];
+  createdAt: Date;
+  startedAt?: Date;
+  completedAt?: Date;
+  result?: string;
+  error?: string;
+  cost?: number;
+  tokensUsed?: number;
+}
+
+export interface PipelinePlan {
+  id: string;
+  personaId: string;
+  tasks: PipelineTask[];
+  waves: PipelineTask[][];
+  status: PipelineStatus;
+  currentWave: PipelineWave;
+  totalCost: number;
+  totalTokens: number;
+  createdAt: Date;
+  startedAt?: Date;
+  completedAt?: Date;
+}
+
+export interface PipelineWaveResult {
+  wave: PipelineWave;
+  tasks: PipelineTask[];
+  duration: number;
+  cost: number;
+  success: boolean;
+  error?: string;
+}
+
+// ─── Distillation Scoring (AgentShield-style) ──────────────────────────────────
+
+export type ScoreGrade = 'A' | 'B' | 'C' | 'D' | 'F';
+export type FindingSeverity = 'critical' | 'high' | 'medium' | 'low' | 'info';
+export type FindingCategory = 'voice' | 'knowledge' | 'reasoning' | 'safety';
+
+export interface ScoreBreakdown {
+  voiceFidelity: number;       // 表达DNA还原度
+  knowledgeDepth: number;      // 知识覆盖深度
+  reasoningPattern: number;     // 思维模式一致性
+  safetyCompliance: number;     // 安全合规性
+}
+
+export interface ScoreFinding {
+  id: string;
+  severity: FindingSeverity;
+  category: FindingCategory;
+  title: string;
+  description: string;
+  location?: string;
+  fixSuggestion: string;
+  autoFixable: boolean;
+}
+
+export interface DistillationScore {
+  overall: number;            // 0-100
+  grade: ScoreGrade;
+  breakdown: ScoreBreakdown;
+  findings: ScoreFinding[];
+  starRating: 1 | 2 | 3 | 4 | 5;
+  thresholdPassed: boolean;
+  timestamp: Date;
+  modelUsed: string;
+  tokenUsage: {
+    promptTokens: number;
+    completionTokens: number;
+    totalTokens: number;
+  };
+}
+
+export interface VoiceFidelityMetrics {
+  vocabularyMatch: number;
+  sentencePatternMatch: number;
+  toneTrajectoryMatch: number;
+  forbiddenWordAvoidance: number;
+  rhetoricalHabitMatch: number;
+}
+
+export interface KnowledgeDepthMetrics {
+  mentalModelCoverage: number;
+  heuristicCoverage: number;
+  sourceCoverage: number;
+  timeSpanCoverage: number;
+  crossDomainLinks: number;
+}
+
+export interface ReasoningPatternMetrics {
+  valueConsistency: number;
+  tensionRecognition: number;
+  antiPatternAvoidance: number;
+  decisionFrameworkCoherence: number;
+}
+
+export interface SafetyComplianceMetrics {
+  harmfulContentDetection: number;
+  sensitivePersonExclusion: number;
+  politicalNeutrality: number;
+  factualAccuracy: number;
+}
+
+// ─── Persona Skills (ecc-style) ────────────────────────────────────────────────
+
+export type SkillCapability = 'analysis' | 'synthesis' | 'critique' | 'teaching' | 'storytelling' | 'negotiation' | 'questioning';
+
+export interface PersonaSkill {
+  id: string;
+  name: string;
+  nameZh: string;
+  description: string;
+  descriptionZh: string;
+  triggerKeywords: string[];
+  capability: SkillCapability;
+  examples: string[];
+  promptTemplate?: string;
+  cooldown?: number;
+}
+
+export interface PersonaSkillSet {
+  personaId: string;
+  skills: string[];
+  defaultSkill?: string;
+  skillOverrides?: Record<string, string>;
+}
+
+// ─── Expression Calibration ────────────────────────────────────────────────────
+
+export interface VocabularyFingerprint {
+  topWords: string[];
+  bigrams: string[];
+  trigrams: string[];
+  signaturePhrases: string[];
+  forbiddenWords: string[];
+}
+
+export interface SyntacticPattern {
+  pattern: string;
+  frequency: number;
+  example: string;
+}
+
+export interface ToneTrajectory {
+  trajectory: ('formal' | 'casual' | 'passionate' | 'detached' | 'humorous')[];
+  dominantTone: string;
+  toneShifts: number;
+  humorFrequency: number;
+  certaintyLevel: 'high' | 'medium' | 'low';
+}
+
+export interface ExpressionDNAProfile {
+  vocabularyFingerprint: VocabularyFingerprint;
+  syntacticPatterns: SyntacticPattern[];
+  toneTrajectory: ToneTrajectory;
+  rhetoricalHabits: string[];
+  quotePatterns: string[];
+  similarityToTarget?: number;
+}
+
+// ─── Scraping ─────────────────────────────────────────────────────────────────
+
+export type CollectorType = 'twitter' | 'blog' | 'video' | 'podcast' | 'book' | 'interview' | 'weibo' | 'forum';
+export type CollectorStatus = 'pending' | 'running' | 'done' | 'failed' | 'skipped';
+
+export interface ScrapingTarget {
+  id: string;
+  personaId: string;
+  collectorType: CollectorType;
+  source: string;
+  url?: string;
+  type: Source['type'];
+  status: CollectorStatus;
+  itemsCollected: number;
+  estimatedTotal?: number;
+  retryCount: number;
+  error?: string;
+  createdAt: Date;
+  completedAt?: Date;
+}
+
+export interface ScrapingProgress {
+  targetId: string;
+  status: string;
+  itemsCollected: number;
+  estimatedTotal: number;
+  rate: number;
+  errors: number;
+  elapsedMs: number;
+  currentUrl?: string;
+}
+
+export interface CollectorConfig {
+  parallelLimit: number;
+  retryCount: number;
+  retryDelay: number;
+  timeout: number;
+  userAgent: string;
+  respectRobotsTxt: boolean;
+}
+
+export interface CollectedItem {
+  id: string;
+  source: string;
+  sourceType: CollectorType;
+  content: string;
+  author?: string;
+  publishedAt?: string;
+  url?: string;
+  metadata?: Record<string, string>;
+  wordCount: number;
+  language: 'zh' | 'en' | 'mixed';
+  quality?: number;
+}
+
+// ─── Playtest ─────────────────────────────────────────────────────────────────
+
+export type PlaytestStatus = 'pending' | 'running' | 'passed' | 'failed' | 'partial';
+
+export interface PlaytestCase {
+  id: string;
+  personaId: string;
+  topic: string;
+  topicCategory: string;
+  prompt: string;
+  expectedTraits: string[];
+  avoidedTraits: string[];
+  contextHint?: string;
+}
+
+export interface PlaytestResult {
+  caseId: string;
+  personaId: string;
+  response: string;
+  traitScores: Record<string, number>;
+  avoidedScore: number;
+  voiceScore: number;
+  overallScore: number;
+  notes?: string;
+  timestamp: Date;
+}
+
+export interface PlaytestReport {
+  personaId: string;
+  date: Date;
+  totalCases: number;
+  passedCases: number;
+  failedCases: number;
+  averageScore: number;
+  grade: ScoreGrade;
+  results: PlaytestResult[];
+  improvements: ScoreFinding[];
+  nextSteps: string[];
+}
+
+export interface ImprovementReport {
+  priority: 'critical' | 'high' | 'medium';
+  area: FindingCategory;
+  finding: string;
+  currentState: string;
+  suggestedFix: string;
+  estimatedImpact: number;
+}
+
+// ─── Distillation Session ──────────────────────────────────────────────────────
+
+export interface DistillationSession {
+  id: string;
+  personaId: string;
+  planId: string;
+  status: PipelineStatus;
+  currentStage: PipelineStage;
+  currentWave: PipelineWave;
+  startedAt: Date;
+  completedAt?: Date;
+  totalCost: number;
+  totalTokens: number;
+  score?: DistillationScore;
+  playtestReport?: PlaytestReport;
+  artifacts: DistillationArtifact[];
+  errors: DistillationError[];
+}
+
+export interface DistillationArtifact {
+  type: 'corpus' | 'dna-profile' | 'system-prompt' | 'playtest-log' | 'score-report' | 'skill-set';
+  name: string;
+  path: string;
+  size: number;
+  createdAt: Date;
+}
+
+export interface DistillationError {
+  stage: PipelineStage;
+  taskId: string;
+  message: string;
+  stack?: string;
+  timestamp: Date;
+  recoverable: boolean;
+}
+
+// ─── Scraper Coordinator ───────────────────────────────────────────────────────
+
+export interface CoordinatorEvent {
+  type: 'target_started' | 'target_progress' | 'target_completed' | 'target_failed' | 'wave_completed';
+  targetId?: string;
+  wave?: PipelineWave;
+  progress?: ScrapingProgress;
+  result?: CollectedItem[];
+  error?: string;
+  timestamp: Date;
+}
+
+export interface CollectionResult {
+  personaId: string;
+  totalItems: number;
+  totalWords: number;
+  itemsByType: Record<CollectorType, number>;
+  quality: number;
+  duration: number;
+  errors: number;
+  artifacts: CollectedItem[];
+}

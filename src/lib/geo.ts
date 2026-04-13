@@ -141,14 +141,17 @@ export async function lookupIP(ip: string): Promise<GeoResult | null> {
  * Generate an avatar seed from IP hash + optional gender
  */
 export function generateAvatarSeed(ip: string, gender?: string): string {
+  const input = ip + (gender || '') + Date.now().toString(36) + Math.random().toString(36);
   let hash = 0;
-  const str = ip + (gender || '') + Date.now().toString(36);
-  for (let i = 0; i < str.length; i++) {
-    const char = str.charCodeAt(i);
+  for (let i = 0; i < input.length; i++) {
+    const char = input.charCodeAt(i);
     hash = ((hash << 5) - hash) + char;
-    hash = hash & hash; // convert to 32bit int
+    hash = hash & hash;
   }
-  return `u${Math.abs(hash).toString(36)}`;
+  // Generate a longer, more random seed string to ensure DiceBear recognizes it
+  const hex1 = Math.abs(hash).toString(16).padStart(8, '0');
+  const hex2 = Math.abs(hash * 1664525 + 1013904223).toString(16).padStart(8, '0');
+  return `${hex1}${hex2}${hex1.slice(0, 4)}`;
 }
 
 /**
