@@ -588,7 +588,7 @@ export function ChatInterface({ className, initialPersona, initialMode }: ChatIn
                       className="w-full flex items-center gap-3 px-4 py-3 text-sm text-text-primary hover:bg-bg-surface transition-colors"
                       onClick={handleExportAsImage}
                     >
-                      <Image className="w-4 h-4 text-prism-blue" alt="" />
+                      <Image className="w-4 h-4 text-prism-blue" />
                       导出为图片
                     </button>
                     <button

@@ -243,11 +243,17 @@ export async function POST(req: NextRequest) {
 
     const sql = neon(process.env.DATABASE_URL!);
 
-    // Step 1: INSERT only guaranteed base columns (avoids DB shard sync issues)
+    // Build location string for DB column
+    const locationStr = geoCountry
+      ? [geoCountry, geoRegion, geoCity].filter(Boolean).join(' · ')
+      : null;
+
+    // Single INSERT with all columns at once (type-safe via template tag)
     const result = await sql`
       INSERT INTO public.prismatic_comments (
         tenant_id, content, author_name, author_avatar, display_name,
-        parent_id, ip_hash
+        parent_id, ip_hash, avatar_seed, gender,
+        geo_country, geo_region, geo_city, geo_country_code, location
       )
       VALUES (
         ${PRISMATIC_TENANT_ID},
@@ -256,48 +262,24 @@ export async function POST(req: NextRequest) {
         ${avatar},
         ${displayName},
         ${parentId || null},
-        ${ip.slice(0, 64)}
+        ${ip.slice(0, 64)},
+        ${avatarSeed || null},
+        ${gender || null},
+        ${locationStr},
+        ${geoRegion || null},
+        ${geoCity || null},
+        ${geoCountryCode || null},
+        ${locationStr}
       )
       RETURNING id
     `;
 
     const newCommentId = result[0].id;
 
-    // Step 2: UPDATE extended columns (ignore errors — columns may not exist yet on all shards)
-    const updates: string[] = [];
-    const vals: any[] = [];
-    let paramIdx = 1;
-
-    if (avatarSeed) {
-      updates.push(`avatar_seed = $${paramIdx++}`, `gender = $${paramIdx++}`);
-      vals.push(avatarSeed, gender || null);
-    }
-    if (geoCountry) {
-      updates.push(
-        `geo_country = $${paramIdx++}`,
-        `geo_region = $${paramIdx++}`,
-        `geo_city = $${paramIdx++}`,
-        `geo_country_code = $${paramIdx++}`
-      );
-      vals.push(geoCountry, geoRegion, geoCity, geoCountryCode);
-    }
-
-    if (updates.length > 0) {
-      const setClause = updates.join(', ');
-      await sql.unsafe(
-        `UPDATE public.prismatic_comments SET ${setClause} WHERE id = '${newCommentId}'`,
-        ...vals
-      ).catch(() => {});
-    }
-
     // Build response
     const avatarUrl = avatarSeed
       ? getAvatarUrl(avatarSeed, gender || undefined)
       : avatar;
-
-    const location = geoCountry
-      ? [geoCountry, geoRegion, geoCity].filter(Boolean).join(' · ')
-      : null;
 
     // Trigger Guardian AI Engine (fire and forget)
     if (!parentId) {
