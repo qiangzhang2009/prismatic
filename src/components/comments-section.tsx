@@ -425,6 +425,7 @@ function CommentItem({
       .then(data => { setPersonaInteractions(data.interactions || []); })
       .catch(() => {})
       .finally(() => setLoadingInteractions(false));
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [comment.id]);
   
   const fetchReplies = async () => {
