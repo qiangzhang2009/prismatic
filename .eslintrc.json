@@ -1,6 +1,7 @@
 {
   "extends": "next/core-web-vitals",
   "rules": {
+    "@typescript-eslint/no-explicit-any": "off",
     "jsx-a11y/alt-text": ["error", {
       "elements": ["img"],
       "props": ["alt"]

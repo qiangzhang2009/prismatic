@@ -11,6 +11,9 @@ async function migrate() {
   console.log('🔄 Connecting to database...');
   const sql = neon(DATABASE_URL);
 
+  // sql.unsafe() is lazy — cast through unknown to call it synchronously
+  const runUnsafe = sql.unsafe as any;
+
   // ── prismatic_comments: geo + avatar + gender ──────────────────────────────
   const columns: [string, string][] = [
     ['gender', 'VARCHAR(10)'],
@@ -23,18 +26,26 @@ async function migrate() {
 
   for (const [col, type] of columns) {
     try {
-      await sql.unsafe(`ALTER TABLE public.prismatic_comments ADD COLUMN IF NOT EXISTS "${col}" ${type}`).raw();
+      await runUnsafe(`ALTER TABLE public.prismatic_comments ADD COLUMN IF NOT EXISTS "${col}" ${type}`);
       console.log(`✅ ${col} column added`);
     } catch (e: any) {
       console.log(`⚠️ ${col}: ${e.message.split('\n')[0]}`);
     }
   }
 
+  // ── location column ─────────────────────────────────────────────────────────
+  try {
+    await runUnsafe(`ALTER TABLE public.prismatic_comments ADD COLUMN IF NOT EXISTS "location" VARCHAR(256)`);
+    console.log(`✅ location column added`);
+  } catch (e: any) {
+    console.log(`⚠️ location: ${e.message.split('\n')[0]}`);
+  }
+
   // ── guardian_duties table ─────────────────────────────────────────────────
   console.log('\n📦 Creating guardian_duties table...');
 
   try {
-    await sql.unsafe(`
+    await runUnsafe(`
       CREATE TABLE IF NOT EXISTS public.guardian_duties (
         id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
         persona_id VARCHAR(64) NOT NULL,
@@ -47,7 +58,7 @@ async function migrate() {
         updated_at TIMESTAMPTZ DEFAULT NOW(),
         UNIQUE(persona_id, duty_date)
       )
-    `).raw();
+    `);
     console.log('✅ guardian_duties table created');
   } catch (e: any) {
     console.log(`⚠️ guardian_duties: ${e.message.split('\n')[0]}`);
@@ -55,7 +66,7 @@ async function migrate() {
 
   // Index on duty_date
   try {
-    await sql.unsafe(`CREATE INDEX IF NOT EXISTS idx_guardian_duties_date ON public.guardian_duties(duty_date)`).raw();
+    await runUnsafe(`CREATE INDEX IF NOT EXISTS idx_guardian_duties_date ON public.guardian_duties(duty_date)`);
     console.log('✅ guardian_duties date index');
   } catch (e: any) {
     console.log(`⚠️ guardian_duties date index: ${e.message.split('\n')[0]}`);
@@ -63,17 +74,25 @@ async function migrate() {
 
   // ── Indexes for geo columns ───────────────────────────────────────────────
   try {
-    await sql.unsafe(`CREATE INDEX IF NOT EXISTS idx_comments_geo_country ON public.prismatic_comments(geo_country)`).raw();
+    await runUnsafe(`CREATE INDEX IF NOT EXISTS idx_comments_geo_country ON public.prismatic_comments(geo_country)`);
     console.log('✅ geo_country index');
   } catch (e: any) {
     console.log(`⚠️ geo_country index: ${e.message.split('\n')[0]}`);
   }
 
   try {
-    await sql.unsafe(`CREATE INDEX IF NOT EXISTS idx_comments_geo_region ON public.prismatic_comments(geo_region)`).raw();
+    await runUnsafe(`CREATE INDEX IF NOT EXISTS idx_comments_geo_region ON public.prismatic_comments(geo_region)`);
     console.log('✅ geo_region index');
   } catch (e: any) {
     console.log(`⚠️ geo_region index: ${e.message.split('\n')[0]}`);
+  }
+
+  // ── location index ────────────────────────────────────────────────────────
+  try {
+    await runUnsafe(`CREATE INDEX IF NOT EXISTS idx_comments_location ON public.prismatic_comments(location)`);
+    console.log('✅ location index');
+  } catch (e: any) {
+    console.log(`⚠️ location index: ${e.message.split('\n')[0]}`);
   }
 
   console.log('\n🎉 Migration complete!');
