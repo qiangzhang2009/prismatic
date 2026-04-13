@@ -11,7 +11,7 @@ import { motion } from 'framer-motion';
 import {
   ArrowLeft, Users, Crown, TrendingUp, MessageSquare, Activity,
   BarChart2, Calendar, Clock, TrendingDown, Zap,
-  ChevronRight, RefreshCw, AlertTriangle, CheckCircle, Shield
+  ChevronRight, RefreshCw, AlertTriangle, CheckCircle, Shield, Flame
 } from 'lucide-react';
 
 interface GlobalStats {
@@ -408,9 +408,10 @@ export default function AdminPage() {
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4 }}
+              className="mb-8"
             >
               <h2 className="text-base font-semibold text-text-primary mb-4">快速操作</h2>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 <Link href="/admin/users" className="flex items-center justify-between p-4 rounded-xl border border-border-subtle bg-bg-elevated hover:bg-bg-surface transition-colors group">
                   <div className="flex items-center gap-3">
                     <div className="w-9 h-9 rounded-lg bg-prism-blue/10 flex items-center justify-center">
@@ -447,7 +448,29 @@ export default function AdminPage() {
                   </div>
                   <ChevronRight className="w-4 h-4 text-muted group-hover:translate-x-1 transition-transform" />
                 </Link>
+                <Link href="/forum/debate" className="flex items-center justify-between p-4 rounded-xl border border-border-subtle bg-bg-elevated hover:bg-bg-surface transition-colors group">
+                  <div className="flex items-center gap-3">
+                    <div className="w-9 h-9 rounded-lg bg-red-400/10 flex items-center justify-center">
+                      <Activity className="w-4.5 h-4.5 text-red-400" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-text-primary">智辩场</p>
+                      <p className="text-xs text-text-muted">围观辩论</p>
+                    </div>
+                  </div>
+                  <ChevronRight className="w-4 h-4 text-muted group-hover:translate-x-1 transition-transform" />
+                </Link>
               </div>
+            </motion.div>
+
+            {/* ── Row 5: Debate Arena Admin ──────────────────────────────── */}
+            <motion.div
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5 }}
+              className="bg-bg-elevated rounded-xl border border-border-subtle p-6 mb-6"
+            >
+              <DebateAdminPanel />
             </motion.div>
           </>
         )}
@@ -488,6 +511,217 @@ function StatCard({ icon: Icon, label, value, sub, color, trend, loading }: {
         <p className="text-xs text-text-muted mt-0.5">{label}</p>
         {sub && <p className="text-[11px] text-text-muted mt-0.5">{sub}</p>}
       </div>
+    </div>
+  );
+}
+
+/* ─── Debate Admin Panel ─── */
+interface DebateInfo {
+  id: number;
+  date: string;
+  topic: string;
+  topicSource: string;
+  status: string;
+  participantIds: string[];
+  roundCount: number;
+  viewCount: number;
+  liveViewers: number;
+}
+
+function DebateAdminPanel() {
+  const [todaysDebate, setTodaysDebate] = useState<DebateInfo | null>(null);
+  const [scheduledDebates, setScheduledDebates] = useState<DebateInfo[]>([]);
+  const [preview, setPreview] = useState<{ topic: string; guardians: Array<{ personaId: string; personaNameZh: string }> } | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [actionLoading, setActionLoading] = useState<string | null>(null);
+  const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [topicInput, setTopicInput] = useState('');
+  const [customTopic, setCustomTopic] = useState('');
+
+  const loadDebateInfo = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch('/api/forum/debate');
+      if (res.ok) {
+        const data = await res.json();
+        setTodaysDebate(data.debate ?? null);
+        setPreview(data.preview ?? null);
+      }
+    } catch { /* silent */ } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => { loadDebateInfo(); }, []);
+
+  const showMsg = (type: 'success' | 'error', text: string) => {
+    setMessage({ type, text });
+    setTimeout(() => setMessage(null), 4000);
+  };
+
+  const handleStartDebate = async () => {
+    setActionLoading('start');
+    try {
+      const res = await fetch('/api/forum/debate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'start', debateId: todaysDebate?.id }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        showMsg('success', '辩论已开始！刷新页面查看进度。');
+        await loadDebateInfo();
+      } else {
+        showMsg('error', data.error || '启动失败');
+      }
+    } catch {
+      showMsg('error', '网络错误');
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
+  const handleCreateAndRun = async (useCustom: boolean) => {
+    setActionLoading(useCustom ? 'custom' : 'auto');
+    try {
+      const res = await fetch('/api/forum/debate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(useCustom && customTopic.trim() ? { topic: customTopic.trim() } : {}),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        showMsg('success', `辩论创建成功！ID: ${data.debateId}`);
+        await loadDebateInfo();
+      } else {
+        showMsg('error', data.error || '创建失败');
+      }
+    } catch {
+      showMsg('error', '网络错误');
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
+  const statusColors: Record<string, string> = {
+    scheduled: 'text-yellow-400 bg-yellow-400/10 border-yellow-400/30',
+    running: 'text-red-400 bg-red-400/10 border-red-400/30',
+    completed: 'text-gray-400 bg-gray-400/10 border-gray-400/30',
+  };
+
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-5">
+        <div>
+          <h2 className="text-base font-semibold text-text-primary">🔥 智辩场管理</h2>
+          <p className="text-xs text-text-muted mt-0.5">手动控制辩论节奏、创建新辩论</p>
+        </div>
+        {loading && <RefreshCw className="w-4 h-4 text-text-muted animate-spin" />}
+      </div>
+
+      {/* Today's debate status */}
+      {todaysDebate ? (
+        <div className="bg-bg-surface rounded-xl p-4 mb-4 border border-border-subtle">
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2 mb-1">
+                <span className={`text-xs px-2 py-0.5 rounded-full border ${statusColors[todaysDebate.status] ?? statusColors.completed}`}>
+                  {todaysDebate.status === 'scheduled' ? '等待开始' : todaysDebate.status === 'running' ? '进行中' : '已结束'}
+                </span>
+                <span className="text-xs text-text-muted">{todaysDebate.date}</span>
+              </div>
+              <p className="text-sm text-text-primary font-medium truncate">{todaysDebate.topic}</p>
+              <p className="text-xs text-text-muted mt-1">
+                {todaysDebate.participantIds.length} 位思想家 · {todaysDebate.viewCount} 围观
+              </p>
+            </div>
+
+            {/* Actions based on status */}
+            <div className="flex gap-2 flex-shrink-0">
+              {todaysDebate.status === 'scheduled' && (
+                <button
+                  onClick={handleStartDebate}
+                  disabled={!!actionLoading}
+                  className="px-4 py-2 rounded-lg bg-red-500/20 border border-red-500/40 text-red-400 text-sm font-medium hover:bg-red-500/30 disabled:opacity-50 transition-colors flex items-center gap-1.5"
+                >
+                  {actionLoading === 'start' ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Flame className="w-3.5 h-3.5" />}
+                  启动辩论
+                </button>
+              )}
+              {todaysDebate.status === 'running' && (
+                <span className="px-4 py-2 text-sm text-gray-400 flex items-center gap-1.5">
+                  <span className="relative flex h-2 w-2">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
+                  </span>
+                  进行中
+                </span>
+              )}
+              <Link
+                href="/forum/debate"
+                className="px-3 py-2 rounded-lg border border-border-subtle text-text-secondary text-sm hover:text-text-primary hover:bg-bg-elevated transition-colors"
+              >
+                围观
+              </Link>
+            </div>
+          </div>
+        </div>
+      ) : (
+        <div className="bg-bg-surface rounded-xl p-4 mb-4 border border-border-subtle">
+          <div className="text-center py-4">
+            <Flame className="w-8 h-8 text-text-muted mx-auto mb-2 opacity-50" />
+            <p className="text-sm text-text-secondary">今日暂无辩论</p>
+            {preview && (
+              <p className="text-xs text-text-muted mt-1">
+                预设话题：{preview.topic}（{preview.guardians.map(g => g.personaNameZh).join('、')}）
+              </p>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Create new debate */}
+      <div className="border-t border-border-subtle pt-4">
+        <p className="text-xs text-text-muted mb-3 font-medium">创建新辩论</p>
+        <div className="space-y-3">
+          <div className="flex gap-2">
+            <input
+              type="text"
+              value={customTopic}
+              onChange={(e) => setCustomTopic(e.target.value)}
+              placeholder="自定义话题（留空使用今日话题）"
+              className="flex-1 px-3 py-2 rounded-lg bg-bg-surface border border-border-subtle text-text-primary placeholder:text-text-muted text-sm focus:outline-none focus:border-prism-blue/50"
+              maxLength={100}
+            />
+            <button
+              onClick={() => handleCreateAndRun(true)}
+              disabled={!!actionLoading || !customTopic.trim()}
+              className="px-4 py-2 rounded-lg bg-prism-blue/20 border border-prism-blue/40 text-prism-blue text-sm font-medium hover:bg-prism-blue/30 disabled:opacity-50 transition-colors flex items-center gap-1.5"
+            >
+              {actionLoading === 'custom' ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : null}
+              自定义辩论
+            </button>
+            <button
+              onClick={() => handleCreateAndRun(false)}
+              disabled={!!actionLoading}
+              className="px-4 py-2 rounded-lg bg-bg-surface border border-border-subtle text-text-secondary text-sm hover:text-text-primary hover:bg-bg-elevated transition-colors flex items-center gap-1.5"
+            >
+              {actionLoading === 'auto' ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : null}
+              自动创建
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Status message */}
+      {message && (
+        <div className={`mt-4 px-4 py-3 rounded-lg text-sm flex items-center gap-2 ${
+          message.type === 'success' ? 'bg-green-400/10 border border-green-400/30 text-green-400' : 'bg-red-400/10 border border-red-400/30 text-red-400'
+        }`}>
+          {message.type === 'success' ? <CheckCircle className="w-4 h-4 flex-shrink-0" /> : <AlertTriangle className="w-4 h-4 flex-shrink-0" />}
+          {message.text}
+        </div>
+      )}
     </div>
   );
 }

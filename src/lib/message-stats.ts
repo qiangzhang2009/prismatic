@@ -18,6 +18,25 @@ function getSql(): ReturnType<typeof createSql> {
   return _sql;
 }
 
+// ─── Daily limit constants ───────────────────────────────────────────────────
+
+// 普通用户每日对话上限
+export const USER_DAILY_LIMIT = 35;
+
+// 检查用户是否达到今日对话配额上限
+export async function checkUserDailyLimit(userId: string): Promise<{
+  allowed: boolean;
+  current: number;
+  limit: number;
+}> {
+  const current = await getDailyMessageCount(userId);
+  return {
+    allowed: current < USER_DAILY_LIMIT,
+    current,
+    limit: USER_DAILY_LIMIT,
+  };
+}
+
 // ─── Record a message ─────────────────────────────────────────────────────────
 
 export interface MessageRecord {

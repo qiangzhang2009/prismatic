@@ -14,7 +14,7 @@ import { nanoid } from 'nanoid';
 import { createLLMProvider } from '@/lib/llm';
 import { getPersonasByIds } from '@/lib/personas';
 import { authenticateRequest } from '@/lib/user-management';
-import { recordMessage } from '@/lib/message-stats';
+import { recordMessage, checkUserDailyLimit } from '@/lib/message-stats';
 import type { Mode } from '@/lib/types';
 
 export const runtime = 'nodejs';
@@ -410,6 +410,17 @@ export async function POST(request: NextRequest) {
     const personas = getPersonasByIds(participantIds);
     if (!personas.length) {
       return NextResponse.json({ error: 'No valid personas' }, { status: 400 });
+    }
+
+    // ── Daily usage limit check ──────────────────────────────────────────────
+    const { allowed, current, limit } = await checkUserDailyLimit(userId);
+    if (!allowed) {
+      return NextResponse.json({
+        error: `今日对话次数已达上限（${limit}次/天），明天再来探索吧~`,
+        code: 'DAILY_LIMIT_REACHED',
+        current,
+        limit,
+      }, { status: 429 });
     }
 
     const convId = conversationId ?? nanoid();

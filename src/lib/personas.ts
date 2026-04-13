@@ -5481,3 +5481,6 @@ export function getPersonasByIds(ids: string[]): Persona[] {
 export function getRiskLevel(personaId: string): string {
   return RISK_SUMMARY_BY_PERSONA[personaId] ?? 'MEDIUM';
 }
+
+// Alias for convenience
+export const getPersonaById = getPersona;

@@ -64,8 +64,8 @@ const PERSONA_RESPONSE_PROB: Record<string, number> = {
   'tao': 0.30,
 };
 
-// Default daily interaction limit per persona
-const DEFAULT_DAILY_LIMIT = 20;
+// Default daily interaction limit per persona (提升至65，支持主动辩论)
+const DEFAULT_DAILY_LIMIT = 65;
 
 // ─── Check daily interaction limit ─────────────────────────────────────────────
 

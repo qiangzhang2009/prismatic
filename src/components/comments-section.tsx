@@ -74,8 +74,8 @@ const QUICK_REACTIONS = ['👍', '❤️', '🔥', '😮', '💯'];
 
 // DiceBear avatar helper
 function buildAvatarUrl(seedOrEmoji: string, gender?: string | null): { type: 'url'; url: string } | { type: 'emoji'; emoji: string } {
-  // If it looks like a DiceBear seed (starts with 'u', short), build URL
-  if (/^u[a-z0-9]{3,7}$/i.test(seedOrEmoji)) {
+  // If it looks like a DiceBear seed (hex string 8+ chars), build URL
+  if (/^[a-f0-9]{8,}$/i.test(seedOrEmoji)) {
     const bgColor = gender === 'male' ? 'b6e3f4,c0aede,d1d4f9'
       : gender === 'female' ? 'ffd5dc,ffdfbf'
       : 'b6e3f4,c0aede,d1d4f9,ffd5dc,ffdfbf';
@@ -535,7 +535,11 @@ function CommentItem({
                 <AdminMenu
                   commentId={comment.id}
                   isPinned={comment.is_pinned}
-                  onPin={() => { onAdminAction('pin', !comment.is_pinned); setShowAdminMenu(false); }}
+                  onPin={() => {
+                    const pinAction = comment.is_pinned ? 'unpin' : 'pin';
+                    onAdminAction(pinAction);
+                    setShowAdminMenu(false);
+                  }}
                   onHide={() => { onAdminAction('hide', true); setShowAdminMenu(false); }}
                   onDelete={() => { onDelete(); setShowAdminMenu(false); }}
                   onClose={() => setShowAdminMenu(false)}
@@ -927,18 +931,23 @@ export function CommentsSection() {
   
   const handleAdminAction = async (commentId: string, action: string, value?: any) => {
     try {
+      // Delete goes through DELETE endpoint, everything else through PATCH
+      if (action === 'delete') {
+        const res = await fetch(`/api/comments/${commentId}`, { method: 'DELETE' });
+        if (res.ok) {
+          setComments(prev => prev.filter(c => c.id !== commentId));
+        }
+        return;
+      }
+
       const res = await fetch(`/api/comments/${commentId}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action, value }),
       });
-      
+
       if (res.ok) {
-        if (action === 'delete') {
-          setComments(prev => prev.filter(c => c.id !== commentId));
-        } else {
-          fetchComments();
-        }
+        fetchComments();
       }
     } catch (err) {
       console.error('Admin action failed:', err);

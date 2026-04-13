@@ -73,12 +73,14 @@ export function GuardianBanner() {
       const guardianData = guardianRes.ok ? await guardianRes.json() : {};
       const statsData = statsRes.ok ? await statsRes.json() : {};
 
-      const guardiansFromApi = guardianData.guardians || [];
+      const guardiansFromApi: any[] = Array.isArray(guardianData.guardians) ? guardianData.guardians : [];
       const statsMap: Record<string, any> = {};
 
-      if (statsData.guardians) {
+      if (statsData.guardians && Array.isArray(statsData.guardians)) {
         for (const s of statsData.guardians) {
-          statsMap[s.personaId] = s;
+          if (s?.personaId) {
+            statsMap[s.personaId] = s;
+          }
         }
       }
 
@@ -289,8 +291,13 @@ function GuardianCalendarModal({ onClose }: { onClose: () => void }) {
   useEffect(() => {
     setMounted(true);
     fetch('/api/guardian/schedule?days=14')
-      .then(r => r.json())
-      .then(data => { setSchedule(data.schedule || {}); setLoading(false); })
+      .then(r => r.ok ? r.json() : null)
+      .then(data => {
+        if (data?.schedule && typeof data.schedule === 'object') {
+          setSchedule(data.schedule as Record<string, ScheduleDay>);
+        }
+        setLoading(false);
+      })
       .catch(() => setLoading(false));
   }, []);
 
