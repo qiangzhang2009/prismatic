@@ -1,0 +1,43 @@
+name: "🐛 Bug Report"
+description: Report a bug to help us improve Prismatic
+title: "[Bug] "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## 🐛 Bug Description
+        Describe the bug clearly and concisely.
+
+        ## Steps to Reproduce
+        1. Go to '...'
+        2. Click on '...'
+        3. See error
+
+        ## Expected Behavior
+        What should happen.
+
+        ## Actual Behavior
+        What actually happens.
+
+        ## Environment
+        - Browser / OS:
+        - Version:
+        - Device (mobile/desktop):
+
+        ## Screenshots / Recordings
+        If applicable, add screenshots or screen recordings to help explain the problem.
+
+        ## Additional Context
+        Any other context about the problem.
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: "Steps to Reproduce"
+      placeholder: |
+        1. Go to '...'
+        2. Click on '...'
+        3. Scroll down to '...'
+        4. See error
+    validations:
+      required: true

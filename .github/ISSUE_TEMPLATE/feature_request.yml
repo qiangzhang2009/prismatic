@@ -1,0 +1,22 @@
+name: "💡 Feature Request"
+description: Suggest a new feature or improvement for Prismatic
+title: "[Feature] "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## 💡 Feature Summary
+        Briefly describe the feature or improvement you're requesting.
+
+        ## Problem / Use Case
+        What problem does this solve? Who benefits?
+
+        ## Proposed Solution
+        Describe your proposed solution or implementation approach.
+
+        ## Alternatives Considered
+        Any alternative solutions you've considered?
+
+        ## Additional Context
+        Mockups, references, or any other context that would help us understand this feature.
