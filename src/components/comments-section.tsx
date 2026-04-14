@@ -1062,6 +1062,11 @@ export function CommentsSection() {
                 活跃社区
               </span>
             )}
+            {total > 0 && (
+              <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400/80">
+                🛡️ 守望者关注中
+              </span>
+            )}
           </div>
 
           {/* Debate topic engagement banner — 论坛运营优化 */}

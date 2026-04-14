@@ -147,6 +147,15 @@ export async function createDebate(
 
   const today = new Date().toISOString().slice(0, 10);
   const sql = getSql();
+
+  // Check if debate already exists for today — return existing ID instead of throwing
+  const existing = await sql`
+    SELECT id FROM prismatic_forum_debates WHERE date = ${today} LIMIT 1
+  `;
+  if (existing.length > 0) {
+    return (existing[0] as any).id;
+  }
+
   const rows = await sql`
     INSERT INTO prismatic_forum_debates (date, topic, topic_source, status, participant_ids, round_count)
     VALUES (${today}, ${topic}, ${topicSource}, ${'scheduled'}, ${participantIds}, ${3})
