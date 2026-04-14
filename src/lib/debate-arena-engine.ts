@@ -228,6 +228,14 @@ export async function getDebateByDate(date?: string): Promise<DebateRecord | nul
     createdAt: t.created_at instanceof Date ? t.created_at.toISOString() : String(t.created_at),
   }));
 
+  // Resolve speakerName via persona lookup
+  const speakerIds = [...new Set(turnRows.map((t: any) => t.speaker_id))];
+  const personas = getPersonasByIds(speakerIds);
+  const personaNameMap = new Map(personas.map((p) => [p.id, p.nameZh]));
+  for (const turn of turns) {
+    turn.speakerName = personaNameMap.get(turn.speakerId) ?? turn.speakerId;
+  }
+
   return {
     id: row.id,
     date: row.date,

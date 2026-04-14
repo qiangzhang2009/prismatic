@@ -150,6 +150,9 @@ export async function GET(req: NextRequest) {
         .filter(Boolean)
         .join(' · ');
 
+      // Never expose IP-based location for admin comments
+      const isAdminComment = typeof c.author_name === 'string' && c.author_name.startsWith('Admin');
+
       return {
         id: c.id,
         content: c.content,
@@ -158,7 +161,7 @@ export async function GET(req: NextRequest) {
         avatar_url: avatarUrl,
         display_name: c.display_name,
         gender: c.gender || null,
-        location: location || null,
+        location: isAdminComment ? null : (location || null),
         created_at: c.created_at,
         updated_at: c.updated_at,
         is_pinned: c.is_pinned,
