@@ -35,7 +35,7 @@ import { cn } from '@/lib/utils';
 import { useAuthStore } from '@/lib/auth-store';
 
 // Daily message limit configuration
-const DAILY_LIMIT = 60;
+const DAILY_LIMIT = 10;
 const DAILY_LIMIT_KEY = 'prismatic-daily-messages';
 const DAILY_DATE_KEY = 'prismatic-daily-date';
 
@@ -103,7 +103,7 @@ export function UserMenu() {
       label: '免费用户',
       color: 'text-text-muted',
       bg: 'bg-bg-surface',
-      features: ['每日 60 条消息', '3 个人物角色', '基础对话功能'],
+      features: ['每日 10 条消息', '全部思想家角色', '所有对话模式'],
       upgrade: true,
     },
     MONTHLY: {

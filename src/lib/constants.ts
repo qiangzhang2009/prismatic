@@ -128,7 +128,7 @@ export const API = {
 // ─── Daily usage limits ─────────────────────────────────────────────────────────
 
 export const DAILY_LIMITS = {
-  USER: 35,        // 普通用户每日对话上限
+  USER: 10,        // 普通用户每日对话上限
   GUARDIAN: 65,    // 值班人物每日互动上限（含主动辩论）
 } as const;
 

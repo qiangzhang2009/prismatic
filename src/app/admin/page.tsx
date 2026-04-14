@@ -530,7 +530,7 @@ export default function AdminPage() {
                         color: 'text-text-muted',
                         bg: 'bg-bg-surface',
                         border: 'border-border-subtle',
-                        perms: ['每日对话额度 10 条', '体验基础思想家角色', '使用单人对话模式'],
+                        perms: ['每日对话额度 10 条', '解锁所有思想家角色', '体验折射模式和圆桌模式'],
                         badge: '免费',
                       },
                     ].map(item => (
