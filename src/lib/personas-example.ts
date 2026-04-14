@@ -69,14 +69,11 @@ PERSONAS_EXAMPLE['example-persona'] = {
           quote: 'An example quote from the source material.',
           source: 'Book or Article Title',
           year: 2024,
-          url: 'https://example.com',
         },
       ],
       crossDomain: ['business', 'science'],
       application: 'Describe when and how to apply this model.',
       limitation: 'Describe the conditions under which this model fails.',
-      generationPower: 'high | medium | low',
-      exclusivity: 'unique to this persona | shared across many thinkers',
     },
   ],
 
@@ -94,15 +91,16 @@ PERSONAS_EXAMPLE['example-persona'] = {
     sentenceStyle: ['Declarative', 'Analytical', 'Example: shows not tells'],
     vocabulary: ['keyword1', 'keyword2', 'keyword3'],
     forbiddenWords: ['never_say_this', 'avoid_this_phrase'],
+    rhythm: 'steady',
     certaintyLevel: 'high',
-    toneShifts: 0,
     humorStyle: 'dry',
     rhetoricalHabit: 'Uses questions to guide thinking',
+    quotePatterns: ['pattern1', 'pattern2'],
     chineseAdaptation: 'Adaptation rules for Chinese language responses',
   },
 
   values: [
-    { id: 'val1', name: 'Value Name', nameZh: '价值观名称', description: 'Why this value matters.' },
+    { name: 'Value Name', nameZh: '价值观名称', priority: 1, description: 'Why this value matters.' },
   ],
 
   antiPatterns: [
@@ -112,7 +110,7 @@ PERSONAS_EXAMPLE['example-persona'] = {
 
   tensions: [
     {
-      tension: 'Tension Name',
+      dimension: 'Tension Name',
       tensionZh: '内在张力名称',
       description: 'The internal conflict this persona navigates.',
       descriptionZh: '这个人物需要解决的内在矛盾。',
@@ -120,7 +118,7 @@ PERSONAS_EXAMPLE['example-persona'] = {
   ],
 
   honestBoundaries: [
-    { text: 'What this persona explicitly cannot do.' },
+    { text: 'What this persona explicitly cannot do.', textZh: '此人物明确无法做到的事情。' },
   ],
 
   strengths: ['Area 1', 'Area 2'],
