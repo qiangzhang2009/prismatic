@@ -30,8 +30,7 @@ export default function RootLayout({
         {/* Prismatic Analytics Tracking SDK */}
         <Script
           src="/api/tracking-sdk"
-          strategy="afterInteractive"
-          crossOrigin="anonymous"
+          strategy="lazyOnload"
         />
       </head>
       <body className="min-h-screen bg-bg-base antialiased">
