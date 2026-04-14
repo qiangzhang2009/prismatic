@@ -5,17 +5,24 @@
  * "守望者计划" Hero Component
  *
  * Displays today's 3 guardian personas with their shift themes and interaction progress.
- * Creates daily anticipation — "Who is watching over us today?"
+ * Also embeds the full debate stage content (no separate debate section needed).
  */
 
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
-import { Shield, Sparkles, Calendar, ChevronRight, RefreshCw, Eye, CheckCircle2, Clock, Flame, Play, Loader2 } from 'lucide-react';
+import {
+  Shield, Sparkles, Calendar, ChevronRight, RefreshCw, Eye, CheckCircle2,
+  Clock, Flame, Play, Loader2, MessageSquare, ChevronDown, Send
+} from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { getPersonasByIds } from '@/lib/personas';
+import type { DebateRecord, DebateTurn } from '@/lib/debate-arena-engine';
 
 interface Guardian {
   slot: number;
   personaId: string;
+  personaSlug: string;
   personaName: string;
   personaNameZh: string;
   personaTagline: string;
@@ -28,7 +35,6 @@ interface Guardian {
   progress?: number;
 }
 
-// ScheduleDay is the value type in the schedule Record — an array of guardian entries for one date
 type ScheduleDay = Array<{
   slot: number;
   personaId: string;
@@ -38,6 +44,28 @@ type ScheduleDay = Array<{
   shiftTheme: string;
   maxInteractions: number;
 }>;
+
+interface VisitorContribution {
+  id: number;
+  content: string;
+  createdAt: string;
+  visitorId: string;
+  isAiResponse: boolean;
+}
+
+const TONE_META: Record<string, { label: string; emoji: string; color: string }> = {
+  opening: { label: '开场', emoji: '🎙️', color: 'text-blue-400' },
+  provocative: { label: '质疑', emoji: '⚡', color: 'text-orange-400' },
+  supportive: { label: '补充', emoji: '🤝', color: 'text-green-400' },
+  questioning: { label: '追问', emoji: '❓', color: 'text-yellow-400' },
+  synthesizing: { label: '总结', emoji: '✨', color: 'text-purple-400' },
+};
+
+const STATUS_META = {
+  scheduled: { label: '即将开始', color: 'text-yellow-400', bg: 'bg-yellow-400/10' },
+  running: { label: '辩论进行中', color: 'text-red-400', bg: 'bg-red-400/10' },
+  completed: { label: '已结束', color: 'text-gray-400', bg: 'bg-gray-400/10' },
+};
 
 function getTimeGreeting(): string {
   const hour = new Date().getHours();
@@ -52,6 +80,45 @@ function getTimeGreeting(): string {
 
 const SLOT_LABELS = ['壹', '贰', '叁'];
 
+function DebateTurnCard({ turn }: { turn: DebateTurn }) {
+  const meta = TONE_META[turn.tone] ?? TONE_META.opening;
+  const isModerator = turn.speakerId === 'moderator';
+  const personas = getPersonasByIds([turn.speakerId]);
+  const persona = personas[0];
+
+  return (
+    <div className={cn(
+      'rounded-lg p-3 border text-xs',
+      isModerator ? 'bg-purple-900/20 border-purple-500/20' : 'bg-white/5 border-white/10'
+    )}>
+      <div className="flex items-center gap-2 mb-2">
+        {isModerator ? (
+          <div className="w-6 h-6 rounded-full bg-purple-600/30 border border-purple-500/50 flex items-center justify-center text-sm">🎭</div>
+        ) : (
+          <div
+            className="w-6 h-6 rounded-full flex items-center justify-center text-white text-[10px] font-bold flex-shrink-0"
+            style={{
+              background: persona
+                ? `linear-gradient(135deg, ${persona.gradientFrom || '#4d96ff'}, ${persona.gradientTo || '#c77dff'})`
+                : '#4d96ff',
+            }}
+          >
+            {turn.speakerName.slice(0, 2)}
+          </div>
+        )}
+        <span className={cn('font-medium', isModerator ? 'text-purple-300' : 'text-gray-200')}>
+          {turn.speakerName}
+        </span>
+        <span className={cn('text-[10px]', meta.color)}>{meta.emoji} {meta.label}</span>
+        {turn.round > 0 && <span className="text-[10px] text-gray-500">R{turn.round}</span>}
+      </div>
+      <p className={cn('leading-relaxed', isModerator ? 'text-purple-200' : 'text-gray-300')}>
+        {turn.content.length > 200 ? turn.content.slice(0, 200) + '…' : turn.content}
+      </p>
+    </div>
+  );
+}
+
 export function GuardianBanner() {
   const [guardians, setGuardians] = useState<Guardian[]>([]);
   const [loading, setLoading] = useState(true);
@@ -59,12 +126,7 @@ export function GuardianBanner() {
   const [mounted, setMounted] = useState(false);
 
   // Debate state
-  const [debateInfo, setDebateInfo] = useState<{
-    id: number;
-    topic: string;
-    status: string;
-    participantIds: string[];
-  } | null>(null);
+  const [debate, setDebate] = useState<DebateRecord | null>(null);
   const [debatePreview, setDebatePreview] = useState<{
     topic: string;
     guardians: Array<{ personaId: string; personaNameZh: string }>;
@@ -73,9 +135,15 @@ export function GuardianBanner() {
     highlights: string[];
     conflicts: string[];
   } | null>(null);
+  const [contributions, setContributions] = useState<VisitorContribution[]>([]);
+  const [showParticipation, setShowParticipation] = useState(false);
+  const [contributionText, setContributionText] = useState('');
+  const [submittingContribution, setSubmittingContribution] = useState(false);
+  const [contributionError, setContributionError] = useState<string | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [adminLoading, setAdminLoading] = useState(false);
   const [adminMsg, setAdminMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [showAllTurns, setShowAllTurns] = useState(false);
 
   useEffect(() => { setMounted(true); }, []);
 
@@ -96,24 +164,29 @@ export function GuardianBanner() {
 
       const guardiansFromApi: any[] = Array.isArray(guardianData.guardians) ? guardianData.guardians : [];
       const statsMap: Record<string, any> = {};
-
       if (statsData.guardians && Array.isArray(statsData.guardians)) {
         for (const s of statsData.guardians) {
-          if (s?.personaId) {
-            statsMap[s.personaId] = s;
-          }
+          if (s?.personaId) statsMap[s.personaId] = s;
         }
       }
-
       const merged = guardiansFromApi.map((g: any) => {
         const stats = statsMap[g.personaId];
         return stats ? { ...g, ...stats } : g;
       });
 
       setGuardians(merged);
-      setDebateInfo(debateData.debate ?? null);
+      setDebate(debateData.debate ?? null);
       setDebatePreview(debateData.preview ?? null);
       setIsAdmin(meData?.user?.isAdmin === true);
+
+      // Fetch contributions if debate exists
+      if (debateData.debate?.id) {
+        const contribRes = await fetch(`/api/forum/debate/visitor?debateId=${debateData.debate.id}`);
+        if (contribRes.ok) {
+          const contribData = await contribRes.json();
+          setContributions(contribData.contributions ?? []);
+        }
+      }
     } catch {
       // ignore
     } finally {
@@ -127,16 +200,40 @@ export function GuardianBanner() {
     return () => clearInterval(interval);
   }, []);
 
-  const slotLabels = ['壹', '贰', '叁'];
+  const handleSubmitContribution = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!debate || !contributionText.trim() || submittingContribution) return;
+    setSubmittingContribution(true);
+    setContributionError(null);
+    try {
+      const res = await fetch('/api/forum/debate/visitor', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ debateId: debate.id, content: contributionText.trim() }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setContributionError(data.error || '提交失败');
+        return;
+      }
+      setContributions(prev => [...prev, data.contribution]);
+      setContributionText('');
+    } catch {
+      setContributionError('网络错误');
+    } finally {
+      setSubmittingContribution(false);
+    }
+  };
 
   const handleAdminDebateAction = async () => {
+    if (!debate) return;
     setAdminLoading(true);
     setAdminMsg(null);
     try {
       const res = await fetch('/api/forum/debate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'start', debateId: debateInfo?.id }),
+        body: JSON.stringify({ action: 'start', debateId: debate.id }),
       });
       const data = await res.json();
       if (res.ok) {
@@ -151,6 +248,13 @@ export function GuardianBanner() {
       setAdminLoading(false);
     }
   };
+
+  const slotLabels = ['壹', '贰', '叁'];
+  const canParticipate = debate && (debate.status === 'scheduled' || debate.status === 'running');
+  const displayedTurns = showAllTurns
+    ? debate?.turns
+    : debate?.turns.slice(-3);
+  const visibleContributions = contributions.slice(-3);
 
   return (
     <section className="relative overflow-hidden bg-bg-surface/50 border-y border-border-subtle">
@@ -220,17 +324,17 @@ export function GuardianBanner() {
               const progressPct = Math.min(100, Math.round((count / target) * 100));
 
               return (
-                <motion.div
+                <motion.a
                   key={`${guardian.personaId}-${guardian.slot}`}
+                  href={`/personas/${guardian.personaSlug}`}
                   initial={{ opacity: 0, y: 12 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: i * 0.1 }}
-                  className="group relative rounded-xl border bg-bg-elevated p-4 transition-all hover:shadow-lg hover:shadow-black/20"
+                  className="group relative rounded-xl border bg-bg-elevated p-4 transition-all hover:shadow-lg hover:shadow-black/20 block"
                   style={{
                     borderColor: isCompleted ? guardian.gradientFrom : 'var(--border-subtle)',
                   }}
                 >
-                  {/* Completed badge */}
                   {isCompleted && (
                     <div className="absolute -top-2 -right-2 flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-500 text-[10px] font-medium">
                       <CheckCircle2 className="w-3 h-3" />
@@ -238,13 +342,14 @@ export function GuardianBanner() {
                     </div>
                   )}
 
-                  {/* Slot badge */}
                   <div className="absolute -top-2 left-4 px-2 py-0.5 rounded-full text-[10px] font-bold bg-bg-overlay border border-border-subtle text-text-muted">
                     守望者 {slotLabels[guardian.slot - 1]}
                   </div>
 
-                  {/* Avatar */}
-                  <div className="flex items-center gap-3 mt-1 mb-3">
+                  <Link
+                    href={`/personas/${guardian.personaId}`}
+                    className="block flex items-center gap-3 mt-1 mb-3 hover:opacity-80 transition-opacity"
+                  >
                     <div
                       className="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-sm flex-shrink-0 shadow-lg"
                       style={{
@@ -257,10 +362,12 @@ export function GuardianBanner() {
                     <div className="min-w-0">
                       <p className="text-sm font-semibold text-text-primary truncate">{guardian.personaNameZh}</p>
                       <p className="text-[11px] text-text-muted truncate">{guardian.personaTagline}</p>
+                      <p className="text-[10px] text-prism-blue/60 mt-0.5 flex items-center gap-1">
+                        <span>点击了解 →</span>
+                      </p>
                     </div>
-                  </div>
+                  </Link>
 
-                  {/* Shift theme */}
                   <div className="mb-3">
                     <div
                       className="text-[11px] text-text-secondary leading-relaxed line-clamp-2"
@@ -271,7 +378,6 @@ export function GuardianBanner() {
                     </div>
                   </div>
 
-                  {/* Progress bar */}
                   <div>
                     <div className="flex items-center justify-between text-[10px] text-text-muted mb-1">
                       <span className="flex items-center gap-1">
@@ -301,14 +407,13 @@ export function GuardianBanner() {
                     </div>
                   </div>
 
-                  {/* Hover glow */}
                   <div
                     className="absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"
                     style={{
                       background: `radial-gradient(ellipse at center, ${guardian.gradientFrom}08 0%, transparent 70%)`,
                     }}
                   />
-                </motion.div>
+                </motion.a>
               );
             })}
           </div>
@@ -316,97 +421,219 @@ export function GuardianBanner() {
 
         {/* Footer hint */}
         <div className="mt-4 flex flex-col items-center gap-3">
-          {/* Debate Preview Card */}
-          {(debatePreview || debateInfo) && (
-            <div className="w-full max-w-md bg-gradient-to-r from-red-500/5 to-orange-500/5 border border-red-500/20 rounded-xl p-4">
-              <div className="flex items-center gap-2 mb-2">
-                <span className="text-lg">🔥</span>
-                <span className="text-sm font-semibold text-text-primary">
-                  {debateInfo?.status === 'running' ? '智辩场进行中' :
-                   debateInfo?.status === 'scheduled' ? '今日辩论预告' :
-                   '今日辩论预告'}
-                </span>
-                {debateInfo?.status === 'running' && (
-                  <span className="relative flex h-2 w-2">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
+          {/* Debate Content — embedded inside GuardianBanner, no separate section needed */}
+          {(debate || debatePreview) && (
+            <div className="w-full space-y-3">
+              {/* Debate Header */}
+              <div className="bg-gradient-to-r from-red-500/5 to-orange-500/5 border border-red-500/20 rounded-xl p-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="text-lg">🔥</span>
+                  <span className="text-sm font-semibold text-text-primary">
+                    {debate?.status === 'running' ? '智辩场进行中' :
+                     debate?.status === 'scheduled' ? '今日辩论预告' :
+                     debatePreview ? '今日辩论预告' : '辩论预告'}
                   </span>
+                  {debate?.status && (() => {
+                    const cfg = STATUS_META[debate.status as keyof typeof STATUS_META] ?? STATUS_META.completed;
+                    return (
+                      <span className={cn('text-[10px] px-1.5 py-0.5 rounded-full border', cfg.color, cfg.bg)}>
+                        {cfg.label}
+                      </span>
+                    );
+                  })()}
+                  {debate?.status === 'running' && (
+                    <span className="relative flex h-2 w-2">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
+                    </span>
+                  )}
+                </div>
+
+                <div className="text-xs text-text-secondary mb-2">
+                  辩题：<span className="text-text-primary font-medium">
+                    {debate?.topic ?? debatePreview?.topic}
+                  </span>
+                </div>
+
+                {/* Live CTA — 论坛运营优化：辩论进行中时醒目引导参与 */}
+                {debate?.status === 'running' && (
+                  <div className="mt-3 pt-3 border-t border-red-500/20">
+                    <button
+                      onClick={() => setShowParticipation(true)}
+                      className={cn(
+                        'w-full flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-semibold transition-all',
+                        'bg-gradient-to-r from-red-500/20 to-orange-500/20 border border-red-500/40',
+                        'text-red-300 hover:from-red-500/30 hover:to-orange-500/30 hover:scale-[1.01]'
+                      )}
+                    >
+                      <MessageSquare className="w-4 h-4" />
+                      🔥 我也想说几句 — 围观也能发声
+                    </button>
+                  </div>
+                )}
+
+                {/* Non-running: show conflicts/promises as hook */}
+                {(debate?.status === 'completed' || debatePreview) && debate?.status !== 'running' && (
+                  <div className="mt-2 flex items-center gap-1.5 text-xs text-text-muted">
+                    <Eye className="w-3 h-3" />
+                    <span>围观也能参与 · 辩论结束后可继续讨论</span>
+                  </div>
+                )}
+
+                {/* Preview highlights & conflicts */}
+                {debatePreview && (
+                  <>
+                    <div className="flex flex-wrap gap-1.5 mb-2">
+                      {debatePreview.highlights?.map((h, i) => (
+                        <span key={i} className="text-[10px] px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-400/80 border border-amber-500/20">
+                          {h}
+                        </span>
+                      ))}
+                    </div>
+                    {debatePreview.conflicts && debatePreview.conflicts.length > 0 && (
+                      <div className="space-y-1 mb-2">
+                        {debatePreview.conflicts.slice(0, 2).map((c, i) => (
+                          <div key={i} className="flex items-start gap-1.5 text-[10px] text-text-muted">
+                            <span className="text-red-400/60 flex-shrink-0 mt-0.5">⚡</span>
+                            <span className="leading-relaxed">{c}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </>
+                )}
+
+                {debatePreview?.estimatedStartTime && debate?.status !== 'running' && (
+                  <div className="flex items-center gap-1 text-[10px] text-text-muted mb-2">
+                    <Clock className="w-3 h-3" />
+                    <span>预计 {debatePreview.estimatedStartTime} 开始 · 共 {debatePreview.estimatedTurns} 轮</span>
+                  </div>
+                )}
+
+                {/* Admin controls */}
+                {isAdmin && (
+                  <div className="mt-3 pt-3 border-t border-red-500/20">
+                    {adminMsg && (
+                      <div className={`text-xs mb-2 px-2 py-1 rounded ${adminMsg.type === 'success' ? 'bg-green-500/10 text-green-400' : 'bg-red-500/10 text-red-400'}`}>
+                        {adminMsg.text}
+                      </div>
+                    )}
+                    <div className="flex gap-2">
+                      {debate?.status === 'scheduled' && (
+                        <button
+                          onClick={handleAdminDebateAction}
+                          disabled={adminLoading}
+                          className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-red-500/20 border border-red-500/40 text-red-400 text-xs font-medium hover:bg-red-500/30 disabled:opacity-50 transition-colors"
+                        >
+                          {adminLoading ? <Loader2 className="w-3 h-3 animate-spin" /> : <Play className="w-3 h-3" />}
+                          启动辩论
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* Non-admin: debate content is inline — no link needed */}
+                {!isAdmin && (
+                  <div className="mt-2 flex items-center gap-1.5 text-xs text-text-muted">
+                    <Flame className="w-3 h-3 text-red-400" />
+                    <span>辩论内容在下方围观区直接可见</span>
+                  </div>
                 )}
               </div>
-              <div className="text-xs text-text-secondary mb-2">
-                辩题：<span className="text-text-primary font-medium">{debatePreview?.topic ?? debateInfo?.topic}</span>
-              </div>
-              {/* 辩论预告详情 */}
-              {(debatePreview || debateInfo) && (
-                <div className="mt-2 flex flex-wrap gap-1.5">
-                  {debatePreview?.highlights?.map((h, i) => (
-                    <span key={i} className="text-[10px] px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-400/80 border border-amber-500/20">
-                      {h}
-                    </span>
-                  ))}
-                </div>
-              )}
-              {/* 辩论矛盾点 */}
-              {debatePreview?.conflicts && debatePreview.conflicts.length > 0 && (
-                <div className="mt-2 space-y-1">
-                  {debatePreview.conflicts.slice(0, 2).map((c, i) => (
-                    <div key={i} className="flex items-start gap-1.5 text-[10px] text-text-muted">
-                      <span className="text-red-400/60 flex-shrink-0 mt-0.5">⚡</span>
-                      <span className="leading-relaxed">{c}</span>
-                    </div>
-                  ))}
-                </div>
-              )}
 
-              {/* 辩论时间预估 */}
-              {debatePreview?.estimatedStartTime && debateInfo?.status !== 'running' && (
-                <div className="mt-2 flex items-center gap-1 text-[10px] text-text-muted">
-                  <Clock className="w-3 h-3" />
-                  <span>预计 {debatePreview.estimatedStartTime} 开始 · 共 {debatePreview.estimatedTurns} 轮</span>
-                </div>
-              )}
-
-              {/* Admin Debate Controls */}
-              {isAdmin && (
-                <div className="mt-3 pt-3 border-t border-red-500/20">
-                  {adminMsg && (
-                    <div className={`text-xs mb-2 px-2 py-1 rounded ${adminMsg.type === 'success' ? 'bg-green-500/10 text-green-400' : 'bg-red-500/10 text-red-400'}`}>
-                      {adminMsg.text}
-                    </div>
-                  )}
-                  <div className="flex gap-2">
-                    {debateInfo?.status === 'scheduled' && (
-                      <button
-                        onClick={handleAdminDebateAction}
-                        disabled={adminLoading}
-                        className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-red-500/20 border border-red-500/40 text-red-400 text-xs font-medium hover:bg-red-500/30 disabled:opacity-50 transition-colors"
-                      >
-                        {adminLoading ? <Loader2 className="w-3 h-3 animate-spin" /> : <Play className="w-3 h-3" />}
-                        启动辩论
-                      </button>
-                    )}
-                    <Link
-                      href="/forum/debate"
-                      className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-text-secondary text-xs hover:text-text-primary hover:bg-white/10 transition-colors"
+              {/* Debate Turns — show when debate has turns */}
+              {debate && debate.turns.length > 0 && (
+                <div className="space-y-2">
+                  {(displayedTurns ?? []).map((turn, idx) => (
+                    <DebateTurnCard key={idx} turn={turn} />
+                  ))}
+                  {debate.turns.length > 3 && (
+                    <button
+                      onClick={() => setShowAllTurns(!showAllTurns)}
+                      className="w-full flex items-center justify-center gap-1 py-2 text-xs text-text-muted hover:text-text-secondary transition-colors"
                     >
-                      <Flame className="w-3 h-3" />
-                      {debateInfo?.status === 'running' ? '围观辩论' : '进入智辩场'}
-                    </Link>
-                  </div>
+                      {showAllTurns ? (
+                        <span>收起</span>
+                      ) : (
+                        <><ChevronDown className="w-3.5 h-3.5" />查看全部（{debate.turns.length}条）</>
+                      )}
+                    </button>
+                  )}
                 </div>
               )}
 
-              {/* Non-admin: direct link */}
-              {!isAdmin && (
-                <div className="mt-2">
-                  <Link
-                    href="/forum/debate"
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-xs font-medium hover:bg-red-500/20 transition-colors"
+              {/* Visitor participation */}
+              {canParticipate && (
+                <div className="bg-white/5 border border-white/10 rounded-xl p-4">
+                  <button
+                    onClick={() => setShowParticipation(!showParticipation)}
+                    className={cn(
+                      'w-full flex items-center justify-center gap-2 py-2.5 rounded-lg text-xs font-medium transition-all',
+                      showParticipation
+                        ? 'bg-prism-blue/20 border border-prism-blue/50 text-prism-blue'
+                        : 'bg-white/5 border border-white/10 text-text-muted hover:text-text-secondary'
+                    )}
                   >
-                    <Flame className="w-3 h-3" />
-                    {debateInfo?.status === 'running' ? '围观辩论进行中' :
-                     debateInfo?.status === 'scheduled' ? '查看辩论预告' : '查看今日辩论'}
-                  </Link>
+                    <MessageSquare className="w-3.5 h-3.5" />
+                    {showParticipation ? '收起参与面板' : '我也想说几句 ✨'}
+                  </button>
+
+                  {showParticipation && (
+                    <form onSubmit={handleSubmitContribution} className="mt-3 space-y-2">
+                      <textarea
+                        value={contributionText}
+                        onChange={e => setContributionText(e.target.value)}
+                        placeholder="写下你的观点..."
+                        maxLength={300}
+                        rows={2}
+                        className="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-text-primary placeholder:text-text-muted text-xs focus:outline-none focus:border-prism-blue/50 transition-colors resize-none"
+                      />
+                      {contributionError && (
+                        <p className="text-xs text-red-400">{contributionError}</p>
+                      )}
+                      <div className="flex items-center justify-between">
+                        <span className="text-[10px] text-text-muted">{contributionText.length}/300</span>
+                        <button
+                          type="submit"
+                          disabled={!contributionText.trim() || submittingContribution || contributionText.length < 2}
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-prism-gradient text-white text-xs disabled:opacity-50 transition-opacity"
+                        >
+                          {submittingContribution ? <Loader2 className="w-3 h-3 animate-spin" /> : <Send className="w-3 h-3" />}
+                          {submittingContribution ? '发送中...' : '发言'}
+                        </button>
+                      </div>
+
+                      {visibleContributions.length > 0 && (
+                        <div className="mt-3 space-y-2">
+                          <p className="text-[10px] text-text-muted">围观发言 ({contributions.length})</p>
+                          {visibleContributions.map(c => (
+                            <div key={c.id} className="flex items-start gap-2 rounded-lg p-2 bg-white/5 border border-white/5">
+                              <div className="w-5 h-5 rounded-full bg-gray-600/50 flex items-center justify-center flex-shrink-0">
+                                <span className="text-[10px] text-gray-400">👤</span>
+                              </div>
+                              <p className="text-xs text-gray-300 leading-relaxed">{c.content}</p>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </form>
+                  )}
+                </div>
+              )}
+
+              {/* Completed — show contributions */}
+              {debate?.status === 'completed' && contributions.length > 0 && (
+                <div className="bg-white/5 border border-white/10 rounded-xl p-4">
+                  <p className="text-[10px] text-text-muted mb-2">围观发言 ({contributions.length})</p>
+                  {visibleContributions.map(c => (
+                    <div key={c.id} className="flex items-start gap-2 mb-2 last:mb-0">
+                      <div className="w-5 h-5 rounded-full bg-gray-600/50 flex items-center justify-center flex-shrink-0">
+                        <span className="text-[10px] text-gray-400">👤</span>
+                      </div>
+                      <p className="text-xs text-gray-300 leading-relaxed">{c.content}</p>
+                    </div>
+                  ))}
                 </div>
               )}
             </div>

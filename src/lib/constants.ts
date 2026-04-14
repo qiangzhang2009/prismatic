@@ -2,8 +2,8 @@
  * Prismatic — Global Constants
  */
 
-export const APP_NAME = 'Prismatic · 棱镜之光';
-export const APP_TAGLINE = '棱镜之光，让每一个卓越灵魂为你思考';
+export const APP_NAME = '棱镜折射';
+export const APP_TAGLINE = '棱镜折射，让每一个卓越灵魂为你思考';
 export const APP_DESCRIPTION = '汇聚人类最卓越思维的多智能体协作平台';
 
 // ─── Demo / Experience Accounts ───────────────────────────────────────────────

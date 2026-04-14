@@ -69,7 +69,32 @@ const DEFAULT_DAILY_LIMIT = 65;
 
 // ─── Check daily interaction limit ─────────────────────────────────────────────
 
+/** Checks if a table exists. */
+async function tableExists(tableName: string): Promise<boolean> {
+  try {
+    const sql = getSql();
+    await sql`SELECT 1 FROM ${sql.unsafe(tableName)} LIMIT 1`;
+    return true;
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : String(err);
+    if (msg.includes('does not exist') || (msg.includes('relation') && msg.includes('does not exist'))) {
+      return false;
+    }
+    throw err;
+  }
+}
+
+/** Ensures a required table exists, throwing a clear error if not. */
+async function requireTable(tableName: string): Promise<void> {
+  const exists = await tableExists(tableName);
+  if (!exists) {
+    throw new Error(`Required table "${tableName}" does not exist. Please run migrations.`);
+  }
+}
+
 async function checkPersonaDailyLimit(personaId: string): Promise<boolean> {
+  await requireTable('prismatic_guardian_schedule');
+  await requireTable('prismatic_guardian_stats');
   const sql = getSql();
   const today = new Date().toISOString().slice(0, 10);
 

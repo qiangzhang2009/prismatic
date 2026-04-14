@@ -152,6 +152,9 @@ export interface Persona {
   identityPrompt: string;
 
   // Extended fields (optional, used by specific personas)
+  reasoningStyle?: string;
+  decisionFramework?: string[];
+  keyQuotes?: Array<{ quote: string; source: string; sourceZh?: string }>;
   lifePhilosophy?: {
     core: string;
     threeLevels?: {

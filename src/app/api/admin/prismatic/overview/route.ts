@@ -13,9 +13,11 @@ export async function GET(req: NextRequest) {
   const days = parseInt(searchParams.get('days') || '7', 10);
 
   try {
-    const overview = await getTrackingOverview(days);
-    const funnel = await getTrackingFunnel(days);
-    const trend = await getTrackingTrend(days);
+    const [overview, funnel, trend] = await Promise.all([
+      getTrackingOverview(days),
+      getTrackingFunnel(days),
+      getTrackingTrend(days),
+    ]);
 
     return NextResponse.json({
       overview: {
@@ -35,6 +37,10 @@ export async function GET(req: NextRequest) {
     });
   } catch (error) {
     console.error('Admin Prismatic overview error:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return NextResponse.json({
+      overview: { dau: 0, wau: 0, mau: 0, sessions: 0, avgSessionDuration: 0, totalEvents: 0, totalPersonas: 0, totalConversations: 0, avgConversationsPerVisitor: 0 },
+      funnel: [],
+      trend: [],
+    });
   }
 }

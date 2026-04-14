@@ -16,6 +16,6 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ content });
   } catch (error) {
     console.error('Admin Prismatic content error:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return NextResponse.json({ content: [] });
   }
 }

@@ -17,6 +17,6 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ personas });
   } catch (error) {
     console.error('Admin Prismatic personas error:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return NextResponse.json({ personas: [] });
   }
 }

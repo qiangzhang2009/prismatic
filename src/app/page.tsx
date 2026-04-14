@@ -18,7 +18,7 @@ import {
 } from 'lucide-react';
 import { PERSONA_LIST } from '@/lib/personas';
 import { PERSONA_CONFIDENCE } from '@/lib/confidence';
-import { MODES, APP_NAME } from '@/lib/constants';
+import { MODES, APP_NAME, APP_DESCRIPTION } from '@/lib/constants';
 import { PersonaCard } from '@/components/persona-card';
 import { ModeSelector } from '@/components/mode-selector';
 import { Footer } from '@/components/footer';
@@ -173,7 +173,7 @@ export default function HomePage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.1 }}
           >
-            <span className="gradient-text">棱镜之光</span>
+            <span className="gradient-text">{APP_NAME}</span>
           </motion.h1>
 
           <motion.p
@@ -182,7 +182,7 @@ export default function HomePage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
           >
-            汇聚人类最卓越思维的多智能体协作平台
+            {APP_DESCRIPTION}
           </motion.p>
 
           <motion.p
@@ -193,7 +193,7 @@ export default function HomePage() {
           >
             每个人的一生都是一本书，每本书都是一个人的灵魂。
             当我们阅读那些卓越人物的著作时，不仅是在获取知识，更是在与一个伟大的灵魂对话。
-            <br />Prismatic 让乔布斯、马斯克、芒格、费曼同时为你思考——不是引用他们说过的话，而是用他们的方式去思考你的问题。
+            <br />{APP_NAME} 让乔布斯、马斯克、芒格、费曼同时为你思考——不是引用他们说过的话，而是用他们的方式去思考你的问题。
           </motion.p>
 
           {/* CTA */}
@@ -444,10 +444,10 @@ export default function HomePage() {
             className="text-center mb-12"
           >
             <h2 className="text-2xl md:text-3xl font-display font-bold text-text-primary mb-4">
-              关于 Prismatic
+              关于{APP_NAME}
             </h2>
             <p className="text-text-secondary leading-relaxed max-w-2xl mx-auto">
-              Prismatic 基于「认知蒸馏」技术，通过深度访谈、文献研究、著作分析等方式，
+              {APP_NAME} 基于「认知蒸馏」技术，通过深度访谈、文献研究、著作分析等方式，
               对人类历史上最卓越的思考者进行系统性分析，重构他们的思维模型、决策框架和表达 DNA。
             </p>
           </motion.div>
@@ -497,7 +497,7 @@ export default function HomePage() {
                 开始你的思维进化之旅
               </h2>
               <p className="text-text-secondary mb-10 max-w-md mx-auto leading-relaxed">
-                无论是深入探索一个思想家的智慧，还是让多个领域的顶尖头脑同时为你思考，Prismatic 都是你的认知升级工具
+                无论是深入探索一个思想家的智慧，还是让多个领域的顶尖头脑同时为你思考，{APP_NAME} 都是你的认知升级工具
               </p>
               <div className="flex flex-wrap items-center justify-center gap-4">
                 <Link

@@ -761,10 +761,12 @@ function DebateAdminPanel() {
   const handleCreateAndRun = async (useCustom: boolean) => {
     setActionLoading(useCustom ? 'custom' : 'auto');
     try {
+      const body: Record<string, string> = { action: 'create' };
+      if (useCustom && customTopic.trim()) body.topic = customTopic.trim();
       const res = await fetch('/api/forum/debate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(useCustom && customTopic.trim() ? { topic: customTopic.trim() } : {}),
+        body: JSON.stringify(body),
       });
       const data = await res.json();
       if (res.ok) {

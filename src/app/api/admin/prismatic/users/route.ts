@@ -13,12 +13,14 @@ export async function GET(req: NextRequest) {
   const limit = parseInt(searchParams.get('limit') || '100', 10);
 
   try {
-    const visitors = await getTrackingVisitors(limit);
-    const devices = await getTrackingDeviceStats(days);
+    const [visitors, devices] = await Promise.all([
+      getTrackingVisitors(limit),
+      getTrackingDeviceStats(days),
+    ]);
 
     return NextResponse.json({ visitors, devices, geo: [] });
   } catch (error) {
     console.error('Admin Prismatic users error:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return NextResponse.json({ visitors: [], devices: { desktop: 0, mobile: 0, tablet: 0, unknown: 0 }, geo: [] });
   }
 }

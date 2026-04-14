@@ -8,7 +8,7 @@ import {
   MessageSquare, Send, ChevronDown, ChevronUp, Loader2, Sparkles,
   ThumbsUp, Heart, Smile, MoreHorizontal, Pin, Trash2, Edit3, Flag,
   Eye, Clock, TrendingUp, MessageCircle, Check, X, AlertTriangle,
-  Shield
+  Shield, ChevronLeft, CalendarDays
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuthStore } from '@/lib/auth-store';
@@ -838,27 +838,103 @@ export function CommentsSection() {
   const [submitting, setSubmitting] = useState(false);
   const [sort, setSort] = useState<'latest' | 'popular'>('latest');
   const [replyingTo, setReplyingTo] = useState<string | null>(null);
+  // Pagination
+  const [page, setPage] = useState(0);
+  const [hasMore, setHasMore] = useState(false);
+  const [total, setTotal] = useState(0);
+  const LIMIT = 10;
+  const MAX_VISIBLE_PAGES = 5; // max page number buttons to show
+  // Date filter
+  const [dateFilter, setDateFilter] = useState<string | null>(null);
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [dateRangeLabel, setDateRangeLabel] = useState<string>('全部时间');
+  // Debate topic for comment inspiration (forum ops)
+  const [debateTopic, setDebateTopic] = useState<string | null>(null);
+  // Quick date filter
+  const QUICK_DATES = [
+    { label: '今天', getValue: () => new Date().toISOString().slice(0, 10), isToday: true },
+    { label: '昨天', getValue: () => { const d = new Date(); d.setDate(d.getDate() - 1); return d.toISOString().slice(0, 10); }, isToday: false },
+    { label: '本周', getValue: () => { const d = new Date(); const day = d.getDay(); const diff = d.getDate() - day + (day === 0 ? -6 : 1); d.setDate(diff); return d.toISOString().slice(0, 10); }, isToday: false },
+    { label: '本月', getValue: () => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-01`; }, isToday: false },
+  ];
 
   const { user } = useAuthStore();
   const visitorId = typeof window !== 'undefined' ? getVisitorId() : '';
 
-  const fetchComments = useCallback(async () => {
+  const fetchComments = useCallback(async (pageNum = 0, reset = true) => {
     try {
-      const res = await fetch(`/api/comments?limit=50&sort=${sort}`);
+      setLoading(true);
+      const offset = pageNum * LIMIT;
+      const url = `/api/comments?limit=${LIMIT}&offset=${offset}&sort=${sort}${dateFilter ? `&date=${dateFilter}` : ''}`;
+      const res = await fetch(url);
       if (!res.ok) throw new Error('Failed to fetch');
       const data = await res.json();
-      setComments(data.comments || []);
+      if (reset) {
+        setComments(data.comments || []);
+      } else {
+        setComments(prev => [...prev, ...(data.comments || [])]);
+      }
+      setTotal(data.total || 0);
+      setHasMore(data.hasMore || false);
+      setPage(pageNum);
     } catch (err) {
       console.error('Failed to fetch comments:', err);
       setError('加载评论失败');
     } finally {
       setLoading(false);
     }
-  }, [sort]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sort, dateFilter]);
 
   useEffect(() => {
-    fetchComments();
-  }, [fetchComments]);
+    setPage(0);
+    setComments([]);
+    setHasMore(false);
+    // Fetch fresh data when sort or date changes
+    const fetchFresh = async () => {
+      try {
+        setLoading(true);
+        const url = `/api/comments?limit=${LIMIT}&offset=0&sort=${sort}${dateFilter ? `&date=${dateFilter}` : ''}`;
+        const res = await fetch(url);
+        if (!res.ok) throw new Error('Failed to fetch');
+        const data = await res.json();
+        setComments(data.comments || []);
+        setTotal(data.total || 0);
+        setHasMore(data.hasMore || false);
+        setPage(0);
+      } catch (err) {
+        console.error('Failed to fetch comments:', err);
+        setError('加载评论失败');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchFresh();
+
+    // Also fetch today's debate topic for community engagement hook
+    fetch('/api/forum/debate')
+      .then(r => r.ok ? r.json() : null)
+      .then(data => {
+        if (data?.debate?.topic) setDebateTopic(data.debate.topic);
+      })
+      .catch(() => {});
+  }, [sort, dateFilter]);
+
+  const loadMore = () => fetchComments(page + 1, false);
+
+  const handleDateFilter = (date: string | null) => {
+    setDateFilter(date);
+    if (date) {
+      const d = new Date(date);
+      setDateRangeLabel(d.toLocaleDateString('zh-CN', { month: 'short', day: 'numeric', year: 'numeric' }));
+    } else {
+      setDateRangeLabel('全部时间');
+    }
+  };
+
+  const handleSortChange = (newSort: 'latest' | 'popular') => {
+    setSort(newSort);
+  };
   
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -980,8 +1056,26 @@ export function CommentsSection() {
             <MessageSquare className="w-4 h-4 text-prism-blue" />
             <span className="text-sm text-text-secondary">用户留言</span>
             <span className="text-xs text-text-muted/50">·</span>
-            <span className="text-xs text-text-muted">{comments.length} 条留言</span>
+            <span className="text-xs text-text-muted">{total > 0 ? total : comments.length} 条留言</span>
+            {total > 50 && (
+              <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-prism-blue/10 text-prism-blue/70">
+                活跃社区
+              </span>
+            )}
           </div>
+
+          {/* Debate topic engagement banner — 论坛运营优化 */}
+          {debateTopic && (
+            <div className="mb-4 mx-auto max-w-md">
+              <div className="bg-gradient-to-r from-red-500/5 to-orange-500/5 border border-red-500/20 rounded-xl px-4 py-2.5 flex items-center gap-2 text-center">
+                <span className="text-sm">🔥</span>
+                <span className="text-xs text-text-secondary">
+                  今日辩题：<span className="text-text-primary font-medium">{debateTopic}</span>
+                </span>
+                <span className="text-[10px] text-text-muted/60">围观守望者辩论，也在下方说说你的观点</span>
+              </div>
+            </div>
+          )}
           <h2 className="text-2xl md:text-3xl font-display font-bold text-text-primary mb-3">
             听听大家怎么说
           </h2>
@@ -1040,7 +1134,11 @@ export function CommentsSection() {
               <textarea
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
-                placeholder={user ? "分享你的想法... 守望者正在关注今天的讨论" : "分享你的想法... 守望者正在关注今天的讨论"}
+                placeholder={
+                  debateTopic
+                    ? `围绕"${debateTopic}"发表你的看法，或分享任何想法... 守望者正在关注今天的讨论`
+                    : "分享你的想法... 守望者正在关注今天的讨论"
+                }
                 maxLength={1000}
                 rows={3}
                 className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-text-primary placeholder:text-text-muted focus:outline-none focus:border-prism-blue/50 transition-colors resize-none"
@@ -1108,33 +1206,57 @@ export function CommentsSection() {
           </form>
         </motion.div>
 
-        {/* Sort tabs */}
-        <div className="flex items-center gap-2 mb-6">
-          <button
-            onClick={() => setSort('latest')}
-            className={cn(
-              'px-4 py-2 rounded-lg text-sm transition-all flex items-center gap-2',
-              sort === 'latest'
-                ? 'bg-prism-blue/20 text-prism-blue'
-                : 'text-text-muted hover:bg-white/5'
-            )}
-          >
-            <Clock className="w-4 h-4" />
-            最新
-          </button>
-          <button
-            onClick={() => setSort('popular')}
-            className={cn(
-              'px-4 py-2 rounded-lg text-sm transition-all flex items-center gap-2',
-              sort === 'popular'
-                ? 'bg-prism-blue/20 text-prism-blue'
-                : 'text-text-muted hover:bg-white/5'
-            )}
-          >
-            <TrendingUp className="w-4 h-4" />
-            最热
-          </button>
-        </div>
+          {/* Quick Date Filter + Sort tabs */}
+          <div className="flex flex-col gap-3 mb-6">
+            {/* Quick date chips */}
+            <div className="flex items-center gap-2 flex-wrap">
+              {QUICK_DATES.map((qd) => {
+                const val = qd.getValue();
+                const isActive = dateFilter === val;
+                return (
+                  <button
+                    key={qd.label}
+                    onClick={() => handleDateFilter(isActive ? null : val)}
+                    className={cn(
+                      'px-3 py-1.5 rounded-lg text-xs transition-all',
+                      isActive
+                        ? 'bg-prism-blue/20 text-prism-blue border border-prism-blue/30'
+                        : 'text-text-muted hover:bg-white/5 border border-transparent'
+                    )}
+                  >
+                    {qd.label}
+                  </button>
+                );
+              })}
+              {/* Sort tabs */}
+              <div className="flex items-center gap-1 ml-auto">
+                <button
+                  onClick={() => handleSortChange('latest')}
+                  className={cn(
+                    'px-3 py-1.5 rounded-lg text-xs transition-all flex items-center gap-1.5',
+                    sort === 'latest'
+                      ? 'bg-prism-blue/20 text-prism-blue'
+                      : 'text-text-muted hover:bg-white/5'
+                  )}
+                >
+                  <Clock className="w-3 h-3" />
+                  最新
+                </button>
+                <button
+                  onClick={() => handleSortChange('popular')}
+                  className={cn(
+                    'px-3 py-1.5 rounded-lg text-xs transition-all flex items-center gap-1.5',
+                    sort === 'popular'
+                      ? 'bg-prism-blue/20 text-prism-blue'
+                      : 'text-text-muted hover:bg-white/5'
+                  )}
+                >
+                  <TrendingUp className="w-3 h-3" />
+                  最热
+                </button>
+              </div>
+            </div>
+          </div>
 
         {/* Comments List */}
         <div className="space-y-4">
@@ -1144,9 +1266,18 @@ export function CommentsSection() {
             </div>
           ) : comments.length === 0 ? (
             <div className="text-center py-12">
-              <MessageSquare className="w-12 h-12 text-text-muted/30 mx-auto mb-4" />
-              <p className="text-text-muted">还没有留言</p>
-              <p className="text-text-muted/60 text-sm mt-1">成为第一个留言的人吧！</p>
+              <div className="w-20 h-20 rounded-full bg-prism-blue/5 border border-prism-blue/10 flex items-center justify-center mx-auto mb-4">
+                <MessageSquare className="w-10 h-10 text-prism-blue/40" />
+              </div>
+              <p className="text-text-muted font-medium">还没有留言</p>
+              <p className="text-text-muted/60 text-sm mt-1 mb-6">成为第一个留言的人吧！守望者正在值班中...</p>
+              <div className="flex items-center justify-center gap-4 text-xs text-text-muted/50">
+                <span className="flex items-center gap-1"><Sparkles className="w-3 h-3" /> 守望者正在关注</span>
+                <span>·</span>
+                <span>快速响应</span>
+                <span>·</span>
+                <span>匿名可发</span>
+              </div>
             </div>
           ) : (
             <AnimatePresence>
@@ -1185,13 +1316,89 @@ export function CommentsSection() {
           )}
         </div>
 
-        {/* Load More */}
-        {comments.length >= 20 && (
-          <div className="text-center mt-8">
-            <button className="px-6 py-2.5 rounded-xl border border-white/10 text-text-muted text-sm hover:bg-white/5 transition-colors flex items-center gap-2 mx-auto">
-              <ChevronDown className="w-4 h-4" />
-              加载更多
-            </button>
+        {/* Pagination */}
+        {!loading && total > 0 && (
+          <div className="mt-8 space-y-4">
+            {/* Status bar */}
+            <div className="flex items-center justify-between text-xs text-text-muted/60">
+              <span>
+                共 {total} 条留言
+                {dateFilter && <span> · 已筛选：{dateRangeLabel}</span>}
+              </span>
+              <span>
+                第 {page + 1} / {Math.ceil(total / LIMIT)} 页
+              </span>
+            </div>
+
+            {/* Page controls */}
+            <div className="flex items-center justify-center gap-2">
+              {/* Prev */}
+              <button
+                onClick={() => { window.scrollTo({ top: 0, behavior: 'smooth' }); fetchComments(page - 1, true); }}
+                disabled={page === 0 || loading}
+                className="px-3 py-1.5 rounded-lg border border-white/10 text-xs text-text-muted hover:bg-white/5 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+              >
+                <ChevronDown className="w-4 h-4 rotate-90" />
+              </button>
+
+              {/* Page number buttons */}
+              {(() => {
+                const totalPages = Math.ceil(total / LIMIT);
+                const pages: (number | '...')[] = [];
+                if (totalPages <= MAX_VISIBLE_PAGES) {
+                  for (let i = 0; i < totalPages; i++) pages.push(i);
+                } else {
+                  pages.push(0);
+                  if (page > 2) pages.push('...');
+                  for (let i = Math.max(1, page - 1); i <= Math.min(totalPages - 2, page + 1); i++) {
+                    pages.push(i);
+                  }
+                  if (page < totalPages - 3) pages.push('...');
+                  pages.push(totalPages - 1);
+                }
+                return pages.map((p, idx) =>
+                  p === '...' ? (
+                    <span key={`ellipsis-${idx}`} className="px-2 text-text-muted/40 text-xs">…</span>
+                  ) : (
+                    <button
+                      key={p}
+                      onClick={() => { window.scrollTo({ top: 0, behavior: 'smooth' }); fetchComments(p, true); }}
+                      disabled={loading}
+                      className={cn(
+                        'w-9 h-9 rounded-lg border text-xs transition-all',
+                        p === page
+                          ? 'bg-prism-blue/20 border-prism-blue/50 text-prism-blue font-semibold'
+                          : 'border-white/10 text-text-muted hover:bg-white/5 hover:border-white/20',
+                        loading ? 'opacity-30 cursor-not-allowed' : ''
+                      )}
+                    >
+                      {p + 1}
+                    </button>
+                  )
+                );
+              })()}
+
+              {/* Next */}
+              <button
+                onClick={() => { window.scrollTo({ top: 0, behavior: 'smooth' }); fetchComments(page + 1, true); }}
+                disabled={!hasMore || loading}
+                className="px-3 py-1.5 rounded-lg border border-white/10 text-xs text-text-muted hover:bg-white/5 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+              >
+                <ChevronDown className="w-4 h-4 -rotate-90" />
+              </button>
+            </div>
+
+            {/* Clear filter */}
+            {dateFilter && (
+              <div className="flex justify-center">
+                <button
+                  onClick={() => handleDateFilter(null)}
+                  className="text-xs text-prism-blue hover:underline"
+                >
+                  清除日期筛选
+                </button>
+              </div>
+            )}
           </div>
         )}
       </div>

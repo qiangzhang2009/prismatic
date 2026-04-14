@@ -25,6 +25,25 @@ function getSql(): NeonQueryFunction<false, false> {
   return _sql;
 }
 
+/** Checks if a table exists. Returns false on any database error. */
+async function tableExists(tableName: string): Promise<boolean> {
+  try {
+    const sql = getSql();
+    await sql`SELECT 1 FROM ${sql.unsafe(tableName)} LIMIT 1`;
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/** Ensures a required table exists, throwing a clear error if not. */
+async function requireTable(tableName: string): Promise<void> {
+  const exists = await tableExists(tableName);
+  if (!exists) {
+    throw new Error(`Required table "${tableName}" does not exist`);
+  }
+}
+
 // ─── Shift Themes ─────────────────────────────────────────────────────────────
 // Curated themes for each shift slot — adds variety and narrative flavor
 const SHIFT_THEMES = {
@@ -120,6 +139,7 @@ function generateWeeklySchedule(weekStart: Date): Array<{ slot: number; personaI
  * Upserts the generated schedule into the database.
  */
 export async function ensureWeeklySchedule(weekStart: Date): Promise<void> {
+  await requireTable('prismatic_guardian_schedule');
   const sql = getSql();
   const schedule = generateWeeklySchedule(weekStart);
 
@@ -147,6 +167,7 @@ export async function ensureWeeklySchedule(weekStart: Date): Promise<void> {
 export async function getTodayGuardians(): Promise<Array<{
   slot: number;
   personaId: string;
+  personaSlug: string;
   personaName: string;
   personaNameZh: string;
   personaTagline: string;
@@ -154,6 +175,8 @@ export async function getTodayGuardians(): Promise<Array<{
   gradientTo: string;
   shiftTheme: string;
 }>> {
+  // Pre-check: require table so we get a clear error instead of silent []
+  await requireTable('prismatic_guardian_schedule');
   const sql = getSql();
   const today = new Date().toISOString().slice(0, 10);
 
@@ -181,6 +204,7 @@ export async function getTodayGuardians(): Promise<Array<{
     return {
       slot: r.slot,
       personaId: r.persona_id,
+      personaSlug: persona?.slug || r.persona_id,
       personaName: persona?.name || r.persona_id,
       personaNameZh: persona?.nameZh || r.persona_id,
       personaTagline: persona?.taglineZh || persona?.tagline || '',
@@ -204,6 +228,7 @@ export async function getGuardiansForDate(date: string): Promise<Array<{
   gradientTo: string;
   shiftTheme: string;
 }>> {
+  await requireTable('prismatic_guardian_schedule');
   const sql = getSql();
   const weekStart = getWeekStart(new Date(date));
   await ensureWeeklySchedule(weekStart);
@@ -228,6 +253,7 @@ export async function getGuardiansForDate(date: string): Promise<Array<{
     return {
       slot: r.slot,
       personaId: r.persona_id,
+      personaSlug: persona?.slug || r.persona_id,
       personaName: persona?.name || r.persona_id,
       personaNameZh: persona?.nameZh || r.persona_id,
       personaTagline: persona?.taglineZh || persona?.tagline || '',
@@ -246,6 +272,7 @@ export async function getScheduleRange(startDate: string, endDate: string): Prom
   dayOfWeek: string;
   guardians: Array<{ slot: number; personaId: string; personaNameZh: string; gradientFrom: string; gradientTo: string; shiftTheme: string }>;
 }>> {
+  await requireTable('prismatic_guardian_schedule');
   const sql = getSql();
 
   // Ensure all weeks in range
@@ -310,6 +337,7 @@ export async function recordPersonaInteraction(
   content?: string,
   emoji?: string
 ): Promise<void> {
+  await requireTable('prismatic_persona_interactions');
   const sql = getSql();
   await sql`
     INSERT INTO prismatic_persona_interactions (persona_id, comment_id, interaction_type, content, emoji)
@@ -317,9 +345,6 @@ export async function recordPersonaInteraction(
   `;
 }
 
-/**
- * Get all interactions for a specific comment.
- */
 export async function getCommentInteractions(commentId: string): Promise<Array<{
   id: number;
   personaId: string;
@@ -331,6 +356,7 @@ export async function getCommentInteractions(commentId: string): Promise<Array<{
   emoji: string | null;
   createdAt: string;
 }>> {
+  await requireTable('prismatic_persona_interactions');
   const sql = getSql();
   const rows = await sql`
     SELECT pi.id, pi.persona_id, pi.interaction_type, pi.content, pi.emoji, pi.created_at

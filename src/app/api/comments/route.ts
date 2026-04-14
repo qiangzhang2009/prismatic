@@ -62,10 +62,25 @@ export async function GET(req: NextRequest) {
   const limit = Math.min(parseInt(searchParams.get('limit') || '20'), 50);
   const offset = parseInt(searchParams.get('offset') || '0');
   const sort = searchParams.get('sort') || 'latest';
+  const date = searchParams.get('date'); // e.g. "2026-04-14"
 
   try {
     const sql = neon(process.env.DATABASE_URL!);
     const visitorId = await getVisitorId();
+
+    // Build WHERE clause
+    const conditions = [
+      `tenant_id = '${PRISMATIC_TENANT_ID}'`,
+      'is_hidden = FALSE',
+      'parent_id IS NULL',
+    ];
+    if (date) {
+      const dateStart = `${date}T00:00:00`;
+      const dateEnd = `${date}T23:59:59`;
+      conditions.push(`created_at >= '${dateStart}' AND created_at <= '${dateEnd}'`);
+    }
+
+    const whereClause = conditions.join(' AND ');
 
     const comments = await sql`
       SELECT
@@ -74,9 +89,7 @@ export async function GET(req: NextRequest) {
         reactions, view_count, report_count,
         geo_country, geo_region, geo_city, gender, avatar_seed, parent_id
       FROM public.prismatic_comments
-      WHERE tenant_id = ${PRISMATIC_TENANT_ID}
-        AND is_hidden = FALSE
-        AND parent_id IS NULL
+      WHERE ${sql.unsafe(whereClause)}
       ORDER BY is_pinned DESC, created_at DESC
       LIMIT ${limit}
       OFFSET ${offset}
@@ -86,6 +99,7 @@ export async function GET(req: NextRequest) {
     let repliesMap: Record<string, number> = {};
 
     if (commentIds.length > 0) {
+      const idList = commentIds.join(',');
       const replies = await sql`
         SELECT parent_id, COUNT(*)::int as count
         FROM public.prismatic_comments
@@ -97,12 +111,23 @@ export async function GET(req: NextRequest) {
       }
     }
 
+    // Total count (respects date filter)
+    const totalConditions = [
+      `tenant_id = '${PRISMATIC_TENANT_ID}'`,
+      'is_hidden = FALSE',
+      'parent_id IS NULL',
+    ];
+    if (date) {
+      const dateStart = `${date}T00:00:00`;
+      const dateEnd = `${date}T23:59:59`;
+      totalConditions.push(`created_at >= '${dateStart}' AND created_at <= '${dateEnd}'`);
+    }
+    const totalWhereClause = totalConditions.join(' AND ');
+
     const totalResult = await sql`
       SELECT COUNT(*)::int as count
       FROM public.prismatic_comments
-      WHERE tenant_id = ${PRISMATIC_TENANT_ID}
-        AND is_hidden = FALSE
-        AND parent_id IS NULL
+      WHERE ${sql.unsafe(totalWhereClause)}
     `;
 
     let processedComments = comments.map(c => {

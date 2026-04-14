@@ -1,4 +1,4 @@
-# Prismatic · 棱镜之光
+# Prismatic · 棱镜折射
 
 > **一个汇聚人类最卓越思维的系统。让乔布斯、马斯克、芒格、费曼同时为你思考。**
 
@@ -55,7 +55,7 @@ Prismatic 是一个 **多智能体思维协作平台** — 不是单个人物的
 │  └── Voice Calibrator (expression DNA enforcement)      │
 ├─────────────────────────────────────────────────────────┤
 │  Knowledge Layer                                          │
-│  ├── Persona Registry (15 pre-built personas)           │
+│  ├── Persona Registry (48 pre-built personas)           │
 │  ├── Mental Model Graph (cross-persona connections)      │
 │  ├── Conversation Memory (persistent context)             │
 │  └── Source Attribution Engine                           │
@@ -141,7 +141,7 @@ Prismatic 是一个 **多智能体思维协作平台** — 不是单个人物的
 
 ---
 
-## 四、人物角色库（47个蒸馏人物）
+## 四、人物角色库（48个蒸馏人物）
 
 | # | 人物 | 领域 | 核心价值 |
 |---|------|------|---------|
@@ -384,9 +384,9 @@ CMD ["npm", "start"]
 
 | 文档 | 用途 |
 |------|------|
-| `docs/PROJECT_EVALUATION.md` | 阶段性评估报告（工程/数据/设计） |
-| `docs/SKILLS_TOOLBOX.md` | 已实现功能蒸馏的 15 个可复用工具箱 |
+| `PROJECT_EVALUATION.md` | 阶段性评估报告（工程/数据/设计） |
+| `docs/SKILLS_TOOLBOX.md` | 已实现功能蒸馏的 20 个可复用工具箱 |
 
 ---
 
-*Prismatic — 棱镜之光，让每一个卓越灵魂为你思考。*
+*Prismatic — 棱镜折射，让每一个卓越灵魂为你思考。*

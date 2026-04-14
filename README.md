@@ -1,10 +1,10 @@
-# Prismatic · 棱镜之光
+# 棱镜折射 · Prismatic Refraction
 
 > **「人可以是书，那么，书也可以是人」**
 >
 > 每个人的一生都是一本书，每本书都是一个人的灵魂。当我们阅读那些卓越人物的著作时，不仅是在获取知识，更是在与一个伟大的灵魂对话——他们把自己人生的智慧、失败、顿悟，都凝聚成了文字。
 >
-> **Prismatic** 基于这一认知，通过深度访谈、文献研究、著作分析等方式，对人类历史上最卓越的思考者进行「认知蒸馏」，重构他们的思维模型、决策框架和表达DNA。让乔布斯、马斯克、芒格、费曼同时为你思考——不是引用他们说过的话，而是用他们的方式去思考你的问题。
+> **棱镜折射** 基于这一认知，通过深度访谈、文献研究、著作分析等方式，对人类历史上最卓越的思考者进行「认知蒸馏」，重构他们的思维模型、决策框架和表达DNA。让乔布斯、马斯克、芒格、费曼同时为你思考——不是引用他们说过的话，而是用他们的方式去思考你的问题。
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Next.js](https://img.shields.io/badge/Next.js-14-black)](https://nextjs.org)
@@ -24,7 +24,7 @@
 | 🏛️ **圆桌辩论** | 4-8人 | 多人物实时辩论收敛 |
 | 🎯 **任务模式** | 2-6人 | 多角色分工协作 |
 
-### 33+ 位蒸馏人物
+### 48 位蒸馏人物
 
 来自投资、商业、科技、哲学、宗教、教育、军事等领域的卓越思考者，包括乔布斯、马斯克、芒格、纳瓦尔、费曼、格雷厄姆、张一鸣、卡尔帕西、塔勒布、孙子、塞内卡、老子、庄子、六祖慧能、济群法师、康德、尼古拉·特斯拉、爱因斯坦、钱学森等。
 
@@ -33,6 +33,8 @@
 ## 在线体验
 
 访问 **[prismatic.zxqconsulting.com](https://prismatic.zxqconsulting.com)** 直接使用。
+
+> 💡 **棱镜折射**（Prismatic）—— 棱镜折射，多元视角，让卓越灵魂为你思考。
 
 ---
 
@@ -70,7 +72,7 @@ npm run dev
 
 ## 用户登录体系
 
-Prismatic 支持多种登录方式，无需 GitHub 或 Google 账户也能正常使用。
+棱镜折射 支持多种登录方式，无需 GitHub 或 Google 账户也能正常使用。
 
 ### 支持的登录方式
 
@@ -93,13 +95,14 @@ Prismatic 支持多种登录方式，无需 GitHub 或 Google 账户也能正常
 ```env
 DATABASE_URL="postgresql://USER:PASSWORD@HOST:5432/prismatic"
 ```
+
 运行 `npx prisma db push` 初始化数据库表。
 
 #### 2. 邮箱服务（推荐）
 推荐使用 [Resend](https://resend.com)，免费额度足够个人使用：
 ```env
 RESEND_API_KEY=re_your_key
-EMAIL_FROM=Prismatic <noreply@yourdomain.com>
+EMAIL_FROM=棱镜折射 <noreply@yourdomain.com>
 ```
 
 #### 3. 手机号登录（可选）
@@ -161,7 +164,7 @@ src/
 │   ├── persona-card.tsx   # 人物卡片
 │   └── mode-selector.tsx  # 模式选择器
 └── lib/                    # 核心库
-    ├── personas.ts          # 33个人物数据
+    ├── personas.ts          # 48个人物数据
     ├── prismatic-agent.ts  # 多智能体编排引擎
     ├── llm.ts             # LLM 抽象层
     ├── types.ts           # TypeScript 类型
