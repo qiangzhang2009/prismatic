@@ -5,6 +5,7 @@
  * Handles both inline markdown and long-form structured content (Mission mode).
  */
 
+import React, { Fragment } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { cn } from '@/lib/utils';
 
@@ -50,19 +51,18 @@ function StructuredOutput({ content }: { content: string }) {
 
         // Bullet point with bold marker: • **something**: or - **something**:
         if (/^[•\-] \*\*/.test(trimmed) || /^\*\*•/.test(trimmed)) {
-          const formatted = trimmed
+          const parts = trimmed
             .replace(/^[•\-]\s*/, '')
-            .replace(/\*\*(.*?)\*\*(.*)/, (_, bold, rest) => {
-              const cleanBold = bold || trimmed.match(/\*\*(.*?)\*\*/)?.[1] || '';
-              const cleanRest = rest || trimmed.replace(/\*\*/g, '');
-              return `<span class="font-medium text-text-primary">${cleanBold}</span>${rest || ''}`;
-            });
+            .split(/(\*\*[^*]+\*\*)/);
           return (
-            <p
-              key={i}
-              className="text-sm text-text-secondary pl-2 leading-relaxed"
-              dangerouslySetInnerHTML={{ __html: formatted }}
-            />
+            <p key={i} className="text-sm text-text-secondary pl-2 leading-relaxed">
+              {parts.map((part, j) => {
+                if (part.startsWith('**') && part.endsWith('**')) {
+                  return <strong key={j} className="font-medium text-text-primary">{part.slice(2, -2)}</strong>;
+                }
+                return <Fragment key={j}>{part}</Fragment>;
+              })}
+            </p>
           );
         }
 

@@ -213,6 +213,37 @@ export interface Persona {
     campaign_speeches?: string;
     sources?: string;
   };
+
+  // ─── Phase 2: Quantified Distillation Data (2026-04-14) ──────────────────────
+
+  /** 语料层级：1=核心（一手来源）、2=辅助（二手来源）、3=参考（三手来源） */
+  distillation?: {
+    corpusTier: 1 | 2 | 3;
+    /** 词汇指纹 — 该人物的高频特色词汇 */
+    wordFingerprint: string[];
+    /** 句法模式 */
+    syntaxPattern: {
+      avgSentenceLen: number;       // 平均句长
+      questionFreq: number;        // 每百句问号数
+      exclamationFreq: number;       // 每百句感叹号数
+      shortSentenceRatio: number;   // 短句(<15字)比例 0-1
+    };
+    /** 语调轨迹 — 话题→语气映射 */
+    toneTrajectory: Record<string, 'calm' | 'passionate' | 'humorous' | 'provocative' | 'formal'>;
+    /** 跳步系数 0-1：0=步步论证，1=直觉跳步 */
+    thinkingPace: number;
+    /** 声音边界 — 该人物不会说的话的规则 */
+    voiceBoundary: string[];
+  };
+
+  /** 游戏化评估数据 */
+  playtest?: {
+    lastTestDate: string;
+    fidelityScore: number;         // 0-100 PersonaFidelity
+    testQuestionCount: number;
+    communityRating: number;       // 用户评分均值 1-5
+    feedbackCount: number;         // 社区反馈条数
+  };
 }
 
 // ─── Conversation ─────────────────────────────────────────────────────────────

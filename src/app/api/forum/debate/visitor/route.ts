@@ -112,6 +112,9 @@ export async function POST(req: NextRequest) {
     const visitorId = await getVisitorId();
     const ipHash = ip.slice(0, 64);
 
+    // Set cookie for new visitors
+    await setVisitorCookie(visitorId);
+
     const rows = await sql`
       INSERT INTO prismatic_forum_debate_visitors (debate_id, visitor_id, content, ip_hash)
       VALUES (${debateId}, ${visitorId}, ${content.trim()}, ${ipHash})
@@ -143,4 +146,15 @@ async function getVisitorId(): Promise<string> {
     visitorId = crypto.randomUUID();
   }
   return visitorId;
+}
+
+async function setVisitorCookie(visitorId: string): Promise<void> {
+  const cookieStore = await cookies();
+  cookieStore.set('prismatic-visitor', visitorId, {
+    httpOnly: false,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax',
+    maxAge: 60 * 60 * 24 * 365, // 1 year
+    path: '/',
+  });
 }

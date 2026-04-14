@@ -7,6 +7,10 @@ import type { Persona } from './types';
 
 export const PERSONAS: Record<string, Persona> = {};
 
+/** Personas excluded from guardian and debate rotations for sensitivity reasons */
+export const BANNED_PERSONAS = ['zhang-xuefeng', 'donald-trump', 'taylor-swift'] as const;
+export type BannedPersonaId = typeof BANNED_PERSONAS[number];
+
 // ─── Steve Jobs ───────────────────────────────────────────────────────────────
 
 PERSONAS['steve-jobs'] = {

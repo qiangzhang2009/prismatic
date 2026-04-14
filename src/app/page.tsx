@@ -173,7 +173,7 @@ export default function HomePage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.1 }}
           >
-            <span className="gradient-text">折射之光</span>
+            <span className="gradient-text">棱镜之光</span>
           </motion.h1>
 
           <motion.p

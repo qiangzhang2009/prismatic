@@ -50,6 +50,16 @@ export const authOptions: NextAuthOptions = {
     maxAge: 30 * 24 * 60 * 60,
   },
 
-  secret: process.env.AUTH_SECRET ?? 'prismatic-dev-secret-2024',
+  secret: (() => {
+    const s = process.env.AUTH_SECRET;
+    if (!s) {
+      if (process.env.NODE_ENV === 'production') {
+        throw new Error('AUTH_SECRET environment variable is required in production');
+      }
+      // Development fallback only — never use in production
+      return 'prismatic-dev-secret-do-not-use-in-production';
+    }
+    return s;
+  })(),
   debug: process.env.NODE_ENV === 'development',
 };

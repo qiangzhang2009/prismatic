@@ -54,6 +54,16 @@ interface DetailUsage {
   rank?: number;
 }
 
+interface UserStats {
+  total: number;
+  totalAll: number;
+  inactive: number;
+  byRole: Record<string, number>;
+  byPlan: Record<string, number>;
+  recent: number;
+  verified: number;
+}
+
 interface EditState {
   name: string;
   gender: string;
@@ -93,13 +103,15 @@ function AdminUsersContent() {
   const [detailUser, setDetailUser] = useState<User | null>(null);
   const [detailUsage, setDetailUsage] = useState<DetailUsage | null>(null);
   const [detailLoading, setDetailLoading] = useState(false);
+  const [globalStats, setGlobalStats] = useState<UserStats | null>(null);
 
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
-      const [usersRes, usageRes] = await Promise.all([
+      const [usersRes, usageRes, statsRes] = await Promise.all([
         fetch('/api/admin/users', { credentials: 'include' }),
         fetch('/api/admin/usage?days=30', { credentials: 'include' }),
+        fetch('/api/admin/stats', { credentials: 'include' }),
       ]);
       if (usersRes.status === 403 || usageRes.status === 403) {
         setError('需要管理员权限');
@@ -108,8 +120,10 @@ function AdminUsersContent() {
       if (!usersRes.ok) throw new Error('Failed');
       const usersData = await usersRes.json();
       const usageData = await usageRes.json();
+      const statsData = await statsRes.json();
       setUsers(usersData.users || []);
       setUsage(usageData.allUsersUsage || {});
+      setGlobalStats(statsData);
     } catch {
       setError('获取数据失败');
     } finally {
@@ -325,10 +339,11 @@ function AdminUsersContent() {
         ) : (
           <>
             {/* ── Stats Bar ─────────────────────────────────────────── */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mb-6">
               {[
-                { label: '总用户', value: users.length, color: 'blue' },
-                { label: '今日活跃', value: Object.values(usage).filter(u => u.todayCount > 0).length, color: 'green' },
+                { label: '总用户', value: globalStats?.totalAll ?? users.length, color: 'blue' },
+                { label: '活跃用户', value: globalStats?.total ?? users.length, color: 'green' },
+                { label: '已禁用', value: globalStats?.inactive ?? 0, color: 'red' },
                 { label: '本周消息', value: Object.values(usage).reduce((s, u) => s + u.weekCount, 0), color: 'cyan' },
                 { label: '总消息', value: Object.values(usage).reduce((s, u) => s + u.totalCount, 0), color: 'purple' },
               ].map(stat => (
@@ -336,6 +351,7 @@ function AdminUsersContent() {
                   <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
                     stat.color === 'blue' ? 'bg-prism-blue/10 text-prism-blue' :
                     stat.color === 'green' ? 'bg-green-400/10 text-green-400' :
+                    stat.color === 'red' ? 'bg-red-400/10 text-red-400' :
                     stat.color === 'cyan' ? 'bg-prism-cyan/10 text-prism-cyan' :
                     'bg-prism-purple/10 text-prism-purple'
                   }`}>

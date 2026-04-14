@@ -446,6 +446,8 @@ export async function logAuthEvent(
 
 export async function getUserStats(): Promise<{
   total: number;
+  totalAll: number;
+  inactive: number;
   byRole: Record<string, number>;
   byPlan: Record<string, number>;
   recent: number;
@@ -453,22 +455,30 @@ export async function getUserStats(): Promise<{
 }> {
   const sql = getSql();
   const rows = await sql`
-    SELECT role, plan, created_at, email_verified FROM prismatic_users WHERE is_active = TRUE
+    SELECT role, plan, created_at, email_verified, is_active FROM prismatic_users
   `;
+
   const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
   const byRole: Record<string, number> = {};
   const byPlan: Record<string, number> = {};
   let recent = 0;
   let verified = 0;
+  let inactive = 0;
 
-  for (const row of rows) {
-    byRole[row.role] = (byRole[row.role] || 0) + 1;
-    byPlan[row.plan] = (byPlan[row.plan] || 0) + 1;
-    if (new Date(row.created_at) > thirtyDaysAgo) recent++;
-    if (row.email_verified) verified++;
+  for (const row of rows as any[]) {
+    const r = row as any;
+    if (!r.is_active) {
+      inactive++;
+      continue;
+    }
+    byRole[r.role] = (byRole[r.role] || 0) + 1;
+    byPlan[r.plan] = (byPlan[r.plan] || 0) + 1;
+    if (new Date(r.created_at) > thirtyDaysAgo) recent++;
+    if (r.email_verified) verified++;
   }
 
-  return { total: rows.length, byRole, byPlan, recent, verified };
+  const total = rows.length - inactive;
+  return { total, totalAll: rows.length, inactive, byRole, byPlan, recent, verified };
 }
 
 // ─── Permission Helpers ───────────────────────────────────────────────────────

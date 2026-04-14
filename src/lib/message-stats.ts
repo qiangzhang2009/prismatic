@@ -6,22 +6,22 @@
 
 import { neon, NeonQueryFunction } from '@neondatabase/serverless';
 
-function createSql() {
-  const connectionString = process.env.DATABASE_URL;
-  if (!connectionString) throw new Error('DATABASE_URL environment variable is not set');
-  return neon(connectionString) as NeonQueryFunction<false, false>;
-}
+// Module-level singleton
+let _sql: NeonQueryFunction<false, false> | null = null;
 
-let _sql: ReturnType<typeof createSql> | null = null;
-function getSql(): ReturnType<typeof createSql> {
-  if (!_sql) _sql = createSql();
+function getSql(): NeonQueryFunction<false, false> {
+  if (!_sql) {
+    const connectionString = process.env.DATABASE_URL;
+    if (!connectionString) throw new Error('DATABASE_URL environment variable is not set');
+    _sql = neon(connectionString) as NeonQueryFunction<false, false>;
+  }
   return _sql;
 }
 
 // ─── Daily limit constants ───────────────────────────────────────────────────
 
 // 普通用户每日对话上限
-export const USER_DAILY_LIMIT = 35;
+export const USER_DAILY_LIMIT = 10;
 
 // 检查用户是否达到今日对话配额上限
 export async function checkUserDailyLimit(userId: string): Promise<{
@@ -79,11 +79,12 @@ export async function getDailyMessageCount(userId: string, date?: string): Promi
  */
 export async function getUserMessageHistory(userId: string, days: number = 7): Promise<MessageRecord[]> {
   const sql = getSql();
+  const startDate = new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
   const rows = await sql`
     SELECT user_id, date, message_count
     FROM prismatic_message_stats
     WHERE user_id = ${userId}
-      AND date >= CURRENT_DATE - INTERVAL '${sql.unsafe(days.toString())} days'
+      AND date >= ${startDate}
     ORDER BY date DESC
   `;
   return rows.map((r: any) => ({
@@ -144,10 +145,11 @@ export async function getGlobalUsageStats(days: number = 7): Promise<{
   const todayTotal = Number((todayRows[0] as any)?.total ?? 0);
 
   // This week's total
+  const weekStart = new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
   const weekRows = await sql`
     SELECT COALESCE(SUM(message_count), 0) as total
     FROM prismatic_message_stats
-    WHERE date >= CURRENT_DATE - INTERVAL '${sql.unsafe(days.toString())} days'
+    WHERE date >= ${weekStart}
   `;
   const weekTotal = Number((weekRows[0] as any)?.total ?? 0);
 
@@ -155,7 +157,7 @@ export async function getGlobalUsageStats(days: number = 7): Promise<{
   const dailyRows = await sql`
     SELECT date, SUM(message_count) as total
     FROM prismatic_message_stats
-    WHERE date >= CURRENT_DATE - INTERVAL '${sql.unsafe(days.toString())} days'
+    WHERE date >= ${weekStart}
     GROUP BY date
     ORDER BY date ASC
   `;
@@ -187,6 +189,7 @@ export async function getAllUsersUsage(days: number = 7): Promise<Record<string,
   const sql = getSql();
   const today = new Date().toISOString().slice(0, 10);
 
+  const weekStart = new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
   const rows = await sql`
     SELECT
       user_id,
@@ -194,7 +197,7 @@ export async function getAllUsersUsage(days: number = 7): Promise<Record<string,
       message_count,
       MAX(date) OVER (PARTITION BY user_id) as last_date
     FROM prismatic_message_stats
-    WHERE date >= CURRENT_DATE - INTERVAL '${sql.unsafe(days.toString())} days'
+    WHERE date >= ${weekStart}
   `;
 
   const result: Record<string, { todayCount: number; weekCount: number; totalCount: number; lastActivity: string | null }> = {};
@@ -243,12 +246,13 @@ export async function getUserUsageDetail(userId: string, days: number = 7): Prom
   const today = new Date().toISOString().slice(0, 10);
 
   const todayCount = await getDailyMessageCount(userId, today);
+  const weekStart = new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
 
   const weekRows = await sql`
     SELECT COALESCE(SUM(message_count), 0) as total
     FROM prismatic_message_stats
     WHERE user_id = ${userId}
-      AND date >= CURRENT_DATE - INTERVAL '${sql.unsafe(days.toString())} days'
+      AND date >= ${weekStart}
   `;
   const weekCount = Number((weekRows[0] as any)?.total ?? 0);
 
@@ -263,7 +267,7 @@ export async function getUserUsageDetail(userId: string, days: number = 7): Prom
     SELECT date, message_count as count
     FROM prismatic_message_stats
     WHERE user_id = ${userId}
-      AND date >= CURRENT_DATE - INTERVAL '${sql.unsafe(days.toString())} days'
+      AND date >= ${weekStart}
     ORDER BY date DESC
   `;
 

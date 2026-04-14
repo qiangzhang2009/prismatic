@@ -21,11 +21,13 @@ export async function POST(req: NextRequest) {
     // Create table for human debate contributions
     await sql`
       CREATE TABLE IF NOT EXISTS prismatic_forum_debate_visitors (
-        id          BIGSERIAL PRIMARY KEY,
-        debate_id   BIGINT NOT NULL REFERENCES prismatic_forum_debates(id) ON DELETE CASCADE,
-        visitor_id   VARCHAR(64),
-        content      TEXT NOT NULL,
-        created_at   TIMESTAMPTZ DEFAULT NOW()
+        id            BIGSERIAL PRIMARY KEY,
+        debate_id     BIGINT NOT NULL REFERENCES prismatic_forum_debates(id) ON DELETE CASCADE,
+        visitor_id    VARCHAR(64),
+        content       TEXT NOT NULL,
+        ip_hash       VARCHAR(64),
+        is_ai_response BOOLEAN DEFAULT FALSE,
+        created_at    TIMESTAMPTZ DEFAULT NOW()
       )
     `;
 

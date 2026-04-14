@@ -19,7 +19,7 @@ import { exportChatAsImage, exportChatAsText } from '@/lib/export-chat';
 
 const STORAGE_KEY = 'prismatic-chat-state';
 
-const DAILY_LIMIT = 60;
+const DAILY_LIMIT = 10;
 const DAILY_LIMIT_KEY = 'prismatic-daily-messages';
 const DAILY_DATE_KEY = 'prismatic-daily-date';
 

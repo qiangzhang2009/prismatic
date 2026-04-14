@@ -11,7 +11,7 @@ import Link from 'next/link';
 import {
   Flame, Users, Clock, ArrowLeft,
   MessageSquare, ThumbsUp, Eye, ChevronRight,
-  Send, Loader2, User, Sparkles,
+  Send, Loader2, User, Sparkles, Shield, RefreshCw, Play, AlertCircle
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { getPersonasByIds } from '@/lib/personas';
@@ -142,6 +142,13 @@ export function DebateArenaClient({ debate, preview, error }: DebateArenaClientP
   const [votes, setVotes] = useState<Record<string, number>>({});
   const [voted, setVoted] = useState(false);
 
+  // Admin state
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [adminLoading, setAdminLoading] = useState(false);
+  const [adminMessage, setAdminMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [showAdminPanel, setShowAdminPanel] = useState(false);
+  const [customTopic, setCustomTopic] = useState('');
+
   // Visitor participation state
   const [contributions, setContributions] = useState<VisitorContribution[]>([]);
   const [contributionText, setContributionText] = useState('');
@@ -157,6 +164,44 @@ export function DebateArenaClient({ debate, preview, error }: DebateArenaClientP
       setHistory(data.debates ?? []);
     } catch { /* silent */ }
   }, []);
+
+  // Check admin status on mount
+  useEffect(() => {
+    fetch('/api/auth/me')
+      .then(r => r.ok ? r.json() : null)
+      .then(data => {
+        if (data?.user?.isAdmin) setIsAdmin(true);
+      })
+      .catch(() => {/* silent */});
+  }, []);
+
+  const handleAdminAction = async (action: 'start' | 'create', topic?: string) => {
+    if (!debate && action === 'start') return;
+    setAdminLoading(true);
+    setAdminMessage(null);
+    try {
+      const body: Record<string, unknown> = { action };
+      if (action === 'start') body.debateId = debate!.id;
+      if (action === 'create' && topic) body.topic = topic;
+
+      const res = await fetch('/api/forum/debate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setAdminMessage({ type: 'success', text: action === 'start' ? '辩论已启动！' : `辩论已创建 (ID: ${data.debateId})` });
+        setTimeout(() => window.location.reload(), 1500);
+      } else {
+        setAdminMessage({ type: 'error', text: data.error || '操作失败' });
+      }
+    } catch {
+      setAdminMessage({ type: 'error', text: '网络错误' });
+    } finally {
+      setAdminLoading(false);
+    }
+  };
 
   const loadContributions = useCallback(async () => {
     if (!debate) return;
@@ -260,6 +305,97 @@ export function DebateArenaClient({ debate, preview, error }: DebateArenaClientP
           </div>
         </div>
       </div>
+
+      {/* ── Admin Control Panel ─────────────────────────────── */}
+      {isAdmin && (
+        <div className="max-w-3xl mx-auto px-4 pt-4">
+          <div className="rounded-xl bg-amber-500/10 border border-amber-500/20 p-4">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <Shield className="w-4 h-4 text-amber-400" />
+                <span className="text-sm font-semibold text-amber-300">管理员控制</span>
+              </div>
+              <button
+                onClick={() => setShowAdminPanel(!showAdminPanel)}
+                className="text-xs text-amber-400/60 hover:text-amber-300 transition-colors"
+              >
+                {showAdminPanel ? '收起' : '展开'}
+              </button>
+            </div>
+
+            {showAdminPanel && (
+              <div className="space-y-3">
+                {adminMessage && (
+                  <div className={cn(
+                    'flex items-center gap-2 px-3 py-2 rounded-lg text-sm',
+                    adminMessage.type === 'success' ? 'bg-emerald-500/10 text-emerald-300' : 'bg-red-500/10 text-red-300'
+                  )}>
+                    {adminMessage.type === 'success' ? <Sparkles className="w-3.5 h-3.5" /> : <AlertCircle className="w-3.5 h-3.5" />}
+                    {adminMessage.text}
+                  </div>
+                )}
+
+                {debate?.status === 'scheduled' && (
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => handleAdminAction('start')}
+                      disabled={adminLoading}
+                      className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-red-500/20 border border-red-500/40 text-red-300 text-sm font-medium hover:bg-red-500/30 disabled:opacity-50 transition-all"
+                    >
+                      {adminLoading ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Play className="w-3.5 h-3.5" />}
+                      启动辩论
+                    </button>
+                  </div>
+                )}
+
+                {!debate && (
+                  <div className="space-y-2">
+                    <input
+                      type="text"
+                      value={customTopic}
+                      onChange={e => setCustomTopic(e.target.value)}
+                      placeholder="输入自定义话题（留空使用默认话题）"
+                      className="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-gray-200 placeholder:text-gray-500 text-sm focus:outline-none focus:border-amber-500/50 transition-colors"
+                    />
+                    <button
+                      onClick={() => handleAdminAction('create', customTopic)}
+                      disabled={adminLoading}
+                      className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-red-500/20 border border-red-500/40 text-red-300 text-sm font-medium hover:bg-red-500/30 disabled:opacity-50 transition-all"
+                    >
+                      {adminLoading ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Play className="w-3.5 h-3.5" />}
+                      创建辩论 {customTopic ? '(自定义)' : '(默认话题)'}
+                    </button>
+                  </div>
+                )}
+
+                {debate?.status === 'running' && (
+                  <p className="text-xs text-amber-400/60">辩论进行中，刷新页面查看最新进展</p>
+                )}
+
+                {debate?.status === 'completed' && (
+                  <div className="space-y-2">
+                    <input
+                      type="text"
+                      value={customTopic}
+                      onChange={e => setCustomTopic(e.target.value)}
+                      placeholder="输入自定义话题"
+                      className="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-gray-200 placeholder:text-gray-500 text-sm focus:outline-none focus:border-amber-500/50 transition-colors"
+                    />
+                    <button
+                      onClick={() => handleAdminAction('create', customTopic)}
+                      disabled={adminLoading}
+                      className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-red-500/20 border border-red-500/40 text-red-300 text-sm font-medium hover:bg-red-500/30 disabled:opacity-50 transition-all"
+                    >
+                      {adminLoading ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Play className="w-3.5 h-3.5" />}
+                      创建新辩论
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       <div className="max-w-3xl mx-auto px-4 py-6">
         {/* ── Tabs ──────────────────────────────────────────── */}

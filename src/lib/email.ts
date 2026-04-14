@@ -123,7 +123,7 @@ export async function sendEmailCode(email: string, code: string, type: 'register
           <div style="margin-top: 32px; padding-top: 24px; border-top: 1px solid #f0f0f0;">
             <p style="color: #d1d5db; font-size: 12px; text-align: center; margin: 0;">
               如果不是你本人的操作，请忽略此邮件。<br/>
-              © 2024 Prismatic · 折射之光
+              © 2024 Prismatic · 棱镜之光
             </p>
           </div>
         </div>

@@ -22,6 +22,7 @@ export async function GET(req: NextRequest) {
       user: {
         ...demoUser,
         canUseProFeatures: canUseProFeatures(demoUser.role, demoUser.plan),
+        isAdmin: false,
       }
     }, { headers: NO_CACHE_HEADERS });
   }
@@ -32,6 +33,7 @@ export async function GET(req: NextRequest) {
     user: {
       ...user,
       canUseProFeatures: canUseProFeatures(user.role, user.plan),
+      isAdmin: user.role === 'ADMIN',
     }
   }, { headers: NO_CACHE_HEADERS });
 }

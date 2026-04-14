@@ -5,12 +5,12 @@ import { Providers } from '@/components/providers';
 import { NavBar } from '@/components/nav-bar';
 
 export const metadata: Metadata = {
-  title: 'Prismatic · 折射之光',
+  title: 'Prismatic · 棱镜之光',
   description: '汇聚人类最卓越思维的多智能体协作平台，让乔布斯、马斯克、芒格、费曼同时为你思考。',
   keywords: ['AI', '多智能体', '认知蒸馏', '心智模型', '思维伙伴', '协作'],
   authors: [{ name: 'Prismatic' }],
   openGraph: {
-    title: 'Prismatic · 折射之光',
+    title: 'Prismatic · 棱镜之光',
     description: '汇聚人类最卓越思维的多智能体协作平台',
     type: 'website',
   },

@@ -11,11 +11,15 @@ import { motion } from 'framer-motion';
 import {
   ArrowLeft, Users, Crown, TrendingUp, MessageSquare, Activity,
   BarChart2, Calendar, Clock, TrendingDown, Zap,
-  ChevronRight, RefreshCw, AlertTriangle, CheckCircle, Shield, Flame
+  ChevronRight, RefreshCw, AlertTriangle, CheckCircle, Shield, Flame,
+  HelpCircle, Info, BookOpen, Zap as ZapIcon, ShieldCheck, Globe, MessageCircle,
+  Star, ArrowRight, Eye, Settings
 } from 'lucide-react';
 
 interface GlobalStats {
   total: number;
+  totalAll: number;
+  inactive: number;
   byRole: Record<string, number>;
   byPlan: Record<string, number>;
   recent: number;
@@ -141,14 +145,22 @@ export default function AdminPage() {
         ) : (
           <>
             {/* ── Row 1: Key Metric Cards ─────────────────────────────────── */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mb-8">
               <StatCard
                 icon={Users}
                 label="总用户"
-                value={userStats?.total ?? 0}
-                sub={`近30天 +${userStats?.recent ?? 0}`}
+                value={userStats?.totalAll ?? 0}
+                sub={`活跃 ${userStats?.total ?? 0} / 已禁用 ${userStats?.inactive ?? 0}`}
                 color="blue"
                 trend={userStats?.recent ? '+' : undefined}
+                loading={loading && !userStats}
+              />
+              <StatCard
+                icon={Activity}
+                label="活跃用户"
+                value={userStats?.total ?? 0}
+                sub={`近30天 +${userStats?.recent ?? 0}`}
+                color="green"
                 loading={loading && !userStats}
               />
               <StatCard
@@ -164,7 +176,7 @@ export default function AdminPage() {
                 label="日均消息"
                 value={usageStats?.avgDaily ?? 0}
                 sub="近7天平均"
-                color="green"
+                color="purple"
                 loading={loading && !usageStats}
               />
               <StatCard
@@ -472,6 +484,170 @@ export default function AdminPage() {
             >
               <DebateAdminPanel />
             </motion.div>
+
+            {/* ── Row 6: 功能与权限说明 ─────────────────────────────── */}
+            <motion.div
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.6 }}
+              className="mb-6"
+            >
+              <div className="flex items-center gap-2 mb-4">
+                <HelpCircle className="w-4 h-4 text-prism-blue" />
+                <h2 className="text-base font-semibold text-text-primary">功能与权限说明</h2>
+              </div>
+
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                {/* User Roles & Permissions */}
+                <div className="bg-bg-elevated rounded-xl border border-border-subtle p-5">
+                  <div className="flex items-center gap-2 mb-4">
+                    <ShieldCheck className="w-4 h-4 text-prism-purple" />
+                    <h3 className="text-sm font-semibold text-text-primary">用户角色与权限</h3>
+                  </div>
+                  <div className="space-y-3">
+                    {[
+                      {
+                        role: 'ADMIN',
+                        label: '管理员',
+                        color: 'text-prism-purple',
+                        bg: 'bg-prism-purple/10',
+                        border: 'border-prism-purple/20',
+                        perms: ['管理所有用户（增删改查）', '修改用户角色和套餐', '查看全站用量统计', '管理辩论场（创建/启动辩论）', '管理守望者计划', '访问管理后台全部功能'],
+                        badge: '完整权限',
+                      },
+                      {
+                        role: 'PRO',
+                        label: '高级用户',
+                        color: 'text-amber-400',
+                        bg: 'bg-amber-400/10',
+                        border: 'border-amber-400/20',
+                        perms: ['每日对话额度 50 条', '解锁所有思想家角色', '体验折射模式和圆桌模式', '专属高级功能（待扩展）'],
+                        badge: 'PRO套餐',
+                      },
+                      {
+                        role: 'FREE',
+                        label: '普通用户',
+                        color: 'text-text-muted',
+                        bg: 'bg-bg-surface',
+                        border: 'border-border-subtle',
+                        perms: ['每日对话额度 10 条', '体验基础思想家角色', '使用单人对话模式'],
+                        badge: '免费',
+                      },
+                    ].map(item => (
+                      <div key={item.role} className={`rounded-lg border ${item.border} ${item.bg} p-3`}>
+                        <div className="flex items-center justify-between mb-2">
+                          <span className={`text-sm font-semibold ${item.color}`}>{item.label}</span>
+                          <span className={`text-[10px] px-1.5 py-0.5 rounded ${item.color.replace('text-', 'bg-')}/20 ${item.color}`}>{item.badge}</span>
+                        </div>
+                        <ul className="space-y-1">
+                          {item.perms.map((p, i) => (
+                            <li key={i} className="flex items-start gap-1.5 text-xs text-text-secondary">
+                              <CheckCircle className={`w-3 h-3 ${item.color.replace('text-', 'text-')} flex-shrink-0 mt-0.5`} />
+                              <span>{p}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Platform Features */}
+                <div className="bg-bg-elevated rounded-xl border border-border-subtle p-5">
+                  <div className="flex items-center gap-2 mb-4">
+                    <BookOpen className="w-4 h-4 text-prism-blue" />
+                    <h3 className="text-sm font-semibold text-text-primary">平台功能概览</h3>
+                  </div>
+                  <div className="space-y-4">
+                    {[
+                      {
+                        icon: MessageCircle,
+                        color: 'text-prism-blue',
+                        bg: 'bg-prism-blue/10',
+                        title: '思想对话',
+                        desc: '与历史伟人和当代思想家一对一对话。使用第一性原理和多元思维模型分析问题。',
+                        details: ['单人模式：深入追问', '折射模式：3个视角综合分析', '圆桌模式：8人辩论协作'],
+                      },
+                      {
+                        icon: Flame,
+                        color: 'text-red-400',
+                        bg: 'bg-red-400/10',
+                        title: '智辩场',
+                        desc: '每日多思想家辩论。用户可围观并参与讨论，支持投票。管理员可创建和启动辩论。',
+                        details: ['围观辩论实时进展', '发表围观观点', '为喜欢的思想家投票'],
+                      },
+                      {
+                        icon: Shield,
+                        color: 'text-prism-purple',
+                        bg: 'bg-prism-purple/10',
+                        title: '守望者计划',
+                        desc: '每日三位思想家轮值守护社区。用户发表评论可能获得守望者回复。',
+                        details: ['每日轮值思想家', '互动进度追踪', '值班排班表可查'],
+                      },
+                      {
+                        icon: Globe,
+                        color: 'text-green-400',
+                        bg: 'bg-green-400/10',
+                        title: '评论区',
+                        desc: '用户留言板，支持回复、反应、举报、置顶等管理功能。游客也可匿名发言。',
+                        details: ['游客匿名发言', '守望者回复用户评论', '管理员置顶/隐藏/删除'],
+                      },
+                    ].map((feat, i) => (
+                      <div key={i} className="flex gap-3">
+                        <div className={`w-8 h-8 rounded-lg ${feat.bg} flex items-center justify-center flex-shrink-0 mt-0.5`}>
+                          <feat.icon className={`w-4 h-4 ${feat.color}`} />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className="text-sm font-medium text-text-primary">{feat.title}</span>
+                          </div>
+                          <p className="text-xs text-text-muted leading-relaxed mb-1">{feat.desc}</p>
+                          <div className="flex flex-wrap gap-1">
+                            {feat.details.map((d, j) => (
+                              <span key={j} className="text-[10px] px-1.5 py-0.5 rounded bg-bg-surface text-text-muted">
+                                {d}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Subscription Plans */}
+              <div className="mt-4 bg-bg-elevated rounded-xl border border-border-subtle p-5">
+                <div className="flex items-center gap-2 mb-4">
+                  <Star className="w-4 h-4 text-amber-400" />
+                  <h3 className="text-sm font-semibold text-text-primary">订阅套餐说明</h3>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
+                  {[
+                    { plan: 'FREE', label: '免费', color: 'text-text-muted', bg: 'bg-bg-surface', desc: '基础体验', features: ['每日10条对话', '基础思想家角色', '单人对话模式'] },
+                    { plan: 'MONTHLY', label: '月度', color: 'text-prism-blue', bg: 'bg-prism-blue/10', desc: '月度订阅', features: ['每日50条对话', '全部思想家角色', '折射+圆桌模式'] },
+                    { plan: 'YEARLY', label: '年度', color: 'text-green-400', bg: 'bg-green-400/10', desc: '年度订阅', features: ['每日50条对话', '全部思想家角色', '折射+圆桌模式'] },
+                    { plan: 'LIFETIME', label: '终身', color: 'text-prism-purple', bg: 'bg-prism-purple/10', desc: '一次性买断', features: ['每日50条对话', '全部思想家角色', '折射+圆桌模式'] },
+                  ].map(item => (
+                    <div key={item.plan} className={`rounded-lg border border-border-subtle ${item.bg} p-3`}>
+                      <div className="flex items-center gap-1.5 mb-2">
+                        <Star className={`w-3.5 h-3.5 ${item.color}`} />
+                        <span className={`text-sm font-semibold ${item.color}`}>{item.label}</span>
+                        <span className="text-[10px] text-text-muted ml-auto">{item.desc}</span>
+                      </div>
+                      <ul className="space-y-1">
+                        {item.features.map((f, i) => (
+                          <li key={i} className="text-[11px] text-text-secondary flex items-center gap-1">
+                            <CheckCircle className={`w-3 h-3 ${item.color.replace('text-', 'text-')} flex-shrink-0`} />
+                            {f}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </motion.div>
           </>
         )}
       </main>
@@ -485,7 +661,7 @@ function StatCard({ icon: Icon, label, value, sub, color, trend, loading }: {
   label: string;
   value: number;
   sub?: string;
-  color: 'blue' | 'green' | 'amber' | 'purple' | 'cyan' | 'gray';
+  color: 'blue' | 'green' | 'amber' | 'purple' | 'cyan' | 'gray' | 'red';
   trend?: string;
   loading?: boolean;
 }) {
@@ -495,6 +671,7 @@ function StatCard({ icon: Icon, label, value, sub, color, trend, loading }: {
     amber: { bg: 'bg-amber-400/10', icon: 'text-amber-400' },
     purple: { bg: 'bg-prism-purple/10', icon: 'text-prism-purple' },
     cyan: { bg: 'bg-prism-cyan/10', icon: 'text-prism-cyan' },
+    red: { bg: 'bg-red-400/10', icon: 'text-red-400' },
     gray: { bg: 'bg-bg-surface', icon: 'text-text-muted' },
   };
   const c = colorMap[color] || colorMap.gray;

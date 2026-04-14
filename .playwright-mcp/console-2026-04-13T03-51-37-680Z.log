@@ -1,3 +1,0 @@
-[   73784ms] [VERBOSE] [DOM] Input elements should have autocomplete attributes (suggested: "current-password"): (More info: https://goo.gl/9p2vKq) %o @ https://prismatic-app.vercel.app/auth/signin:0
-[ 7810297ms] [ERROR] Failed to load resource: net::ERR_NETWORK_CHANGED @ https://prismatic-app.vercel.app/api/tracking/internal:0
-[11558237ms] [ERROR] Failed to load resource: net::ERR_NETWORK_CHANGED @ https://prismatic-app.vercel.app/api/guardian/stats:0

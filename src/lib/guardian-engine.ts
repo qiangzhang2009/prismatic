@@ -18,15 +18,15 @@ import { getTodayGuardians, recordPersonaInteraction, buildPersonaInteractionPro
 import { getPersonasByIds } from '@/lib/personas';
 import { createLLMProvider } from '@/lib/llm';
 
-function createSql() {
-  const connectionString = process.env.DATABASE_URL;
-  if (!connectionString) throw new Error('DATABASE_URL not set');
-  return neon(connectionString) as NeonQueryFunction<false, false>;
-}
+// Module-level singleton — persists across calls within the same serverless invocation
+let _sql: NeonQueryFunction<false, false> | null = null;
 
-function getSql() {
-  let _sql: ReturnType<typeof createSql> | null = null;
-  if (!_sql) _sql = createSql();
+function getSql(): NeonQueryFunction<false, false> {
+  if (!_sql) {
+    const connectionString = process.env.DATABASE_URL;
+    if (!connectionString) throw new Error('DATABASE_URL not set');
+    _sql = neon(connectionString) as NeonQueryFunction<false, false>;
+  }
   return _sql;
 }
 

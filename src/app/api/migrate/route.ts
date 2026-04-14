@@ -1,37 +1,26 @@
 /**
  * Database Migration API - Run migrations
- * Protected by admin check
+ * Protected by admin check (uses JWT token like other admin endpoints)
  */
 
 import { NextRequest, NextResponse } from 'next/server';
 import { neon } from '@neondatabase/serverless';
+import { authenticateAdminRequest } from '@/lib/user-management';
 
 export async function POST(req: NextRequest) {
-  // Admin check
-  const sessionToken = req.cookies.get('prismatic-session')?.value;
-  if (!sessionToken) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  // Admin check using the same auth system as other admin endpoints
+  const adminId = await authenticateAdminRequest(req);
+  if (!adminId) {
+    return NextResponse.json({ error: 'Unauthorized - admin only' }, { status: 401 });
   }
 
   try {
     const sql = neon(process.env.DATABASE_URL!);
-    
-    // Check if user is admin
-    const sessions = await sql`SELECT user_id FROM public.sessions WHERE id = ${sessionToken} LIMIT 1`;
-    if (!sessions || sessions.length === 0) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    const userId = sessions[0].user_id;
-    const users = await sql`SELECT role FROM public.users WHERE id = ${userId} LIMIT 1`;
-    if (!users || users[0]?.role !== 'ADMIN') {
-      return NextResponse.json({ error: 'Forbidden - admin only' }, { status: 403 });
-    }
 
     // Run migrations
     const results: string[] = [];
 
-    // Create comments table
+    // ── prismatic_comments ──────────────────────────────────────────────────────
     try {
       await sql`
         CREATE TABLE IF NOT EXISTS public.prismatic_comments (
@@ -50,51 +39,119 @@ export async function POST(req: NextRequest) {
           display_name VARCHAR(50)
         )
       `;
-      results.push('Created prismatic_comments table');
+      results.push('prismatic_comments ✓');
     } catch (e: any) {
-      results.push(`Comments table: ${e.message}`);
+      results.push(`prismatic_comments: ${e.message}`);
     }
 
-    // Create indexes
+    // ── prismatic_guardian_schedule ─────────────────────────────────────────────
     try {
-      await sql`CREATE INDEX IF NOT EXISTS idx_comments_tenant ON public.prismatic_comments(tenant_id)`;
-      await sql`CREATE INDEX IF NOT EXISTS idx_comments_created ON public.prismatic_comments(created_at DESC)`;
-      await sql`CREATE INDEX IF NOT EXISTS idx_comments_pinned ON public.prismatic_comments(is_pinned DESC, created_at DESC)`;
-      results.push('Created indexes');
+      await sql`
+        CREATE TABLE IF NOT EXISTS public.prismatic_guardian_schedule (
+          date    DATE NOT NULL,
+          slot    SMALLINT NOT NULL CHECK (slot BETWEEN 1 AND 3),
+          persona_id  VARCHAR(64) NOT NULL,
+          shift_theme TEXT DEFAULT '',
+          max_interactions INTEGER DEFAULT 65,
+          PRIMARY KEY (date, slot)
+        )
+      `;
+      results.push('prismatic_guardian_schedule ✓');
     } catch (e: any) {
-      results.push(`Indexes: ${e.message}`);
+      results.push(`prismatic_guardian_schedule: ${e.message}`);
     }
 
-    // Add RLS policies
+    // ── prismatic_guardian_stats ────────────────────────────────────────────────
     try {
-      await sql`ALTER TABLE public.prismatic_comments ENABLE ROW LEVEL SECURITY`;
-      await sql`DROP POLICY IF EXISTS "Allow public read" ON public.prismatic_comments`;
-      await sql`CREATE POLICY "Allow public read" ON public.prismatic_comments FOR SELECT USING (is_hidden = FALSE)`;
-      await sql`DROP POLICY IF EXISTS "Allow public insert" ON public.prismatic_comments`;
-      await sql`CREATE POLICY "Allow public insert" ON public.prismatic_comments FOR INSERT WITH CHECK (TRUE)`;
-      results.push('RLS policies created');
+      await sql`
+        CREATE TABLE IF NOT EXISTS public.prismatic_guardian_stats (
+          date            DATE NOT NULL,
+          persona_id     VARCHAR(64) NOT NULL,
+          interactions   INTEGER DEFAULT 0,
+          comments_reviewed INTEGER DEFAULT 0,
+          PRIMARY KEY (date, persona_id)
+        )
+      `;
+      results.push('prismatic_guardian_stats ✓');
     } catch (e: any) {
-      results.push(`RLS: ${e.message}`);
+      results.push(`prismatic_guardian_stats: ${e.message}`);
     }
 
-    // Insert sample comments
+    // ── prismatic_persona_interactions ───────────────────────────────────────────
     try {
-      const existingComments = await sql`SELECT COUNT(*) as count FROM public.prismatic_comments`;
-      if (Number(existingComments[0]?.count || 0) === 0) {
-        await sql`
-          INSERT INTO public.prismatic_comments (content, author_name, author_avatar, display_name, is_pinned)
-          VALUES
-            ('这个产品太棒了！让乔布斯和芒格同时思考我的问题，感觉打开了新世界的大门 🚀', '产品爱好者', '🚀', '产品爱好者', true),
-            ('作为一个哲学爱好者，终于找到了可以深入探讨斯多葛主义的工具。费曼的思维方式也让人受益匪浅！', '哲学探索者', '🦉', '哲学探索者', false),
-            ('张一鸣的实用主义思维对我做产品很有启发，强力推荐！', '创业者小明', '💡', '创业者小明', false)
-        `;
-        results.push('Sample comments inserted');
-      }
+      await sql`
+        CREATE TABLE IF NOT EXISTS public.prismatic_persona_interactions (
+          id              BIGSERIAL PRIMARY KEY,
+          persona_id     VARCHAR(64) NOT NULL,
+          comment_id     VARCHAR(64) NOT NULL,
+          interaction_type VARCHAR(20) NOT NULL CHECK (interaction_type IN ('reply', 'reaction', 'quote')),
+          content        TEXT,
+          emoji          VARCHAR(20),
+          created_at     TIMESTAMPTZ DEFAULT NOW()
+        )
+      `;
+      results.push('prismatic_persona_interactions ✓');
     } catch (e: any) {
-      results.push(`Sample data: ${e.message}`);
+      results.push(`prismatic_persona_interactions: ${e.message}`);
     }
 
-    // Create debate visitor contributions table
+    // ── prismatic_forum_debates ─────────────────────────────────────────────────
+    try {
+      await sql`
+        CREATE TABLE IF NOT EXISTS public.prismatic_forum_debates (
+          id              BIGSERIAL PRIMARY KEY,
+          date            DATE NOT NULL,
+          topic           TEXT NOT NULL,
+          participant_ids  TEXT[] NOT NULL DEFAULT '{}',
+          status          VARCHAR(20) NOT NULL DEFAULT 'scheduled'
+                              CHECK (status IN ('scheduled', 'running', 'completed')),
+          live_viewers    INTEGER DEFAULT 0,
+          view_count      INTEGER DEFAULT 0,
+          votes           JSONB DEFAULT '{}',
+          created_at      TIMESTAMPTZ DEFAULT NOW(),
+          updated_at      TIMESTAMPTZ DEFAULT NOW()
+        )
+      `;
+      results.push('prismatic_forum_debates ✓');
+    } catch (e: any) {
+      results.push(`prismatic_forum_debates: ${e.message}`);
+    }
+
+    // ── prismatic_forum_debate_turns ────────────────────────────────────────────
+    try {
+      await sql`
+        CREATE TABLE IF NOT EXISTS public.prismatic_forum_debate_turns (
+          id          BIGSERIAL PRIMARY KEY,
+          debate_id   BIGINT NOT NULL REFERENCES prismatic_forum_debates(id) ON DELETE CASCADE,
+          round       SMALLINT NOT NULL DEFAULT 0,
+          speaker_id  VARCHAR(64) NOT NULL,
+          speaker_name VARCHAR(64) NOT NULL,
+          content     TEXT NOT NULL,
+          tone        VARCHAR(20) DEFAULT 'opening',
+          created_at  TIMESTAMPTZ DEFAULT NOW()
+        )
+      `;
+      results.push('prismatic_forum_debate_turns ✓');
+    } catch (e: any) {
+      results.push(`prismatic_forum_debate_turns: ${e.message}`);
+    }
+
+    // ── prismatic_message_stats ─────────────────────────────────────────────────
+    try {
+      await sql`
+        CREATE TABLE IF NOT EXISTS public.prismatic_message_stats (
+          user_id        VARCHAR(64) NOT NULL,
+          date          DATE NOT NULL,
+          message_count INTEGER NOT NULL DEFAULT 0,
+          PRIMARY KEY (user_id, date)
+        )
+      `;
+      results.push('prismatic_message_stats ✓');
+    } catch (e: any) {
+      results.push(`prismatic_message_stats: ${e.message}`);
+    }
+
+    // ── prismatic_forum_debate_visitors ─────────────────────────────────────────
     try {
       await sql`
         CREATE TABLE IF NOT EXISTS public.prismatic_forum_debate_visitors (
@@ -107,17 +164,43 @@ export async function POST(req: NextRequest) {
           created_at    TIMESTAMPTZ DEFAULT NOW()
         )
       `;
-      results.push('Created prismatic_forum_debate_visitors table');
+      results.push('prismatic_forum_debate_visitors ✓');
     } catch (e: any) {
-      results.push(`Debate visitors table: ${e.message}`);
+      results.push(`prismatic_forum_debate_visitors: ${e.message}`);
     }
 
-    // Create index
+    // ── Indexes ────────────────────────────────────────────────────────────────
     try {
-      await sql`CREATE INDEX IF NOT EXISTS idx_debate_visitors_debate_id ON public.prismatic_forum_debate_visitors(debate_id)`;
-      results.push('Created debate visitor index');
+      await sql`CREATE INDEX IF NOT EXISTS idx_comments_tenant ON public.prismatic_comments(tenant_id)`;
+      await sql`CREATE INDEX IF NOT EXISTS idx_comments_created ON public.prismatic_comments(created_at DESC)`;
+      await sql`CREATE INDEX IF NOT EXISTS idx_comments_pinned ON public.prismatic_comments(is_pinned DESC, created_at DESC)`;
+      await sql`CREATE INDEX IF NOT EXISTS idx_guardian_schedule_date ON public.prismatic_guardian_schedule(date)`;
+      await sql`CREATE INDEX IF NOT EXISTS idx_guardian_stats_date ON public.prismatic_guardian_stats(date)`;
+      await sql`CREATE INDEX IF NOT EXISTS idx_forum_debates_date ON public.prismatic_forum_debates(date DESC)`;
+      await sql`CREATE INDEX IF NOT EXISTS idx_forum_debate_turns_debate ON public.prismatic_forum_debate_turns(debate_id)`;
+      await sql`CREATE INDEX IF NOT EXISTS idx_debate_visitors_debate ON public.prismatic_forum_debate_visitors(debate_id)`;
+      results.push('Indexes ✓');
     } catch (e: any) {
-      results.push(`Debate visitor index: ${e.message}`);
+      results.push(`Indexes: ${e.message}`);
+    }
+
+    // ── Sample comments ─────────────────────────────────────────────────────────
+    try {
+      const existingComments = await sql`SELECT COUNT(*) as count FROM public.prismatic_comments`;
+      if (Number(existingComments[0]?.count || 0) === 0) {
+        await sql`
+          INSERT INTO public.prismatic_comments (content, author_name, author_avatar, display_name, is_pinned)
+          VALUES
+            ('这个产品太棒了！让乔布斯和芒格同时思考我的问题，感觉打开了新世界的大门 🚀', '产品爱好者', '🚀', '产品爱好者', true),
+            ('作为一个哲学爱好者，终于找到了可以深入探讨斯多葛主义的工具。费曼的思维方式也让人受益匪浅！', '哲学探索者', '🦉', '哲学探索者', false),
+            ('张一鸣的实用主义思维对我做产品很有启发，强力推荐！', '创业者小明', '💡', '创业者小明', false)
+        `;
+        results.push('Sample comments ✓');
+      } else {
+        results.push('Sample comments (already exist)');
+      }
+    } catch (e: any) {
+      results.push(`Sample data: ${e.message}`);
     }
 
     return NextResponse.json({ success: true, results });
@@ -127,16 +210,31 @@ export async function POST(req: NextRequest) {
   }
 }
 
-// Also allow GET for checking migration status
+// GET for checking migration status (public)
 export async function GET() {
   try {
     const sql = neon(process.env.DATABASE_URL!);
-    const result = await sql`SELECT COUNT(*) as count FROM public.prismatic_comments`;
-    return NextResponse.json({ 
-      tableExists: true, 
-      commentCount: Number(result[0]?.count || 0) 
-    });
+    const tableResults: Record<string, boolean> = {};
+    const tables = [
+      'prismatic_comments',
+      'prismatic_guardian_schedule',
+      'prismatic_guardian_stats',
+      'prismatic_persona_interactions',
+      'prismatic_forum_debates',
+      'prismatic_forum_debate_turns',
+      'prismatic_message_stats',
+      'prismatic_forum_debate_visitors',
+    ];
+    for (const t of tables) {
+      try {
+        const r = await sql`SELECT 1 FROM public.${sql.unsafe(t)} LIMIT 1`;
+        tableResults[t] = true;
+      } catch {
+        tableResults[t] = false;
+      }
+    }
+    return NextResponse.json({ tables: tableResults });
   } catch (error: any) {
-    return NextResponse.json({ tableExists: false, error: error.message });
+    return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }

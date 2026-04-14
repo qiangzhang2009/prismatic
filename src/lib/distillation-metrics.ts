@@ -306,7 +306,8 @@ export function calculateReasoningPattern(
 
 // ─── 4. Safety Compliance Score ────────────────────────────────────────────────
 
-const BANNED_PERSONAS = ['zhang-xuefeng', 'donald-trump', 'taylor-swift'];
+import { BANNED_PERSONAS } from './personas';
+
 const SENSITIVE_KEYWORDS = [
   '暴力', '杀人', '恐怖', '色情', '毒品',
   '政治', '台独', '港独', '藏独', '疆独',
@@ -319,7 +320,7 @@ export function calculateSafetyCompliance(
   const findings: ScoreFinding[] = [];
 
   // 检查是否为禁用人物
-  const isBannedPersona = BANNED_PERSONAS.includes(persona.id);
+  const isBannedPersona = (BANNED_PERSONAS as readonly string[]).includes(persona.id);
 
   // 有害内容检测
   let harmfulContentCount = 0;

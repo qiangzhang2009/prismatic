@@ -11,16 +11,17 @@
 
 import { neon, NeonQueryFunction } from '@neondatabase/serverless';
 import { getPersonasByIds } from '@/lib/personas';
+import { BANNED_PERSONAS } from '@/lib/personas';
 
-function createSql() {
-  const connectionString = process.env.DATABASE_URL;
-  if (!connectionString) throw new Error('DATABASE_URL environment variable is not set');
-  return neon(connectionString) as NeonQueryFunction<false, false>;
-}
+// Module-level singleton
+let _sql: NeonQueryFunction<false, false> | null = null;
 
-let _sql: ReturnType<typeof createSql> | null = null;
-function getSql(): ReturnType<typeof createSql> {
-  if (!_sql) _sql = createSql();
+function getSql(): NeonQueryFunction<false, false> {
+  if (!_sql) {
+    const connectionString = process.env.DATABASE_URL;
+    if (!connectionString) throw new Error('DATABASE_URL environment variable is not set');
+    _sql = neon(connectionString) as NeonQueryFunction<false, false>;
+  }
   return _sql;
 }
 
@@ -67,12 +68,15 @@ const SHIFT_THEMES = {
  * is the same for all users looking at the same week.
  */
 function generateWeeklySchedule(weekStart: Date): Array<{ slot: number; personaId: string; shiftTheme: string }> {
-  const personas = getPersonasByIds([
+  const allPersonas = getPersonasByIds([
     'steve-jobs', 'warren-buffett', 'richard-feynman',
     'socrates', 'marcus-aurelius', 'confucius',
     'elon-musk', 'charlie-munger', 'jordan-peterson',
     'jacque-fresko', 'templars', 'tao',
   ]);
+
+  // Filter out banned personas (e.g. zhang-xuefeng for sensitivity)
+  const personas = allPersonas.filter(p => !(BANNED_PERSONAS as readonly string[]).includes(p.id));
 
   if (personas.length < 9) {
     // Fallback: use IDs directly if personas not loaded

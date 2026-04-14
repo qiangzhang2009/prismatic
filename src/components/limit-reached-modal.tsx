@@ -52,7 +52,7 @@ export function LimitReachedModal({ isOpen, onClose }: LimitReachedModalProps) {
                     今日对话额度已用完
                   </h2>
                   <p className="text-sm text-text-secondary">
-                    每位用户每天可对话 60 次
+                    每位用户每天可对话 10 次
                   </p>
                 </div>
               </div>
