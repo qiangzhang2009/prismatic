@@ -8,6 +8,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
+import Image from 'next/image';
 import {
   Flame, Users, Clock, ArrowLeft,
   MessageSquare, ThumbsUp, Eye, ChevronRight,
@@ -35,6 +36,8 @@ interface VisitorContribution {
   content: string;
   createdAt: string;
   visitorId: string;
+  nickname: string;
+  avatarUrl: string;
   isAiResponse: boolean;
 }
 
@@ -117,11 +120,17 @@ function VisitorCard({ contribution }: { contribution: VisitorContribution }) {
       className="rounded-xl p-4 bg-white/5 border border-white/10"
     >
       <div className="flex items-start gap-3">
-        <div className="w-8 h-8 rounded-full bg-gray-600/50 border border-white/10 flex items-center justify-center flex-shrink-0">
-          <User className="w-4 h-4 text-gray-400" />
-        </div>
+        <Image
+          src={contribution.avatarUrl}
+          alt={contribution.nickname}
+          width={32}
+          height={32}
+          unoptimized
+          className="w-8 h-8 rounded-full object-cover flex-shrink-0"
+        />
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-1">
+            <span className="text-sm font-medium text-gray-200">{contribution.nickname}</span>
             {contribution.isAiResponse && (
               <span className="inline-flex items-center gap-0.5 text-[10px] px-1.5 py-0.5 rounded bg-prism-blue/20 text-prism-blue">
                 <Sparkles className="w-2.5 h-2.5" />
@@ -280,7 +289,7 @@ export function DebateArenaClient({ debate, preview, error }: DebateArenaClientP
 
   const personas = debate ? getPersonasByIds(debate.participantIds) : [];
   const personaMap = new Map(personas.map((p) => [p.id, p]));
-  const canParticipate = debate && (debate.status === 'scheduled' || debate.status === 'running');
+  const canParticipate = debate && (debate.status === 'scheduled' || debate.status === 'running' || debate.status === 'completed');
 
   if (error) {
     return (
@@ -573,7 +582,9 @@ export function DebateArenaClient({ debate, preview, error }: DebateArenaClientP
                         {/* Contribution form */}
                         <form onSubmit={handleSubmitContribution} className="bg-white/5 rounded-2xl p-4 border border-white/10">
                           <div className="flex items-center gap-2 mb-3">
-                            <User className="w-4 h-4 text-gray-400" />
+                            <div className="w-8 h-8 rounded-full bg-gray-600/50 border border-white/10 flex items-center justify-center flex-shrink-0 overflow-hidden">
+                              <User className="w-4 h-4 text-gray-400" />
+                            </div>
                             <span className="text-sm text-gray-400">围观群众发言</span>
                           </div>
                           <textarea
@@ -639,18 +650,55 @@ export function DebateArenaClient({ debate, preview, error }: DebateArenaClientP
                     ))}
                   </div>
 
-                  {/* Visitor contributions after turns (completed debate) */}
-                  {debate.status === 'completed' && contributions.length > 0 && (
-                    <div className="mt-8">
-                      <div className="text-sm font-medium text-gray-400 mb-4 flex items-center gap-2">
-                        <Users className="w-4 h-4" />
-                        围观发言 ({contributions.length})
+                  {/* Visitor contributions after turns (completed debate) — always visible */}
+                  {debate.status === 'completed' && (
+                    <div className="mt-8 space-y-4">
+                      <div className="flex items-center gap-2">
+                        <Users className="w-4 h-4 text-gray-400" />
+                        <span className="text-sm font-medium text-gray-400">围观发言</span>
+                        <span className="text-xs text-gray-600">辩论结束后仍可继续讨论</span>
                       </div>
-                      <div className="space-y-3">
-                        {contributions.map((c) => (
-                          <VisitorCard key={c.id} contribution={c} />
-                        ))}
-                      </div>
+                      <form onSubmit={handleSubmitContribution} className="bg-white/5 rounded-2xl p-4 border border-white/10">
+                        <div className="flex items-center gap-2 mb-3">
+                          <div className="w-8 h-8 rounded-full bg-gray-600/50 border border-white/10 flex items-center justify-center flex-shrink-0 overflow-hidden">
+                            <User className="w-4 h-4 text-gray-400" />
+                          </div>
+                          <span className="text-sm text-gray-400">围观群众发言</span>
+                        </div>
+                        <textarea
+                          value={contributionText}
+                          onChange={(e) => setContributionText(e.target.value)}
+                          placeholder="辩论已结束，在这里写下你的观点或回应..."
+                          maxLength={300}
+                          rows={3}
+                          className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-gray-200 placeholder:text-gray-500 focus:outline-none focus:border-prism-blue/50 transition-colors resize-none mb-3 text-sm"
+                        />
+                        {contributionError && (
+                          <div className="mb-3 text-xs text-red-400">{contributionError}</div>
+                        )}
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs text-gray-500">{contributionText.length}/300</span>
+                          <button
+                            type="submit"
+                            disabled={!contributionText.trim() || submittingContribution}
+                            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-prism-gradient text-white text-sm disabled:opacity-50 transition-opacity hover:opacity-90"
+                          >
+                            {submittingContribution ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+                            {submittingContribution ? '发送中...' : '发言'}
+                          </button>
+                        </div>
+                      </form>
+                      {contributions.length > 0 ? (
+                        <div className="space-y-3">
+                          {contributions.map((c) => (
+                            <VisitorCard key={c.id} contribution={c} />
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="text-center py-6 text-xs text-gray-500">
+                          还没有围观发言，来说第一句吧 ✨
+                        </div>
+                      )}
                     </div>
                   )}
 

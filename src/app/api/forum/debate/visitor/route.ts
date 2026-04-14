@@ -7,7 +7,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { neon } from '@neondatabase/serverless';
 import { cookies } from 'next/headers';
-import { getPersonasByIds } from '@/lib/personas';
 
 export const runtime = 'nodejs';
 
@@ -54,13 +53,20 @@ export async function GET(req: NextRequest) {
     `;
 
     return NextResponse.json({
-      contributions: (rows as any[]).map((r) => ({
-        id: r.id,
-        content: r.content,
-        createdAt: r.created_at instanceof Date ? r.created_at.toISOString() : String(r.created_at),
-        visitorId: r.visitor_id,
-        isAiResponse: r.is_ai_response ?? false,
-      })),
+      contributions: (rows as any[]).map((r) => {
+        const nickname = generateNicknameFromVisitorId(r.visitor_id);
+        const avatarSeed = generateAvatarSeedFromVisitorId(r.visitor_id);
+        const avatarUrl = `https://api.dicebear.com/7.x/avataaars/png?seed=${avatarSeed}&backgroundColor=b6e3f4,c0aede,d1d4f9,ffd5dc,ffdfbf`;
+        return {
+          id: r.id,
+          content: r.content,
+          createdAt: r.created_at instanceof Date ? r.created_at.toISOString() : String(r.created_at),
+          visitorId: r.visitor_id,
+          nickname,
+          avatarUrl,
+          isAiResponse: r.is_ai_response ?? false,
+        };
+      }),
     });
   } catch (error) {
     console.error('[Debate Visitor GET] Error:', error);
@@ -104,16 +110,18 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Debate not found' }, { status: 404 });
     }
 
-    // Allow participation in scheduled (waiting to start) or running debates
-    if (debate.status === 'completed') {
-      return NextResponse.json({ error: '辩论已结束，不能再发言' }, { status: 400 });
-    }
+    // Allow participation in any debate status (scheduled / running / completed)
+    // "辩论结束后可继续讨论" — visitors can always contribute
 
     const visitorId = await getVisitorId();
     const ipHash = ip.slice(0, 64);
 
     // Set cookie for new visitors
     await setVisitorCookie(visitorId);
+
+    const nickname = generateNicknameFromVisitorId(visitorId);
+    const avatarSeed = generateAvatarSeedFromVisitorId(visitorId);
+    const avatarUrl = `https://api.dicebear.com/7.x/avataaars/png?seed=${avatarSeed}&backgroundColor=b6e3f4,c0aede,d1d4f9,ffd5dc,ffdfbf`;
 
     const rows = await sql`
       INSERT INTO prismatic_forum_debate_visitors (debate_id, visitor_id, content, ip_hash)
@@ -130,6 +138,8 @@ export async function POST(req: NextRequest) {
           ? (rows[0] as any).created_at.toISOString()
           : String((rows[0] as any).created_at),
         visitorId,
+        nickname,
+        avatarUrl,
         isAiResponse: false,
       },
     });
@@ -146,6 +156,37 @@ async function getVisitorId(): Promise<string> {
     visitorId = crypto.randomUUID();
   }
   return visitorId;
+}
+
+function generateNicknameFromVisitorId(visitorId: string): string {
+  const ADJECTIVES = [
+    '好奇的', '安静的', '热情的', '浪漫的', '理性的', '忧郁的', '乐观的', '深思的',
+    '勇敢的', '温柔的', '神秘的', '幽默的', '冷静的', '活泼的', '文艺的', '务实的',
+  ];
+  const ANIMALS = [
+    '松鼠', '小鹿', '飞鸟', '游鱼', '萤火虫', '蝴蝶', '小猫', '小兔',
+    '海豚', '企鹅', '熊猫', '狐狸', '狼', '鹤', '鹰', '熊',
+  ];
+  // Derive deterministic nickname from visitorId so it stays consistent per visitor
+  let hash = 0;
+  for (let i = 0; i < visitorId.length; i++) {
+    hash = ((hash << 5) - hash) + visitorId.charCodeAt(i);
+    hash = hash & hash;
+  }
+  const adj = ADJECTIVES[Math.abs(hash) % ADJECTIVES.length];
+  const animal = ANIMALS[Math.abs(hash >> 4) % ANIMALS.length];
+  return `${adj}${animal}`;
+}
+
+function generateAvatarSeedFromVisitorId(visitorId: string): string {
+  // Create a deterministic seed from visitorId for DiceBear avatar
+  let hash = 0;
+  for (let i = 0; i < visitorId.length; i++) {
+    hash = ((hash << 5) - hash) + visitorId.charCodeAt(i);
+    hash = hash & hash;
+  }
+  const seed = Math.abs(hash).toString(16).padStart(8, '0');
+  return seed;
 }
 
 async function setVisitorCookie(visitorId: string): Promise<void> {

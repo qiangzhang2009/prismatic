@@ -1056,7 +1056,7 @@ export function CommentsSection() {
                 <span className="text-xs text-text-secondary">
                   今日辩题：<span className="text-text-primary font-medium">{debateTopic}</span>
                 </span>
-                <span className="text-[10px] text-text-muted/60">围观守望者辩论，也在下方说说你的观点</span>
+                <span className="text-[10px] text-text-muted/60">围观守望者辩论，也可以在下方说说你的观点，辩论结束后仍可继续参与讨论</span>
               </div>
             </div>
           )}
