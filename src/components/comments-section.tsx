@@ -883,33 +883,11 @@ export function CommentsSection() {
     } finally {
       setLoading(false);
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sort, dateFilter]);
 
   useEffect(() => {
-    setPage(0);
-    setComments([]);
-    setHasMore(false);
-    // Fetch fresh data when sort or date changes
-    const fetchFresh = async () => {
-      try {
-        setLoading(true);
-        const url = `/api/comments?limit=${LIMIT}&offset=0&sort=${sort}${dateFilter ? `&date=${dateFilter}` : ''}`;
-        const res = await fetch(url);
-        if (!res.ok) throw new Error('Failed to fetch');
-        const data = await res.json();
-        setComments(data.comments || []);
-        setTotal(data.total || 0);
-        setHasMore(data.hasMore || false);
-        setPage(0);
-      } catch (err) {
-        console.error('Failed to fetch comments:', err);
-        setError('加载评论失败');
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchFresh();
+    // Fetch fresh data when sort or date changes — use shared callback to avoid double-fetch
+    fetchComments(0, true);
 
     // Also fetch today's debate topic for community engagement hook
     fetch('/api/forum/debate')
@@ -918,7 +896,8 @@ export function CommentsSection() {
         if (data?.debate?.topic) setDebateTopic(data.debate.topic);
       })
       .catch(() => {});
-  }, [sort, dateFilter]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sort, dateFilter]); // intentionally omit fetchComments deps to avoid stale closures
 
   const loadMore = () => fetchComments(page + 1, false);
 

@@ -224,6 +224,7 @@ export async function getGuardiansForDate(date: string): Promise<Array<{
   personaName: string;
   personaNameZh: string;
   personaTagline: string;
+  personaSlug: string;
   gradientFrom: string;
   gradientTo: string;
   shiftTheme: string;

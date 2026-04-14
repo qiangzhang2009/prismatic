@@ -46,6 +46,7 @@ export async function GET(req: NextRequest) {
         slot: r.slot,
         personaId: r.persona_id,
         personaNameZh: persona?.nameZh || r.persona_id,
+        personaSlug: persona?.slug || r.persona_id,
         accentColor: persona?.accentColor || '#8b5cf6',
         gradientFrom: persona?.gradientFrom || '#8b5cf6',
         gradientTo: persona?.gradientTo || '#c084fc',

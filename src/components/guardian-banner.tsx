@@ -39,6 +39,7 @@ type ScheduleDay = Array<{
   slot: number;
   personaId: string;
   personaNameZh: string;
+  personaSlug: string;
   gradientFrom: string;
   gradientTo: string;
   shiftTheme: string;
@@ -324,13 +325,12 @@ export function GuardianBanner() {
               const progressPct = Math.min(100, Math.round((count / target) * 100));
 
               return (
-                <motion.a
+                <motion.div
                   key={`${guardian.personaId}-${guardian.slot}`}
-                  href={`/personas/${guardian.personaSlug}`}
                   initial={{ opacity: 0, y: 12 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: i * 0.1 }}
-                  className="group relative rounded-xl border bg-bg-elevated p-4 transition-all hover:shadow-lg hover:shadow-black/20 block"
+                  className="group relative rounded-xl border bg-bg-elevated p-4 transition-all hover:shadow-lg hover:shadow-black/20"
                   style={{
                     borderColor: isCompleted ? guardian.gradientFrom : 'var(--border-subtle)',
                   }}
@@ -347,7 +347,7 @@ export function GuardianBanner() {
                   </div>
 
                   <Link
-                    href={`/personas/${guardian.personaId}`}
+                    href={`/personas/${guardian.personaSlug || guardian.personaId}`}
                     className="block flex items-center gap-3 mt-1 mb-3 hover:opacity-80 transition-opacity"
                   >
                     <div
@@ -413,7 +413,7 @@ export function GuardianBanner() {
                       background: `radial-gradient(ellipse at center, ${guardian.gradientFrom}08 0%, transparent 70%)`,
                     }}
                   />
-                </motion.a>
+                </motion.div>
               );
             })}
           </div>
@@ -459,15 +459,16 @@ export function GuardianBanner() {
                 {debate?.status === 'running' && (
                   <div className="mt-3 pt-3 border-t border-red-500/20">
                     <button
-                      onClick={() => setShowParticipation(true)}
+                      onClick={() => { setShowParticipation(true); document.getElementById('debate-participation')?.scrollIntoView({ behavior: 'smooth', block: 'center' }); }}
                       className={cn(
                         'w-full flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-semibold transition-all',
-                        'bg-gradient-to-r from-red-500/20 to-orange-500/20 border border-red-500/40',
-                        'text-red-300 hover:from-red-500/30 hover:to-orange-500/30 hover:scale-[1.01]'
+                        'bg-gradient-to-r from-red-500/20 to-orange-500/20 border border-red-500/40 animate-pulse',
+                        'text-red-300 hover:from-red-500/30 hover:to-orange-500/30'
                       )}
+                      style={{ boxShadow: '0 0 20px rgba(239,68,68,0.15)' }}
                     >
                       <MessageSquare className="w-4 h-4" />
-                      🔥 我也想说几句 — 围观也能发声
+                      🔥 我想说几句 — 围观也能发声
                     </button>
                   </div>
                 )}
@@ -565,7 +566,7 @@ export function GuardianBanner() {
 
               {/* Visitor participation */}
               {canParticipate && (
-                <div className="bg-white/5 border border-white/10 rounded-xl p-4">
+                <div id="debate-participation" className="bg-white/5 border border-white/10 rounded-xl p-4">
                   <button
                     onClick={() => setShowParticipation(!showParticipation)}
                     className={cn(
@@ -584,7 +585,7 @@ export function GuardianBanner() {
                       <textarea
                         value={contributionText}
                         onChange={e => setContributionText(e.target.value)}
-                        placeholder="写下你的观点..."
+                        placeholder="围绕今日辩题写下你的观点..."
                         maxLength={300}
                         rows={2}
                         className="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-text-primary placeholder:text-text-muted text-xs focus:outline-none focus:border-prism-blue/50 transition-colors resize-none"
