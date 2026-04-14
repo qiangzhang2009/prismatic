@@ -23,6 +23,9 @@ interface DebateArenaClientProps {
     topic: string;
     guardians: Array<{ personaId: string; personaNameZh: string }>;
     estimatedTurns: number;
+    estimatedStartTime?: string;
+    highlights?: string[];
+    conflicts?: string[];
   };
   error?: string;
 }
@@ -146,7 +149,7 @@ export function DebateArenaClient({ debate, preview, error }: DebateArenaClientP
   const [isAdmin, setIsAdmin] = useState(false);
   const [adminLoading, setAdminLoading] = useState(false);
   const [adminMessage, setAdminMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
-  const [showAdminPanel, setShowAdminPanel] = useState(false);
+  const [showAdminPanel, setShowAdminPanel] = useState(true); // 默认展开，方便管理员操作
   const [customTopic, setCustomTopic] = useState('');
 
   // Visitor participation state
@@ -425,24 +428,81 @@ export function DebateArenaClient({ debate, preview, error }: DebateArenaClientP
 
               {/* No debate yet — show preview */}
               {!debate && preview && (
-                <div className="text-center py-16">
-                  <div className="text-5xl mb-4">🔥</div>
-                  <h2 className="text-xl font-bold text-white mb-2">今日辩论即将开始</h2>
-                  <p className="text-gray-400 text-sm mb-6">
-                    {preview.guardians.map((g) => g.personaNameZh).join('、')} 三位思想家将就以下话题展开辩论
-                  </p>
-                  <div className="bg-white/5 rounded-2xl p-5 max-w-lg mx-auto mb-6 border border-white/10">
-                    <div className="text-xs text-gray-500 mb-2">今日话题</div>
-                    <div className="text-lg font-bold text-white">{preview.topic}</div>
+                <div className="space-y-6 py-6">
+                  {/* 辩论公告头部 */}
+                  <div className="text-center">
+                    <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-red-500/20 bg-red-500/5 mb-4">
+                      <span className="relative flex h-2 w-2">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                        <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
+                      </span>
+                      <span className="text-xs text-red-400 font-medium">今日辩论 · 即将开始</span>
+                    </div>
+                    <h2 className="text-2xl font-bold text-white mb-3">🔥 {preview.topic}</h2>
                   </div>
-                  <div className="flex items-center justify-center gap-3 mb-6">
-                    {preview.guardians.map((g) => (
-                      <PersonaBubble key={g.personaId} personaId={g.personaId} name={g.personaNameZh} size="lg" />
-                    ))}
+
+                  {/* 辩论规则卡片 */}
+                  <div className="bg-gradient-to-r from-amber-500/5 to-orange-500/5 border border-amber-500/20 rounded-2xl p-5">
+                    <div className="flex items-center gap-2 mb-4">
+                      <span className="text-base">📋</span>
+                      <h3 className="text-sm font-semibold text-amber-300">辩论规则</h3>
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="flex items-start gap-2">
+                        <span className="text-xs text-amber-400/60 mt-0.5">01</span>
+                        <div>
+                          <p className="text-xs font-medium text-amber-200">开场陈述</p>
+                          <p className="text-[11px] text-amber-400/60">每位思想家发表开场观点</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-2">
+                        <span className="text-xs text-amber-400/60 mt-0.5">02</span>
+                        <div>
+                          <p className="text-xs font-medium text-amber-200">交叉质询</p>
+                          <p className="text-[11px] text-amber-400/60">3轮深度辩论与回应</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-2">
+                        <span className="text-xs text-amber-400/60 mt-0.5">03</span>
+                        <div>
+                          <p className="text-xs font-medium text-amber-200">精彩总结</p>
+                          <p className="text-[11px] text-amber-400/60">主持人提炼各方观点</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-2">
+                        <span className="text-xs text-amber-400/60 mt-0.5">04</span>
+                        <div>
+                          <p className="text-xs font-medium text-amber-200">观众互动</p>
+                          <p className="text-[11px] text-amber-400/60">围观者可发表观点参与</p>
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                  <p className="text-xs text-gray-500">
-                    辩论将在开始后自动进行，你可以围观并参与讨论
-                  </p>
+
+                  {/* 今日辩手 */}
+                  <div className="text-center">
+                    <p className="text-xs text-gray-500 mb-4">今日辩手</p>
+                    <div className="flex items-center justify-center gap-4 mb-4">
+                      {preview.guardians.map((g) => (
+                        <div key={g.personaId} className="flex flex-col items-center gap-2">
+                          <PersonaBubble personaId={g.personaId} name={g.personaNameZh} size="lg" />
+                          <span className="text-sm text-gray-300">{g.personaNameZh}</span>
+                        </div>
+                      ))}
+                    </div>
+                    {preview.estimatedStartTime && (
+                      <p className="text-xs text-gray-500">
+                        预计开始时间：<span className="text-gray-300">{preview.estimatedStartTime}</span>
+                      </p>
+                    )}
+                  </div>
+
+                  {/* 围观提示 */}
+                  <div className="text-center py-4 border-t border-white/5">
+                    <p className="text-xs text-gray-500">
+                      辩论开始后自动进行，你可以围观并参与讨论
+                    </p>
+                  </div>
                 </div>
               )}
 

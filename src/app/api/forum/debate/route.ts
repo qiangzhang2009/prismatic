@@ -15,6 +15,19 @@ import { getDebateByDate, getRecentDebates, getDebateById, incrementDebateView, 
 
 export const runtime = 'nodejs';
 
+/** Runs an async function with an explicit timeout. */
+async function withTimeout<T>(promise: Promise<T>, ms: number, errorMsg: string): Promise<T> {
+  let timeoutId: ReturnType<typeof setTimeout>;
+  const timeout = new Promise<never>((_, reject) => {
+    timeoutId = setTimeout(() => reject(new Error(errorMsg)), ms);
+  });
+  try {
+    return await Promise.race([promise, timeout]);
+  } finally {
+    clearTimeout(timeoutId!);
+  }
+}
+
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const path = searchParams.get('path');
@@ -78,16 +91,45 @@ export async function POST(request: NextRequest) {
     if (action === 'start') {
       const adminId = await authenticateAdminRequest(request);
       if (!adminId) {
-        return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
+        return NextResponse.json(
+          { error: 'Admin access required. Please ensure you are logged in as an ADMIN user.' },
+          { status: 403 }
+        );
       }
       if (!debateId) {
         return NextResponse.json({ error: 'debateId required' }, { status: 400 });
       }
-      const result = await startScheduledDebate(debateId);
+      // Timeout: give debate generation up to 55s before Vercel kills the function
+      const result = await withTimeout(
+        startScheduledDebate(debateId),
+        55_000,
+        'Debate generation timed out (55s limit). Try again.'
+      );
       if (!result.success) {
         return NextResponse.json({ error: result.error }, { status: 400 });
       }
       return NextResponse.json({ success: true, debateId });
+    }
+
+    // POST /api/forum/debate (action=create) — Admin: create a new debate immediately (runs it too)
+    if (action === 'create') {
+      const adminId = await authenticateAdminRequest(request);
+      if (!adminId) {
+        return NextResponse.json(
+          { error: 'Admin access required. Please ensure you are logged in as an ADMIN user.' },
+          { status: 403 }
+        );
+      }
+      // Runs the full debate immediately (scheduled → running → completed)
+      const result = await withTimeout(
+        runDailyDebate(topic),
+        55_000,
+        'Debate generation timed out (55s limit). Try again.'
+      );
+      if (!result.success) {
+        return NextResponse.json({ error: result.error }, { status: 400 });
+      }
+      return NextResponse.json({ success: true, debateId: result.debateId, topic: result.topic });
     }
 
     // POST /api/forum/debate (no action) — Run daily debate (admin only in future, cron for now)
@@ -101,7 +143,12 @@ export async function POST(request: NextRequest) {
           return NextResponse.json({ error: 'Admin or valid cron secret required' }, { status: 403 });
         }
       }
-      const result = await runDailyDebate(topic);
+      // Timeout: Vercel Serverless max is ~10s for Hobby / 60s for Pro
+      const result = await withTimeout(
+        runDailyDebate(topic),
+        55_000,
+        'Debate generation timed out (55s limit). Try again.'
+      );
       if (!result.success) {
         return NextResponse.json({ error: result.error }, { status: 500 });
       }
