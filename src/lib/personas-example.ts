@@ -48,7 +48,7 @@ PERSONAS_EXAMPLE['example-persona'] = {
   name: 'Example Persona',
   nameZh: '示例人物',
   nameEn: 'Example',
-  domain: ['thinking', 'strategy'],
+  domain: ['philosophy', 'strategy'],
   tagline: 'A minimal example showing the Persona structure',
   taglineZh: '展示人物数据结构的最小示例',
   avatar: 'https://ui-avatars.com/api/?name=EP&background=4d96ff&color=fff&bold=true&format=svg',
