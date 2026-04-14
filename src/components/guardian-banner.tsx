@@ -11,7 +11,7 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
-import { Shield, Sparkles, Calendar, ChevronRight, RefreshCw, Eye, CheckCircle2, Clock } from 'lucide-react';
+import { Shield, Sparkles, Calendar, ChevronRight, RefreshCw, Eye, CheckCircle2, Clock, Flame, Play, Loader2 } from 'lucide-react';
 
 interface Guardian {
   slot: number;
@@ -28,18 +28,16 @@ interface Guardian {
   progress?: number;
 }
 
-interface ScheduleDay {
-  date: string;
-  guardians: Array<{
-    slot: number;
-    personaId: string;
-    personaNameZh: string;
-    gradientFrom: string;
-    gradientTo: string;
-    shiftTheme: string;
-    maxInteractions: number;
-  }>;
-}
+// ScheduleDay is the value type in the schedule Record — an array of guardian entries for one date
+type ScheduleDay = Array<{
+  slot: number;
+  personaId: string;
+  personaNameZh: string;
+  gradientFrom: string;
+  gradientTo: string;
+  shiftTheme: string;
+  maxInteractions: number;
+}>;
 
 function getTimeGreeting(): string {
   const hour = new Date().getHours();
@@ -60,18 +58,41 @@ export function GuardianBanner() {
   const [showCalendar, setShowCalendar] = useState(false);
   const [mounted, setMounted] = useState(false);
 
+  // Debate state
+  const [debateInfo, setDebateInfo] = useState<{
+    id: number;
+    topic: string;
+    status: string;
+    participantIds: string[];
+  } | null>(null);
+  const [debatePreview, setDebatePreview] = useState<{
+    topic: string;
+    guardians: Array<{ personaId: string; personaNameZh: string }>;
+    estimatedTurns: number;
+    estimatedStartTime: string;
+    highlights: string[];
+    conflicts: string[];
+  } | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [adminLoading, setAdminLoading] = useState(false);
+  const [adminMsg, setAdminMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+
   useEffect(() => { setMounted(true); }, []);
 
   const fetchAll = async () => {
     setLoading(true);
     try {
-      const [guardianRes, statsRes] = await Promise.all([
+      const [guardianRes, statsRes, debateRes, meRes] = await Promise.all([
         fetch('/api/guardian'),
         fetch('/api/guardian/stats'),
+        fetch('/api/forum/debate'),
+        fetch('/api/auth/me'),
       ]);
 
       const guardianData = guardianRes.ok ? await guardianRes.json() : {};
       const statsData = statsRes.ok ? await statsRes.json() : {};
+      const debateData = debateRes.ok ? await debateRes.json() : {};
+      const meData = meRes.ok ? await meRes.json() : {};
 
       const guardiansFromApi: any[] = Array.isArray(guardianData.guardians) ? guardianData.guardians : [];
       const statsMap: Record<string, any> = {};
@@ -90,6 +111,9 @@ export function GuardianBanner() {
       });
 
       setGuardians(merged);
+      setDebateInfo(debateData.debate ?? null);
+      setDebatePreview(debateData.preview ?? null);
+      setIsAdmin(meData?.user?.isAdmin === true);
     } catch {
       // ignore
     } finally {
@@ -104,6 +128,29 @@ export function GuardianBanner() {
   }, []);
 
   const slotLabels = ['壹', '贰', '叁'];
+
+  const handleAdminDebateAction = async () => {
+    setAdminLoading(true);
+    setAdminMsg(null);
+    try {
+      const res = await fetch('/api/forum/debate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'start', debateId: debateInfo?.id }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setAdminMsg({ type: 'success', text: '辩论已启动！' });
+        setTimeout(() => window.location.reload(), 1500);
+      } else {
+        setAdminMsg({ type: 'error', text: data.error || '启动失败' });
+      }
+    } catch {
+      setAdminMsg({ type: 'error', text: '网络错误' });
+    } finally {
+      setAdminLoading(false);
+    }
+  };
 
   return (
     <section className="relative overflow-hidden bg-bg-surface/50 border-y border-border-subtle">
@@ -268,9 +315,107 @@ export function GuardianBanner() {
         )}
 
         {/* Footer hint */}
-        <div className="mt-4 flex items-center justify-center gap-2 text-xs text-text-muted">
-          <Eye className="w-3 h-3" />
-          <span>发表评论，即有机会获得守望者回复</span>
+        <div className="mt-4 flex flex-col items-center gap-3">
+          {/* Debate Preview Card */}
+          {(debatePreview || debateInfo) && (
+            <div className="w-full max-w-md bg-gradient-to-r from-red-500/5 to-orange-500/5 border border-red-500/20 rounded-xl p-4">
+              <div className="flex items-center gap-2 mb-2">
+                <span className="text-lg">🔥</span>
+                <span className="text-sm font-semibold text-text-primary">
+                  {debateInfo?.status === 'running' ? '智辩场进行中' :
+                   debateInfo?.status === 'scheduled' ? '今日辩论预告' :
+                   '今日辩论预告'}
+                </span>
+                {debateInfo?.status === 'running' && (
+                  <span className="relative flex h-2 w-2">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
+                  </span>
+                )}
+              </div>
+              <div className="text-xs text-text-secondary mb-2">
+                辩题：<span className="text-text-primary font-medium">{debatePreview?.topic ?? debateInfo?.topic}</span>
+              </div>
+              {/* 辩论预告详情 */}
+              {(debatePreview || debateInfo) && (
+                <div className="mt-2 flex flex-wrap gap-1.5">
+                  {debatePreview?.highlights?.map((h, i) => (
+                    <span key={i} className="text-[10px] px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-400/80 border border-amber-500/20">
+                      {h}
+                    </span>
+                  ))}
+                </div>
+              )}
+              {/* 辩论矛盾点 */}
+              {debatePreview?.conflicts && debatePreview.conflicts.length > 0 && (
+                <div className="mt-2 space-y-1">
+                  {debatePreview.conflicts.slice(0, 2).map((c, i) => (
+                    <div key={i} className="flex items-start gap-1.5 text-[10px] text-text-muted">
+                      <span className="text-red-400/60 flex-shrink-0 mt-0.5">⚡</span>
+                      <span className="leading-relaxed">{c}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* 辩论时间预估 */}
+              {debatePreview?.estimatedStartTime && debateInfo?.status !== 'running' && (
+                <div className="mt-2 flex items-center gap-1 text-[10px] text-text-muted">
+                  <Clock className="w-3 h-3" />
+                  <span>预计 {debatePreview.estimatedStartTime} 开始 · 共 {debatePreview.estimatedTurns} 轮</span>
+                </div>
+              )}
+
+              {/* Admin Debate Controls */}
+              {isAdmin && (
+                <div className="mt-3 pt-3 border-t border-red-500/20">
+                  {adminMsg && (
+                    <div className={`text-xs mb-2 px-2 py-1 rounded ${adminMsg.type === 'success' ? 'bg-green-500/10 text-green-400' : 'bg-red-500/10 text-red-400'}`}>
+                      {adminMsg.text}
+                    </div>
+                  )}
+                  <div className="flex gap-2">
+                    {debateInfo?.status === 'scheduled' && (
+                      <button
+                        onClick={handleAdminDebateAction}
+                        disabled={adminLoading}
+                        className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-red-500/20 border border-red-500/40 text-red-400 text-xs font-medium hover:bg-red-500/30 disabled:opacity-50 transition-colors"
+                      >
+                        {adminLoading ? <Loader2 className="w-3 h-3 animate-spin" /> : <Play className="w-3 h-3" />}
+                        启动辩论
+                      </button>
+                    )}
+                    <Link
+                      href="/forum/debate"
+                      className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-text-secondary text-xs hover:text-text-primary hover:bg-white/10 transition-colors"
+                    >
+                      <Flame className="w-3 h-3" />
+                      {debateInfo?.status === 'running' ? '围观辩论' : '进入智辩场'}
+                    </Link>
+                  </div>
+                </div>
+              )}
+
+              {/* Non-admin: direct link */}
+              {!isAdmin && (
+                <div className="mt-2">
+                  <Link
+                    href="/forum/debate"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-xs font-medium hover:bg-red-500/20 transition-colors"
+                  >
+                    <Flame className="w-3 h-3" />
+                    {debateInfo?.status === 'running' ? '围观辩论进行中' :
+                     debateInfo?.status === 'scheduled' ? '查看辩论预告' : '查看今日辩论'}
+                  </Link>
+                </div>
+              )}
+            </div>
+          )}
+
+          <div className="flex items-center gap-2 text-xs text-text-muted">
+            <Eye className="w-3 h-3" />
+            <span>发表评论，即有机会获得守望者回复</span>
+          </div>
         </div>
       </div>
 
@@ -293,7 +438,7 @@ function GuardianCalendarModal({ onClose }: { onClose: () => void }) {
     fetch('/api/guardian/schedule?days=14')
       .then(r => r.ok ? r.json() : null)
       .then(data => {
-        if (data?.schedule && typeof data.schedule === 'object') {
+        if (data?.schedule && typeof data.schedule === 'object' && data.schedule !== null) {
           setSchedule(data.schedule as Record<string, ScheduleDay>);
         }
         setLoading(false);
@@ -372,7 +517,7 @@ function GuardianCalendarModal({ onClose }: { onClose: () => void }) {
 
                       {/* Guardians */}
                       <div className="flex-1 grid grid-cols-3 gap-2">
-                        {day.guardians.map((g) => (
+                        {day.map((g) => (
                           <div key={g.slot} className="flex items-center gap-1.5">
                             <div
                               className="w-5 h-5 rounded-full flex items-center justify-center text-white text-[10px] font-bold flex-shrink-0"

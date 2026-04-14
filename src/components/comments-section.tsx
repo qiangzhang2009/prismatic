@@ -497,6 +497,12 @@ function CommentItem({
               <span className="font-medium text-text-primary">
                 {comment.display_name || comment.author_name}
               </span>
+              {comment.gender && (
+                <span className="inline-flex items-center gap-0.5 text-[10px] text-text-muted/70 bg-bg-surface/50 px-1.5 py-0.5 rounded-full">
+                  {comment.gender === 'male' ? '♂' : comment.gender === 'female' ? '♀' : '⚥'}
+                  {comment.gender === 'male' ? '男' : comment.gender === 'female' ? '女' : '其他'}
+                </span>
+              )}
               {comment.location && (
                 <span className="inline-flex items-center gap-0.5 text-[10px] text-text-muted/70 bg-bg-surface/50 px-1.5 py-0.5 rounded-full">
                   <svg className="w-2.5 h-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -672,6 +678,12 @@ function CommentItem({
                         <span className="text-sm font-medium text-text-primary">
                           {reply.display_name || reply.author_name}
                         </span>
+                        {reply.gender && (
+                          <span className="inline-flex items-center gap-0.5 text-[10px] text-text-muted/60 bg-bg-surface/30 px-1.5 py-0.5 rounded-full">
+                            {reply.gender === 'male' ? '♂' : reply.gender === 'female' ? '♀' : '⚥'}
+                            {reply.gender === 'male' ? '男' : reply.gender === 'female' ? '女' : '其他'}
+                          </span>
+                        )}
                         {reply.location && (
                           <span className="inline-flex items-center gap-0.5 text-[10px] text-text-muted/60 bg-bg-surface/30 px-1.5 py-0.5 rounded-full">
                             {reply.location}

@@ -29,7 +29,7 @@ export default function RootLayout({
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         {/* Prismatic Analytics Tracking SDK */}
         <Script
-          src="/dist/zxq-tracking-v2.min.js"
+          src="/api/tracking-sdk"
           strategy="afterInteractive"
           crossOrigin="anonymous"
         />

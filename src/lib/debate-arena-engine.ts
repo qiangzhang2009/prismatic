@@ -20,20 +20,19 @@ import {
   DAILY_LIMITS,
 } from '@/lib/constants';
 
-function createSql() {
-  const connectionString = process.env.DATABASE_URL;
-  if (!connectionString) throw new Error('DATABASE_URL not set');
-  return neon(connectionString) as NeonQueryFunction<false, false>;
-}
-
-let _sql: ReturnType<typeof createSql> | null = null;
-function getSql(): ReturnType<typeof createSql> {
-  if (!_sql) _sql = createSql();
+// Module-level singleton
+let _sql: NeonQueryFunction<false, false> | null = null;
+function getSql(): NeonQueryFunction<false, false> {
+  if (!_sql) {
+    const connectionString = process.env.DATABASE_URL;
+    if (!connectionString) throw new Error('DATABASE_URL not set');
+    _sql = neon(connectionString) as NeonQueryFunction<false, false>;
+  }
   return _sql;
 }
 
 /** Executes a sql query, returning [] if the table doesn't exist yet. */
-async function safeQuery<T>(fn: (s: ReturnType<typeof createSql>) => Promise<T>): Promise<T> {
+async function safeQuery<T>(fn: (s: NeonQueryFunction<false, false>) => Promise<T>): Promise<T> {
   try {
     return await fn(getSql());
   } catch (err: unknown) {
@@ -46,7 +45,7 @@ async function safeQuery<T>(fn: (s: ReturnType<typeof createSql>) => Promise<T>)
 }
 
 /** Executes a sql mutation (INSERT/UPDATE), silently swallowing "table does not exist". */
-async function safeQueryVoid(fn: (s: ReturnType<typeof createSql>) => Promise<unknown>): Promise<void> {
+async function safeQueryVoid(fn: (s: NeonQueryFunction<false, false>) => Promise<unknown>): Promise<void> {
   try {
     await fn(getSql());
   } catch (err: unknown) {
@@ -658,9 +657,30 @@ export async function previewTodaysDebate(): Promise<{
   topic: string;
   guardians: Array<{ personaId: string; personaNameZh: string }>;
   estimatedTurns: number;
+  estimatedStartTime: string;
+  highlights: string[];
+  conflicts: string[];
 }> {
   const guardians = await getTodayGuardians();
   const topic = pickDailyTopic();
+
+  // 基于话题生成亮点和矛盾点
+  const highlights = generateDebateHighlights(topic, guardians.map(g => g.personaNameZh));
+  const conflicts = generateDebateConflicts(topic, guardians.map(g => g.personaNameZh));
+
+  // 估算开始时间（每天固定时间或随机）
+  const now = new Date();
+  const hour = now.getHours();
+  let estimatedStartTime: string;
+  if (hour < 12) {
+    estimatedStartTime = '今日 14:00';
+  } else if (hour < 18) {
+    estimatedStartTime = '今日 20:00';
+  } else if (hour < 21) {
+    estimatedStartTime = '今日 21:00';
+  } else {
+    estimatedStartTime = '即将开始';
+  }
 
   return {
     topic,
@@ -669,5 +689,90 @@ export async function previewTodaysDebate(): Promise<{
       personaNameZh: g.personaNameZh,
     })),
     estimatedTurns: guardians.length * 3 + 1,
+    estimatedStartTime,
+    highlights,
+    conflicts,
   };
+}
+
+/** 基于话题和人物生成辩论亮点标签 */
+function generateDebateHighlights(
+  topic: string,
+  guardianNames: string[]
+): string[] {
+  const lower = topic.toLowerCase();
+  const highlights: string[] = [];
+
+  if (lower.includes('ai') || lower.includes('人工智能') || lower.includes('chatgpt') || lower.includes('llm')) {
+    highlights.push('🤖 AI 技术前沿');
+  }
+  if (lower.includes('工作') || lower.includes('就业') || lower.includes('职业')) {
+    highlights.push('💼 未来就业格局');
+  }
+  if (lower.includes('教育') || lower.includes('学习') || lower.includes('学校')) {
+    highlights.push('📚 教育变革方向');
+  }
+  if (lower.includes('投资') || lower.includes('理财') || lower.includes('股票') || lower.includes('比特币') || lower.includes('crypto')) {
+    highlights.push('📈 投资智慧碰撞');
+  }
+  if (lower.includes('创业') || lower.includes('创新') || lower.includes('商业')) {
+    highlights.push('🚀 创业思维交锋');
+  }
+  if (lower.includes('哲学') || lower.includes('人生') || lower.includes('意义') || lower.includes('幸福')) {
+    highlights.push('🧠 人生智慧对话');
+  }
+  if (lower.includes('科技') || lower.includes('未来') || lower.includes('人类')) {
+    highlights.push('🔮 科技与人类命运');
+  }
+  if (lower.includes('经济') || lower.includes('中美') || lower.includes('全球') || lower.includes('贸易')) {
+    highlights.push('🌍 世界格局洞察');
+  }
+
+  if (highlights.length === 0) {
+    highlights.push('💡 多元视角碰撞');
+  }
+
+  // 加入人物特色
+  if (guardianNames.length >= 2) {
+    highlights.push(`👥 ${guardianNames.slice(0, 2).join(' × ')}`);
+  }
+
+  return highlights.slice(0, 4);
+}
+
+/** 基于话题生成矛盾冲突标签 */
+function generateDebateConflicts(
+  topic: string,
+  guardianNames: string[]
+): string[] {
+  const lower = topic.toLowerCase();
+  const conflicts: string[] = [];
+
+  if (lower.includes('ai') || lower.includes('人工智能')) {
+    conflicts.push('乐观派 vs 悲观派：技术进步是福祉还是威胁？');
+    conflicts.push('短期冲击 vs 长期红利：谁在为转型买单？');
+  }
+  if (lower.includes('工作') || lower.includes('就业')) {
+    conflicts.push('效率优先 vs 公平优先：社会该如何应对？');
+  }
+  if (lower.includes('投资') || lower.includes('理财') || lower.includes('比特币')) {
+    conflicts.push('价值投资 vs 趋势投机：谁才是真正的智慧？');
+    conflicts.push('风险爱好者 vs 风险厌恶者：财富的本质是什么？');
+  }
+  if (lower.includes('创业')) {
+    conflicts.push('精益创业 vs 宏大愿景：哪种路径更可能成功？');
+  }
+  if (lower.includes('教育') || lower.includes('学习')) {
+    conflicts.push('传统教育 vs AI 自学：什么能力真正不可替代？');
+  }
+  if (lower.includes('哲学') || lower.includes('人生') || lower.includes('意义')) {
+    conflicts.push('存在主义 vs 斯多葛主义：如何面对不确定的世界？');
+  }
+
+  if (conflicts.length === 0) {
+    conflicts.push('理想主义 vs 现实主义：谁更能洞察本质？');
+    conflicts.push('长期主义 vs 短期主义：哪个策略更明智？');
+  }
+
+  return conflicts.slice(0, 3);
 }

@@ -171,9 +171,9 @@ export async function getTrackingOverview(days: number = 7): Promise<{
   if (!sql) return { dau: 0, wau: 0, mau: 0, sessions: 0, totalEvents: 0, totalPersonas: 0, totalConversations: 0 };
 
   const [dauResult, wauResult, mauResult, sessionsResult, eventsResult, personasResult, conversationsResult] = await Promise.all([
-    sql`SELECT COUNT(DISTINCT visitor_id)::int as count FROM public.page_events WHERE tenant_id = ${PRISMATIC_TENANT_ID} AND created_at > NOW() - INTERVAL '1 day' AND event_type = 'pageview'`,
-    sql`SELECT COUNT(DISTINCT visitor_id)::int as count FROM public.page_events WHERE tenant_id = ${PRISMATIC_TENANT_ID} AND created_at > NOW() - INTERVAL '7 days' AND event_type = 'pageview'`,
-    sql`SELECT COUNT(DISTINCT visitor_id)::int as count FROM public.page_events WHERE tenant_id = ${PRISMATIC_TENANT_ID} AND created_at > NOW() - INTERVAL '30 days' AND event_type = 'pageview'`,
+    sql`SELECT COUNT(DISTINCT visitor_id)::int as count FROM public.page_events WHERE tenant_id = ${PRISMATIC_TENANT_ID} AND created_at > NOW() - INTERVAL '1 day' AND event_type IN ('pageview', 'page_view')`,
+    sql`SELECT COUNT(DISTINCT visitor_id)::int as count FROM public.page_events WHERE tenant_id = ${PRISMATIC_TENANT_ID} AND created_at > NOW() - INTERVAL '7 days' AND event_type IN ('pageview', 'page_view')`,
+    sql`SELECT COUNT(DISTINCT visitor_id)::int as count FROM public.page_events WHERE tenant_id = ${PRISMATIC_TENANT_ID} AND created_at > NOW() - INTERVAL '30 days' AND event_type IN ('pageview', 'page_view')`,
     sql`SELECT COUNT(DISTINCT session_id)::int as count FROM public.page_events WHERE tenant_id = ${PRISMATIC_TENANT_ID} AND created_at > NOW() - INTERVAL '${String(days)} days'`,
     sql`SELECT COUNT(*)::int as count FROM public.prismatic_events WHERE tenant_id = ${PRISMATIC_TENANT_ID} AND created_at > NOW() - INTERVAL '${String(days)} days'`,
     sql`SELECT COUNT(DISTINCT persona_id)::int as count FROM public.prismatic_events WHERE tenant_id = ${PRISMATIC_TENANT_ID} AND event_type = 'persona_view' AND created_at > NOW() - INTERVAL '${String(days)} days'`,
@@ -243,7 +243,7 @@ export async function getTrackingFunnel(days: number = 30): Promise<Array<{ name
   ];
 
   const [totalVisitors, personaViews, chatStarts, modelExpands, graphClicks] = await Promise.all([
-    sql`SELECT COUNT(DISTINCT visitor_id)::int as count FROM public.page_events WHERE tenant_id = ${PRISMATIC_TENANT_ID} AND event_type = 'pageview' AND created_at > NOW() - INTERVAL '${String(days)} days'`,
+    sql`SELECT COUNT(DISTINCT visitor_id)::int as count FROM public.page_events WHERE tenant_id = ${PRISMATIC_TENANT_ID} AND event_type IN ('pageview', 'page_view') AND created_at > NOW() - INTERVAL '${String(days)} days'`,
     sql`SELECT COUNT(DISTINCT visitor_id)::int as count FROM public.prismatic_events WHERE tenant_id = ${PRISMATIC_TENANT_ID} AND event_type = 'persona_view' AND created_at > NOW() - INTERVAL '${String(days)} days'`,
     sql`SELECT COUNT(DISTINCT visitor_id)::int as count FROM public.prismatic_events WHERE tenant_id = ${PRISMATIC_TENANT_ID} AND event_type = 'chat_start' AND created_at > NOW() - INTERVAL '${String(days)} days'`,
     sql`SELECT COUNT(DISTINCT visitor_id)::int as count FROM public.prismatic_events WHERE tenant_id = ${PRISMATIC_TENANT_ID} AND event_type = 'model_expand' AND created_at > NOW() - INTERVAL '${String(days)} days'`,
@@ -318,7 +318,7 @@ export async function getTrackingTrend(days: number = 7): Promise<Array<{
       DATE(created_at) as date,
       COUNT(DISTINCT visitor_id)::int as dau,
       COUNT(DISTINCT session_id)::int as sessions,
-      COUNT(CASE WHEN event_type = 'pageview' THEN 1 END)::int as pageviews
+      COUNT(CASE WHEN event_type IN ('pageview', 'page_view') THEN 1 END)::int as pageviews
     FROM public.page_events
     WHERE tenant_id = ${PRISMATIC_TENANT_ID}
       AND created_at > NOW() - INTERVAL '${String(days)} days'
@@ -381,7 +381,7 @@ export async function getTrackingContentHealth(days: number = 30, limit: number 
       END as bounce_rate
     FROM public.page_events
     WHERE tenant_id = ${PRISMATIC_TENANT_ID}
-      AND event_type = 'pageview'
+      AND event_type IN ('pageview', 'page_view')
       AND url_path IS NOT NULL
       AND created_at > NOW() - INTERVAL '${String(days)} days'
     GROUP BY url_path
