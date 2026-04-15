@@ -119,4 +119,4 @@ jobs:
           echo '{"orgId":"${{ secrets.VERCEL_ORG_ID }}","projectId":"${{ secrets.VERCEL_PROJECT_ID }}","team":{"id":"${{ secrets.VERCEL_ORG_ID }}","slug":"johnzhangs-projects-50e83ec4"}}' > .vercel/output/project.json
 
       - name: Deploy to Vercel Production
-        run: vercel deploy . --prod --token=${{ secrets.VERCEL_TOKEN }}
+        run: vercel deploy . --prod --yes --token=${{ secrets.VERCEL_TOKEN }}
