@@ -111,28 +111,18 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Setup Vercel CLI
+      - name: Install Vercel CLI
         run: npm install -g vercel
 
-      # ── 关键：手动创建 .vercel/project.json，直接指向 prismatic-app ──
-      # 不要用 vercel link，它会创建新项目！
+      # ── 直接创建 .vercel/project.json，避免 vercel link 创建新项目 ──
+      # vercel link 在干净环境中会自动搜索/创建项目，导致每次都用新项目名
       - name: Create Vercel project config
         run: |
           mkdir -p .vercel
-          # 直接写入正确的 project.json，指向 prismatic-app
-          cat > .vercel/project.json << 'PROJECTJSON'
-          {
-            "orgId": "${{ secrets.VERCEL_ORG_ID }}",
-            "projectId": "${{ secrets.VERCEL_PROJECT_ID }}",
-            "team": {
-              "id": "${{ secrets.VERCEL_ORG_ID }}",
-              "slug": "johnzhangs-projects-50e83ec4"
-            },
-            "projectName": "prismatic-app"
-          }
-          PROJECTJSON
-          echo "Created .vercel/project.json:"
-          cat .vercel/project.json
+          printf '{"orgId":"%s","projectId":"%s","team":{"id":"%s","slug":"johnzhangs-projects-50e83ec4"},"projectName":"prismatic-app"}\n' \
+            '${{ secrets.VERCEL_ORG_ID }}' \
+            '${{ secrets.VERCEL_PROJECT_ID }}' \
+            '${{ secrets.VERCEL_ORG_ID }}' > .vercel/project.json
 
       - name: Deploy to Vercel Production
         run: vercel deploy . --prod --yes --token=${{ secrets.VERCEL_TOKEN }}
