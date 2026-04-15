@@ -111,7 +111,7 @@ jobs:
         run: npm install -g vercel
 
       - name: Pull Vercel Environment Information
-        run: vercel pull --yes --environment=production --project-name=prismatic-app --token=${{ secrets.VERCEL_TOKEN }}
+        run: vercel pull --yes --environment=production --project-id=${{ secrets.VERCEL_PROJECT_ID }} --token=${{ secrets.VERCEL_TOKEN }}
         env:
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
 
