@@ -17,6 +17,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { nanoid } from 'nanoid';
 import { createLLMProvider } from '@/lib/llm';
 import { getPersonasByIds } from '@/lib/personas';
+import { PERSONA_CONFIDENCE } from '@/lib/confidence';
 import { authenticateRequest } from '@/lib/user-management';
 import { recordMessage, checkUserDailyLimit } from '@/lib/message-stats';
 import type { Mode } from '@/lib/types';
@@ -46,6 +47,11 @@ async function llmChat(
   return llm.chat({ model, messages, ...options });
 }
 
+function getPersonaConfidence(personaId: string): number {
+  const c = PERSONA_CONFIDENCE[personaId];
+  return c ? c.overall / 100 : 0.5; // 0-1 scale
+}
+
 // ─── Solo: Deep Dive ────────────────────────────────────────────────────────
 
 async function handleSolo(personas: any[], message: string, history: any[] = []) {
@@ -73,7 +79,7 @@ Use "I" not "this persona would...".`;
     personaId: persona.id,
     role: 'agent',
     content: result.content,
-    confidence: 0.7,
+    confidence: getPersonaConfidence(persona.id),
     timestamp: new Date().toISOString(),
   }];
 }
@@ -126,7 +132,7 @@ Identity: ${persona.identityPrompt}
     personaId: p.personaId,
     role: 'agent',
     content: p.response,
-    confidence: 0.7,
+    confidence: getPersonaConfidence(p.personaId),
     timestamp: new Date().toISOString(),
   }));
 

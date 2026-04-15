@@ -6,8 +6,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Send, Loader2, ChevronDown, Settings, Trash2, X, Download, FileText, Image } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { PersonaCard } from '@/components/persona-card';
-import { ModeSelector, CompactModeTrigger } from '@/components/mode-selector';
 import { MessageContent } from '@/components/message-content';
+import { ModeButtonBar } from '@/components/mode-button-bar';
 import { PERSONA_LIST, getPersonasByIds } from '@/lib/personas';
 import { useChatHistory } from '@/lib/use-chat-history';
 import { useAuthStore } from '@/lib/auth-store';
@@ -104,8 +104,7 @@ export function ChatInterface({ className, initialPersona, initialMode }: ChatIn
   const [isLoading, setIsLoading] = useState(false);
   const [showPersonaPicker, setShowPersonaPicker] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
-  const [showModeFullScreen, setShowModeFullScreen] = useState(false);
-  const [isPickerOpen, setIsPickerOpen] = useState(false); // compact header mode
+  const [isPickerOpen, setIsPickerOpen] = useState(false);
   const [showLimitModal, setShowLimitModal] = useState(false);
   const pickerRef = useRef<HTMLDivElement>(null);
   const toggleRef = useRef<HTMLButtonElement>(null);
@@ -521,136 +520,94 @@ export function ChatInterface({ className, initialPersona, initialMode }: ChatIn
   return (
     <div className={cn('flex flex-col h-full', className)}>
       {/* ── Header ─────────────────────────────────────────── */}
-      <div className="flex-shrink-0 px-4 py-3 border-b border-border-subtle bg-bg-surface/80 backdrop-blur-sm">
-        <div className="flex items-center gap-3">
-          {/* Mode selector — compact trigger */}
-          <CompactModeTrigger value={mode} onOpen={() => setShowModeFullScreen(true)} />
+      <ModeButtonBar
+        mode={mode}
+        onModeChange={setModeState}
+        selectedIds={selectedIds}
+        onTogglePersona={togglePersona}
+        pickerOpen={isPickerOpen}
+        onPickerOpen={(open) => {
+          setIsPickerOpen(open);
+          setShowPersonaPicker(open);
+        }}
+      />
 
-          {/* Persona picker toggle — always visible */}
-          <button
-            ref={toggleRef}
-            className={cn(
-              "flex items-center gap-2 text-sm transition-colors",
-              isPickerOpen
-                ? "text-text-primary bg-bg-surface px-2 py-1 rounded-lg"
-                : "text-text-secondary hover:text-text-primary"
-            )}
-            onClick={() => {
-              const next = !isPickerOpen;
-              isPickerOpenRef.current = next;
-              setIsPickerOpen(next);
-              setShowPersonaPicker(next);
-            }}
-          >
-            <div className="flex -space-x-1">
-              {selectedPersonas.slice(0, 3).map((p) => (
-                <div
-                  key={p.id}
-                  className="w-6 h-6 rounded-full border-2 border-bg-base flex items-center justify-center text-[10px] font-bold text-white"
-                  style={{ background: `linear-gradient(135deg, ${p.gradientFrom}, ${p.gradientTo})` }}
-                >
-                  {p.nameZh.slice(0, 1)}
-                </div>
-              ))}
-              {selectedIds.length > 3 && (
-                <div className="w-6 h-6 rounded-full border-2 border-bg-base bg-bg-elevated flex items-center justify-center text-[10px] font-bold text-text-muted">
-                  +{selectedIds.length - 3}
-                </div>
+      {/* ── Toolbar row (settings / export / limits) ─────────── */}
+      <div className="flex-shrink-0 px-4 py-1.5 flex items-center gap-3 border-b border-border-subtle bg-bg-surface/40">
+        <button
+          className="text-text-secondary hover:text-text-primary transition-colors"
+          onClick={() => setShowSettings(!showSettings)}
+        >
+          <Settings className="w-4 h-4" />
+        </button>
+
+        {messages.length > 0 && (
+          <div className="relative" ref={exportMenuRef}>
+            <button
+              className="text-text-secondary hover:text-text-primary transition-colors flex items-center gap-1"
+              onClick={() => setShowExportMenu(!showExportMenu)}
+              disabled={isExporting}
+            >
+              {isExporting ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <Download className="w-4 h-4" />
               )}
-            </div>
-            <span className="text-xs text-text-muted">
-              {selectedIds.length}人
-            </span>
-            {isPickerOpen ? (
-              <X className="w-4 h-4" />
-            ) : (
-              <ChevronDown className="w-4 h-4" />
-            )}
-          </button>
-
-          {/* Settings */}
-          <button
-            className="text-text-secondary hover:text-text-primary transition-colors"
-            onClick={() => setShowSettings(!showSettings)}
-          >
-            <Settings className="w-4 h-4" />
-          </button>
-
-          {/* Export */}
-          {messages.length > 0 && (
-            <div className="relative" ref={exportMenuRef}>
-              <button
-                className="text-text-secondary hover:text-text-primary transition-colors flex items-center gap-1"
-                onClick={() => setShowExportMenu(!showExportMenu)}
-                disabled={isExporting}
-              >
-                {isExporting ? (
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                ) : (
-                  <Download className="w-4 h-4" />
-                )}
-              </button>
-              <AnimatePresence>
-                {showExportMenu && (
-                  <motion.div
-                    initial={{ opacity: 0, y: -10, scale: 0.95 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={{ opacity: 0, y: -10, scale: 0.95 }}
-                    className="absolute right-0 top-full mt-2 w-48 bg-bg-elevated border border-border-subtle rounded-xl shadow-xl overflow-hidden z-50"
+            </button>
+            <AnimatePresence>
+              {showExportMenu && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10, scale: 0.95 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: -10, scale: 0.95 }}
+                  className="absolute right-0 top-full mt-2 w-48 bg-bg-elevated border border-border-subtle rounded-xl shadow-xl overflow-hidden z-50"
+                >
+                  <button
+                    className="w-full flex items-center gap-3 px-4 py-3 text-sm text-text-primary hover:bg-bg-surface transition-colors"
+                    onClick={handleExportAsImage}
                   >
-                    <button
-                      className="w-full flex items-center gap-3 px-4 py-3 text-sm text-text-primary hover:bg-bg-surface transition-colors"
-                      onClick={handleExportAsImage}
-                    >
-                      <Image className="w-4 h-4 text-prism-blue" />
-                      导出为图片
-                    </button>
-                    <button
-                      className="w-full flex items-center gap-3 px-4 py-3 text-sm text-text-primary hover:bg-bg-surface transition-colors"
-                      onClick={handleExportAsText}
-                    >
-                      <FileText className="w-4 h-4 text-prism-purple" />
-                      导出为文本
-                    </button>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
-          )}
+                    <Image className="w-4 h-4 text-prism-blue" />
+                    导出为图片
+                  </button>
+                  <button
+                    className="w-full flex items-center gap-3 px-4 py-3 text-sm text-text-primary hover:bg-bg-surface transition-colors"
+                    onClick={handleExportAsText}
+                  >
+                    <FileText className="w-4 h-4 text-prism-purple" />
+                    导出为文本
+                  </button>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+        )}
 
-          {/* Daily limit indicator */}
-          {limitReached ? (
-            <button
-              className="text-xs text-orange-400 font-medium hover:text-orange-300 transition-colors"
-              title="今日额度已用完，点击查看如何开通"
-              onClick={() => setShowLimitModal(true)}
-            >
-              额度已用完
-            </button>
-          ) : (
-            <span
-              className="text-xs text-text-muted hidden sm:inline"
-              title="今日对话额度，剩余次数"
-            >
-              {Math.max(0, DAILY_LIMIT - dailyCount)}/{DAILY_LIMIT}
-            </span>
-          )}
+        {limitReached ? (
+          <button
+            className="text-xs text-orange-400 font-medium hover:text-orange-300 transition-colors"
+            onClick={() => setShowLimitModal(true)}
+          >
+            额度已用完
+          </button>
+        ) : (
+          <span className="text-xs text-text-muted hidden sm:inline">
+            {Math.max(0, DAILY_LIMIT - dailyCount)}/{DAILY_LIMIT}
+          </span>
+        )}
 
-          {/* Clear history */}
-          {messages.length > 0 && (
-            <button
-              className="text-text-muted hover:text-red-400 transition-colors"
-              onClick={() => {
-                if (window.confirm('确定清空当前对话历史？此操作不可撤销。')) {
-                  clearHistory();
-                }
-              }}
-              title="清空对话历史"
-            >
-              <Trash2 className="w-4 h-4" />
-            </button>
-          )}
-        </div>
+        {messages.length > 0 && (
+          <button
+            className="text-text-muted hover:text-red-400 transition-colors"
+            onClick={() => {
+              if (window.confirm('确定清空当前对话历史？此操作不可撤销。')) {
+                clearHistory();
+              }
+            }}
+            title="清空对话历史"
+          >
+            <Trash2 className="w-4 h-4" />
+          </button>
+        )}
       </div>
 
       {/* ── Persona Picker Overlay ─────────────────────────────── */}
@@ -1061,30 +1018,6 @@ export function ChatInterface({ className, initialPersona, initialMode }: ChatIn
 
       {/* ── Limit Reached Modal ─────────────────────────────── */}
       <LimitReachedModal isOpen={showLimitModal} onClose={() => setShowLimitModal(false)} />
-  
-      {/* ── Mode Selector Full-Screen Overlay ──────────────────────────── */}
-      <AnimatePresence>
-        {showModeFullScreen && (
-          <motion.div
-            key="mode-fullscreen"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
-          >
-            <ModeSelector
-              value={mode}
-              onChange={(m) => {
-                setModeState(m);
-                setShowModeFullScreen(false);
-              }}
-              fullScreen
-              onClose={() => setShowModeFullScreen(false)}
-            />
-          </motion.div>
-        )}
-      </AnimatePresence>
-    
   </div>
   );
 }
