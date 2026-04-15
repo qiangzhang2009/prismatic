@@ -314,7 +314,7 @@ export default function HomePage() {
 
       {/* ── Mode Showcase ────────────────────────────────────────────────── */}
       <section className="py-20 px-6">
-        <div className="max-w-5xl mx-auto">
+        <div className="max-w-6xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -329,9 +329,22 @@ export default function HomePage() {
             </p>
           </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {Object.values(MODES).map((mode, i) => {
               const isSelected = selectedMode === mode.id;
+              // 模式专属色彩配置
+              const modeColors: Record<string, { gradient: string; glow: string; icon: string }> = {
+                solo: { gradient: 'from-indigo-600/25 to-indigo-500/5', glow: 'shadow-indigo-500/20', icon: 'text-indigo-400' },
+                prism: { gradient: 'from-violet-600/25 to-violet-500/5', glow: 'shadow-violet-500/20', icon: 'text-violet-400' },
+                roundtable: { gradient: 'from-sky-600/25 to-sky-500/5', glow: 'shadow-sky-500/20', icon: 'text-sky-400' },
+                epoch: { gradient: 'from-red-600/25 to-red-500/5', glow: 'shadow-red-500/20', icon: 'text-red-400' },
+                mission: { gradient: 'from-emerald-600/25 to-emerald-500/5', glow: 'shadow-emerald-500/20', icon: 'text-emerald-400' },
+                council: { gradient: 'from-amber-600/25 to-amber-500/5', glow: 'shadow-amber-500/20', icon: 'text-amber-400' },
+                oracle: { gradient: 'from-purple-600/25 to-purple-500/5', glow: 'shadow-purple-500/20', icon: 'text-purple-400' },
+                fiction: { gradient: 'from-pink-600/25 to-pink-500/5', glow: 'shadow-pink-500/20', icon: 'text-pink-400' },
+              };
+              const colors = modeColors[mode.id] || modeColors.prism;
+
               return (
                 <motion.button
                   key={mode.id}
@@ -342,31 +355,113 @@ export default function HomePage() {
                   transition={{ delay: i * 0.08 }}
                   whileTap={{ scale: 0.98 }}
                   className={cn(
-                    'relative rounded-2xl p-5 text-left transition-all duration-300 border',
+                    'relative rounded-2xl p-5 text-left transition-all duration-300 border overflow-hidden',
                     isSelected
-                      ? 'border-prism-blue/50 bg-gradient-to-b from-white/[0.08] to-transparent shadow-xl shadow-prism-blue/10'
-                      : 'border-white/5 bg-white/[0.02] hover:bg-white/[0.05] hover:border-white/10'
+                      ? 'border-white/20 shadow-xl'
+                      : 'border-white/5 hover:border-white/10 hover:shadow-lg'
                   )}
+                  style={{
+                    background: isSelected
+                      ? `linear-gradient(135deg, var(--bg-elevated) 0%, var(--bg-surface) 100%)`
+                      : undefined,
+                  }}
                 >
+                  {/* Glow effect for selected */}
                   {isSelected && (
-                    <div className="absolute top-4 right-4 w-2 h-2 rounded-full bg-prism-blue shadow-lg shadow-prism-blue/50" />
+                    <div
+                      className="absolute inset-0 opacity-20"
+                      style={{
+                        background: `linear-gradient(135deg, ${mode.accent}15 0%, transparent 60%)`,
+                      }}
+                    />
                   )}
-                  <div className={cn('mb-4', isSelected ? 'text-prism-blue' : 'text-text-muted')}>
-                    {MODE_ICONS[mode.id]}
+
+                  {/* Gradient background for unselected */}
+                  {!isSelected && (
+                    <div
+                      className="absolute inset-0 opacity-30 rounded-2xl"
+                      style={{
+                        background: `linear-gradient(135deg, ${mode.accent}10 0%, transparent 50%)`,
+                      }}
+                    />
+                  )}
+
+                  <div className="relative z-10">
+                    {/* Icon with colored background */}
+                    <div
+                      className={cn(
+                        'w-12 h-12 rounded-xl flex items-center justify-center mb-4',
+                        isSelected ? 'bg-white/10' : 'bg-white/5'
+                      )}
+                      style={{
+                        background: isSelected ? `${mode.accent}20` : `${mode.accent}10`,
+                      }}
+                    >
+                      <span className={isSelected ? 'text-2xl' : 'text-xl'}>{mode.icon}</span>
+                    </div>
+
+                    {/* Mode label */}
+                    <div className={cn('font-bold mb-1', isSelected ? 'text-text-primary text-base' : 'text-text-secondary text-sm')}>
+                      {mode.label}
+                    </div>
+
+                    {/* Description */}
+                    <div className="text-xs text-text-muted leading-relaxed mb-4">
+                      {mode.description}
+                    </div>
+
+                    {/* Tag badge */}
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span
+                        className="text-[10px] font-medium px-2 py-1 rounded-md"
+                        style={{
+                          background: `${mode.accent}15`,
+                          color: mode.accent,
+                          border: `1px solid ${mode.accent}30`,
+                        }}
+                      >
+                        {mode.minParticipants}-{mode.maxParticipants}人
+                      </span>
+                      <span
+                        className="text-[10px] px-2 py-1 rounded-md"
+                        style={{
+                          background: 'rgba(255,255,255,0.05)',
+                          color: 'rgba(255,255,255,0.4)',
+                        }}
+                      >
+                        {mode.tagline}
+                      </span>
+                    </div>
                   </div>
-                  <div className="font-medium text-text-primary mb-2">{mode.label}</div>
-                  <div className="text-xs text-text-secondary mb-4 leading-relaxed">{mode.description}</div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-[10px] font-medium text-text-muted bg-white/5 px-2 py-1 rounded-md">
-                      {mode.minParticipants}-{mode.maxParticipants}人
-                    </span>
-                    <span className="text-[10px] text-text-muted/50">·</span>
-                    <span className="text-[10px] text-text-muted">{mode.when.slice(0, 10)}...</span>
-                  </div>
+
+                  {/* Active indicator dot */}
+                  {isSelected && (
+                    <div
+                      className="absolute top-4 right-4 w-2.5 h-2.5 rounded-full shadow-lg"
+                      style={{ background: mode.accent }}
+                    />
+                  )}
                 </motion.button>
               );
             })}
           </div>
+
+          {/* CTA */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.4 }}
+            className="text-center mt-10"
+          >
+            <Link
+              href="/app"
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-prism-gradient text-white font-medium hover:opacity-90 transition-all shadow-lg shadow-prism-blue/20"
+            >
+              <Sparkles className="w-4 h-4" />
+              开始体验
+            </Link>
+          </motion.div>
         </div>
       </section>
 
