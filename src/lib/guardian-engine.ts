@@ -54,14 +54,14 @@ const PERSONA_RESPONSE_PROB: Record<string, number> = {
   'elon-musk': 0.35,       // Elon engaged with interesting ideas
   'warren-buffett': 0.30,  // Buffett selective, only best ideas
   'richard-feynman': 0.35, // Feynman loves curiosity
-  'jordan-peterson': 0.30, // Peterson engaged with meaning
   'steve-jobs': 0.25,      // Jobs selective, only brilliant ideas
   'marcus-aurelius': 0.30, // Marcus shares wisdom
   'confucius': 0.35,        // Confucius values learning
   'charlie-munger': 0.25,  // Munger — only worth it if it's great
-  'jacque-fresko': 0.20,   // Fresko — niche, more selective
-  'templars': 0.30,
-  'tao': 0.30,
+  'nassim-taleb': 0.30,   // Taleb — skeptical, selective
+  'naval-ravikant': 0.35,  // Naval — wisdom seeker
+  'zhuang-zi': 0.30,       // Zhuangzi — Taoist wisdom
+  'lao-zi': 0.30,          // Laozi — Dao wisdom
 };
 
 // Default daily interaction limit per persona (提升至65，支持主动辩论)

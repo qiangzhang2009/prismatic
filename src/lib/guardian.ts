@@ -10,7 +10,7 @@
  */
 
 import { neon, NeonQueryFunction } from '@neondatabase/serverless';
-import { getPersonasByIds } from '@/lib/personas';
+import { getPersonasByIds, PERSONAS } from '@/lib/personas';
 import { BANNED_PERSONAS } from '@/lib/personas';
 
 // Module-level singleton
@@ -88,21 +88,25 @@ const SHIFT_THEMES = {
  */
 function generateWeeklySchedule(weekStart: Date): Array<{ slot: number; personaId: string; shiftTheme: string }> {
   const allPersonas = getPersonasByIds([
-    'steve-jobs', 'warren-buffett', 'richard-feynman',
     'socrates', 'marcus-aurelius', 'confucius',
-    'elon-musk', 'charlie-munger', 'jordan-peterson',
-    'jacque-fresko', 'templars', 'tao',
+    'elon-musk', 'charlie-munger', 'richard-feynman',
+    'steve-jobs', 'nassim-taleb', 'naval-ravikant',
+    'zhuang-zi', 'lao-zi', 'warren-buffett',
   ]);
 
   // Filter out banned personas (e.g. zhang-xuefeng for sensitivity)
   const personas = allPersonas.filter(p => !(BANNED_PERSONAS as readonly string[]).includes(p.id));
 
-  if (personas.length < 9) {
-    // Fallback: use IDs directly if personas not loaded
+  // Defensive: also filter out any IDs that don't resolve to a real persona
+  // (handles stale DB entries referencing removed personas like jordan-peterson)
+  const validPersonas = personas.filter(p => !!p && PERSONAS[p.id]);
+
+  if (validPersonas.length < 9) {
+    // Fallback: use IDs that are guaranteed to exist in PERSONAS
     const fallbackIds = [
-      'steve-jobs', 'warren-buffett', 'richard-feynman',
       'socrates', 'marcus-aurelius', 'confucius',
-      'elon-musk', 'charlie-munger', 'jordan-peterson',
+      'elon-musk', 'charlie-munger', 'steve-jobs',
+      'richard-feynman', 'nassim-taleb', 'naval-ravikant',
     ];
     return fallbackIds.slice(0, 9).map((id, i) => ({
       personaId: id,
