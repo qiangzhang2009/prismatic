@@ -4,10 +4,11 @@ import { useState } from 'react';
 import { ChevronDown, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { PERSONA_LIST, getPersonasByIds } from '@/lib/personas';
+import { MODES } from '@/lib/constants';
 import type { Mode } from '@/lib/types';
 
-// ─── Mode definitions (inline — avoids module resolution issues) ─────────────────
-const MODES = [
+// ─── Mode definitions with colors ────────────────────────────────────────────
+const MODE_LIST = [
   { id: 'solo' as Mode, label: '单人对话', icon: '👤', accent: '#6366f1', maxP: 1 },
   { id: 'prism' as Mode, label: '折射视图', icon: '🔺', accent: '#8b5cf6', maxP: 3 },
   { id: 'roundtable' as Mode, label: '圆桌辩论', icon: '🏛️', accent: '#0ea5e9', maxP: 6 },
@@ -25,6 +26,8 @@ interface ModeButtonBarProps {
   onTogglePersona: (id: string) => void;
   pickerOpen: boolean;
   onPickerOpen: (open: boolean) => void;
+  /** Callback to open the full mode picker overlay */
+  onModePickerOpen: () => void;
 }
 
 export function ModeButtonBar({
@@ -34,19 +37,28 @@ export function ModeButtonBar({
   onTogglePersona,
   pickerOpen,
   onPickerOpen,
+  onModePickerOpen,
 }: ModeButtonBarProps) {
   const selectedPersonas = getPersonasByIds(selectedIds);
+  const currentMode = MODE_LIST.find((m) => m.id === mode) || MODE_LIST[0];
 
   return (
     <div className="flex-shrink-0 px-4 py-2 border-b border-border-subtle bg-bg-surface/80 backdrop-blur-sm overflow-x-auto">
       <div className="flex items-center gap-1 min-w-max">
-        {/* Mode buttons */}
-        {MODES.map((m) => {
+        {/* Mode buttons (compact) */}
+        {MODE_LIST.map((m) => {
           const isActive = mode === m.id;
           return (
             <button
               key={m.id}
-              onClick={() => onModeChange(m.id)}
+              onClick={() => {
+                if (mode === m.id) {
+                  // Already active — open full picker
+                  onModePickerOpen();
+                } else {
+                  onModeChange(m.id);
+                }
+              }}
               title={m.label}
               className={cn(
                 'flex items-center gap-1 px-2 py-1.5 rounded text-xs font-medium transition-all whitespace-nowrap flex-shrink-0',
@@ -57,10 +69,23 @@ export function ModeButtonBar({
               style={isActive ? { background: m.accent } : undefined}
             >
               <span>{m.icon}</span>
-              <span className="hidden sm:inline">{m.label}</span>
+              <span className="hidden lg:inline">{m.label}</span>
             </button>
           );
         })}
+
+        {/* Expand / All Modes button */}
+        <button
+          onClick={onModePickerOpen}
+          className={cn(
+            'flex items-center gap-1 px-2 py-1.5 rounded text-xs font-medium transition-all whitespace-nowrap flex-shrink-0',
+            'text-text-muted hover:text-text-primary hover:bg-bg-surface'
+          )}
+          title="查看所有模式"
+        >
+          <span className="hidden lg:inline">更多</span>
+          <span className="lg:hidden">···</span>
+        </button>
 
         <div className="w-px h-5 bg-border-subtle mx-1 flex-shrink-0" />
 

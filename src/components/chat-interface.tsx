@@ -8,6 +8,7 @@ import { cn } from '@/lib/utils';
 import { PersonaCard } from '@/components/persona-card';
 import { MessageContent } from '@/components/message-content';
 import { ModeButtonBar } from '@/components/mode-button-bar';
+import { ModePickerOverlay } from '@/components/mode-picker-overlay';
 import { PERSONA_LIST, getPersonasByIds } from '@/lib/personas';
 import { useChatHistory } from '@/lib/use-chat-history';
 import { useAuthStore } from '@/lib/auth-store';
@@ -106,6 +107,7 @@ export function ChatInterface({ className, initialPersona, initialMode }: ChatIn
   const [showSettings, setShowSettings] = useState(false);
   const [isPickerOpen, setIsPickerOpen] = useState(false);
   const [showLimitModal, setShowLimitModal] = useState(false);
+  const [showModePicker, setShowModePicker] = useState(false);
   const pickerRef = useRef<HTMLDivElement>(null);
   const toggleRef = useRef<HTMLButtonElement>(null);
   const isPickerOpenRef = useRef(false);
@@ -522,7 +524,9 @@ export function ChatInterface({ className, initialPersona, initialMode }: ChatIn
       {/* ── Header ─────────────────────────────────────────── */}
       <ModeButtonBar
         mode={mode}
-        onModeChange={setModeState}
+        onModeChange={(m) => {
+          setModeState(m);
+        }}
         selectedIds={selectedIds}
         onTogglePersona={togglePersona}
         pickerOpen={isPickerOpen}
@@ -530,6 +534,7 @@ export function ChatInterface({ className, initialPersona, initialMode }: ChatIn
           setIsPickerOpen(open);
           setShowPersonaPicker(open);
         }}
+        onModePickerOpen={() => setShowModePicker(true)}
       />
 
       {/* ── Toolbar row (settings / export / limits) ─────────── */}
@@ -1016,8 +1021,16 @@ export function ChatInterface({ className, initialPersona, initialMode }: ChatIn
         </div>
       </div>
 
+      {/* ── Mode Picker Overlay ─────────────────────────────── */}
+      <ModePickerOverlay
+        isOpen={showModePicker}
+        currentMode={mode}
+        onSelect={setModeState}
+        onClose={() => setShowModePicker(false)}
+      />
+
       {/* ── Limit Reached Modal ─────────────────────────────── */}
       <LimitReachedModal isOpen={showLimitModal} onClose={() => setShowLimitModal(false)} />
-  </div>
+    </div>
   );
 }
