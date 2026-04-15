@@ -1,4 +1,11 @@
 # Prismatic CI/CD
+#
+# 为什么这样设计：
+# 1. deploy-preview 和 deploy-production 都使用 vercel-action，它会正确读取
+#    VERCEL_ORG_ID / VERCEL_PROJECT_ID 指向已有项目，不会重复创建
+# 2. 本地 npm ci 只执行一次（在 deploy job 里），quality/test 独立并行跑
+# 3. deploy job 依赖 quality + test，不依赖 build——vercel-action 自己调用 vercel build
+# 4. 减少了重复的 npm ci 步骤，整体 pipeline 时间大幅缩短
 
 name: CI/CD
 
@@ -12,7 +19,7 @@ env:
   NODE_VERSION: '22'
 
 jobs:
-  # ─── Type Check & Lint ────────────────────────────────────────────────
+  # ─── Type Check & Lint ──────────────────────────────────────────────────────
   quality:
     name: Quality Check
     runs-on: ubuntu-latest
@@ -34,7 +41,7 @@ jobs:
       - name: Run linter
         run: npm run lint
 
-  # ─── Unit Tests ────────────────────────────────────────────────────
+  # ─── Unit Tests ─────────────────────────────────────────────────────────────
   test:
     name: Unit Tests
     runs-on: ubuntu-latest
@@ -53,33 +60,12 @@ jobs:
       - name: Run tests
         run: npm test || true
 
-  # ─── Build ────────────────────────────────────────────────────────
-  build:
-    name: Build
-    runs-on: ubuntu-latest
-    needs: [quality, test]
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Build application
-        run: npm run build
-        env:
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-
-  # ─── Deploy Preview ────────────────────────────────────────────────
+  # ─── Deploy Preview (PR) ──────────────────────────────────────────────────
+  # 使用 vercel-action，自动关联到正确的项目和组织，不会重复创建
   deploy-preview:
     name: Deploy Preview
     runs-on: ubuntu-latest
-    needs: [build]
+    needs: [quality, test]
     if: github.event_name == 'pull_request'
     steps:
       - uses: actions/checkout@v4
@@ -93,33 +79,31 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           scope: ${{ secrets.VERCEL_ORG_ID }}
 
-  # ─── Deploy Production ──────────────────────────────────────────────
+  # ─── Deploy Production (main push) ───────────────────────────────────────
+  # 同样使用 vercel-action，与 preview 保持一致
   deploy-production:
     name: Deploy Production
     runs-on: ubuntu-latest
-    needs: [build]
+    needs: [quality, test]
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-
+      # 安装 npm 依赖，供 vercel build 使用
       - name: Install dependencies
         run: npm ci
 
-      - name: Setup Vercel CLI
-        run: npm install -g vercel
-
-      - name: Link Vercel project
-        run: vercel link --token=${{ secrets.VERCEL_TOKEN }} --yes || true
-
-      - name: Ensure project config
+      # 将运行时 secrets 注入为环境变量，让 vercel build 时可用
+      - name: Set build env vars
         run: |
-          mkdir -p .vercel
-          echo '{"orgId":"${{ secrets.VERCEL_ORG_ID }}","projectId":"${{ secrets.VERCEL_PROJECT_ID }}","team":{"id":"${{ secrets.VERCEL_ORG_ID }}","slug":"johnzhangs-projects-50e83ec4"}}' > .vercel/project.json
+          echo "OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}" >> $GITHUB_ENV
 
       - name: Deploy to Vercel Production
-        run: vercel deploy . --prod --yes --token=${{ secrets.VERCEL_TOKEN }}
+        uses: amondnet/vercel-action@v25
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          scope: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-args: '--prod'
