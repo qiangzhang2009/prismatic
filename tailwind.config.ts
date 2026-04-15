@@ -31,8 +31,8 @@ const config: Config = {
 
         // Text
         'text-primary': '#f1f5f9',
-        'text-secondary': '#94a3b8',
-        'text-muted': '#475569',
+        'text-secondary': '#cbd5e1',
+        'text-muted': '#94a3b8',
 
         // Border
         'border-subtle': 'rgba(255, 255, 255, 0.06)',

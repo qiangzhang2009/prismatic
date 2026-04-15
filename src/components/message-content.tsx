@@ -26,7 +26,7 @@ function StructuredOutput({ content }: { content: string }) {
   const lines = content.split('\n');
 
   return (
-    <div className="space-y-1">
+    <div className="space-y-1 text-sm">
       {lines.map((line, i) => {
         const trimmed = line.trim();
         if (!trimmed) return <div key={i} className="h-2" />;
@@ -43,7 +43,7 @@ function StructuredOutput({ content }: { content: string }) {
         // Bold header with Chinese brackets: **【XXX】**
         if (/^\*\*【[^】]+】\*\*/.test(trimmed)) {
           return (
-            <p key={i} className="text-sm font-semibold text-prism-amber mt-2 mb-0.5 first:mt-0">
+            <p key={i} className="text-sm font-semibold text-amber-400 mt-2 mb-0.5 first:mt-0">
               {trimmed.replace(/\*\*/g, '')}
             </p>
           );
@@ -55,10 +55,10 @@ function StructuredOutput({ content }: { content: string }) {
             .replace(/^[•\-]\s*/, '')
             .split(/(\*\*[^*]+\*\*)/);
           return (
-            <p key={i} className="text-sm text-text-secondary pl-2 leading-relaxed">
+            <p key={i} className="text-sm text-slate-300 pl-2 leading-relaxed">
               {parts.map((part, j) => {
                 if (part.startsWith('**') && part.endsWith('**')) {
-                  return <strong key={j} className="font-medium text-text-primary">{part.slice(2, -2)}</strong>;
+                  return <strong key={j} className="font-medium text-slate-200">{part.slice(2, -2)}</strong>;
                 }
                 return <Fragment key={j}>{part}</Fragment>;
               })}
@@ -69,7 +69,7 @@ function StructuredOutput({ content }: { content: string }) {
         // Sub-bullets (indented)
         if (/^  +[•\-]/.test(trimmed) || /^\s{2,}[^\s]/.test(trimmed)) {
           return (
-            <p key={i} className="text-xs text-text-muted pl-5 leading-relaxed">
+            <p key={i} className="text-xs text-slate-400 pl-5 leading-relaxed">
               {trimmed.replace(/\*\*/g, '')}
             </p>
           );
@@ -82,7 +82,7 @@ function StructuredOutput({ content }: { content: string }) {
 
         // Regular paragraph — render markdown inline
         return (
-          <p key={i} className="text-sm text-text-secondary leading-relaxed">
+          <p key={i} className="text-sm text-slate-300 leading-relaxed">
             <ReactMarkdown>{trimmed}</ReactMarkdown>
           </p>
         );
@@ -103,7 +103,7 @@ export function MessageContent({ content, role, className }: MessageContentProps
   }
 
   return (
-    <div className={cn('prose-markdown text-sm', className)}>
+    <div className={cn('prose-markdown', className)} style={{ fontSize: '0.9375rem' }}>
       <ReactMarkdown>{content}</ReactMarkdown>
     </div>
   );
