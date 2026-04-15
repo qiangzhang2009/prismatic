@@ -534,7 +534,6 @@ export function ChatInterface({ className, initialPersona, initialMode }: ChatIn
           setIsPickerOpen(open);
           setShowPersonaPicker(open);
         }}
-        onModePickerOpen={() => setShowModePicker(true)}
       />
 
       {/* ── Toolbar row (settings / export / limits) ─────────── */}
