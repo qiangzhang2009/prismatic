@@ -110,13 +110,16 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Install Vercel CLI
+      - name: Setup Vercel CLI
         run: npm install -g vercel
 
-      - name: Inject Vercel project config
+      - name: Link Vercel project
+        run: vercel link --token=${{ secrets.VERCEL_TOKEN }} --yes || true
+
+      - name: Ensure project config
         run: |
-          mkdir -p .vercel/output
-          echo '{"orgId":"${{ secrets.VERCEL_ORG_ID }}","projectId":"${{ secrets.VERCEL_PROJECT_ID }}","team":{"id":"${{ secrets.VERCEL_ORG_ID }}","slug":"johnzhangs-projects-50e83ec4"}}' > .vercel/output/project.json
+          mkdir -p .vercel
+          echo '{"orgId":"${{ secrets.VERCEL_ORG_ID }}","projectId":"${{ secrets.VERCEL_PROJECT_ID }}","team":{"id":"${{ secrets.VERCEL_ORG_ID }}","slug":"johnzhangs-projects-50e83ec4"}}' > .vercel/project.json
 
       - name: Deploy to Vercel Production
         run: vercel deploy . --prod --yes --token=${{ secrets.VERCEL_TOKEN }}
