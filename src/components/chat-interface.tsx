@@ -6,7 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Send, Loader2, ChevronDown, Settings, Trash2, X, Download, FileText, Image } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { PersonaCard } from '@/components/persona-card';
-import { ModeSelector } from '@/components/mode-selector';
+import { ModeSelector, CompactModeTrigger } from '@/components/mode-selector';
 import { MessageContent } from '@/components/message-content';
 import { PERSONA_LIST, getPersonasByIds } from '@/lib/personas';
 import { useChatHistory } from '@/lib/use-chat-history';
@@ -104,6 +104,7 @@ export function ChatInterface({ className, initialPersona, initialMode }: ChatIn
   const [isLoading, setIsLoading] = useState(false);
   const [showPersonaPicker, setShowPersonaPicker] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
+  const [showModeFullScreen, setShowModeFullScreen] = useState(false);
   const [isPickerOpen, setIsPickerOpen] = useState(false); // compact header mode
   const [showLimitModal, setShowLimitModal] = useState(false);
   const pickerRef = useRef<HTMLDivElement>(null);
@@ -208,7 +209,10 @@ export function ChatInterface({ className, initialPersona, initialMode }: ChatIn
 
   // Handle mode changes: adjust participant count if needed
   useEffect(() => {
-    const minParticipants = mode === 'solo' ? 1 : 2;
+    const minParticipants =
+        mode === 'solo' ? 1
+        : mode === 'oracle' ? 1
+        : 2;
     const maxParticipants = mode === 'prism' ? 3 : mode === 'roundtable' ? 8 : 6;
 
     setSelectedIds((prev) => {
@@ -489,7 +493,10 @@ export function ChatInterface({ className, initialPersona, initialMode }: ChatIn
   };
 
   const togglePersona = (id: string) => {
-    const minParticipants = mode === 'solo' ? 1 : 2;
+    const minParticipants =
+        mode === 'solo' ? 1
+        : mode === 'oracle' ? 1
+        : 2;
 
     if (selectedIds.includes(id)) {
       if (selectedIds.length > minParticipants) {
@@ -497,7 +504,14 @@ export function ChatInterface({ className, initialPersona, initialMode }: ChatIn
       }
     } else {
       const maxParticipants =
-        mode === 'prism' ? 3 : mode === 'roundtable' ? 8 : 6;
+        mode === 'epoch' ? 2
+        : mode === 'prism' ? 3
+        : mode === 'solo' ? 1
+        : mode === 'oracle' ? 2
+        : mode === 'council' ? 4
+        : mode === 'fiction' ? 3
+        : mode === 'roundtable' ? 6
+        : 6;
       if (selectedIds.length < maxParticipants) {
         setSelectedIds([...selectedIds, id]);
       }
@@ -509,8 +523,8 @@ export function ChatInterface({ className, initialPersona, initialMode }: ChatIn
       {/* ── Header ─────────────────────────────────────────── */}
       <div className="flex-shrink-0 px-4 py-3 border-b border-border-subtle bg-bg-surface/80 backdrop-blur-sm">
         <div className="flex items-center gap-3">
-          {/* Mode selector */}
-          <ModeSelector value={mode} onChange={setMode} participantCount={selectedIds.length} />
+          {/* Mode selector — compact trigger */}
+          <CompactModeTrigger value={mode} onOpen={() => setShowModeFullScreen(true)} />
 
           {/* Persona picker toggle — always visible */}
           <button
@@ -865,9 +879,17 @@ export function ChatInterface({ className, initialPersona, initialMode }: ChatIn
               {mode === 'solo'
                 ? `向${selectedPersonas[0]?.nameZh}提出你的问题`
                 : mode === 'prism'
-                ? `${selectedIds.length}个视角同时为你分析一个问题`
+                ? `${selectedIds.length}个视角折射出完整光谱`
                 : mode === 'roundtable'
-                ? `${selectedIds.length}个人物正在进行圆桌辩论`
+                ? `${selectedIds.length}位思想家正在激烈碰撞`
+                : mode === 'epoch'
+                ? `关公战秦琼，正面交锋即将上演`
+                : mode === 'council'
+                ? `${selectedIds.length}位顾问正在为您出谋划策`
+                : mode === 'oracle'
+                ? `预言家正在审视未来...`
+                : mode === 'fiction'
+                ? `${selectedIds.length}位角色正在演绎故事...`
                 : `多角色协作完成复杂任务`}
             </p>
           </div>
@@ -1039,6 +1061,30 @@ export function ChatInterface({ className, initialPersona, initialMode }: ChatIn
 
       {/* ── Limit Reached Modal ─────────────────────────────── */}
       <LimitReachedModal isOpen={showLimitModal} onClose={() => setShowLimitModal(false)} />
-    </div>
+  
+      {/* ── Mode Selector Full-Screen Overlay ──────────────────────────── */}
+      <AnimatePresence>
+        {showModeFullScreen && (
+          <motion.div
+            key="mode-fullscreen"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+          >
+            <ModeSelector
+              value={mode}
+              onChange={(m) => {
+                setModeState(m);
+                setShowModeFullScreen(false);
+              }}
+              fullScreen
+              onClose={() => setShowModeFullScreen(false)}
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
+    
+  </div>
   );
 }

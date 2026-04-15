@@ -27,49 +27,118 @@ export const LANGUAGES = {
 
 // Conversation modes — each has a distinct user intent
 export const MODES = {
+  // ── 认知型 ────────────────────────────────────────────────────────
   solo: {
     id: 'solo',
     label: '单人对话',
     labelEn: 'Solo Chat',
+    tagline: '找一个灵魂，深入聊透',
     description: '选择一个思维伙伴，连续追问，挖掘深层思维',
     when: '想深入学透一个思想家的思维方式时',
     how: '问 → 答 → 追问 → 再答，像真正的师徒对话',
     minParticipants: 1,
     maxParticipants: 1,
     icon: '👤',
+    accent: '#6366f1',
   },
   prism: {
     id: 'prism',
     label: '折射视图',
     labelEn: 'Multi-Perspective',
+    tagline: '一束光，折射出完整光谱',
     description: '多视角全面分析，系统自动输出综合结论',
     when: '想快速全面了解一个问题时',
     how: '2-3人并行回答 → 系统综合共识与分歧 → 你获得完整认知地图',
     minParticipants: 2,
     maxParticipants: 3,
     icon: '🔺',
+    accent: '#8b5cf6',
   },
+
+  // ── 对话型 ────────────────────────────────────────────────────────
   roundtable: {
     id: 'roundtable',
     label: '圆桌辩论',
     labelEn: 'Round Table',
+    tagline: '让思想真正碰撞',
     description: '多个思想家真正来回碰撞，发现你没想到的盲点',
     when: '想被挑战、找到思维漏洞时',
     how: 'A说 → B反驳 → A回应 → C补充 → 观点碰撞收敛 → 盲点显现',
     minParticipants: 3,
     maxParticipants: 6,
     icon: '🏛️',
+    accent: '#0ea5e9',
   },
+  epoch: {
+    id: 'epoch',
+    label: '关公战秦琼',
+    labelEn: 'Cross-Era Clash',
+    tagline: '跨越时空的正面对决',
+    description: '两位不同时代的人物，就同一问题展开针锋相对的辩论',
+    when: '想看两种截然不同的世界观在同一问题上如何正面交锋',
+    how: '正方 → 反方 → 正方回应 → 反方反驳 → 裁判总结胜负点',
+    minParticipants: 2,
+    maxParticipants: 2,
+    icon: '⚔️',
+    accent: '#ef4444',
+  },
+
+  // ── 产出型 ────────────────────────────────────────────────────────
   mission: {
     id: 'mission',
     label: '任务模式',
     labelEn: 'Mission Mode',
+    tagline: '复杂任务，交给专家团队',
     description: '多角色分工协作，产出完整可用的结构化成果',
     when: '需要一个完整可用的产出物时',
     how: '分解任务 → 各角色执行 → 整合输出完整作品（计划/大纲/方案）',
     minParticipants: 2,
     maxParticipants: 6,
     icon: '🎯',
+    accent: '#10b981',
+  },
+  council: {
+    id: 'council',
+    label: '顾问团',
+    labelEn: 'Advisory Council',
+    tagline: '群贤毕至，共谋大计',
+    description: '各领域顾问给出专业建议，最终汇总成一套完整行动方案',
+    when: '面对重大决策，需要多方专业意见时',
+    how: '每人从各自专长出发给建议 → 交叉点评 → 形成共识行动方案',
+    minParticipants: 2,
+    maxParticipants: 4,
+    icon: '🎩',
+    accent: '#f59e0b',
+  },
+
+  // ── 洞察型 ────────────────────────────────────────────────────────
+  oracle: {
+    id: 'oracle',
+    label: '预言家',
+    labelEn: 'Oracle',
+    tagline: '站在未来，回望现在',
+    description: '思想家以未来视角，诊断现状并预测发展趋势',
+    when: '需要战略预判或看清事物发展的深层逻辑时',
+    how: '诊断现状 → 找关键变量 → 预测3-5年趋势 → 给出判断依据',
+    minParticipants: 1,
+    maxParticipants: 2,
+    icon: '🔮',
+    accent: '#a855f7',
+  },
+
+  // ── 创意型 ────────────────────────────────────────────────────────
+  fiction: {
+    id: 'fiction',
+    label: '共创故事',
+    labelEn: 'Co-Create Fiction',
+    tagline: '让伟人走进你的故事',
+    description: '多个角色共同演绎一个故事，每个角色保持独特的语言风格',
+    when: '想用故事形式理解思想，或纯粹享受沉浸式叙事时',
+    how: '设定背景 → 人物出场 → 情节推进 → 每人说自己的话、做自己的决定',
+    minParticipants: 2,
+    maxParticipants: 3,
+    icon: '📖',
+    accent: '#ec4899',
   },
 } as const;
 

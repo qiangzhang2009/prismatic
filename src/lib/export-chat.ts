@@ -31,6 +31,10 @@ function getModeName(mode: Mode): string {
     prism: '多维折射',
     roundtable: '圆桌辩论',
     mission: '协作任务',
+    epoch: '关公战秦琼',
+    council: '顾问团',
+    oracle: '预言家',
+    fiction: '共创故事',
   };
   return names[mode] || mode;
 }

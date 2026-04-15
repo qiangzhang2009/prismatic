@@ -2,11 +2,15 @@
  * Prismatic Chat API
  * Node.js Runtime (60s timeout)
  *
- * Four modes:
+ * Eight modes:
  *   solo       — single agent + conversation history
  *   prism      — parallel perspectives + synthesis (2 LLM calls)
  *   roundtable — FULL multi-turn dialogue in ONE LLM call
  *   mission    — FULL task plan + contributions + output in ONE LLM call
+ *   epoch      — two-sided adversarial debate ("关公战秦琼")
+ *   council    — advisory board with cross-evaluation + consensus
+ *   oracle     — future diagnosis and prediction
+ *   fiction    — collaborative storytelling with distinct voices
  */
 
 import { NextRequest, NextResponse } from 'next/server';
@@ -384,7 +388,304 @@ ${personaList}
   };
 }
 
-// ─── Main Route ────────────────────────────────────────────────────────────────
+// ─── Epoch Clash: Two-Sided Adversarial Debate ──────────────────────────────
+// "关公战秦琼" — exactly 2 personas, PRO vs CON, structured debate
+
+async function handleEpoch(personas: any[], topic: string) {
+  const llm = createLLMProvider(getLLMType());
+
+  if (personas.length < 2) {
+    return { turns: [], verdict: { winner: null, reasoning: '需要至少2位人物才能进行关公战秦琼', consensus: '' } };
+  }
+
+  const [pro, con] = personas;
+  const speakerMap: Record<string, string> = {
+    [pro.nameZh]: pro.id,
+    [con.nameZh]: con.id,
+  };
+
+  const systemPrompt = `你是辩论裁判，主持两位思想家就一个话题展开正反方对决。
+
+规则：
+- **正方**（${pro.nameZh}）：${pro.identityPrompt}
+- **反方**（${con.nameZh}）：${con.identityPrompt}
+- 每人发言不超过80字，语言风格必须与人物一致
+- 共3轮：第1轮各陈述观点 → 第2轮互相反驳 → 第3轮各做最终陈述
+- 最后裁判给出：胜负判断、核心分歧、评分
+
+格式（markdown）：
+**【正方 · ${pro.nameZh} · 开场】**: 内容
+**【反方 · ${con.nameZh} · 开场】**: 内容
+**【正方 · 反驳】**: 内容
+**【反方 · 反驳】**: 内容
+**【正方 · 最终陈词】**: 内容
+**【反方 · 最终陈词】**: 内容
+---
+**【裁判判决】**: 正方X分 vs 反方Y分 | 核心分歧 | 关键胜点`;
+
+  const userPrompt = `辩题：${topic}
+
+请主持完整辩论。`;
+
+  const result = await llmChat(llm,
+    [{ role: 'system', content: systemPrompt }, { role: 'user', content: userPrompt }],
+    { temperature: 0.7, maxTokens: 700 }
+  );
+
+  const rawContent = result.content.trim();
+
+  // Parse turns: "**【...】**: 内容" pattern
+  const turnRegex = /^\*\*【(.+?)】(?:\s*(.+?))?\*\*[:：]\s*(.+)$/gm;
+  const turns: any[] = [];
+  let winner = '';
+  let reasoning = '';
+
+  let match;
+  while ((match = turnRegex.exec(rawContent)) !== null) {
+    const label = match[1].trim();
+    const speakerName = label.includes('正方') ? pro.nameZh
+      : label.includes('反方') ? con.nameZh
+      : '';
+    const round = label.includes('开场') ? 0
+      : label.includes('反驳') ? 1
+      : label.includes('最终') ? 2
+      : -1;
+
+    if (label.includes('裁判') || label.includes('判决')) {
+      // Parse verdict line
+      const verdictContent = match[3].trim();
+      const scoreMatch = verdictContent.match(/正方\s*(\d+)\s*分\s*vs?\s*反方\s*(\d+)\s*分/);
+      if (scoreMatch) {
+        winner = parseInt(scoreMatch[1]) > parseInt(scoreMatch[2]) ? pro.nameZh
+          : parseInt(scoreMatch[1]) < parseInt(scoreMatch[2]) ? con.nameZh
+          : '平局';
+      }
+      reasoning = verdictContent;
+    } else {
+      turns.push({
+        round,
+        speakerId: speakerMap[speakerName] ?? (label.includes('正方') ? pro.id : con.id),
+        speakerName: label,
+        content: match[3].trim(),
+        timestamp: new Date().toISOString(),
+      });
+    }
+  }
+
+  // Fallback if parsing fails
+  if (turns.length === 0) {
+    const lines = rawContent.split('\n').filter(l => l.trim() && !l.includes('---'));
+    for (let i = 0; i < lines.length; i++) {
+      turns.push({
+        round: Math.floor(i / 2),
+        speakerId: i % 2 === 0 ? pro.id : con.id,
+        speakerName: i % 2 === 0 ? `${pro.nameZh}` : `${con.nameZh}`,
+        content: lines[i].replace(/^\*\*/, '').replace(/\*\*$/, '').trim(),
+        timestamp: new Date().toISOString(),
+      });
+    }
+  }
+
+  return {
+    turns,
+    verdict: {
+      winner: winner || null,
+      reasoning: reasoning || '辩论已完成',
+      consensus: winner ? `${winner}方在本轮辩论中更具说服力` : '本轮辩论以平局收场',
+    },
+  };
+}
+
+// ─── Council: Advisory Board ────────────────────────────────────────────────
+// 2-4 personas give expert advice, cross-evaluate, then reach consensus
+
+async function handleCouncil(personas: any[], question: string) {
+  const llm = createLLMProvider(getLLMType());
+  const speakers = personas.slice(0, 4);
+
+  const speakerList = speakers.map((p, i) =>
+    `${i + 1}. 【${p.nameZh}】${p.identityPrompt}（专长：${p.strengths.slice(0, 2).join('、')}）`
+  ).join('\n');
+
+  const systemPrompt = `你是顾问团主席，主持多位顾问就用户的问题给出专业建议。
+
+格式（markdown）：
+**【${speakers.map(p => p.nameZh).join('、')}】**
+---
+${speakers.map(p => `### ${p.nameZh}的建议（100字以内，用第一人称）`).join('\n')}
+内容...
+---
+### 交叉点评（50字/每人，选最有价值的建议做点评）
+**${speakers[0].nameZh}点评**: 内容
+**${speakers[1].nameZh}点评**: 内容
+${speakers.length > 2 ? `**${speakers[2].nameZh}点评**: 内容` : ''}
+---
+### 最终共识（200字以内，可直接执行的行动方案）
+1. ...2. ...3. ...`;
+
+  const userPrompt = `用户问题：${question}
+
+可用顾问：${speakerList}
+
+请让各顾问给出专业建议，互相点评，并最终形成共识行动方案。`;
+
+  const result = await llmChat(llm,
+    [{ role: 'system', content: systemPrompt }, { role: 'user', content: userPrompt }],
+    { temperature: 0.5, maxTokens: 700 }
+  );
+
+  const rawContent = result.content.trim();
+  const personaNameMap: Record<string, string> = {};
+  for (const p of speakers) personaNameMap[p.nameZh] = p.id;
+
+  // Extract individual advice blocks
+  const adviceSectionRegex = /(?:###|【)(建议|Advice)(?:\s*（[^）]+）)?\s*\n([\s\S]*?)(?=\n(?:---|\n###|\n\*\*【))/gi;
+  const adviceEntries: any[] = [];
+  let match;
+  while ((match = adviceSectionRegex.exec(rawContent)) !== null) {
+    const text = match[2].trim().slice(0, 300);
+    if (text) {
+      adviceEntries.push({
+        personaId: speakers[adviceEntries.length]?.id ?? speakers[0].id,
+        personaName: speakers[adviceEntries.length]?.nameZh ?? speakers[0].nameZh,
+        advice: text,
+        timestamp: new Date().toISOString(),
+      });
+    }
+  }
+
+  // Fallback: split by speaker names
+  if (adviceEntries.length === 0) {
+    for (const p of speakers) {
+      const blockMatch = rawContent.match(new RegExp(`${p.nameZh}[^\\n]*\\n([\\s\\S]{10,400}?)(?=\\n(?:---)?\\s*\\n|\\n\\s*\\*{2}|$)`, 'i'));
+      adviceEntries.push({
+        personaId: p.id,
+        personaName: p.nameZh,
+        advice: blockMatch ? blockMatch[1].trim().slice(0, 300) : `从${p.nameZh}的角度给出了专业建议。`,
+        timestamp: new Date().toISOString(),
+      });
+    }
+  }
+
+  // Extract consensus
+  const consensusMatch = rawContent.match(/(?:最终共识|共识行动方案)[^\n]*\n([\s\S]{50,500}?)$/i);
+  const consensus = consensusMatch ? consensusMatch[1].trim() : rawContent.slice(-300);
+
+  return {
+    advice: adviceEntries,
+    consensus: {
+      id: nanoid(),
+      content: consensus,
+      timestamp: new Date().toISOString(),
+    },
+  };
+}
+
+// ─── Oracle: Future Diagnosis ───────────────────────────────────────────────
+// 1-2 personas look at current situation and predict the future
+
+async function handleOracle(personas: any[], question: string) {
+  const llm = createLLMProvider(getLLMType());
+  const speaker = personas[0];
+
+  const systemPrompt = `你是预言家，以${speaker.nameZh}的视角，用未来视角审视现在。
+
+核心原则：
+- 不是给你建议，而是告诉你未来会发生什么，以及为什么
+- 用3-5年后的眼光回看现在
+- 先诊断现状中的关键变量，再预测变化轨迹，最后给出置信度和判断依据
+- 说话风格与${speaker.nameZh}一致，有观点、有判断、不含糊
+
+格式（markdown）：
+## 🔮 现状诊断（60字）
+关键变量：... | 当前状态：...
+
+## 📈 预测（3条，每条50字以内）
+1. **变化A**：预测内容（含时间范围）
+2. **变化B**：预测内容（含时间范围）
+3. **变化C**：预测内容（含时间范围）
+
+## ⚖️ 置信度与依据
+置信度：XX% | 主要依据：...
+
+## 💡 关键判断（80字以内，一句话）
+`;
+
+  const userPrompt = `请以预言家的视角，分析这个问题：${question}`;
+  const result = await llmChat(llm,
+    [{ role: 'system', content: systemPrompt }, { role: 'user', content: userPrompt }],
+    { temperature: 0.8, maxTokens: 600 }
+  );
+
+  return {
+    diagnosis: { id: nanoid(), personaId: speaker.id, personaName: speaker.nameZh,
+      content: result.content.trim(), timestamp: new Date().toISOString() },
+    predictions: null, // embedded in content
+    source: speaker.nameZh,
+  };
+}
+
+// ─── Fiction: Collaborative Storytelling ────────────────────────────────────
+// 2-3 personas co-create a story, each speaking in their own voice
+
+async function handleFiction(personas: any[], premise: string) {
+  const llm = createLLMProvider(getLLMType());
+  const speakers = personas.slice(0, 3);
+
+  const systemPrompt = `你是故事主持人，让${speakers.map(p => `${p.nameZh}（${p.identityPrompt}）`).join('、')}共同演绎一个故事。
+
+规则：
+- 每人保持自己的人物语言风格和行为逻辑
+- 用 markdown 格式，格式：**【人物名】**：（动作和对话）
+- 共6-8段，推进情节，不拖沓
+- 结局开放或有意味
+
+格式：
+**【${speakers[0].nameZh}】**：（内容）
+**【${speakers[1].nameZh}】**：（内容）
+...
+`;
+
+  const userPrompt = `故事背景/前提：${premise}`;
+  const result = await llmChat(llm,
+    [{ role: 'system', content: systemPrompt }, { role: 'user', content: userPrompt }],
+    { temperature: 0.9, maxTokens: 800 }
+  );
+
+  const rawContent = result.content.trim();
+
+  // Parse turns
+  const turnRegex = /^\*\*【(.+?)】\*\*[:：]\s*([\s\S]*?)(?=\n(?:\*\*【|$))/gm;
+  const speakerMap: Record<string, string> = {};
+  for (const p of speakers) speakerMap[p.nameZh] = p.id;
+
+  const turns: any[] = [];
+  let match;
+  while ((match = turnRegex.exec(rawContent)) !== null) {
+    const speakerName = match[1].trim();
+    turns.push({
+      speakerId: speakerMap[speakerName] ?? speakers[0].id,
+      speakerName,
+      content: match[2].trim(),
+      timestamp: new Date().toISOString(),
+    });
+  }
+
+  // Fallback: just return raw content
+  if (turns.length === 0) {
+    turns.push({
+      speakerId: speakers[0].id,
+      speakerName: '旁白',
+      content: rawContent.slice(0, 500),
+      timestamp: new Date().toISOString(),
+    });
+  }
+
+  return {
+    turns,
+    meta: { speakerCount: speakers.length, premise },
+  };
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -440,6 +741,18 @@ export async function POST(request: NextRequest) {
         break;
       case 'mission':
         data = { conversationId: convId, mission: await handleMission(personas, message) };
+        break;
+      case 'epoch':
+        data = { conversationId: convId, debate: await handleEpoch(personas, message) };
+        break;
+      case 'council':
+        data = { conversationId: convId, ...(await handleCouncil(personas, message)) };
+        break;
+      case 'oracle':
+        data = { conversationId: convId, ...(await handleOracle(personas, message)) };
+        break;
+      case 'fiction':
+        data = { conversationId: convId, ...(await handleFiction(personas, message)) };
         break;
       default:
         return NextResponse.json({ error: 'Unknown mode' }, { status: 400 });

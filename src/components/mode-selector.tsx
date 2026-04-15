@@ -1,140 +1,226 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { MODES } from '@/lib/constants';
 import type { Mode } from '@/lib/types';
-import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronDown, Check } from 'lucide-react';
 import { trackModeSwitch } from '@/lib/use-tracking';
+import { X } from 'lucide-react';
 
 interface ModeSelectorProps {
   value: Mode;
   onChange: (mode: Mode) => void;
   participantCount?: number;
+  /** If true, the selector is shown as a full-screen overlay */
+  fullScreen?: boolean;
+  /** Called when user wants to close (if not fullScreen) */
+  onClose?: () => void;
 }
 
-export function ModeSelector({ value, onChange, participantCount = 1 }: ModeSelectorProps) {
-  const [open, setOpen] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
-  const openRef = useRef(false);
+const MODE_CATEGORIES = [
+  { id: 'cognitive', label: '认知型', labelEn: 'Cognitive', modes: ['solo', 'prism'] as Mode[] },
+  { id: 'dialogue', label: '对话型', labelEn: 'Dialogue', modes: ['roundtable', 'epoch'] as Mode[] },
+  { id: 'output', label: '产出型', labelEn: 'Output', modes: ['mission', 'council'] as Mode[] },
+  { id: 'creative', label: '洞察/创意', labelEn: 'Insight & Creative', modes: ['oracle', 'fiction'] as Mode[] },
+];
 
-  const getRecommendedModes = () => {
-    if (participantCount === 1) return ['solo'];
-    if (participantCount === 2 || participantCount === 3) return ['prism', 'mission'];
-    if (participantCount >= 4) return ['roundtable', 'mission'];
-    return [];
-  };
+export function ModeSelector({ value, onChange, fullScreen = false, onClose }: ModeSelectorProps) {
+  const [selected, setSelected] = useState<Mode>(value);
+  const currentMode = MODES[value];
 
-  const recommended = getRecommendedModes();
-  const currentMode = Object.values(MODES).find((m) => m.id === value)!;
-
-  // Close on outside click
+  // Sync internal state when external value changes
   useEffect(() => {
-    if (!open) return;
-    const handler = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node)) {
-        openRef.current = false;
-        setOpen(false);
-      }
-    };
-    document.addEventListener('mousedown', handler);
-    return () => document.removeEventListener('mousedown', handler);
-  }, [open]);
+    setSelected(value);
+  }, [value]);
+
+  const handleConfirm = () => {
+    if (selected !== value) {
+      trackModeSwitch(value, selected);
+      onChange(selected);
+    }
+    onClose?.();
+  };
 
   const handleSelect = (modeId: Mode) => {
-    if (modeId !== value) trackModeSwitch(value, modeId);
-    openRef.current = false;
-    setOpen(false);
-    onChange(modeId);
+    setSelected(modeId);
   };
 
-  return (
-    <div ref={ref} className="relative">
-      {/* Compact mode toggle button */}
-      <button
-        className={cn(
-          'flex items-center gap-2 px-3 py-1.5 rounded-xl text-sm font-medium transition-all',
-          open
-            ? 'bg-bg-surface border border-prism-blue/50 text-text-primary'
-            : 'text-text-secondary hover:text-text-primary hover:bg-bg-surface border border-transparent'
-        )}
-        onClick={() => {
-          openRef.current = !open;
-          setOpen(!open);
-        }}
-      >
-        <span>{currentMode.icon}</span>
-        <span className="hidden sm:inline text-xs">{currentMode.label}</span>
-        <ChevronDown className={cn('w-3.5 h-3.5 transition-transform', open && 'rotate-180')} />
-      </button>
+  const panel = (
+    <div className="flex flex-col h-full">
+      {/* Header */}
+      <div className="flex-shrink-0 px-6 py-5 border-b border-border-subtle">
+        <div className="flex items-center justify-between mb-1">
+          <h2 className="text-lg font-bold text-text-primary">选择对话模式</h2>
+          {fullScreen && onClose && (
+            <button
+              onClick={onClose}
+              className="w-8 h-8 rounded-full bg-bg-base hover:bg-bg-surface flex items-center justify-center text-text-muted hover:text-text-primary transition-colors"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          )}
+        </div>
+        <p className="text-sm text-text-muted">
+          当前：
+          <span className="ml-1.5 inline-flex items-center gap-1 text-prism-blue font-medium">
+            <span>{currentMode.icon}</span>
+            {currentMode.label}
+          </span>
+          <span className="text-text-muted"> — {currentMode.description}</span>
+        </p>
+      </div>
 
-      {/* Dropdown */}
-      <AnimatePresence>
-        {open && (
-          <motion.div
-            initial={{ opacity: 0, y: -6, scale: 0.97 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -6, scale: 0.97 }}
-            transition={{ duration: 0.15 }}
-            className="absolute left-0 top-full mt-2 w-64 bg-bg-elevated border border-border-subtle rounded-xl shadow-2xl z-[300] overflow-hidden"
-          >
-            {/* Current mode description */}
-            <div className="px-4 py-3 border-b border-border-subtle bg-bg-surface/50">
-              <div className="flex items-center gap-2 mb-1.5">
-                <span className="text-base">{currentMode.icon}</span>
-                <span className="text-sm font-semibold text-text-primary">{currentMode.label}</span>
-                <span className="ml-auto text-xs text-text-muted">{currentMode.minParticipants}-{currentMode.maxParticipants}人</span>
-              </div>
-              <p className="text-xs text-text-muted leading-relaxed">
-                <span className="text-prism-blue">何时用：</span>{currentMode.when}
-              </p>
-              <p className="text-xs text-text-muted leading-relaxed mt-0.5">
-                <span className="text-prism-purple">如何运行：</span>{currentMode.how}
-              </p>
+      {/* Mode cards by category */}
+      <div className="flex-1 overflow-y-auto px-6 py-4 space-y-6">
+        {MODE_CATEGORIES.map((category, catIdx) => (
+          <div key={category.id}>
+            <div className="flex items-center gap-2 mb-3">
+              <span className="text-xs font-semibold text-text-muted uppercase tracking-wider">{category.labelEn}</span>
+              <span className="text-xs text-text-muted/60">{category.label}</span>
             </div>
-
-            {/* Mode options */}
-            <div className="py-1">
-              {Object.values(MODES).map((mode) => {
-                const isActive = value === mode.id;
-                const isRecommended = recommended.includes(mode.id as Mode);
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {category.modes.map((modeId) => {
+                const mode = MODES[modeId];
+                const isActive = selected === modeId;
+                const isCurrent = value === modeId;
 
                 return (
-                  <button
-                    key={mode.id}
-                    onClick={() => handleSelect(mode.id as Mode)}
+                  <motion.button
+                    key={modeId}
+                    initial={{ opacity: 0, y: 12 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: catIdx * 0.05 }}
+                    onClick={() => handleSelect(modeId)}
                     className={cn(
-                      'w-full flex items-center gap-3 px-4 py-2.5 text-left transition-colors',
+                      'relative text-left p-4 rounded-2xl border-2 transition-all duration-200',
+                      'hover:scale-[1.01] active:scale-[0.99]',
                       isActive
-                        ? 'bg-prism-blue/10'
-                        : 'hover:bg-bg-surface'
+                        ? 'border-opacity-100'
+                        : 'border-border-subtle hover:border-border-medium bg-bg-surface',
                     )}
+                    style={{
+                      borderColor: isActive ? mode.accent : undefined,
+                      background: isActive ? `${mode.accent}08` : undefined,
+                    }}
                   >
-                    <span className="text-base flex-shrink-0">{mode.icon}</span>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2">
-                        <span className={cn('text-sm font-medium', isActive ? 'text-text-primary' : 'text-text-secondary')}>
-                          {mode.label}
-                        </span>
-                        {isRecommended && (
-                          <span className="text-[10px] px-1.5 py-0.5 rounded bg-prism-blue/15 text-prism-blue">推荐</span>
-                        )}
-                        {isActive && (
-                          <Check className="w-3.5 h-3.5 text-prism-blue ml-auto flex-shrink-0" />
-                        )}
+                    {/* Active indicator */}
+                    {isActive && (
+                      <div
+                        className="absolute top-3 right-3 w-2 h-2 rounded-full"
+                        style={{ background: mode.accent }}
+                      />
+                    )}
+
+                    {/* Current badge */}
+                    {isCurrent && !isActive && (
+                      <div className="absolute top-3 right-3 text-[10px] px-1.5 py-0.5 rounded bg-bg-base text-text-muted">
+                        当前
                       </div>
-                      <p className="text-xs text-text-muted mt-0.5 leading-snug">
-                        {mode.minParticipants}-{mode.maxParticipants}人 · {mode.when.slice(0, 20)}
-                      </p>
+                    )}
+
+                    {/* Icon + label */}
+                    <div className="flex items-center gap-2.5 mb-2">
+                      <span className="text-2xl">{mode.icon}</span>
+                      <div>
+                        <div className="text-sm font-semibold text-text-primary">{mode.label}</div>
+                        <div className="text-xs text-text-muted">{mode.labelEn}</div>
+                      </div>
                     </div>
-                  </button>
+
+                    {/* Tagline */}
+                    <div
+                      className="text-xs font-medium mb-2 italic"
+                      style={{ color: mode.accent }}
+                    >
+                      {mode.tagline}
+                    </div>
+
+                    {/* Description */}
+                    <div className="text-xs text-text-secondary leading-relaxed mb-3">
+                      {mode.description}
+                    </div>
+
+                    {/* When to use */}
+                    <div className="text-xs text-text-muted">
+                      <span className="text-text-muted/70">何时用：</span>
+                      <span>{mode.when}</span>
+                    </div>
+
+                    {/* Participant range */}
+                    <div className="flex items-center gap-1 mt-2 pt-2 border-t border-border-subtle">
+                      <span className="text-[10px] text-text-muted/60">参与人数</span>
+                      <span className="text-[10px] text-text-muted">
+                        {mode.minParticipants === mode.maxParticipants
+                          ? `${mode.minParticipants}人`
+                          : `${mode.minParticipants}-${mode.maxParticipants}人`}
+                      </span>
+                    </div>
+                  </motion.button>
                 );
               })}
             </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+          </div>
+        ))}
+      </div>
+
+      {/* Footer confirm */}
+      <div className="flex-shrink-0 px-6 py-4 border-t border-border-subtle bg-bg-surface/50">
+        <div className="flex items-center gap-3">
+          <button
+            onClick={handleConfirm}
+            disabled={selected === value}
+            className={cn(
+              'flex-1 py-2.5 rounded-xl text-sm font-semibold transition-all',
+              selected === value
+                ? 'bg-bg-base text-text-muted cursor-not-allowed'
+                : 'bg-prism-blue text-white hover:bg-prism-blue/90 active:scale-[0.98]',
+            )}
+          >
+            {selected === value ? `当前使用中 — ${MODES[value].label}` : `切换为 ${MODES[selected].label}`}
+          </button>
+          {onClose && selected === value && (
+            <button
+              onClick={onClose}
+              className="px-4 py-2.5 rounded-xl text-sm font-medium bg-bg-base text-text-secondary hover:bg-bg-surface transition-colors"
+            >
+              取消
+            </button>
+          )}
+        </div>
+      </div>
     </div>
+  );
+
+  if (fullScreen) {
+    return (
+      <div className="fixed inset-0 z-[500] bg-bg-base/95 backdrop-blur-md">
+        <div className="h-full max-w-3xl mx-auto">
+          {panel}
+        </div>
+      </div>
+    );
+  }
+
+  // Inline dropdown version (for header use — smaller cards)
+  return panel;
+}
+
+/** Compact trigger button + dropdown for use in the chat header */
+interface CompactModeTriggerProps {
+  value: Mode;
+  onOpen: () => void;
+}
+
+export function CompactModeTrigger({ value, onOpen }: CompactModeTriggerProps) {
+  const mode = MODES[value];
+  return (
+    <button
+      onClick={onOpen}
+      className="flex items-center gap-2 px-3 py-1.5 rounded-xl text-sm text-text-secondary hover:text-text-primary hover:bg-bg-surface border border-transparent hover:border-border-subtle transition-all"
+    >
+      <span>{mode.icon}</span>
+      <span className="hidden sm:inline text-xs font-medium">{mode.label}</span>
+    </button>
   );
 }

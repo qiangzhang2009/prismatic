@@ -30,7 +30,15 @@ export type Domain =
   | 'innovation'
   | 'principles';
 
-export type Mode = 'solo' | 'prism' | 'roundtable' | 'mission';
+export type Mode =
+  | 'solo'
+  | 'prism'
+  | 'roundtable'
+  | 'mission'
+  | 'epoch'
+  | 'council'
+  | 'oracle'
+  | 'fiction';
 
 // ─── Persona ──────────────────────────────────────────────────────────────────
 
