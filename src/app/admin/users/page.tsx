@@ -294,6 +294,12 @@ function AdminUsersContent() {
       if (res.ok) {
         setUsers(users.filter(u => u.id !== userId));
         showSuccess('用户已禁用');
+        // 重新获取统计数据，确保与删除后的用户列表一致
+        const statsRes = await fetch('/api/admin/stats', { credentials: 'include' });
+        if (statsRes.ok) {
+          const statsData = await statsRes.json();
+          setGlobalStats(statsData);
+        }
       } else {
         const data = await res.json();
         showError(data.error || '操作失败');

@@ -96,7 +96,7 @@ export async function getUserMessageHistory(userId: string, days: number = 7): P
 }
 
 /**
- * Get today's top N users by message count.
+ * Get today's top N users by message count (excluding deleted users).
  */
 export async function getTopUsersToday(limit: number = 10): Promise<Array<{ userId: string; date: string; count: number; email?: string; name?: string }>> {
   const sql = getSql();
@@ -109,7 +109,7 @@ export async function getTopUsersToday(limit: number = 10): Promise<Array<{ user
       u.email,
       u.name
     FROM prismatic_message_stats ms
-    LEFT JOIN prismatic_users u ON u.id = ms.user_id
+    INNER JOIN prismatic_users u ON u.id = ms.user_id AND u.is_active = TRUE
     WHERE ms.date = ${today}
     ORDER BY ms.message_count DESC
     LIMIT ${limit}
@@ -125,6 +125,7 @@ export async function getTopUsersToday(limit: number = 10): Promise<Array<{ user
 
 /**
  * Get global usage stats: today's total messages, this week's, and daily breakdown.
+ * Only counts messages from active users.
  */
 export async function getGlobalUsageStats(days: number = 7): Promise<{
   todayTotal: number;
@@ -136,30 +137,33 @@ export async function getGlobalUsageStats(days: number = 7): Promise<{
   const sql = getSql();
   const today = new Date().toISOString().slice(0, 10);
 
-  // Today's total
+  // Today's total (only from active users)
   const todayRows = await sql`
-    SELECT COALESCE(SUM(message_count), 0) as total
-    FROM prismatic_message_stats
-    WHERE date = ${today}
+    SELECT COALESCE(SUM(ms.message_count), 0) as total
+    FROM prismatic_message_stats ms
+    INNER JOIN prismatic_users u ON u.id = ms.user_id AND u.is_active = TRUE
+    WHERE ms.date = ${today}
   `;
   const todayTotal = Number((todayRows[0] as any)?.total ?? 0);
 
-  // This week's total
+  // This week's total (only from active users)
   const weekStart = new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
   const weekRows = await sql`
-    SELECT COALESCE(SUM(message_count), 0) as total
-    FROM prismatic_message_stats
-    WHERE date >= ${weekStart}
+    SELECT COALESCE(SUM(ms.message_count), 0) as total
+    FROM prismatic_message_stats ms
+    INNER JOIN prismatic_users u ON u.id = ms.user_id AND u.is_active = TRUE
+    WHERE ms.date >= ${weekStart}
   `;
   const weekTotal = Number((weekRows[0] as any)?.total ?? 0);
 
-  // Daily breakdown for last N days
+  // Daily breakdown for last N days (only from active users)
   const dailyRows = await sql`
-    SELECT date, SUM(message_count) as total
-    FROM prismatic_message_stats
-    WHERE date >= ${weekStart}
-    GROUP BY date
-    ORDER BY date ASC
+    SELECT ms.date, SUM(ms.message_count) as total
+    FROM prismatic_message_stats ms
+    INNER JOIN prismatic_users u ON u.id = ms.user_id AND u.is_active = TRUE
+    WHERE ms.date >= ${weekStart}
+    GROUP BY ms.date
+    ORDER BY ms.date ASC
   `;
   const dailyBreakdown = dailyRows.map((r: any) => ({
     date: r.date,
@@ -178,7 +182,7 @@ export async function getGlobalUsageStats(days: number = 7): Promise<{
 }
 
 /**
- * Get per-user usage stats for all users (used by admin user list).
+ * Get per-user usage stats for all active users (used by admin user list).
  */
 export async function getAllUsersUsage(days: number = 7): Promise<Record<string, {
   todayCount: number;
@@ -190,14 +194,16 @@ export async function getAllUsersUsage(days: number = 7): Promise<Record<string,
   const today = new Date().toISOString().slice(0, 10);
 
   const weekStart = new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
+  // Only query stats from active users
   const rows = await sql`
     SELECT
-      user_id,
-      date,
-      message_count,
-      MAX(date) OVER (PARTITION BY user_id) as last_date
-    FROM prismatic_message_stats
-    WHERE date >= ${weekStart}
+      ms.user_id,
+      ms.date,
+      ms.message_count,
+      MAX(ms.date) OVER (PARTITION BY ms.user_id) as last_date
+    FROM prismatic_message_stats ms
+    INNER JOIN prismatic_users u ON u.id = ms.user_id AND u.is_active = TRUE
+    WHERE ms.date >= ${weekStart}
   `;
 
   const result: Record<string, { todayCount: number; weekCount: number; totalCount: number; lastActivity: string | null }> = {};
@@ -216,11 +222,12 @@ export async function getAllUsersUsage(days: number = 7): Promise<Record<string,
     }
   }
 
-  // Total count across all time
+  // Total count across all time (only from active users)
   const totalRows = await sql`
-    SELECT user_id, SUM(message_count) as total
-    FROM prismatic_message_stats
-    GROUP BY user_id
+    SELECT ms.user_id, SUM(ms.message_count) as total
+    FROM prismatic_message_stats ms
+    INNER JOIN prismatic_users u ON u.id = ms.user_id AND u.is_active = TRUE
+    GROUP BY ms.user_id
   `;
   for (const r of totalRows as any[]) {
     if (!result[r.user_id]) {
@@ -271,14 +278,15 @@ export async function getUserUsageDetail(userId: string, days: number = 7): Prom
     ORDER BY date DESC
   `;
 
-  // Rank among today's users
+  // Rank among today's active users
   const rankRows = await sql`
     SELECT COUNT(*) + 1 as rank
-    FROM prismatic_message_stats
-    WHERE date = ${today}
-      AND message_count > (
-        SELECT COALESCE(message_count, 0) FROM prismatic_message_stats
-        WHERE user_id = ${userId} AND date = ${today}
+    FROM prismatic_message_stats ms
+    INNER JOIN prismatic_users u ON u.id = ms.user_id AND u.is_active = TRUE
+    WHERE ms.date = ${today}
+      AND ms.message_count > (
+        SELECT COALESCE(ms2.message_count, 0) FROM prismatic_message_stats ms2
+        WHERE ms2.user_id = ${userId} AND ms2.date = ${today}
       )
   `;
   const rank = Number((rankRows[0] as any)?.rank ?? 0);
