@@ -102,6 +102,20 @@ function getSegmentLabel(id: Segment): string {
   return SEGMENTS.find(s => s.id === id)?.label ?? id;
 }
 
+// ─── Shared tooltip labels (used by table + modal) ─────────────────────────────
+
+const roleTooltips: Record<string, string> = {
+  FREE: '普通用户：每日免费对话 10 条',
+  PRO: '高级用户：无限制对话，优先排队',
+  ADMIN: '管理员：后台全权限',
+};
+const planTooltips: Record<string, string> = {
+  FREE: '免费用户：每日 10 条对话额度',
+  MONTHLY: '月度订阅：无限制对话、导出、优先排队',
+  YEARLY: '年度订阅：无限制对话、导出、优先排队',
+  LIFETIME: '终身订阅：永久无限制访问',
+};
+
 // ─── User quality score ────────────────────────────────────────────────────────
 
 function qualityScore(u: User, usage: UsageStats): number {
@@ -226,11 +240,17 @@ function AdminUsersContent() {
 
   const saveEdit = async (userId: string) => {
     try {
+      // 只发送非空字段，避免 null 被忽略
+      const body: Record<string, string | null> = { userId };
+      if (editState.name.trim()) body.name = editState.name.trim();
+      if (editState.email.trim()) body.email = editState.email.trim();
+      if (editState.gender) body.gender = editState.gender;
+      if (editState.province) body.province = editState.province;
       const res = await fetch('/api/admin/users', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify({ userId, name: editState.name || null, gender: editState.gender || null, province: editState.province || null, email: editState.email || null }),
+        body: JSON.stringify(body),
       });
       const data = await res.json();
       if (res.ok) {
@@ -255,6 +275,12 @@ function AdminUsersContent() {
       if (res.ok) {
         setUsers(users.map(u => u.id === userId ? { ...u, role } : u));
         showSuccess('角色已更新');
+        // 同步刷新全局统计（总览和用户数）
+        const statsRes = await fetch('/api/admin/stats', { credentials: 'include' });
+        if (statsRes.ok) {
+          const statsData = await statsRes.json();
+          setGlobalStats(statsData);
+        }
       } else {
         const data = await res.json();
         showError(data.error || '更新失败');
@@ -274,6 +300,12 @@ function AdminUsersContent() {
       if (res.ok) {
         setUsers(users.map(u => u.id === userId ? { ...u, plan } : u));
         showSuccess('套餐已更新');
+        // 同步刷新全局统计
+        const statsRes = await fetch('/api/admin/stats', { credentials: 'include' });
+        if (statsRes.ok) {
+          const statsData = await statsRes.json();
+          setGlobalStats(statsData);
+        }
       } else {
         const data = await res.json();
         showError(data.error || '更新失败');
@@ -613,16 +645,20 @@ function AdminUsersContent() {
 
                             {/* Role */}
                             <td className="px-3 py-3.5">
-                              <Dropdown value={user.role} options={(['FREE', 'PRO', 'ADMIN'] as UserRole[])} labels={roleLabels}
-                                onChange={r => handleRoleChange(user.id, r as UserRole)}
-                                colorMap={{ FREE: 'gray', PRO: 'amber', ADMIN: 'purple' }} />
+                              <div title={roleTooltips[user.role]} className="inline-block">
+                                <Dropdown value={user.role} options={(['FREE', 'PRO', 'ADMIN'] as UserRole[])} labels={roleLabels}
+                                  onChange={r => handleRoleChange(user.id, r as UserRole)}
+                                  colorMap={{ FREE: 'gray', PRO: 'amber', ADMIN: 'purple' }} />
+                              </div>
                             </td>
 
                             {/* Plan */}
                             <td className="px-3 py-3.5">
-                              <Dropdown value={user.plan} options={(['FREE', 'MONTHLY', 'YEARLY', 'LIFETIME'] as SubscriptionPlan[])} labels={planLabels}
-                                onChange={p => handlePlanChange(user.id, p as SubscriptionPlan)}
-                                colorMap={{ FREE: 'gray', MONTHLY: 'blue', YEARLY: 'green', LIFETIME: 'purple' }} />
+                              <div title={planTooltips[user.plan]} className="inline-block">
+                                <Dropdown value={user.plan} options={(['FREE', 'MONTHLY', 'YEARLY', 'LIFETIME'] as SubscriptionPlan[])} labels={planLabels}
+                                  onChange={p => handlePlanChange(user.id, p as SubscriptionPlan)}
+                                  colorMap={{ FREE: 'gray', MONTHLY: 'blue', YEARLY: 'green', LIFETIME: 'purple' }} />
+                              </div>
                             </td>
 
                             {/* Sparkline (7 days mini bar) */}
@@ -809,13 +845,17 @@ function AdminUsersContent() {
 // ─── Mini Sparkline ────────────────────────────────────────────────────────────
 
 function MiniSparkline({ todayCount }: { todayCount: number }) {
-  // Simple 7-day bar indicator
+  // Deterministic bar heights using a fixed seed per "todayCount" bucket
+  // Avoids jitter caused by Math.random() on re-render
   const bars = Math.min(7, Math.ceil(todayCount / 10));
   const heights = [15, 25, 40, 55, 70, 85, 100];
   return (
     <div className="flex items-end gap-0.5 h-6">
       {Array.from({ length: 7 }).map((_, i) => {
-        const h = i === 6 ? heights[Math.min(bars - 1, 6)] : heights[Math.floor(Math.random() * 6)];
+        // Use deterministic heights: last bar always highlighted, others use fixed pattern
+        const h = i === 6
+          ? heights[Math.min(bars - 1, 6)]
+          : (heights[i] ?? 20);
         return (
           <div
             key={i}
@@ -936,12 +976,16 @@ function UserDetailModal({ user, usage, loading, onClose, onRoleChange, onPlanCh
 
           {/* Quick actions */}
           <div className="px-6 py-3 border-b border-border-subtle flex items-center gap-2">
-            <Dropdown value={user.role} options={(['FREE', 'PRO', 'ADMIN'] as UserRole[])} labels={{ FREE: '普通用户', PRO: '高级用户', ADMIN: '管理员' }}
-              onChange={r => onRoleChange(user.id, r as UserRole)}
-              colorMap={{ FREE: 'gray', PRO: 'amber', ADMIN: 'purple' }} />
-            <Dropdown value={user.plan} options={(['FREE', 'MONTHLY', 'YEARLY', 'LIFETIME'] as SubscriptionPlan[])} labels={{ FREE: '免费', MONTHLY: '月度', YEARLY: '年度', LIFETIME: '终身' }}
-              onChange={p => onPlanChange(user.id, p as SubscriptionPlan)}
-              colorMap={{ FREE: 'gray', MONTHLY: 'blue', YEARLY: 'green', LIFETIME: 'purple' }} />
+            <div title={roleTooltips[user.role]}>
+              <Dropdown value={user.role} options={(['FREE', 'PRO', 'ADMIN'] as UserRole[])} labels={{ FREE: '普通用户', PRO: '高级用户', ADMIN: '管理员' }}
+                onChange={r => onRoleChange(user.id, r as UserRole)}
+                colorMap={{ FREE: 'gray', PRO: 'amber', ADMIN: 'purple' }} />
+            </div>
+            <div title={planTooltips[user.plan]}>
+              <Dropdown value={user.plan} options={(['FREE', 'MONTHLY', 'YEARLY', 'LIFETIME'] as SubscriptionPlan[])} labels={{ FREE: '免费', MONTHLY: '月度', YEARLY: '年度', LIFETIME: '终身' }}
+                onChange={p => onPlanChange(user.id, p as SubscriptionPlan)}
+                colorMap={{ FREE: 'gray', MONTHLY: 'blue', YEARLY: 'green', LIFETIME: 'purple' }} />
+            </div>
             <button onClick={() => { if (confirm('确定禁用此用户？')) onDelete(user.id); onClose(); }}
               className="ml-auto px-3 py-1.5 rounded-lg text-xs font-medium text-red-400 bg-red-400/10 hover:bg-red-400/20 transition-colors flex items-center gap-1">
               <Ban className="w-3.5 h-3.5" />禁用

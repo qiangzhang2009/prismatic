@@ -46,7 +46,9 @@ export async function GET(req: NextRequest) {
         v.content,
         v.created_at,
         v.visitor_id,
-        v.is_ai_response
+        v.is_ai_response,
+        v.quoted_turn_id,
+        v.mentioned_persona_id
       FROM prismatic_forum_debate_visitors v
       WHERE v.debate_id = ${debateId}
       ORDER BY v.created_at ASC
@@ -65,6 +67,8 @@ export async function GET(req: NextRequest) {
           nickname,
           avatarUrl,
           isAiResponse: r.is_ai_response ?? false,
+          quotedTurnId: r.quoted_turn_id ?? null,
+          mentionedPersonaId: r.mentioned_persona_id ?? null,
         };
       }),
     });
@@ -89,7 +93,7 @@ export async function POST(req: NextRequest) {
 
   try {
     const body = await req.json();
-    const { debateId, content } = body;
+    const { debateId, content, quotedTurnId, mentionedPersonaId } = body;
 
     if (!debateId || !content) {
       return NextResponse.json({ error: 'debateId and content required' }, { status: 400 });
@@ -98,6 +102,10 @@ export async function POST(req: NextRequest) {
     if (typeof content !== 'string' || content.trim().length < 2 || content.length > 300) {
       return NextResponse.json({ error: 'Content must be 2-300 characters' }, { status: 400 });
     }
+
+    // Validate quotedTurnId and mentionedPersonaId
+    const validQuotedTurnId = typeof quotedTurnId === 'number' && quotedTurnId > 0 ? quotedTurnId : null;
+    const validMentionedPersonaId = typeof mentionedPersonaId === 'string' && mentionedPersonaId.trim() ? mentionedPersonaId.trim() : null;
 
     const sql = neon(process.env.DATABASE_URL!);
 
@@ -124,8 +132,10 @@ export async function POST(req: NextRequest) {
     const avatarUrl = `https://api.dicebear.com/7.x/avataaars/png?seed=${avatarSeed}&backgroundColor=b6e3f4,c0aede,d1d4f9,ffd5dc,ffdfbf`;
 
     const rows = await sql`
-      INSERT INTO prismatic_forum_debate_visitors (debate_id, visitor_id, content, ip_hash)
-      VALUES (${debateId}, ${visitorId}, ${content.trim()}, ${ipHash})
+      INSERT INTO prismatic_forum_debate_visitors
+        (debate_id, visitor_id, content, ip_hash, quoted_turn_id, mentioned_persona_id)
+      VALUES
+        (${debateId}, ${visitorId}, ${content.trim()}, ${ipHash}, ${validQuotedTurnId}, ${validMentionedPersonaId})
       RETURNING id, content, created_at
     `;
 
@@ -141,6 +151,8 @@ export async function POST(req: NextRequest) {
         nickname,
         avatarUrl,
         isAiResponse: false,
+        quotedTurnId: validQuotedTurnId,
+        mentionedPersonaId: validMentionedPersonaId,
       },
     });
   } catch (error) {

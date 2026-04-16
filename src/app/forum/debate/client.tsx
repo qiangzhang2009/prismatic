@@ -39,6 +39,16 @@ interface VisitorContribution {
   nickname: string;
   avatarUrl: string;
   isAiResponse: boolean;
+  /** 被引用的辩论轮次 ID */
+  quotedTurnId?: number;
+  /** 被引用的人物 ID（@人物） */
+  mentionedPersonaId?: string;
+}
+
+interface QuotedTurn {
+  id: number;
+  speakerName: string;
+  content: string;
 }
 
 const TONE_META: Record<string, { label: string; emoji: string; color: string }> = {
@@ -64,7 +74,12 @@ function PersonaBubble({ personaId, name, size = 'md' }: { personaId: string; na
   );
 }
 
-function TurnCard({ turn, persona }: { turn: DebateTurn; persona?: { nameZh: string; taglineZh: string } }) {
+function TurnCard({ turn, persona, onQuote, onMention }: {
+  turn: DebateTurn;
+  persona?: { nameZh: string; taglineZh: string };
+  onQuote?: (turn: QuotedTurn) => void;
+  onMention?: (personaId: string) => void;
+}) {
   const meta = TONE_META[turn.tone] ?? TONE_META.opening;
   const isModerator = turn.speakerId === 'moderator';
 
@@ -95,8 +110,30 @@ function TurnCard({ turn, persona }: { turn: DebateTurn; persona?: { nameZh: str
             {turn.round > 0 && <span className="text-xs text-gray-500">第{turn.round}轮</span>}
           </div>
         </div>
-        <div className="ml-auto text-xs text-gray-500">
-          {new Date(turn.createdAt).toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })}
+        <div className="ml-auto flex items-center gap-2">
+          {/* Quote button */}
+          {!isModerator && onQuote && (
+            <button
+              onClick={() => onQuote({ id: turn.debateId * 1000 + turn.round, speakerName: turn.speakerName, content: turn.content.slice(0, 80) })}
+              title="引用这段发言"
+              className="p-1.5 rounded-lg text-gray-500 hover:text-gray-200 hover:bg-white/10 transition-all"
+            >
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V20c0 1 0 1 1 1z"/><path d="M15 21c3 0 7-1 7-8V5c0-1.25-.757-2.017-2-2h-4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2h.75c0 2.25.25 4-2.75 4v3c0 1 0 1 1 1z"/></svg>
+            </button>
+          )}
+          {/* @Mention button */}
+          {!isModerator && onMention && (
+            <button
+              onClick={() => onMention(turn.speakerId)}
+              title={`@${turn.speakerName}`}
+              className="p-1.5 rounded-lg text-gray-500 hover:text-blue-400 hover:bg-blue-400/10 transition-all"
+            >
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="4"/><path d="M16 8v5a3 3 0 0 0 6 0v-1a10 10 0 1 0-3.92 7.94"/></svg>
+            </button>
+          )}
+          <div className="text-xs text-gray-500">
+            {new Date(turn.createdAt).toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })}
+          </div>
         </div>
       </div>
       <div className={cn('text-sm leading-relaxed', isModerator ? 'text-purple-200' : 'text-gray-200')}>
@@ -129,8 +166,14 @@ function VisitorCard({ contribution }: { contribution: VisitorContribution }) {
           className="w-8 h-8 rounded-full object-cover flex-shrink-0"
         />
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 mb-1">
+          <div className="flex items-center gap-2 mb-1.5 flex-wrap">
             <span className="text-sm font-medium text-gray-200">{contribution.nickname}</span>
+            {/* @Mention badge */}
+            {contribution.mentionedPersonaId && (
+              <span className="inline-flex items-center gap-0.5 text-[10px] px-1.5 py-0.5 rounded bg-blue-500/20 text-blue-400 font-medium">
+                @{contribution.mentionedPersonaId}
+              </span>
+            )}
             {contribution.isAiResponse && (
               <span className="inline-flex items-center gap-0.5 text-[10px] px-1.5 py-0.5 rounded bg-prism-blue/20 text-prism-blue">
                 <Sparkles className="w-2.5 h-2.5" />
@@ -141,6 +184,12 @@ function VisitorCard({ contribution }: { contribution: VisitorContribution }) {
               {new Date(contribution.createdAt).toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })}
             </span>
           </div>
+          {/* Quoted turn */}
+          {contribution.quotedTurnId && (
+            <div className="mb-2 pl-3 border-l-2 border-blue-500/40 text-xs text-blue-300/70 italic">
+              <span className="text-blue-400/60 font-medium">引用发言</span>
+            </div>
+          )}
           <p className="text-sm text-gray-300 leading-relaxed">{contribution.content}</p>
         </div>
       </div>
@@ -167,6 +216,10 @@ export function DebateArenaClient({ debate, preview, error }: DebateArenaClientP
   const [submittingContribution, setSubmittingContribution] = useState(false);
   const [contributionError, setContributionError] = useState<string | null>(null);
   const [showVisitorForm, setShowVisitorForm] = useState(false);
+  const [selectedQuote, setSelectedQuote] = useState<QuotedTurn | null>(null);
+  const [selectedMention, setSelectedMention] = useState<string | null>(null);
+  const [showQuotePanel, setShowQuotePanel] = useState(false);
+  const [showMentionPanel, setShowMentionPanel] = useState(false);
   const contributionsEndRef = useRef<HTMLDivElement>(null);
 
   const loadHistory = useCallback(async () => {
@@ -268,7 +321,12 @@ export function DebateArenaClient({ debate, preview, error }: DebateArenaClientP
       const res = await fetch('/api/forum/debate/visitor', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ debateId: debate.id, content: contributionText.trim() }),
+        body: JSON.stringify({
+          debateId: debate.id,
+          content: contributionText.trim(),
+          quotedTurnId: selectedQuote?.id,
+          mentionedPersonaId: selectedMention,
+        }),
       });
 
       const data = await res.json();
@@ -280,6 +338,8 @@ export function DebateArenaClient({ debate, preview, error }: DebateArenaClientP
 
       setContributions(prev => [...prev, data.contribution]);
       setContributionText('');
+      setSelectedQuote(null);
+      setSelectedMention(null);
     } catch {
       setContributionError('网络错误，请重试');
     } finally {
@@ -586,11 +646,95 @@ export function DebateArenaClient({ debate, preview, error }: DebateArenaClientP
                               <User className="w-4 h-4 text-gray-400" />
                             </div>
                             <span className="text-sm text-gray-400">围观群众发言</span>
+                            <div className="ml-auto flex items-center gap-1.5">
+                              {/* Quote button */}
+                              <button
+                                type="button"
+                                onClick={() => { setShowQuotePanel(!showQuotePanel); setShowMentionPanel(false); }}
+                                className={cn('flex items-center gap-1 px-2 py-1 rounded-lg text-xs transition-all', selectedQuote ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' : 'text-gray-500 hover:text-gray-200 hover:bg-white/10')}
+                              >
+                                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V20c0 1 0 1 1 1z"/><path d="M15 21c3 0 7-1 7-8V5c0-1.25-.757-2.017-2-2h-4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2h.75c0 2.25.25 4-2.75 4v3c0 1 0 1 1 1z"/></svg>
+                                引用
+                              </button>
+                              {/* @Mention button */}
+                              <button
+                                type="button"
+                                onClick={() => { setShowMentionPanel(!showMentionPanel); setShowQuotePanel(false); }}
+                                className={cn('flex items-center gap-1 px-2 py-1 rounded-lg text-xs transition-all', selectedMention ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' : 'text-gray-500 hover:text-gray-200 hover:bg-white/10')}
+                              >
+                                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="4"/><path d="M16 8v5a3 3 0 0 0 6 0v-1a10 10 0 1 0-3.92 7.94"/></svg>
+                                @
+                              </button>
+                            </div>
                           </div>
+
+                          {/* Quote selector panel */}
+                          {showQuotePanel && (
+                            <div className="mb-3 bg-white/5 rounded-xl p-3 border border-blue-500/20">
+                              <p className="text-xs text-blue-400 mb-2">选择要引用的发言</p>
+                              <div className="space-y-1 max-h-32 overflow-y-auto">
+                                {debate.turns.map((t, i) => (
+                                  <button
+                                    key={i}
+                                    type="button"
+                                    onClick={() => { setSelectedQuote({ id: t.debateId * 1000 + t.round, speakerName: t.speakerName, content: t.content.slice(0, 80) }); setShowQuotePanel(false); }}
+                                    className="w-full text-left px-2 py-1.5 rounded-lg text-xs hover:bg-white/10 transition-colors"
+                                  >
+                                    <span className="text-blue-400 font-medium">【{t.speakerName}】</span>
+                                    <span className="text-gray-400 ml-1">{t.content.slice(0, 40)}…</span>
+                                  </button>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+
+                          {/* @Mention selector panel */}
+                          {showMentionPanel && (
+                            <div className="mb-3 bg-white/5 rounded-xl p-3 border border-blue-500/20">
+                              <p className="text-xs text-blue-400 mb-2">@哪一位思想家</p>
+                              <div className="flex gap-2 flex-wrap">
+                                {debate.participantIds.map(pid => {
+                                  const p = personaMap.get(pid);
+                                  return (
+                                    <button
+                                      key={pid}
+                                      type="button"
+                                      onClick={() => { setSelectedMention(p?.nameZh ?? pid); setShowMentionPanel(false); }}
+                                      className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs hover:bg-white/10 transition-colors"
+                                    >
+                                      <PersonaBubble personaId={pid} name={p?.nameZh ?? pid} size="sm" />
+                                      <span className="text-gray-200">@{p?.nameZh ?? pid}</span>
+                                    </button>
+                                  );
+                                })}
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Active selections display */}
+                          {(selectedQuote || selectedMention) && (
+                            <div className="mb-3 flex items-center gap-2 flex-wrap">
+                              {selectedQuote && (
+                                <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-blue-500/10 border border-blue-500/20 text-xs">
+                                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V20c0 1 0 1 1 1z"/><path d="M15 21c3 0 7-1 7-8V5c0-1.25-.757-2.017-2-2h-4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2h.75c0 2.25.25 4-2.75 4v3c0 1 0 1 1 1z"/></svg>
+                                  <span className="text-blue-300">引用「{selectedQuote.speakerName}」</span>
+                                  <button type="button" onClick={() => setSelectedQuote(null)} className="text-blue-400/50 hover:text-blue-300 ml-1">✕</button>
+                                </div>
+                              )}
+                              {selectedMention && (
+                                <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-blue-500/10 border border-blue-500/20 text-xs">
+                                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="4"/><path d="M16 8v5a3 3 0 0 0 6 0v-1a10 10 0 1 0-3.92 7.94"/></svg>
+                                  <span className="text-blue-300">@{selectedMention}</span>
+                                  <button type="button" onClick={() => setSelectedMention(null)} className="text-blue-400/50 hover:text-blue-300 ml-1">✕</button>
+                                </div>
+                              )}
+                            </div>
+                          )}
+
                           <textarea
                             value={contributionText}
                             onChange={(e) => setContributionText(e.target.value)}
-                            placeholder="在这里写下你的观点、提问或回应..."
+                            placeholder={selectedMention ? `@{selectedMention}，你的观点是…` : '在这里写下你的观点、提问或回应…'}
                             maxLength={300}
                             rows={3}
                             className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-gray-200 placeholder:text-gray-500 focus:outline-none focus:border-prism-blue/50 transition-colors resize-none mb-3 text-sm"
@@ -646,6 +790,12 @@ export function DebateArenaClient({ debate, preview, error }: DebateArenaClientP
                         key={idx}
                         turn={turn}
                         persona={turn.speakerId !== 'moderator' ? personaMap.get(turn.speakerId) : undefined}
+                        onQuote={(q) => { setSelectedQuote(q); setShowVisitorForm(true); }}
+                        onMention={(pid) => {
+                          const p = personaMap.get(pid);
+                          setSelectedMention(p?.nameZh ?? pid);
+                          setShowVisitorForm(true);
+                        }}
                       />
                     ))}
                   </div>
@@ -664,11 +814,80 @@ export function DebateArenaClient({ debate, preview, error }: DebateArenaClientP
                             <User className="w-4 h-4 text-gray-400" />
                           </div>
                           <span className="text-sm text-gray-400">围观群众发言</span>
+                          <div className="ml-auto flex items-center gap-1.5">
+                            <button
+                              type="button"
+                              onClick={() => { setShowQuotePanel(!showQuotePanel); setShowMentionPanel(false); }}
+                              className={cn('flex items-center gap-1 px-2 py-1 rounded-lg text-xs transition-all', selectedQuote ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' : 'text-gray-500 hover:text-gray-200 hover:bg-white/10')}
+                            >
+                              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V20c0 1 0 1 1 1z"/><path d="M15 21c3 0 7-1 7-8V5c0-1.25-.757-2.017-2-2h-4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2h.75c0 2.25.25 4-2.75 4v3c0 1 0 1 1 1z"/></svg>
+                              引用
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => { setShowMentionPanel(!showMentionPanel); setShowQuotePanel(false); }}
+                              className={cn('flex items-center gap-1 px-2 py-1 rounded-lg text-xs transition-all', selectedMention ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' : 'text-gray-500 hover:text-gray-200 hover:bg-white/10')}
+                            >
+                              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="4"/><path d="M16 8v5a3 3 0 0 0 6 0v-1a10 10 0 1 0-3.92 7.94"/></svg>
+                              @
+                            </button>
+                          </div>
                         </div>
+                        {showQuotePanel && (
+                          <div className="mb-3 bg-white/5 rounded-xl p-3 border border-blue-500/20">
+                            <p className="text-xs text-blue-400 mb-2">选择要引用的发言</p>
+                            <div className="space-y-1 max-h-32 overflow-y-auto">
+                              {debate.turns.map((t, i) => (
+                                <button key={i} type="button"
+                                  onClick={() => { setSelectedQuote({ id: t.debateId * 1000 + t.round, speakerName: t.speakerName, content: t.content.slice(0, 80) }); setShowQuotePanel(false); }}
+                                  className="w-full text-left px-2 py-1.5 rounded-lg text-xs hover:bg-white/10 transition-colors">
+                                  <span className="text-blue-400 font-medium">【{t.speakerName}】</span>
+                                  <span className="text-gray-400 ml-1">{t.content.slice(0, 40)}…</span>
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                        {showMentionPanel && (
+                          <div className="mb-3 bg-white/5 rounded-xl p-3 border border-blue-500/20">
+                            <p className="text-xs text-blue-400 mb-2">@哪一位思想家</p>
+                            <div className="flex gap-2 flex-wrap">
+                              {debate.participantIds.map(pid => {
+                                const p = personaMap.get(pid);
+                                return (
+                                  <button key={pid} type="button"
+                                    onClick={() => { setSelectedMention(p?.nameZh ?? pid); setShowMentionPanel(false); }}
+                                    className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs hover:bg-white/10 transition-colors">
+                                    <PersonaBubble personaId={pid} name={p?.nameZh ?? pid} size="sm" />
+                                    <span className="text-gray-200">@{p?.nameZh ?? pid}</span>
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        )}
+                        {(selectedQuote || selectedMention) && (
+                          <div className="mb-3 flex items-center gap-2 flex-wrap">
+                            {selectedQuote && (
+                              <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-blue-500/10 border border-blue-500/20 text-xs">
+                                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V20c0 1 0 1 1 1z"/><path d="M15 21c3 0 7-1 7-8V5c0-1.25-.757-2.017-2-2h-4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2h.75c0 2.25.25 4-2.75 4v3c0 1 0 1 1 1z"/></svg>
+                                <span className="text-blue-300">引用「{selectedQuote.speakerName}」</span>
+                                <button type="button" onClick={() => setSelectedQuote(null)} className="text-blue-400/50 hover:text-blue-300 ml-1">✕</button>
+                              </div>
+                            )}
+                            {selectedMention && (
+                              <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-blue-500/10 border border-blue-500/20 text-xs">
+                                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="4"/><path d="M16 8v5a3 3 0 0 0 6 0v-1a10 10 0 1 0-3.92 7.94"/></svg>
+                                <span className="text-blue-300">@{selectedMention}</span>
+                                <button type="button" onClick={() => setSelectedMention(null)} className="text-blue-400/50 hover:text-blue-300 ml-1">✕</button>
+                              </div>
+                            )}
+                          </div>
+                        )}
                         <textarea
                           value={contributionText}
                           onChange={(e) => setContributionText(e.target.value)}
-                          placeholder="辩论已结束，在这里写下你的观点或回应..."
+                          placeholder={selectedMention ? `@${selectedMention}，你的观点是…` : '辩论已结束，在这里写下你的观点或回应…'}
                           maxLength={300}
                           rows={3}
                           className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-gray-200 placeholder:text-gray-500 focus:outline-none focus:border-prism-blue/50 transition-colors resize-none mb-3 text-sm"

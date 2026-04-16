@@ -17,8 +17,7 @@ import { BooksSection } from '@/components/scroll/books-section';
 import { InfluenceCircle } from '@/components/scroll/influence-circle';
 import { CTASection } from '@/components/scroll/cta-section';
 import { AstroProfile } from '@/components/scroll/astro-profile';
-import type { Persona } from '@/lib/types';
-import type { PersonaScrollTheme } from '@/lib/persona-scroll-themes';
+import { ParticleCanvas } from '@/components/scroll/particle-canvas';
 
 interface Props {
   slug: string;
@@ -74,6 +73,48 @@ export function PersonaScrollClient({ slug }: Props) {
       {/* Sections */}
       <OpeningSection persona={persona} theme={theme} />
       <SoulPortrait persona={persona} theme={theme} />
+
+      {/* Particle Canvas — lightweight visual identity for every persona */}
+      {theme.particleStyle !== 'none' && (
+        <div className="relative w-full px-6 pb-16" style={{ maxWidth: '900px', margin: '0 auto' }}>
+          {/* Section label */}
+          <div className="flex items-center gap-4 mb-8">
+            <div
+              className="h-px flex-1"
+              style={{
+                background: `linear-gradient(to right, transparent, ${theme.primaryColor}33)`,
+              }}
+            />
+            <span
+              className="text-xs tracking-widest uppercase font-medium px-4 py-1 rounded-full"
+              style={{
+                color: theme.primaryColor,
+                background: `${theme.primaryColor}0a`,
+                border: `1px solid ${theme.primaryColor}22`,
+              }}
+            >
+              {theme.particleStyle === 'circuit' ? '电路图谱' : theme.particleStyle === 'stars' ? '星图' : theme.particleStyle === 'waves' ? '波纹' : theme.particleStyle === 'leaves' ? '落叶' : '粒子场'}
+            </span>
+            <div
+              className="h-px flex-1"
+              style={{
+                background: `linear-gradient(to left, transparent, ${theme.primaryColor}33)`,
+              }}
+            />
+          </div>
+
+          <ParticleCanvas
+            initials={persona.nameEn.split(' ').map(w => w[0]).join('').slice(0, 2)}
+            nameZh={persona.nameZh}
+            primaryColor={theme.primaryColor}
+            secondaryColor={theme.secondaryColor}
+            particleStyle={theme.particleStyle}
+            height={420}
+            bgValue={theme.bgValue}
+          />
+        </div>
+      )}
+
       <CoreQuotes persona={persona} theme={theme} />
       <MentalModelMap persona={persona} theme={theme} />
       <LifeTimeline persona={persona} theme={theme} />

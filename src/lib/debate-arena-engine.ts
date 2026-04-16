@@ -409,7 +409,12 @@ async function generateRound(
       messages: [
         {
           role: 'system',
-          content: `你是辩论主持大师。今天三位思想家就以下话题展开辩论：
+          content: `【辩论场规则】
+这是一场思想交锋，不是顾问研讨会。三位思想家必须对【话题】形成鲜明对立立场。
+每位思想家必须：
+1. 明确表态：支持、反对还是条件性同意
+2. 提出最有力的论据（事实、数据、历史案例、哲学推理）
+3. 预判对手的反驳并提前反驳
 
 【话题】${topic}
 
@@ -459,29 +464,39 @@ async function generateRound(
     return turns;
   }
 
-  // Round 2+: Response rounds
+  // Round 2+: Response rounds — adversarial debate format
   const priorText = priorTurns
     .map((t) => `[${t.speakerName}]: ${t.content}`)
     .join('\n\n');
 
   const lastSpeakerId = priorTurns[priorTurns.length - 1]?.speakerId;
   const nextSpeaker = speakers.find((p) => p.id !== lastSpeakerId) ?? speakers[0];
+  const prevSpeaker = speakers.find((p) => p.id === priorTurns[priorTurns.length - 1]?.speakerId);
 
   const toneOptions = ['provocative', 'questioning', 'supportive', 'synthesizing'];
   const tone = toneOptions[round % toneOptions.length];
 
+  // Tone-specific instructions
+  const toneInstructions: Record<string, string> = {
+    provocative: '必须挑战或直接反驳上一位发言者的核心观点。指出其论据的漏洞或前提错误。用反问制造压迫感。',
+    questioning: '针对上一位发言者的论据提出最尖锐的追问。暴露其论证中未被说明的假设。',
+    supportive: '选择一个与上一位发言者对立的观点，为其辩护。但也要承认其部分合理性，然后深化自己的立场。',
+    synthesizing: '综合分析各方观点，找出它们的根本分歧所在。提炼出这场辩论真正的核心矛盾。',
+  };
+
   const prompt = `【话题】${topic}
 
-前几轮发言：
-${priorText}
+【辩论规则】这不是顾问讨论，而是真正的思想交锋。
+1. 你必须对【${prevSpeaker?.nameZh ?? '上一位'}】的核心观点形成挑战
+2. 用事实、逻辑或历史案例支撑你的反驳
+3. 第一人称直接表达，不要说"我认为"，直接说你的观点
 
-现在轮到【${nextSpeaker.nameZh}】发言。
+【${prevSpeaker?.nameZh ?? '上一位'}】刚才说：
+${priorTurns[priorTurns.length - 1]?.content ?? '(无)'}
 
-要求：
-- 用【${nextSpeaker.nameZh}】的视角和思维方式回应
-- ${tone === 'provocative' ? '提出质疑或不同意见' : tone === 'questioning' ? '提出追问或挑战假设' : tone === 'supportive' ? '补充或支持某个观点' : '综合各方观点并提炼'}
-- 80-120字以内，第一人称，像【${nextSpeaker.nameZh}】真正在说话
-- 不要说"我认为xxx"，直接说你的观点`;
+【${nextSpeaker.nameZh}】的立场：${toneInstructions[tone]}
+
+要求：80-120字以内，第一人称，要让对手感到压力。`;
 
   const result = await llm.chat({
     model,
@@ -522,7 +537,7 @@ async function generateClosingStatement(
     messages: [
       {
         role: 'system',
-        content: '你是辩论主持大师。请对今天的辩论进行收尾总结。',
+        content: '你是辩论裁判大师。请对今天的辩论进行专业收尾。评判一场辩论质量的核心标准是：是否产生了真正的新洞见，而非重复常识。',
       },
       {
         role: 'user',
@@ -531,14 +546,16 @@ async function generateClosingStatement(
 辩论全程：
 ${debateHistory}
 
-请写一段50字以内的总结，格式：**【总结】**: 总结内容
+请写一段80字以内的总结：
+- 分析各方最有力的论点和最弱的论点
+- 指出这场辩论产生的真正洞见（不是重复常识，而是有新意的东西）
+- 不要宣布谁"赢了"，而是指出辩论揭示的深层矛盾
 
-然后请给每个思想家一个简短的"辩论亮点"标签（10字以内），格式：
-• 【人物名】: 亮点标签`,
+格式：**【裁判总结】**: 总结内容`,
       },
     ],
     temperature: 0.5,
-    maxTokens: 300,
+    maxTokens: 400,
   });
 
   const closingContent = moderatorResult.content.trim();

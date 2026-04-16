@@ -21,6 +21,7 @@ import { PERSONA_CONFIDENCE } from '@/lib/confidence';
 import { authenticateRequest } from '@/lib/user-management';
 import { recordMessage, checkUserDailyLimit } from '@/lib/message-stats';
 import type { Mode } from '@/lib/types';
+import { getUserById } from '@/lib/user-management';
 
 export const runtime = 'nodejs';
 
@@ -720,7 +721,10 @@ export async function POST(request: NextRequest) {
     }
 
     // ── Daily usage limit check ──────────────────────────────────────────────
-    const { allowed, current, limit } = await checkUserDailyLimit(userId);
+    // Fetch user to get their subscription plan (determines if they have daily limits)
+    const user = await getUserById(userId);
+    const userPlan = user?.plan ?? 'FREE';
+    const { allowed, current, limit } = await checkUserDailyLimit(userId, userPlan);
     if (!allowed) {
       return NextResponse.json({
         error: `今日对话次数已达上限（${limit}次/天），明天再来探索吧~`,

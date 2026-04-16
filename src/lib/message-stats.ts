@@ -5,6 +5,7 @@
  */
 
 import { neon, NeonQueryFunction } from '@neondatabase/serverless';
+import type { SubscriptionPlan } from '@/lib/user-management';
 
 // Module-level singleton
 let _sql: NeonQueryFunction<false, false> | null = null;
@@ -24,11 +25,19 @@ function getSql(): NeonQueryFunction<false, false> {
 export const USER_DAILY_LIMIT = 10;
 
 // 检查用户是否达到今日对话配额上限
-export async function checkUserDailyLimit(userId: string): Promise<{
+// 规则：FREE 用户 10条/天；PRO/MONTHLY/YEARLY/LIFETIME 用户无限制
+export async function checkUserDailyLimit(
+  userId: string,
+  plan: SubscriptionPlan = 'FREE'
+): Promise<{
   allowed: boolean;
   current: number;
   limit: number;
 }> {
+  // Paid plans: unlimited
+  if (plan !== 'FREE') {
+    return { allowed: true, current: 0, limit: 999999 };
+  }
   const current = await getDailyMessageCount(userId);
   return {
     allowed: current < USER_DAILY_LIMIT,

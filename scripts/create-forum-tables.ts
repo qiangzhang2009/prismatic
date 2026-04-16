@@ -170,6 +170,33 @@ async function main() {
     console.error('⚠️ index:', e.message.split('\n')[0]);
   }
 
+  // ── prismatic_forum_debate_visitors ───────────────────────────────────────
+  try {
+    await sql`
+      CREATE TABLE IF NOT EXISTS public.prismatic_forum_debate_visitors (
+        id                   SERIAL PRIMARY KEY,
+        debate_id            INTEGER NOT NULL REFERENCES public.prismatic_forum_debates(id) ON DELETE CASCADE,
+        visitor_id           TEXT NOT NULL,
+        content              TEXT NOT NULL,
+        ip_hash              TEXT,
+        is_ai_response       BOOLEAN NOT NULL DEFAULT FALSE,
+        quoted_turn_id       INTEGER,
+        mentioned_persona_id TEXT,
+        created_at           TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      )
+    `;
+    console.log('✅ prismatic_forum_debate_visitors');
+  } catch (e: any) {
+    console.error('⚠️ prismatic_forum_debate_visitors:', e.message.split('\n')[0]);
+  }
+
+  try {
+    await sql`CREATE INDEX IF NOT EXISTS idx_visitors_debate_id ON public.prismatic_forum_debate_visitors (debate_id)`;
+    console.log('✅ index on prismatic_forum_debate_visitors');
+  } catch (e: any) {
+    console.error('⚠️ index:', e.message.split('\n')[0]);
+  }
+
   console.log('\n🎉 Forum tables migration complete!');
 }
 

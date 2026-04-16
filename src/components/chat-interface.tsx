@@ -4,6 +4,7 @@ import { useState, useRef, useEffect, useCallback } from 'react';
 import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Send, Loader2, ChevronDown, Settings, Trash2, X, Download, FileText, Image } from 'lucide-react';
+import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { PersonaCard } from '@/components/persona-card';
 import { MessageContent } from '@/components/message-content';
@@ -538,12 +539,13 @@ export function ChatInterface({ className, initialPersona, initialMode }: ChatIn
 
       {/* ── Toolbar row (settings / export / limits) ─────────── */}
       <div className="flex-shrink-0 px-4 py-1.5 flex items-center gap-3 border-b border-border-subtle bg-bg-surface/40">
-        <button
+        <Link
+          href="/settings"
           className="text-text-secondary hover:text-text-primary transition-colors"
-          onClick={() => setShowSettings(!showSettings)}
+          title="设置"
         >
           <Settings className="w-4 h-4" />
-        </button>
+        </Link>
 
         {messages.length > 0 && (
           <div className="relative" ref={exportMenuRef}>
@@ -561,25 +563,41 @@ export function ChatInterface({ className, initialPersona, initialMode }: ChatIn
             <AnimatePresence>
               {showExportMenu && (
                 <motion.div
-                  initial={{ opacity: 0, y: -10, scale: 0.95 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  exit={{ opacity: 0, y: -10, scale: 0.95 }}
-                  className="absolute right-0 top-full mt-2 w-48 bg-bg-elevated border border-border-subtle rounded-xl shadow-xl overflow-hidden z-50"
+                  initial={{ opacity: 0, scale: 0.92, y: -8 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.92, y: -8 }}
+                  transition={{ duration: 0.15 }}
+                  className="fixed inset-0 z-[200] flex items-center justify-center"
+                  onClick={() => setShowExportMenu(false)}
                 >
-                  <button
-                    className="w-full flex items-center gap-3 px-4 py-3 text-sm text-text-primary hover:bg-bg-surface transition-colors"
-                    onClick={handleExportAsImage}
+                  {/* Card — always centered, never clipped */}
+                  <motion.div
+                    initial={{ scale: 0.9, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    exit={{ scale: 0.9, opacity: 0 }}
+                    transition={{ duration: 0.15 }}
+                    className="bg-bg-elevated border border-border-subtle rounded-2xl shadow-2xl w-72 overflow-hidden"
+                    onClick={e => e.stopPropagation()}
                   >
-                    <Image className="w-4 h-4 text-prism-blue" />
-                    导出为图片
-                  </button>
-                  <button
-                    className="w-full flex items-center gap-3 px-4 py-3 text-sm text-text-primary hover:bg-bg-surface transition-colors"
-                    onClick={handleExportAsText}
-                  >
-                    <FileText className="w-4 h-4 text-prism-purple" />
-                    导出为文本
-                  </button>
+                    <div className="px-5 py-4 border-b border-border-subtle">
+                      <p className="text-sm font-semibold text-text-primary">导出对话记录</p>
+                      <p className="text-xs text-text-muted mt-0.5">选择导出格式</p>
+                    </div>
+                    <button
+                      className="w-full flex items-center gap-3 px-5 py-4 text-sm text-text-primary hover:bg-bg-surface transition-colors"
+                      onClick={() => { handleExportAsImage(); setShowExportMenu(false); }}
+                    >
+                      <Image className="w-4 h-4 text-prism-blue" />
+                      导出为图片
+                    </button>
+                    <button
+                      className="w-full flex items-center gap-3 px-5 py-4 text-sm text-text-primary hover:bg-bg-surface transition-colors"
+                      onClick={() => { handleExportAsText(); setShowExportMenu(false); }}
+                    >
+                      <FileText className="w-4 h-4 text-prism-purple" />
+                      导出为文本
+                    </button>
+                  </motion.div>
                 </motion.div>
               )}
             </AnimatePresence>
