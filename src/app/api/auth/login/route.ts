@@ -4,7 +4,7 @@
  * Supports both database users and demo accounts
  */
 import { NextRequest, NextResponse } from 'next/server';
-import { verifyCredentials, createJWTToken, demoEmailToUUID, ensureDemoUserInDB } from '@/lib/user-management';
+import { verifyCredentials, createJWTToken, demoEmailToUUID, ensureDemoUserInDB, getUserById, canUseProFeatures } from '@/lib/user-management';
 import { z } from 'zod';
 
 const DEMO_ACCOUNTS = [
@@ -61,11 +61,13 @@ export async function POST(req: NextRequest) {
       // Ensure demo user is active in DB (handles soft-deleted users)
       const dbId = demoUser.id.replace('demo_', '');
       await ensureDemoUserInDB(dbId, demoUser.email, demoUser.name);
+      // Fetch latest data from DB so admin modifications are reflected
+      const dbUser = await getUserById(dbId);
       const token = createJWTToken(demoUser.id, demoUser.email);
-      const response = NextResponse.json(
-        { user: demoUser, message: 'Login successful' },
-        { status: 200, headers: NO_CACHE_HEADERS }
-      );
+      const responseBody = dbUser
+        ? { user: { ...dbUser, canUseProFeatures: canUseProFeatures(dbUser.role, dbUser.plan, dbUser.credits) }, message: 'Login successful' }
+        : { user: demoUser, message: 'Login successful' };
+      const response = NextResponse.json(responseBody, { status: 200, headers: NO_CACHE_HEADERS });
       response.cookies.set('prismatic_token', token, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
