@@ -54,6 +54,13 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
   isInitialized: false,
 
   init: async () => {
+    // Skip if user already exists — prevents race with login/register setting user first.
+    // Demo users' /api/auth/me returns null due to Vercel DB query issues,
+    // so we must not overwrite the valid user set by login/register.
+    if (get().user) {
+      set({ isInitialized: true });
+      return;
+    }
     try {
       set({ isLoading: true });
       const res = await fetch('/api/auth/me', { credentials: 'include' });
@@ -80,10 +87,8 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
         return { success: false, error: data.error || 'Login failed' };
       }
 
-      // Also fetch full user from /api/auth/me so we have complete data
-      const meRes = await fetch('/api/auth/me', { credentials: 'include' });
-      const meData = await meRes.json();
-      set({ user: meData.user || data.user, isLoading: false });
+      // Use user from login response directly — avoids /api/auth/me race for demo users.
+      set({ user: data.user || null, isLoading: false });
       return { success: true };
     } catch {
       set({ isLoading: false });
@@ -107,10 +112,8 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
         return { success: false, error: data.error || '注册失败' };
       }
 
-      // Also fetch full user so we have complete data
-      const meRes = await fetch('/api/auth/me', { credentials: 'include' });
-      const meData = await meRes.json();
-      set({ user: meData.user || data.user, isLoading: false });
+      // Use user from register response directly — avoids /api/auth/me race.
+      set({ user: data.user || null, isLoading: false });
       return { success: true };
     } catch {
       set({ isLoading: false });
