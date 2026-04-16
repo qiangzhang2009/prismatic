@@ -6,8 +6,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import {
   verifyJWTToken, getUserById, updateUserName,
   canUseProFeatures, isDemoUserId, ensureDemoUserInDB,
+  demoEmailToUUID,
 } from '@/lib/user-management';
-import { createHash } from 'crypto';
 
 const NO_CACHE_HEADERS = {
   'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
@@ -26,19 +26,10 @@ function parseDemoNumber(email: string): string {
 }
 
 /**
- * Demo users have `demo_{base64}` in the JWT, but the DB id must be a valid UUID.
- * Derive a stable UUID v5 from the email — same email always → same UUID.
+ * Demo users: JWT payload.email → UUID for DB lookup (same as login).
+ * parseDemoNumber extracts the demo account number from email.
  */
-function demoEmailToUUID(email: string): string {
-  const hash = createHash('sha1').update(email.toLowerCase()).digest('hex').slice(0, 32);
-  return (
-    hash.slice(0, 8) + '-' +
-    hash.slice(8, 12) + '-' +
-    '5' + hash.slice(13, 16) + '-' +
-    ((parseInt(hash[16], 16) & 0x3) | 0x8).toString(16) + hash.slice(17, 20) + '-' +
-    hash.slice(20, 32)
-  );
-}
+
 
 export async function GET(req: NextRequest) {
   const token = req.cookies.get('prismatic_token')?.value;

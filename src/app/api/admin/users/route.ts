@@ -4,7 +4,7 @@
  * DELETE /api/admin/users — Deactivate user
  */
 import { NextRequest, NextResponse } from 'next/server';
-import { authenticateAdminRequest, getAllUsers, getUserById, updateUserRole, updateUserPlan, updateUserCredits, updateUserName, updateUserProfile, updateUserEmail, deleteUser } from '@/lib/user-management';
+import { authenticateAdminRequest, getAllUsers, getUserById, updateUserRole, updateUserPlan, updateUserCredits, updateUserName, updateUserProfile, updateUserEmail, deleteUser, canUseProFeatures } from '@/lib/user-management';
 
 export async function GET(req: NextRequest) {
   const adminId = await authenticateAdminRequest(req);
@@ -38,9 +38,28 @@ export async function PUT(req: NextRequest) {
     if (gender !== undefined || province !== undefined) {
       await updateUserProfile(userId, { gender, province });
     }
-    if (email !== undefined) await updateUserEmail(userId, email);
+    if (email !== undefined) {
+      try {
+        await updateUserEmail(userId, email);
+      } catch (e: any) {
+        if (e.message === '邮箱已被其他账号使用') {
+          return NextResponse.json({ error: e.message }, { status: 409 });
+        }
+        throw e;
+      }
+    }
     const user = await getUserById(userId);
-    return NextResponse.json({ user, message: 'User updated successfully' });
+    if (!user) {
+      return NextResponse.json({ error: 'User not found after update' }, { status: 500 });
+    }
+    return NextResponse.json({
+      user: {
+        ...user,
+        canUseProFeatures: canUseProFeatures(user.role, user.plan, user.credits),
+        isAdmin: user.role === 'ADMIN',
+      },
+      message: 'User updated successfully'
+    });
   } catch (error) {
     console.error('Admin update error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });

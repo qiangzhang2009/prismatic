@@ -4,7 +4,7 @@
  * Supports both database users and demo accounts
  */
 import { NextRequest, NextResponse } from 'next/server';
-import { verifyCredentials, createJWTToken } from '@/lib/user-management';
+import { verifyCredentials, createJWTToken, demoEmailToUUID } from '@/lib/user-management';
 import { z } from 'zod';
 
 const DEMO_ACCOUNTS = [
@@ -35,7 +35,7 @@ function isDemoAccount(email: string, password: string) {
 function createDemoUser(email: string) {
   const num = email.match(/demo(\d+)/)?.[1] || '1';
   return {
-    id: `demo_${Buffer.from(email).toString('base64').slice(0, 8)}`,
+    id: demoEmailToUUID(email.toLowerCase()),
     email: email.toLowerCase(),
     name: `演示账号 ${num}`,
     nameZh: `演示账号 ${num}`,

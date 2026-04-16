@@ -1,8 +1,7 @@
 'use client';
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { SessionProvider } from 'next-auth/react';
-import { useState, useEffect, type ReactNode } from 'react';
+import { useState, useEffect, useRef, type ReactNode } from 'react';
 import { useAuthStore } from '@/lib/auth-store';
 import { TrackingInitializer } from '@/components/tracking-initializer';
 
@@ -20,27 +19,28 @@ export function Providers({ children }: { children: ReactNode }) {
   );
 
   return (
-    <SessionProvider>
-      <QueryClientProvider client={queryClient}>
-        <AuthInitializer />
-        <TrackingInitializer />
-        {children}
-      </QueryClientProvider>
-    </SessionProvider>
+    <QueryClientProvider client={queryClient}>
+      <AuthInitializer />
+      <TrackingInitializer />
+      {children}
+    </QueryClientProvider>
   );
 }
 
 /**
  * Sync auth state from server on every page load.
  *
- * Zustand store is now purely in-memory (no localStorage persist for user).
+ * Zustand store is purely in-memory (no localStorage persist for user).
  * Token lives in httpOnly cookie; server is always authoritative.
- * Admin changes (role/plan/credits) are immediately reflected on next navigation.
+ * initRef prevents duplicate init() calls from parallel useEffect execution.
  */
 function AuthInitializer() {
   const init = useAuthStore((s) => s.init);
+  const initRef = useRef(false);
 
   useEffect(() => {
+    if (initRef.current) return;
+    initRef.current = true;
     init();
   }, [init]);
 

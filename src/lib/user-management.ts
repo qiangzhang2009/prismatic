@@ -8,7 +8,7 @@
 
 import { neon, NeonQueryFunction } from '@neondatabase/serverless';
 import bcrypt from 'bcryptjs';
-import { randomBytes } from 'crypto';
+import { randomBytes, createHash } from 'crypto';
 import jwt from 'jsonwebtoken';
 
 export type UserRole = 'FREE' | 'PRO' | 'ADMIN';
@@ -257,16 +257,19 @@ export async function updateUserProfile(userId: string, data: {
   gender?: 'male' | 'female';
   province?: string;
 }): Promise<boolean> {
+  if (data.name === undefined && data.gender === undefined && data.province === undefined) {
+    return true;
+  }
   const sql = getSql();
-  if (data.name !== undefined) {
-    await sql`UPDATE prismatic_users SET name = ${data.name}, updated_at = NOW() WHERE id = ${userId}`;
-  }
-  if (data.gender !== undefined) {
-    await sql`UPDATE prismatic_users SET gender = ${data.gender}, updated_at = NOW() WHERE id = ${userId}`;
-  }
-  if (data.province !== undefined) {
-    await sql`UPDATE prismatic_users SET province = ${data.province}, updated_at = NOW() WHERE id = ${userId}`;
-  }
+  await sql`
+    UPDATE prismatic_users
+    SET
+      name = COALESCE(${data.name}, name),
+      gender = COALESCE(${data.gender}, gender),
+      province = COALESCE(${data.province}, province),
+      updated_at = NOW()
+    WHERE id = ${userId}
+  `;
   return true;
 }
 
@@ -278,7 +281,14 @@ export async function verifyUserEmail(userId: string): Promise<boolean> {
 
 export async function updateUserEmail(userId: string, email: string): Promise<boolean> {
   const sql = getSql();
-  await sql`UPDATE prismatic_users SET email = ${email.toLowerCase()}, updated_at = NOW() WHERE id = ${userId}`;
+  const normalized = email.toLowerCase();
+  const existing = await sql`
+    SELECT id FROM prismatic_users WHERE email = ${normalized} AND id != ${userId}
+  `;
+  if (existing.length > 0) {
+    throw new Error('邮箱已被其他账号使用');
+  }
+  await sql`UPDATE prismatic_users SET email = ${normalized}, updated_at = NOW() WHERE id = ${userId}`;
   return true;
 }
 
@@ -308,6 +318,22 @@ export function isDemoUserId(userId: string) {
   return userId.startsWith('demo_');
 }
 
+/**
+ * Derive a stable, valid UUID v5 from email for demo users.
+ * Same email always → same UUID. Shared between login (JWT userId)
+ * and /api/auth/me (DB lookup) so both use the same identifier.
+ */
+export function demoEmailToUUID(email: string): string {
+  const hash = createHash('sha1').update(email.toLowerCase()).digest('hex').slice(0, 32);
+  return (
+    hash.slice(0, 8) + '-' +
+    hash.slice(8, 12) + '-' +
+    '5' + hash.slice(13, 16) + '-' +
+    ((parseInt(hash[16], 16) & 0x3) | 0x8).toString(16) + hash.slice(17, 20) + '-' +
+    hash.slice(20, 32)
+  );
+}
+
 export async function ensureDemoUserInDB(userId: string, email: string, name: string): Promise<void> {
   const passwordHash = await bcrypt.hash('demo-no-password', 4);
   const sql = getSql();
@@ -320,32 +346,6 @@ export async function ensureDemoUserInDB(userId: string, email: string, name: st
   } catch {
     // Ignore — user might already exist
   }
-}
-
-export function createDemoUserFromId(userId: string) {
-  const base64 = userId.replace('demo_', '');
-  let email = 'demo1@prismatic.app';
-  try {
-    const decoded = Buffer.from(base64, 'base64').toString();
-    if (decoded.includes('@')) email = decoded;
-  } catch {}
-  const num = email.match(/demo(\d+)/)?.[1] || '1';
-  return {
-    id: userId,
-    email,
-    name: `演示账号 ${num}`,
-    nameZh: `演示账号 ${num}`,
-    gender: null,
-    province: null,
-    emailVerified: true,
-    role: 'PRO' as UserRole,
-    plan: 'LIFETIME' as SubscriptionPlan,
-    avatar: null,
-    credits: 0,
-    canUseProFeatures: true,
-    createdAt: new Date().toISOString(),
-    lastLoginAt: null,
-  };
 }
 
 // ─── JWT (for middleware auth) ─────────────────────────────────────────────────
