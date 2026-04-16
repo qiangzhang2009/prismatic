@@ -118,6 +118,23 @@ const planTooltips: Record<string, string> = {
 
 // ─── User quality score ────────────────────────────────────────────────────────
 
+// ─── Cost tracking & alerts ─────────────────────────────────────────────────────
+// API cost per message: ¥0.00085 (avg: 200 input + 150 output tokens)
+const COST_PER_MESSAGE = 0.00085;
+
+function estimateMonthlyCost(weekCount: number): number {
+  return weekCount * 4 * COST_PER_MESSAGE;
+}
+
+function getCostStatus(u: User, weekCount: number, todayCount: number) {
+  if (u.plan !== 'FREE') return null;
+  const monthlyCost = estimateMonthlyCost(weekCount);
+  const todayCost = todayCount * COST_PER_MESSAGE;
+  if (todayCost > 0.50) return 'danger';
+  if (monthlyCost > 29) return 'warning';
+  return null;
+}
+
 function qualityScore(u: User, usage: UsageStats): number {
   let score = 0;
   if (u.emailVerified) score += 20;
@@ -610,8 +627,15 @@ function AdminUsersContent() {
                         const sc = scoreColor(score);
                         const lastAct = u?.lastActivity || user.lastLoginAt;
 
-                        return (
-                          <tr key={user.id} className="hover:bg-bg-elevated/50 transition-colors group">
+                        return ([
+                          getCostStatus(user, uWeek, uToday) === 'danger' && (
+                            <tr key={`warn-${user.id}`} className="border-red-500/30 bg-red-500/5 animate-pulse">
+                              <td colSpan={10} className="px-4 py-2 text-xs text-red-400 text-center">
+                                ⚠️ 亏损警告：今日 API 成本已超 ¥0.50，免费用户无法覆盖成本 | 建议：提升为付费用户或禁用账户
+                              </td>
+                            </tr>
+                          ),
+                          <tr key={user.id} className={`hover:bg-bg-elevated/50 transition-colors group ${getCostStatus(user, uWeek, uToday) === 'warning' ? 'border-amber-500/20 bg-amber-500/5' : ''}`}>
                             {/* User */}
                             <td className="px-4 py-3.5">
                               {editingUserId === user.id ? (
@@ -630,6 +654,22 @@ function AdminUsersContent() {
                                     {uWeek > 20 && (
                                       <div className="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-green-400 border-2 border-bg-elevated" title="高活跃" />
                                     )}
+                                    {(() => {
+                                      const status = getCostStatus(user, uWeek, uToday);
+                                      if (status === 'danger') return (
+                                        <div className="absolute -bottom-1 -right-1 flex items-center gap-0.5">
+                                          <div className="animate-pulse w-3 h-3 rounded-full bg-red-500 border-2 border-bg-elevated" title="今日用量异常！可能导致亏损" />
+                                          <span className="text-[8px] text-red-400 font-bold">亏</span>
+                                        </div>
+                                      );
+                                      if (status === 'warning') return (
+                                        <div className="absolute -bottom-1 -right-1 flex items-center gap-0.5">
+                                          <div className="animate-pulse w-3 h-3 rounded-full bg-amber-500 border-2 border-bg-elevated" title="本周用量偏高" />
+                                          <span className="text-[8px] text-amber-400 font-bold">警</span>
+                                        </div>
+                                      );
+                                      return null;
+                                    })()}
                                   </div>
                                   <div className="min-w-0">
                                     <p className="text-sm font-medium text-text-primary truncate">{user.name || '未命名'}</p>
@@ -736,7 +776,7 @@ function AdminUsersContent() {
                               )}
                             </td>
                           </tr>
-                        );
+                        ]);
                       })}
                     </tbody>
                   </table>

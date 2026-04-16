@@ -335,12 +335,31 @@ export function ChatInterface({ className, initialPersona, initialMode }: ChatIn
       });
 
       if (!response.ok) {
-        if (response.status === 401) {
+        // 服务器端报错：解析错误体
+        let data: any = {};
+        try { data = await response.json(); } catch {}
+        const isLimitReached = response.status === 429 || (data?.code === 'DAILY_LIMIT_REACHED');
+        if (isLimitReached) {
+          // 今日额度已用完 → 显示订阅引导
+          setShowLimitModal(true);
+        } else if (response.status === 401) {
           router.push('/auth/signin');
-          return;
+        } else {
+          setMessages((prev) => [
+            ...prev,
+            {
+              id: nanoid(),
+              personaId: 'system',
+              role: 'system',
+              content: '抱歉，发生了错误。请稍后重试。',
+              timestamp: new Date(),
+            },
+          ]);
         }
-        throw new Error('API error');
+        setIsLoading(false);
+        return;
       }
+
       const data = await response.json();
 
       // Record usage server-side (non-blocking, ignore failures)
@@ -604,17 +623,27 @@ export function ChatInterface({ className, initialPersona, initialMode }: ChatIn
           </div>
         )}
 
+        {/* 可见额度指示器 */}
         {limitReached ? (
-          <button
-            className="text-xs text-orange-400 font-medium hover:text-orange-300 transition-colors"
+          <Link
+            href="/subscribe"
+            className="text-xs text-red-400 font-medium hover:text-red-300 transition-colors bg-red-500/10 px-2 py-1 rounded-full"
             onClick={() => setShowLimitModal(true)}
           >
             额度已用完
-          </button>
+          </Link>
+        ) : dailyRemaining <= 3 ? (
+          <div className="flex items-center gap-1.5 bg-amber-500/10 px-2 py-1 rounded-full">
+            <div className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
+            <span className="text-xs text-amber-400 font-medium">
+              {dailyRemaining} 条剩余
+            </span>
+          </div>
         ) : (
-          <span className="text-xs text-text-muted hidden sm:inline">
-            {Math.max(0, DAILY_LIMIT - dailyCount)}/{DAILY_LIMIT}
-          </span>
+          <div className="flex items-center gap-1.5">
+            <span className="text-xs text-green-400 font-medium">{dailyRemaining}</span>
+            <span className="text-xs text-text-muted">/ {DAILY_LIMIT} 条剩余</span>
+          </div>
         )}
 
         {messages.length > 0 && (
