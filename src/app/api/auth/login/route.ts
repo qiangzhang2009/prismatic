@@ -4,7 +4,7 @@
  * Supports both database users and demo accounts
  */
 import { NextRequest, NextResponse } from 'next/server';
-import { verifyCredentials, createJWTToken, demoEmailToUUID } from '@/lib/user-management';
+import { verifyCredentials, createJWTToken, demoEmailToUUID, ensureDemoUserInDB } from '@/lib/user-management';
 import { z } from 'zod';
 
 const DEMO_ACCOUNTS = [
@@ -58,6 +58,9 @@ export async function POST(req: NextRequest) {
     // Check demo accounts first
     if (isDemoAccount(email, password)) {
       const demoUser = createDemoUser(email);
+      // Ensure demo user is active in DB (handles soft-deleted users)
+      const dbId = demoUser.id.replace('demo_', '');
+      await ensureDemoUserInDB(dbId, demoUser.email, demoUser.name);
       const token = createJWTToken(demoUser.id, demoUser.email);
       const response = NextResponse.json(
         { user: demoUser, message: 'Login successful' },

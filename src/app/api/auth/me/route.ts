@@ -5,7 +5,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import {
   verifyJWTToken, getUserById, updateUserName, updateUserProfile,
-  canUseProFeatures, isDemoUserId, demoEmailToUUID,
+  canUseProFeatures, isDemoUserId, demoEmailToUUID, ensureDemoUserInDB,
 } from '@/lib/user-management';
 
 const NO_CACHE_HEADERS = {
@@ -56,7 +56,19 @@ export async function GET(req: NextRequest) {
     }
 
     const user = await getUserById(dbId);
-    if (!user) return NextResponse.json({ user: null }, { headers: NO_CACHE_HEADERS });
+    if (!user) {
+      // User not found — ensure they exist in DB (handles soft-deleted users)
+      await ensureDemoUserInDB(dbId, email, `演示账号 ${payload.email?.match(/demo(\d+)/)?.[1] || '1'}`);
+      const retryUser = await getUserById(dbId);
+      if (!retryUser) return NextResponse.json({ user: null }, { headers: NO_CACHE_HEADERS });
+      return NextResponse.json({
+        user: {
+          ...retryUser,
+          canUseProFeatures: canUseProFeatures(retryUser.role, retryUser.plan, retryUser.credits),
+          isAdmin: false,
+        }
+      }, { headers: NO_CACHE_HEADERS });
+    }
     return NextResponse.json({
       user: {
         ...user,

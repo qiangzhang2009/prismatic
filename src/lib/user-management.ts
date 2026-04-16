@@ -337,15 +337,14 @@ export function demoEmailToUUID(email: string): string {
 export async function ensureDemoUserInDB(userId: string, email: string, name: string): Promise<void> {
   const passwordHash = await bcrypt.hash('demo-no-password', 4);
   const sql = getSql();
-  try {
-    await sql`
-      INSERT INTO prismatic_users (id, email, password_hash, name, role, plan, credits, email_verified, is_active)
-      VALUES (${userId}, ${email.toLowerCase()}, ${passwordHash}, ${name}, 'PRO', 'LIFETIME', 0, TRUE, TRUE)
-      ON CONFLICT (id) DO NOTHING
-    `;
-  } catch {
-    // Ignore — user might already exist
-  }
+  await sql`
+    INSERT INTO prismatic_users (id, email, password_hash, name, role, plan, credits, email_verified, is_active)
+    VALUES (${userId}, ${email.toLowerCase()}, ${passwordHash}, ${name}, 'PRO', 'LIFETIME', 0, TRUE, TRUE)
+    ON CONFLICT (id) DO UPDATE SET
+      email = EXCLUDED.email,
+      name = EXCLUDED.name,
+      is_active = TRUE
+  `;
 }
 
 // ─── JWT (for middleware auth) ─────────────────────────────────────────────────
