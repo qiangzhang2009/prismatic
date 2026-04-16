@@ -33,20 +33,14 @@ export function Providers({ children }: { children: ReactNode }) {
 /**
  * Sync auth state from server on every page load.
  *
- * This component mounts on every page (not just the first one), so a simple
- * useEffect with no deps array ensures init() runs on every mount.
- * Zustand persist rehydrates synchronously from localStorage, but we ignore
- * the cached data and always fetch the latest from /api/auth/me.
- *
- * The server is the authoritative source — admin changes to role/plan/credits
- * are reflected immediately when the user visits any page.
+ * Zustand store is now purely in-memory (no localStorage persist for user).
+ * Token lives in httpOnly cookie; server is always authoritative.
+ * Admin changes (role/plan/credits) are immediately reflected on next navigation.
  */
 function AuthInitializer() {
   const init = useAuthStore((s) => s.init);
 
   useEffect(() => {
-    // No guard, no ref — run on every mount.
-    // init() is safe to call multiple times (it's async, returns a promise).
     init();
   }, [init]);
 
