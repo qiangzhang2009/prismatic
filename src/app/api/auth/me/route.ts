@@ -58,8 +58,10 @@ export async function GET(req: NextRequest) {
     const user = await getUserById(dbId);
     if (!user) {
       // User not found — ensure they exist in DB (handles soft-deleted users)
+      console.error('[me] demo user not found, trying to ensure:', dbId);
       await ensureDemoUserInDB(dbId, email, `演示账号 ${payload.email?.match(/demo(\d+)/)?.[1] || '1'}`);
       const retryUser = await getUserById(dbId);
+      console.error('[me] after ensureDemoUserInDB, retry getUserById:', JSON.stringify(retryUser));
       if (!retryUser) return NextResponse.json({ user: null }, { headers: NO_CACHE_HEADERS });
       return NextResponse.json({
         user: {
