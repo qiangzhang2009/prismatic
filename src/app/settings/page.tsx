@@ -2,8 +2,12 @@
 
 /**
  * Prismatic — Account Settings Page
+ *
+ * CRITICAL: We always revalidate from server on mount so admin changes
+ * (role/plan/credits) are immediately reflected, regardless of localStorage
+ * cache, Zustand hydration timing, or any init() race conditions.
  */
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
@@ -28,11 +32,27 @@ const PROVINCES = [
 type Tab = 'profile' | 'account' | 'subscription' | 'security' | 'notifications';
 
 export default function SettingsPage() {
-  const { user, refresh } = useAuthStore();
+  const { user, refresh, updateUser } = useAuthStore();
   const [activeTab, setActiveTab] = useState<Tab>('profile');
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState('');
   const [error, setError] = useState('');
+
+  // Always revalidate from server on every mount — admin changes are reflected immediately.
+  useEffect(() => {
+    async function syncFromServer() {
+      try {
+        const res = await fetch('/api/auth/me', { credentials: 'include' });
+        const data = await res.json();
+        if (data.user) {
+          updateUser(data.user);
+        }
+      } catch {
+        // fall back to store state
+      }
+    }
+    syncFromServer();
+  }, [updateUser]);
 
   const showSuccess = (msg: string) => {
     setSuccess(msg);
