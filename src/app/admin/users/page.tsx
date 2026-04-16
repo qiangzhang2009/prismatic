@@ -582,31 +582,11 @@ function AdminUsersContent() {
                         <th className="px-4 py-3 font-medium">用户</th>
                         <th className="px-3 py-3 font-medium">评分</th>
                         <th className="px-3 py-3 font-medium">验证</th>
-                        {/* Role = 功能权限 (what features can this user use?) */}
-                        <th className="px-3 py-3 font-medium cursor-pointer select-none hover:text-text-primary group relative" onClick={() => handleSort('role')}>
-                          <span className="flex items-center gap-1">
-                            <Shield className="w-3 h-3" />
-                            角色
-                            <SortIcon k="role" />
-                            {/* Tooltip */}
-                            <span className="absolute left-0 top-full mt-1 hidden group-hover:block z-10 w-52 p-3 rounded-xl bg-bg-elevated border border-border-medium shadow-xl text-[10px] text-text-secondary leading-relaxed">
-                              <span className="font-semibold text-text-primary block mb-1">角色 = 功能权限</span>
-                              <span className="text-text-muted">普通：基础对话<br />高级：优先排队、全功能<br />管理员：后台访问权限</span>
-                            </span>
-                          </span>
+                        <th className="px-3 py-3 font-medium cursor-pointer select-none hover:text-text-primary" onClick={() => handleSort('role')}>
+                          角色 <SortIcon k="role" />
                         </th>
-                        {/* Plan = 用量配额 (how much can this user consume?) */}
-                        <th className="px-3 py-3 font-medium cursor-pointer select-none hover:text-text-primary group relative" onClick={() => handleSort('plan')}>
-                          <span className="flex items-center gap-1">
-                            <Crown className="w-3 h-3 text-amber-400" />
-                            套餐
-                            <SortIcon k="plan" />
-                            {/* Tooltip */}
-                            <span className="absolute left-0 top-full mt-1 hidden group-hover:block z-10 w-52 p-3 rounded-xl bg-bg-elevated border border-border-medium shadow-xl text-[10px] text-text-secondary leading-relaxed">
-                              <span className="font-semibold text-text-primary block mb-1">套餐 = 用量配额</span>
-                              <span className="text-text-muted">免费：每日 10 条<br />月度/年度/终身：无上限</span>
-                            </span>
-                          </span>
+                        <th className="px-3 py-3 font-medium cursor-pointer select-none hover:text-text-primary" onClick={() => handleSort('plan')}>
+                          套餐 <SortIcon k="plan" />
                         </th>
                         <th className="px-3 py-3 font-medium">活跃轨迹</th>
                         <th className="px-3 py-3 font-medium cursor-pointer select-none hover:text-text-primary" onClick={() => handleSort('todayCount')}>
@@ -862,57 +842,188 @@ function AdminUsersContent() {
         )}
       </main>
 
-      {/* ── 指标说明图例 ─────────────────────────────────────────────── */}
+      {/* ── 指标说明 + 权限矩阵 + 财务测算 ─────────────────────────── */}
       <div className="max-w-7xl mx-auto px-6 pb-12">
         <details className="rounded-2xl border border-border-subtle bg-bg-elevated overflow-hidden group">
           <summary className="px-6 py-4 flex items-center justify-between cursor-pointer list-none select-none">
             <div className="flex items-center gap-2 text-sm font-medium text-text-secondary">
               <BarChart2 className="w-4 h-4" />
-              <span>指标说明</span>
+              <span>指标说明 · 权限矩阵 · 定价依据</span>
             </div>
             <ChevronDown className="w-4 h-4 text-text-muted group-open:rotate-180 transition-transform" />
           </summary>
-          <div className="px-6 pb-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 text-xs">
+          <div className="px-6 pb-8 space-y-8 text-xs">
 
-            {/* 用量追踪 */}
+            {/* ── 用量追踪说明 ─────────────────────────── */}
             <div>
-              <h4 className="font-semibold text-text-primary mb-2 flex items-center gap-1.5">
+              <h4 className="font-semibold text-text-primary mb-3 flex items-center gap-1.5">
                 <MessageSquare className="w-3.5 h-3.5 text-cyan-400" />
-                用量追踪
+                用量追踪说明
               </h4>
-              <div className="space-y-1.5 text-text-muted">
-                <div><span className="text-text-secondary font-medium">今日</span> — 当天 00:00 至现在的对话消息总数</div>
-                <div><span className="text-text-secondary font-medium">本周</span> — 过去 7 天内累计对话消息数</div>
-                <div><span className="text-text-secondary font-medium">活跃轨迹</span> — 最近 7 天每日消息柱状图（今日高亮蓝色）</div>
-                <div><span className="text-text-secondary font-medium">最近活跃</span> — 该用户最后一条消息的日期</div>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                {[
+                  { label: '今日', desc: '当天 00:00 至现在的对话消息总数（跨所有会话）' },
+                  { label: '本周', desc: '过去 7 天内累计对话消息数' },
+                  { label: '活跃轨迹', desc: '最近 7 天每日消息柱状图（今日柱高亮为蓝色）' },
+                  { label: '最近活跃', desc: '该用户最后一条消息的日期（空=从未发消息）' },
+                ].map(item => (
+                  <div key={item.label} className="bg-bg-base rounded-xl px-3 py-2.5">
+                    <p className="font-semibold text-text-primary mb-0.5">{item.label}</p>
+                    <p className="text-text-muted leading-relaxed">{item.desc}</p>
+                  </div>
+                ))}
               </div>
             </div>
 
-            {/* 身份权限 */}
+            {/* ── 角色权限矩阵 ─────────────────────────── */}
             <div>
-              <h4 className="font-semibold text-text-primary mb-2 flex items-center gap-1.5">
+              <h4 className="font-semibold text-text-primary mb-3 flex items-center gap-1.5">
                 <Shield className="w-3.5 h-3.5 text-purple-400" />
-                身份与权限
+                角色权限矩阵（Role = 功能权限）
               </h4>
-              <div className="space-y-1.5 text-text-muted">
-                <div><span className="text-text-secondary font-medium">角色</span> — 功能权限：普通=基础对话；高级=优先排队+全功能；管理员=后台访问</div>
-                <div><span className="text-text-secondary font-medium">套餐</span> — 用量配额：免费=每日 10 条；月度/年度/终身=无上限</div>
-                <div><span className="text-text-secondary font-medium">评分</span> — 0-100 分综合质量分（已验证+20，付费+30，活跃+加分）</div>
-                <div><span className="text-text-secondary font-medium">验证</span> — 邮箱是否通过验证（绿色=已验证，橙色=未验证）</div>
+              <div className="overflow-x-auto">
+                <table className="w-full text-text-muted">
+                  <thead>
+                    <tr className="border-b border-border-subtle">
+                      <th className="text-left py-2 pr-4 font-medium text-text-secondary">权限项</th>
+                      <th className="text-center py-2 px-3 font-medium text-gray-500">普通用户<br /><span className="text-[10px] font-normal">FREE</span></th>
+                      <th className="text-center py-2 px-3 font-medium text-amber-400">高级用户<br /><span className="text-[10px] font-normal text-amber-400/60">PRO</span></th>
+                      <th className="text-center py-2 px-3 font-medium text-prism-purple">管理员<br /><span className="text-[10px] font-normal text-prism-purple/60">ADMIN</span></th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-border-subtle">
+                    {[
+                      { feature: '每日对话额度', free: '10 条/天', pro: '无上限', admin: '无上限' },
+                      { feature: '可对话人物数量', free: '3 个 Persona', pro: '全部', admin: '全部' },
+                      { feature: '对话模式', free: '仅 Solo 模式', pro: '全部 8 种模式', admin: '全部 8 种模式' },
+                      { feature: '优先排队（高峰时）', free: '❌', pro: '✅ 优先响应', admin: '✅ 优先响应' },
+                      { feature: '对话历史导出', free: '❌', pro: '✅ 图片/文本', admin: '✅ 图片/文本' },
+                      { feature: '自定义 Persona 创建', free: '❌', pro: '✅', admin: '✅' },
+                      { feature: '智辩场围观参与', free: '✅', pro: '✅', admin: '✅' },
+                      { feature: '管理员面板访问', free: '❌', pro: '❌', admin: '✅ 系统后台' },
+                      { feature: '用户管理权限', free: '❌', pro: '❌', admin: '✅ 查看/编辑/禁用' },
+                    ].map(row => (
+                      <tr key={row.feature} className="py-2">
+                        <td className="py-2 pr-4 text-text-secondary font-medium">{row.feature}</td>
+                        <td className="py-2 px-3 text-center">{row.free}</td>
+                        <td className="py-2 px-3 text-center">{row.pro}</td>
+                        <td className="py-2 px-3 text-center">{row.admin}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              <p className="text-[10px] text-text-muted/60 mt-2">
+                注：套餐（Plan）控制用量配额，与角色（Role）相互独立。用户可同时为「高级用户」+「月度套餐」
+              </p>
+            </div>
+
+            {/* ── 套餐定价 + 财务测算 ─────────────────────────── */}
+            <div>
+              <h4 className="font-semibold text-text-primary mb-3 flex items-center gap-1.5">
+                <Crown className="w-3.5 h-3.5 text-amber-400" />
+                套餐定价与财务测算（Plan = 用量配额）
+              </h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* 左：定价 */}
+                <div>
+                  <p className="text-[10px] text-text-muted/60 mb-2 uppercase tracking-wider">订阅套餐</p>
+                  <div className="space-y-2">
+                    {[
+                      { plan: '免费 FREE', price: '¥0', limit: '10 条/天', color: 'text-gray-400', bg: 'bg-gray-500/10' },
+                      { plan: '月度订阅 MONTHLY', price: '¥29/月', limit: '无上限', color: 'text-prism-blue', bg: 'bg-prism-blue/10' },
+                      { plan: '年度订阅 YEARLY', price: '¥199/年 ≈ ¥17/月', limit: '无上限', color: 'text-green-400', bg: 'bg-green-400/10' },
+                      { plan: '终身订阅 LIFETIME', price: '¥399（一次性）', limit: '永久无上限', color: 'text-prism-purple', bg: 'bg-prism-purple/10' },
+                    ].map(item => (
+                      <div key={item.plan} className={`flex items-center justify-between px-3 py-2 rounded-xl ${item.bg}`}>
+                        <span className={`font-medium ${item.color}`}>{item.plan}</span>
+                        <div className="text-right">
+                          <span className={`font-bold ${item.color}`}>{item.price}</span>
+                          <span className="text-text-muted ml-2">{item.limit}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                {/* 右：API 成本测算 */}
+                <div>
+                  <p className="text-[10px] text-text-muted/60 mb-2 uppercase tracking-wider">Deepseek API 成本测算</p>
+                  <div className="bg-bg-base rounded-xl px-3 py-3 space-y-1.5">
+                    {[
+                      { label: '模型', value: 'DeepSeek-V3.2 (deepseek-chat)' },
+                      { label: 'Input（缓存未命中）', value: '¥0.0020 / 1K tokens' },
+                      { label: 'Input（缓存命中）', value: '¥0.0002 / 1K tokens' },
+                      { label: 'Output', value: '¥0.0030 / 1K tokens' },
+                      { label: '单次对话估算', value: '≈ 200 input + 150 output = ¥0.00085' },
+                      { label: '月度极限成本（10条/天用户）', value: '10 × 30 × ¥0.00085 ≈ ¥0.26/人/月' },
+                      { label: '月度极限成本（无限制用户）', value: '≈ ¥3.6/人/月（日均 50 条估算）' },
+                      { label: '目标毛利率', value: '≥ 80%（订阅收入 - API 成本）' },
+                    ].map(item => (
+                      <div key={item.label} className="flex items-start justify-between gap-2">
+                        <span className="text-text-muted flex-shrink-0">{item.label}</span>
+                        <span className="text-text-secondary font-medium text-right">{item.value}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+              {/* 盈亏平衡测算表 */}
+              <div className="mt-4">
+                <p className="text-[10px] text-text-muted/60 mb-2 uppercase tracking-wider">盈亏平衡测算（月度订阅 ¥29 为例）</p>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-text-muted">
+                    <thead>
+                      <tr className="border-b border-border-subtle">
+                        {['日均消息', '月消息量', 'API成本', '订阅收入', '毛利', '毛利率'].map(h => (
+                          <th key={h} className="text-center py-1.5 px-2 text-[10px] text-text-muted font-medium">{h}</th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-border-subtle">
+                      {[
+                        { daily: 10, msgs: 300, cost: '¥0.26', rev: '¥29', margin: '¥28.74', rate: '99.1%' },
+                        { daily: 20, msgs: 600, cost: '¥0.51', rev: '¥29', margin: '¥28.49', rate: '98.2%' },
+                        { daily: 50, msgs: 1500, cost: '¥1.28', rev: '¥29', margin: '¥27.72', rate: '95.6%' },
+                        { daily: 100, msgs: 3000, cost: '¥2.55', rev: '¥29', margin: '¥26.45', rate: '91.2%' },
+                        { daily: 200, msgs: 6000, cost: '¥5.10', rev: '¥29', margin: '¥23.90', rate: '82.4%' },
+                      ].map(row => (
+                        <tr key={row.daily} className="py-1.5">
+                          <td className="text-center px-2">{row.daily} 条</td>
+                          <td className="text-center px-2">{row.msgs}</td>
+                          <td className="text-center px-2">{row.cost}</td>
+                          <td className="text-center px-2 text-green-400">{row.rev}</td>
+                          <td className="text-center px-2 text-green-400 font-medium">{row.margin}</td>
+                          <td className={`text-center px-2 font-medium ${parseFloat(row.rate) >= 80 ? 'text-green-400' : 'text-amber-400'}`}>{row.rate}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+                <p className="text-[10px] text-text-muted/60 mt-1.5 leading-relaxed">
+                  结论：即使日均 200 条重度用户，毛利率仍达 82% 以上。订阅定价 ¥29/月 保本压力极低，
+                  未来用户量增长后可考虑引入 DeepSeek Pro（更高质量）或 Claude（高端档）做分层付费模型。
+                </p>
               </div>
             </div>
 
-            {/* 数据口径说明 */}
+            {/* ── 数据口径说明 ─────────────────────────── */}
             <div>
-              <h4 className="font-semibold text-text-primary mb-2 flex items-center gap-1.5">
+              <h4 className="font-semibold text-text-primary mb-3 flex items-center gap-1.5">
                 <AlertTriangle className="w-3.5 h-3.5 text-amber-400" />
                 数据口径说明
               </h4>
-              <div className="space-y-1.5 text-text-muted">
-                <div><span className="text-text-secondary font-medium">系统概览</span> — 「总用户」包含已禁用账户；其余指标仅统计活跃账户</div>
-                <div><span className="text-text-secondary font-medium">用户管理</span> — 默认仅显示活跃账户（is_active=TRUE），禁用账号不出现</div>
-                <div><span className="text-text-secondary font-medium">已禁用用户</span> — 点击「禁用」为软删除，数据仍保留在数据库中</div>
-                <div><span className="text-text-secondary font-medium">用量为空</span> — API 查询超时或用户今日无消息，可尝试刷新页面</div>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                {[
+                  { label: '系统概览「总用户」', desc: '包含已禁用（软删除）账户总数' },
+                  { label: '活跃用户', desc: 'is_active=TRUE 的账户' },
+                  { label: '已禁用账户', desc: '软删除，数据仍保留，可手动恢复' },
+                  { label: '用量为空', desc: '该用户今日无消息，或 JOIN 查询异常' },
+                ].map(item => (
+                  <div key={item.label} className="bg-bg-base rounded-xl px-3 py-2.5">
+                    <p className="font-medium text-text-secondary mb-0.5">{item.label}</p>
+                    <p className="text-text-muted leading-relaxed">{item.desc}</p>
+                  </div>
+                ))}
               </div>
             </div>
 
