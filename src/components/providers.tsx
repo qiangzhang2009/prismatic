@@ -55,13 +55,11 @@ function AuthInitializer() {
   useEffect(() => {
     if (!initRef.current && !isInitialized) {
       initRef.current = true;
-      // Only fetch from server if no user is persisted.
-      // If user exists (from login or localStorage), skip network call.
       if (!user) {
-        init();
+        init(); // 无缓存 → 从服务器拉取
       } else {
-        // User exists (e.g. just logged in) — just mark as initialized, don't fetch.
-        useAuthStore.setState({ isInitialized: true });
+        // 有缓存 → 先显示缓存，同时后台刷新最新身份（管理员修改role/plan能立即生效）
+        init();
       }
     }
   }, [user, isInitialized, init]);
