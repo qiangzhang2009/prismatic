@@ -564,15 +564,49 @@ function AdminUsersContent() {
                 <div className="overflow-x-auto">
                   <table className="w-full min-w-[1200px]">
                     <thead className="bg-bg-elevated">
+                      {/* Group header row: explain what each pair of columns means */}
+                      <tr className="border-b border-border-subtle">
+                        <th className="px-4 py-2" />
+                        <th className="px-3 py-2" />
+                        <th className="px-3 py-2" />
+                        <th className="px-3 py-2 text-center text-[10px] text-text-muted/60" colSpan={2}>
+                          身份与权限
+                        </th>
+                        <th className="px-3 py-2" />
+                        <th className="px-3 py-2 text-center text-[10px] text-text-muted/60" colSpan={4}>
+                          活动追踪
+                        </th>
+                        <th className="px-4 py-2" />
+                      </tr>
                       <tr className="text-left text-[11px] text-text-muted uppercase tracking-wider border-b border-border-subtle">
                         <th className="px-4 py-3 font-medium">用户</th>
                         <th className="px-3 py-3 font-medium">评分</th>
                         <th className="px-3 py-3 font-medium">验证</th>
-                        <th className="px-3 py-3 font-medium cursor-pointer select-none hover:text-text-primary" onClick={() => handleSort('role')}>
-                          角色 <SortIcon k="role" />
+                        {/* Role = 功能权限 (what features can this user use?) */}
+                        <th className="px-3 py-3 font-medium cursor-pointer select-none hover:text-text-primary group relative" onClick={() => handleSort('role')}>
+                          <span className="flex items-center gap-1">
+                            <Shield className="w-3 h-3" />
+                            角色
+                            <SortIcon k="role" />
+                            {/* Tooltip */}
+                            <span className="absolute left-0 top-full mt-1 hidden group-hover:block z-10 w-52 p-3 rounded-xl bg-bg-elevated border border-border-medium shadow-xl text-[10px] text-text-secondary leading-relaxed">
+                              <span className="font-semibold text-text-primary block mb-1">角色 = 功能权限</span>
+                              <span className="text-text-muted">普通：基础对话<br />高级：优先排队、全功能<br />管理员：后台访问权限</span>
+                            </span>
+                          </span>
                         </th>
-                        <th className="px-3 py-3 font-medium cursor-pointer select-none hover:text-text-primary" onClick={() => handleSort('plan')}>
-                          套餐 <SortIcon k="plan" />
+                        {/* Plan = 用量配额 (how much can this user consume?) */}
+                        <th className="px-3 py-3 font-medium cursor-pointer select-none hover:text-text-primary group relative" onClick={() => handleSort('plan')}>
+                          <span className="flex items-center gap-1">
+                            <Crown className="w-3 h-3 text-amber-400" />
+                            套餐
+                            <SortIcon k="plan" />
+                            {/* Tooltip */}
+                            <span className="absolute left-0 top-full mt-1 hidden group-hover:block z-10 w-52 p-3 rounded-xl bg-bg-elevated border border-border-medium shadow-xl text-[10px] text-text-secondary leading-relaxed">
+                              <span className="font-semibold text-text-primary block mb-1">套餐 = 用量配额</span>
+                              <span className="text-text-muted">免费：每日 10 条<br />月度/年度/终身：无上限</span>
+                            </span>
+                          </span>
                         </th>
                         <th className="px-3 py-3 font-medium">活跃轨迹</th>
                         <th className="px-3 py-3 font-medium cursor-pointer select-none hover:text-text-primary" onClick={() => handleSort('todayCount')}>
@@ -827,6 +861,64 @@ function AdminUsersContent() {
           </>
         )}
       </main>
+
+      {/* ── 指标说明图例 ─────────────────────────────────────────────── */}
+      <div className="max-w-7xl mx-auto px-6 pb-12">
+        <details className="rounded-2xl border border-border-subtle bg-bg-elevated overflow-hidden group">
+          <summary className="px-6 py-4 flex items-center justify-between cursor-pointer list-none select-none">
+            <div className="flex items-center gap-2 text-sm font-medium text-text-secondary">
+              <BarChart2 className="w-4 h-4" />
+              <span>指标说明</span>
+            </div>
+            <ChevronDown className="w-4 h-4 text-text-muted group-open:rotate-180 transition-transform" />
+          </summary>
+          <div className="px-6 pb-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 text-xs">
+
+            {/* 用量追踪 */}
+            <div>
+              <h4 className="font-semibold text-text-primary mb-2 flex items-center gap-1.5">
+                <MessageSquare className="w-3.5 h-3.5 text-cyan-400" />
+                用量追踪
+              </h4>
+              <div className="space-y-1.5 text-text-muted">
+                <div><span className="text-text-secondary font-medium">今日</span> — 当天 00:00 至现在的对话消息总数</div>
+                <div><span className="text-text-secondary font-medium">本周</span> — 过去 7 天内累计对话消息数</div>
+                <div><span className="text-text-secondary font-medium">活跃轨迹</span> — 最近 7 天每日消息柱状图（今日高亮蓝色）</div>
+                <div><span className="text-text-secondary font-medium">最近活跃</span> — 该用户最后一条消息的日期</div>
+              </div>
+            </div>
+
+            {/* 身份权限 */}
+            <div>
+              <h4 className="font-semibold text-text-primary mb-2 flex items-center gap-1.5">
+                <Shield className="w-3.5 h-3.5 text-purple-400" />
+                身份与权限
+              </h4>
+              <div className="space-y-1.5 text-text-muted">
+                <div><span className="text-text-secondary font-medium">角色</span> — 功能权限：普通=基础对话；高级=优先排队+全功能；管理员=后台访问</div>
+                <div><span className="text-text-secondary font-medium">套餐</span> — 用量配额：免费=每日 10 条；月度/年度/终身=无上限</div>
+                <div><span className="text-text-secondary font-medium">评分</span> — 0-100 分综合质量分（已验证+20，付费+30，活跃+加分）</div>
+                <div><span className="text-text-secondary font-medium">验证</span> — 邮箱是否通过验证（绿色=已验证，橙色=未验证）</div>
+              </div>
+            </div>
+
+            {/* 数据口径说明 */}
+            <div>
+              <h4 className="font-semibold text-text-primary mb-2 flex items-center gap-1.5">
+                <AlertTriangle className="w-3.5 h-3.5 text-amber-400" />
+                数据口径说明
+              </h4>
+              <div className="space-y-1.5 text-text-muted">
+                <div><span className="text-text-secondary font-medium">系统概览</span> — 「总用户」包含已禁用账户；其余指标仅统计活跃账户</div>
+                <div><span className="text-text-secondary font-medium">用户管理</span> — 默认仅显示活跃账户（is_active=TRUE），禁用账号不出现</div>
+                <div><span className="text-text-secondary font-medium">已禁用用户</span> — 点击「禁用」为软删除，数据仍保留在数据库中</div>
+                <div><span className="text-text-secondary font-medium">用量为空</span> — API 查询超时或用户今日无消息，可尝试刷新页面</div>
+              </div>
+            </div>
+
+          </div>
+        </details>
+      </div>
 
       {/* User Detail Modal */}
       <UserDetailModal

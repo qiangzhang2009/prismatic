@@ -6,7 +6,7 @@
  * Every metric answers: "So what? What should I do?"
  */
 
-import { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import {
@@ -314,6 +314,53 @@ export default function AdminDashboardPage() {
 
 // ─── KPI Strip ────────────────────────────────────────────────────────────────
 
+interface KPIItem {
+  icon: React.ElementType;
+  label: string;
+  value: string | number;
+  sub: string;
+  accent: 'blue' | 'green' | 'cyan' | 'purple' | 'amber' | 'rose';
+  delta?: string;
+  note?: string;
+  isText?: boolean;
+}
+
+function KPICard({ kpi, loading }: { kpi: KPIItem; loading: boolean }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="rounded-2xl border border-border-subtle bg-bg-elevated p-4 hover:border-border-medium transition-colors"
+    >
+      <div className={`w-9 h-9 rounded-xl flex items-center justify-center mb-3 ${
+        kpi.accent === 'blue' ? 'bg-prism-blue/12 text-prism-blue' :
+        kpi.accent === 'green' ? 'bg-green-400/12 text-green-400' :
+        kpi.accent === 'cyan' ? 'bg-cyan-400/12 text-cyan-400' :
+        kpi.accent === 'purple' ? 'bg-prism-purple/12 text-prism-purple' :
+        kpi.accent === 'amber' ? 'bg-amber-400/12 text-amber-400' :
+        'bg-rose-400/12 text-rose-400'
+      }`}>
+        <kpi.icon className="w-4.5 h-4.5" />
+      </div>
+      <div className="flex items-start justify-between">
+        <div>
+          <p className={`text-2xl font-bold ${kpi.isText ? 'text-text-primary' : 'text-text-primary'}`}>
+            {loading ? '-' : (kpi.isText ? kpi.value : (typeof kpi.value === 'number' ? kpi.value.toLocaleString() : kpi.value))}
+          </p>
+          <p className="text-xs font-medium text-text-primary mt-0.5">{kpi.label}</p>
+          <p className="text-[11px] text-text-muted mt-0.5 leading-relaxed">{kpi.sub}</p>
+          {kpi.note && <p className="text-[10px] text-amber-400/70 mt-0.5">{kpi.note}</p>}
+        </div>
+        {kpi.delta && (
+          <span className="text-[10px] text-green-400 font-medium bg-green-400/10 px-1.5 py-0.5 rounded-full">
+            {kpi.delta}
+          </span>
+        )}
+      </div>
+    </motion.div>
+  );
+}
+
 function KPIStrip({ stats, usage, payingUsers, activeUsers, weeklyActiveRate, loading }: {
   stats: GlobalStats | null;
   usage: UsageStats | null;
@@ -322,7 +369,7 @@ function KPIStrip({ stats, usage, payingUsers, activeUsers, weeklyActiveRate, lo
   weeklyActiveRate: number;
   loading: boolean;
 }) {
-  const kpis = [
+  const kpis: KPIItem[] = [
     {
       icon: Users,
       label: '总用户',
@@ -330,6 +377,7 @@ function KPIStrip({ stats, usage, payingUsers, activeUsers, weeklyActiveRate, lo
       sub: `${stats?.total ?? 0} 活跃 · +${stats?.recent ?? 0} 本月新`,
       accent: 'blue',
       delta: stats?.recent ? `+${stats.recent}` : undefined,
+      note: stats && stats.total !== stats.totalAll ? '⚠ 含已禁用账户' : undefined,
     },
     {
       icon: Sparkles,
@@ -372,38 +420,7 @@ function KPIStrip({ stats, usage, payingUsers, activeUsers, weeklyActiveRate, lo
   return (
     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 mb-8">
       {kpis.map((kpi, i) => (
-        <motion.div
-          key={kpi.label}
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: i * 0.05 }}
-          className="rounded-2xl border border-border-subtle bg-bg-elevated p-4 hover:border-border-medium transition-colors"
-        >
-          <div className={`w-9 h-9 rounded-xl flex items-center justify-center mb-3 ${
-            kpi.accent === 'blue' ? 'bg-prism-blue/12 text-prism-blue' :
-            kpi.accent === 'green' ? 'bg-green-400/12 text-green-400' :
-            kpi.accent === 'cyan' ? 'bg-cyan-400/12 text-cyan-400' :
-            kpi.accent === 'purple' ? 'bg-prism-purple/12 text-prism-purple' :
-            kpi.accent === 'amber' ? 'bg-amber-400/12 text-amber-400' :
-            'bg-rose-400/12 text-rose-400'
-          }`}>
-            <kpi.icon className="w-4.5 h-4.5" />
-          </div>
-          <div className="flex items-start justify-between">
-            <div>
-              <p className={`text-2xl font-bold ${kpi.isText ? 'text-text-primary' : 'text-text-primary'}`}>
-                {loading ? '-' : kpi.isText ? kpi.value : (typeof kpi.value === 'number' ? kpi.value.toLocaleString() : kpi.value)}
-              </p>
-              <p className="text-xs font-medium text-text-primary mt-0.5">{kpi.label}</p>
-              <p className="text-[11px] text-text-muted mt-0.5 leading-relaxed">{kpi.sub}</p>
-            </div>
-            {kpi.delta && (
-              <span className="text-[10px] text-green-400 font-medium bg-green-400/10 px-1.5 py-0.5 rounded-full">
-                {kpi.delta}
-              </span>
-            )}
-          </div>
-        </motion.div>
+        <KPICard key={kpi.label} kpi={kpi} loading={loading} />
       ))}
     </div>
   );
