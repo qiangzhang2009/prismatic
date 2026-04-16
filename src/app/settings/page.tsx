@@ -32,7 +32,7 @@ const PROVINCES = [
 type Tab = 'profile' | 'account' | 'subscription' | 'security' | 'notifications';
 
 export default function SettingsPage() {
-  const { user, refresh, updateUser } = useAuthStore();
+  const { user, refresh, fetchUser } = useAuthStore();
   const [activeTab, setActiveTab] = useState<Tab>('profile');
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState('');
@@ -40,19 +40,8 @@ export default function SettingsPage() {
 
   // Always revalidate from server on every mount — admin changes are reflected immediately.
   useEffect(() => {
-    async function syncFromServer() {
-      try {
-        const res = await fetch('/api/auth/me', { credentials: 'include' });
-        const data = await res.json();
-        if (data.user) {
-          updateUser(data.user);
-        }
-      } catch {
-        // fall back to store state
-      }
-    }
-    syncFromServer();
-  }, [updateUser]);
+    fetchUser();
+  }, [fetchUser]);
 
   const showSuccess = (msg: string) => {
     setSuccess(msg);

@@ -131,6 +131,9 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
     const current = get().user;
     if (current) {
       set({ user: { ...current, ...data } });
+    } else if (data && Object.keys(data).length > 0) {
+      // No current user — treat partial data as the full user object (first load)
+      set({ user: data as AuthUser });
     }
   },
 
