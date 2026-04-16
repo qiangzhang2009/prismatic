@@ -335,16 +335,24 @@ export function demoEmailToUUID(email: string): string {
 }
 
 export async function ensureDemoUserInDB(userId: string, email: string, name: string): Promise<void> {
-  const passwordHash = await bcrypt.hash('demo-no-password', 4);
   const sql = getSql();
+  // Step 1: If user was soft-deleted, reactivate them (preserve all other fields)
   await sql`
-    INSERT INTO prismatic_users (id, email, password_hash, name, role, plan, credits, email_verified, is_active)
-    VALUES (${userId}, ${email.toLowerCase()}, ${passwordHash}, ${name}, 'PRO', 'LIFETIME', 0, TRUE, TRUE)
-    ON CONFLICT (id) DO UPDATE SET
-      email = EXCLUDED.email,
-      name = EXCLUDED.name,
-      is_active = TRUE
+    UPDATE prismatic_users
+    SET is_active = TRUE, updated_at = NOW()
+    WHERE id = ${userId} AND is_active = FALSE
   `;
+  // Step 2: If user doesn't exist at all, create them
+  const existing = await sql`
+    SELECT id FROM prismatic_users WHERE id = ${userId}
+  `;
+  if (existing.length === 0) {
+    const passwordHash = await bcrypt.hash('demo-no-password', 4);
+    await sql`
+      INSERT INTO prismatic_users (id, email, password_hash, name, role, plan, credits, email_verified, is_active)
+      VALUES (${userId}, ${email.toLowerCase()}, ${passwordHash}, ${name}, 'PRO', 'LIFETIME', 0, TRUE, TRUE)
+    `;
+  }
 }
 
 // ─── JWT (for middleware auth) ─────────────────────────────────────────────────
