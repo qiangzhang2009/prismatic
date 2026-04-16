@@ -2,7 +2,8 @@
  * GET /api/auth/test-db?userId=xxx — Direct DB test (admin only)
  */
 import { NextRequest, NextResponse } from 'next/server';
-import { authenticateAdminRequest, getUserById } from '@/lib/user-management';
+import { neon } from '@neondatabase/serverless';
+import { authenticateAdminRequest } from '@/lib/user-management';
 
 export async function GET(req: NextRequest) {
   const adminId = await authenticateAdminRequest(req);
@@ -15,9 +16,13 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: 'userId required' }, { status: 400 });
   }
 
+  const sql = neon(process.env.DATABASE_URL!);
   try {
-    const user = await getUserById(userId);
-    return NextResponse.json({ userId, user });
+    // Direct unsafe query to bypass any type coercion
+    const result = await sql.unsafe(
+      `SELECT id, email, role, plan, credits FROM prismatic_users WHERE id = '${userId}' AND is_active = TRUE`
+    );
+    return NextResponse.json({ userId, result, length: result.length });
   } catch (e: any) {
     return NextResponse.json({ error: e.message }, { status: 500 });
   }
