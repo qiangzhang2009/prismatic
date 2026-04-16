@@ -2,7 +2,7 @@
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { SessionProvider } from 'next-auth/react';
-import { useState, useEffect, useRef, type ReactNode } from 'react';
+import { useState, useEffect, type ReactNode } from 'react';
 import { useAuthStore } from '@/lib/auth-store';
 import { TrackingInitializer } from '@/components/tracking-initializer';
 
@@ -31,32 +31,22 @@ export function Providers({ children }: { children: ReactNode }) {
 }
 
 /**
- * Initialize auth state on every page load.
+ * Sync auth state from server on every page load.
  *
- * Key insight: Zustand's persist middleware runs SYNCHRONOUSLY during hydration,
- * setting `isInitialized = true` BEFORE the first useEffect ever fires.
- * So we CANNOT use `isInitialized` as the condition — it is already true.
+ * This component mounts on every page (not just the first one), so a simple
+ * useEffect with no deps array ensures init() runs on every mount.
+ * Zustand persist rehydrates synchronously from localStorage, but we ignore
+ * the cached data and always fetch the latest from /api/auth/me.
  *
- * Solution: use a plain React ref to track if init() was called in this mount cycle.
- * The ref persists across re-renders but resets on unmount (new page = fresh ref).
- *
- * init() itself is safe to call multiple times: it returns the same promise
- * if already in flight, preventing race conditions.
+ * The server is the authoritative source — admin changes to role/plan/credits
+ * are reflected immediately when the user visits any page.
  */
 function AuthInitializer() {
   const init = useAuthStore((s) => s.init);
-  const isInitialized = useAuthStore((s) => s.isInitialized);
-  // Use a React ref — not Zustand state — as the mount guard.
-  // This ref is fresh on every page mount (different component tree).
-  const initCalled = useRef(false);
 
   useEffect(() => {
-    // Guard: only call init() once per mount cycle
-    if (initCalled.current) return;
-    initCalled.current = true;
-    // isInitialized from Zustand is already true after hydration,
-    // but we intentionally ignore it and always revalidate from server.
-    // init() itself is idempotent (returns the same promise if in-flight).
+    // No guard, no ref — run on every mount.
+    // init() is safe to call multiple times (it's async, returns a promise).
     init();
   }, [init]);
 
