@@ -77,9 +77,12 @@ export async function GET(req: NextRequest) {
     const name = `演示账号 ${num}`;
 
     // Ensure the demo user exists in DB before querying (await, not fire-and-forget)
+    console.log('[DEBUG me] isDemoUserId=true, dbId=' + dbId + ', email=' + email);
     await ensureDemoUserInDB(dbId, email, name);
+    console.log('[DEBUG me] ensureDemoUserInDB done');
 
     const user = await getUserById(dbId);
+    console.log('[DEBUG me] getUserById result:', JSON.stringify(user));
     if (!user) return NextResponse.json({ user: null }, { headers: NO_CACHE_HEADERS });
     return NextResponse.json({
       user: {
