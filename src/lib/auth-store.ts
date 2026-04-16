@@ -49,16 +49,15 @@ export const useAuthStore = create<AuthState>()(
       isInitialized: false,
 
       init: async () => {
-        // Always revalidate from server so admin role/plan changes are reflected immediately.
-        // Use cached user as the loading skeleton while fetching in background.
-        const cachedUser = get().user;
-        set({ isLoading: true });
         try {
+          set({ isLoading: true });
           const res = await fetch('/api/auth/me', { credentials: 'include' });
           const data = await res.json();
+          // Server is authoritative: if it says null, user is logged out.
+          // If server returns a user object, update (covers admin role/plan changes).
           set({ user: data.user || null, isLoading: false, isInitialized: true });
         } catch {
-          // Network error: keep cached user if available
+          // Network error: keep cached user so the UI still shows.
           set({ isLoading: false, isInitialized: true });
         }
       },

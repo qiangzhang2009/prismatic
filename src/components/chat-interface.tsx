@@ -80,8 +80,11 @@ export function ChatInterface({ className, initialPersona, initialMode }: ChatIn
 
   const saved = loadSavedState();
   const { count: dailyCount } = getDailyCount();
-  const dailyRemaining = Math.max(0, DAILY_LIMIT - dailyCount);
-  const limitReached = dailyCount >= DAILY_LIMIT;
+  // Paid users (plan != FREE) have unlimited → no limit indicator.
+  // FREE users use localStorage daily counter.
+  const isPaid = user?.plan !== 'FREE' || (user?.credits ?? 0) > 0;
+  const dailyRemaining = isPaid ? 999999 : Math.max(0, DAILY_LIMIT - dailyCount);
+  const limitReached = !isPaid && dailyCount >= DAILY_LIMIT;
 
   // Priority: URL param > saved state > default (steve-jobs for backwards compat)
   const getInitialPersonaId = () => {

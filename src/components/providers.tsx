@@ -31,38 +31,34 @@ export function Providers({ children }: { children: ReactNode }) {
 }
 
 /**
- * Initialize auth state once on app mount.
+ * Initialize auth state on every page load.
  *
- * Strategy:
- * - On first mount: if user is persisted (localStorage), mark initialized → done.
- *   If no user is persisted, fetch from /api/auth/me to check cookie-based session.
- * - After login: useAuthStore.set({ user }) sets the user. AuthInitializer will
- *   re-run (user changed), but only calls init() if isInitialized is still false.
- *   Since persist marks isInitialized=true after hydration, it will NOT call init()
- *   and will NOT overwrite the freshly logged-in user.
- * - After logout: useAuthStore sets user=null. AuthInitializer re-runs, isInitialized
- *   is true (from persist hydration), so it does nothing.
+ * Key insight: Zustand's persist middleware runs SYNCHRONOUSLY during hydration,
+ * setting `isInitialized = true` BEFORE the first useEffect ever fires.
+ * So we CANNOT use `isInitialized` as the condition — it is already true.
  *
- * This eliminates the race condition where init() would fetch /api/auth/me after
- * login and potentially overwrite the just-set user with null (e.g. on slow networks).
+ * Solution: use a plain React ref to track if init() was called in this mount cycle.
+ * The ref persists across re-renders but resets on unmount (new page = fresh ref).
+ *
+ * init() itself is safe to call multiple times: it returns the same promise
+ * if already in flight, preventing race conditions.
  */
 function AuthInitializer() {
-  const user = useAuthStore((s) => s.user);
-  const isInitialized = useAuthStore((s) => s.isInitialized);
   const init = useAuthStore((s) => s.init);
-  const initRef = useRef(false);
+  const isInitialized = useAuthStore((s) => s.isInitialized);
+  // Use a React ref — not Zustand state — as the mount guard.
+  // This ref is fresh on every page mount (different component tree).
+  const initCalled = useRef(false);
 
   useEffect(() => {
-    if (!initRef.current && !isInitialized) {
-      initRef.current = true;
-      if (!user) {
-        init(); // 无缓存 → 从服务器拉取
-      } else {
-        // 有缓存 → 先显示缓存，同时后台刷新最新身份（管理员修改role/plan能立即生效）
-        init();
-      }
-    }
-  }, [user, isInitialized, init]);
+    // Guard: only call init() once per mount cycle
+    if (initCalled.current) return;
+    initCalled.current = true;
+    // isInitialized from Zustand is already true after hydration,
+    // but we intentionally ignore it and always revalidate from server.
+    // init() itself is idempotent (returns the same promise if in-flight).
+    init();
+  }, [init]);
 
   return null;
 }

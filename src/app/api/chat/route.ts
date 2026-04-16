@@ -724,7 +724,8 @@ export async function POST(request: NextRequest) {
     // Fetch user to get their subscription plan (determines if they have daily limits)
     const user = await getUserById(userId);
     const userPlan = user?.plan ?? 'FREE';
-    const { allowed, current, limit } = await checkUserDailyLimit(userId, userPlan);
+    const userCredits = user?.credits ?? 0;
+    const { allowed, current, limit } = await checkUserDailyLimit(userId, userPlan, userCredits);
     if (!allowed) {
       return NextResponse.json({
         error: `今日对话次数已达上限（${limit}次/天），明天再来探索吧~`,

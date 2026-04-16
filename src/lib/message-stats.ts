@@ -25,17 +25,18 @@ function getSql(): NeonQueryFunction<false, false> {
 export const USER_DAILY_LIMIT = 10;
 
 // 检查用户是否达到今日对话配额上限
-// 规则：FREE 用户 10条/天；PRO/MONTHLY/YEARLY/LIFETIME 用户无限制
+// 规则：付费用户（plan != FREE）或充值用户（credits > 0）无限制；FREE 10条/天
 export async function checkUserDailyLimit(
   userId: string,
-  plan: SubscriptionPlan = 'FREE'
+  plan: SubscriptionPlan = 'FREE',
+  credits: number = 0
 ): Promise<{
   allowed: boolean;
   current: number;
   limit: number;
 }> {
-  // Paid plans: unlimited
-  if (plan !== 'FREE') {
+  // Paid plans or has credits: unlimited
+  if (plan !== 'FREE' || credits > 0) {
     return { allowed: true, current: 0, limit: 999999 };
   }
   const current = await getDailyMessageCount(userId);
