@@ -11,7 +11,7 @@ import {
   ArrowLeft, User, Mail, Lock, Shield, Bell, Trash2,
   Save, CheckCircle, AlertTriangle, RefreshCw,
   ChevronRight, Smartphone, Github, Crown,
-  Edit3, X, Check, Eye, EyeOff
+  Edit3, X, Check, Eye, EyeOff, Zap, CreditCard, DollarSign, ChevronDown
 } from 'lucide-react';
 import { useAuthStore, AuthUser } from '@/lib/auth-store';
 
@@ -25,7 +25,7 @@ const PROVINCES = [
   '港澳台', '海外', '未知'
 ];
 
-type Tab = 'profile' | 'account' | 'security' | 'notifications';
+type Tab = 'profile' | 'account' | 'subscription' | 'security' | 'notifications';
 
 export default function SettingsPage() {
   const { user, refresh } = useAuthStore();
@@ -76,6 +76,20 @@ export default function SettingsPage() {
                 {user.plan === 'MONTHLY' ? '月度会员' : user.plan === 'YEARLY' ? '年度会员' : '终身会员'}
               </span>
             )}
+            {user.credits > 0 && (
+              <span className="inline-flex items-center gap-1 text-xs text-prism-blue bg-prism-blue/10 px-2 py-1 rounded-lg">
+                <Zap className="w-3 h-3" />
+                {user.credits} 条充值
+              </span>
+            )}
+            <button
+              onClick={refresh}
+              className="text-xs text-text-muted hover:text-text-primary transition-colors flex items-center gap-1"
+              title="从服务器刷新身份信息"
+            >
+              <RefreshCw className="w-3.5 h-3.5" />
+              同步
+            </button>
             <Link href="/app" className="text-sm text-prism-blue hover:underline">返回应用</Link>
           </div>
         </div>
@@ -105,6 +119,7 @@ export default function SettingsPage() {
               {[
                 { id: 'profile', label: '个人信息', icon: User },
                 { id: 'account', label: '账号信息', icon: Mail },
+                { id: 'subscription', label: '会员订阅', icon: CreditCard },
                 { id: 'security', label: '安全设置', icon: Lock },
                 { id: 'notifications', label: '通知偏好', icon: Bell },
               ].map(tab => (
@@ -129,6 +144,9 @@ export default function SettingsPage() {
               )}
               {activeTab === 'account' && (
                 <AccountTab key="account" user={user} onSuccess={showSuccess} onError={showError} />
+              )}
+              {activeTab === 'subscription' && (
+                <SubscriptionTab key="subscription" user={user} />
               )}
               {activeTab === 'security' && (
                 <SecurityTab key="security" user={user} onSuccess={showSuccess} onError={showError} />
@@ -263,6 +281,7 @@ function AccountTab({ user, onSuccess, onError }: {
   onSuccess: (m: string) => void;
   onError: (m: string) => void;
 }) {
+  const { refresh } = useAuthStore();
   const planLabels: Record<string, string> = {
     FREE: '免费版',
     MONTHLY: '月度会员',
@@ -277,7 +296,17 @@ function AccountTab({ user, onSuccess, onError }: {
 
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-      <h2 className="text-lg font-medium text-text-primary mb-6">账号信息</h2>
+      <div className="flex items-center justify-between mb-6">
+        <h2 className="text-lg font-medium text-text-primary">账号信息</h2>
+        <button
+          onClick={refresh}
+          className="flex items-center gap-1.5 text-xs text-text-muted hover:text-text-primary transition-colors"
+          title="从服务器刷新最新身份"
+        >
+          <RefreshCw className="w-3.5 h-3.5" />
+          同步身份
+        </button>
+      </div>
       <div className="space-y-4">
         <div className="rounded-xl border border-border-subtle bg-bg-elevated divide-y divide-border-subtle">
           <div className="flex items-center justify-between px-4 py-4">
@@ -309,18 +338,26 @@ function AccountTab({ user, onSuccess, onError }: {
             <p className="text-sm font-medium text-text-primary">用户角色</p>
             <span className="text-sm text-text-muted">{roleLabels[user.role]}</span>
           </div>
+          {user.credits > 0 && (
+            <div className="flex items-center justify-between px-4 py-4">
+              <p className="text-sm font-medium text-text-primary">充值条数</p>
+              <span className="inline-flex items-center gap-1 text-xs px-2 py-1 rounded-full text-prism-blue bg-prism-blue/10">
+                <Zap className="w-3 h-3" />
+                {user.credits} 条可用
+              </span>
+            </div>
+          )}
         </div>
 
-        {user.plan === 'FREE' && (
-          <Link href="/pricing"
-            className="flex items-center justify-between p-4 rounded-xl border border-amber-500/20 bg-amber-500/5 hover:bg-amber-500/10 transition-colors group">
-            <div>
-              <p className="text-sm font-medium text-text-primary">升级到高级版</p>
-              <p className="text-xs text-text-muted mt-0.5">解锁更多蒸馏人物和协作模式</p>
-            </div>
-            <ChevronRight className="w-4 h-4 text-amber-400 group-hover:translate-x-1 transition-transform" />
-          </Link>
-        )}
+        <Link href="/settings#subscription"
+          onClick={() => document.querySelector<HTMLElement>('[data-tab="subscription"]')?.click()}
+          className="flex items-center justify-between p-4 rounded-xl border border-amber-500/20 bg-amber-500/5 hover:bg-amber-500/10 transition-colors group">
+          <div>
+            <p className="text-sm font-medium text-text-primary">升级到高级版</p>
+            <p className="text-xs text-text-muted mt-0.5">查看定价方案和充值条数</p>
+          </div>
+          <ChevronRight className="w-4 h-4 text-amber-400 group-hover:translate-x-1 transition-transform" />
+        </Link>
 
         <div className="rounded-xl border border-red-500/20 bg-red-500/5 p-4">
           <p className="text-sm font-medium text-red-400 mb-1">危险区域</p>
@@ -331,6 +368,144 @@ function AccountTab({ user, onSuccess, onError }: {
             <Trash2 className="w-3.5 h-3.5" /> 注销账号
           </button>
         </div>
+      </div>
+    </motion.div>
+  );
+}
+
+/* ─── Subscription Tab ─── */
+function SubscriptionTab({ user }: { user: AuthUser }) {
+  const { refresh } = useAuthStore();
+  const planLabels: Record<string, string> = {
+    FREE: '免费版',
+    MONTHLY: '月度会员',
+    YEARLY: '年度会员',
+    LIFETIME: '终身会员',
+  };
+  const planDesc: Record<string, string> = {
+    FREE: '每日 10 条免费对话',
+    MONTHLY: '无限对话额度，优先响应',
+    YEARLY: '无限对话 + 年付更划算',
+    LIFETIME: '永久无限额度，无需续费',
+  };
+
+  const plans = [
+    { id: 'MONTHLY', name: '月度订阅', price: '¥29/月', badge: '推荐', color: 'prism-blue', popular: true },
+    { id: 'YEARLY', name: '年度订阅', price: '¥199/年 ≈ ¥17/月', badge: '最划算', color: 'green-500', popular: false },
+    { id: 'LIFETIME', name: '终身会员', price: '¥399 一次性', badge: '永久', color: 'prism-purple', popular: false },
+  ];
+
+  return (
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+      <div className="flex items-center justify-between mb-6">
+        <h2 className="text-lg font-medium text-text-primary">会员订阅</h2>
+        <button
+          onClick={refresh}
+          className="flex items-center gap-1.5 text-xs text-text-muted hover:text-text-primary transition-colors"
+        >
+          <RefreshCw className="w-3.5 h-3.5" />
+          同步
+        </button>
+      </div>
+
+      {/* Current status */}
+      <div className="rounded-xl border border-border-subtle bg-bg-elevated p-4 mb-6">
+        <p className="text-xs text-text-muted mb-2">当前订阅状态</p>
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
+            <Crown className={`w-5 h-5 ${user.plan !== 'FREE' ? 'text-amber-400' : 'text-text-muted'}`} />
+            <div>
+              <p className="text-sm font-medium text-text-primary">{planLabels[user.plan]}</p>
+              <p className="text-xs text-text-muted">{planDesc[user.plan]}</p>
+            </div>
+          </div>
+          {user.credits > 0 && (
+            <div className="ml-auto flex items-center gap-1.5 bg-prism-blue/10 px-3 py-1.5 rounded-lg">
+              <Zap className="w-4 h-4 text-prism-blue" />
+              <span className="text-sm font-medium text-prism-blue">{user.credits} 条充值</span>
+            </div>
+          )}
+        </div>
+        {user.plan === 'FREE' && (
+          <p className="text-xs text-text-muted mt-2">免费用户每日 10 条上限</p>
+        )}
+      </div>
+
+      {/* Subscription plans */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        {plans.map(plan => (
+          <div
+            key={plan.id}
+            className={`rounded-2xl border p-5 ${
+              plan.color === 'prism-blue'
+                ? 'border-prism-blue/40 bg-gradient-to-b from-prism-blue/8 to-bg-elevated'
+                : plan.color === 'green-500'
+                ? 'border-green-500/30 bg-gradient-to-b from-green-500/5 to-bg-elevated'
+                : 'border-prism-purple/30 bg-gradient-to-b from-prism-purple/5 to-bg-elevated'
+            }`}
+          >
+            {plan.popular && (
+              <div className="text-center mb-2">
+                <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full bg-${plan.color}/15 text-${plan.color}`}>
+                  {plan.badge}
+                </span>
+              </div>
+            )}
+            <p className={`text-sm font-medium ${
+              plan.color === 'prism-blue' ? 'text-prism-blue' : plan.color === 'green-500' ? 'text-green-400' : 'text-prism-purple'
+            }`}>{plan.name}</p>
+            <p className="text-xl font-bold text-text-primary mt-1">{plan.price}</p>
+            <p className="text-xs text-text-muted mt-1 mb-4">
+              {plan.id === 'MONTHLY' ? '随时取消，自动续费'
+                : plan.id === 'YEARLY' ? '比月付省 ¥149/年'
+                : '永久有效，无需续费'}
+            </p>
+            <button
+              onClick={() => { window.location.href = 'weixin://'; }}
+              className={`w-full py-2 rounded-xl text-sm font-medium transition-opacity text-white ${
+                plan.color === 'prism-blue' ? 'bg-prism-blue hover:opacity-90'
+                  : plan.color === 'green-500' ? 'bg-green-500 hover:opacity-90'
+                  : 'bg-prism-purple hover:opacity-90'
+              }`}
+            >
+              微信购买
+            </button>
+          </div>
+        ))}
+      </div>
+
+      {/* Credit packs */}
+      <div className="mb-6">
+        <p className="text-sm font-medium text-text-primary mb-3">充值问答条数</p>
+        <div className="grid grid-cols-3 gap-3">
+          {[
+            { name: '尝鲜包', credits: 200, price: '¥9', per: '¥4.5/100条' },
+            { name: '标准包', credits: 600, price: '¥25', per: '¥4.2/100条', popular: true },
+            { name: '增强包', credits: 1500, price: '¥59', per: '¥3.9/100条', best: true },
+          ].map(pack => (
+            <div key={pack.name} className="rounded-xl border border-border-subtle bg-bg-elevated p-4 text-center">
+              {pack.popular && <span className="text-[10px] text-prism-purple bg-prism-purple/10 px-1.5 py-0.5 rounded-full">最受欢迎</span>}
+              {pack.best && <span className="text-[10px] text-green-400 bg-green-400/10 px-1.5 py-0.5 rounded-full">最划算</span>}
+              <p className="text-sm font-medium text-text-primary mt-1">{pack.name}</p>
+              <p className="text-lg font-bold text-text-primary">{pack.price}</p>
+              <p className="text-xs text-text-muted">{pack.credits} 条</p>
+              <p className="text-[10px] text-text-muted/60">{pack.per}</p>
+              <button
+                onClick={() => { window.location.href = 'weixin://'; }}
+                className="mt-2 w-full py-1.5 rounded-lg bg-bg-surface text-sm text-text-secondary hover:bg-bg-overlay transition-colors"
+              >
+                微信购买
+              </button>
+            </div>
+          ))}
+        </div>
+        <p className="text-xs text-text-muted mt-2 text-center">充值条数永久有效，不清零，不过期</p>
+      </div>
+
+      {/* Contact */}
+      <div className="rounded-xl border border-border-subtle bg-bg-elevated p-4 text-center">
+        <p className="text-sm text-text-secondary mb-1">购买或咨询</p>
+        <p className="text-xs text-text-muted">微信搜索 <span className="font-mono font-medium text-text-primary">3740977</span> 备注「Prismatic会员」</p>
       </div>
     </motion.div>
   );

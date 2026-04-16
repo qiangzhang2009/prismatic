@@ -20,6 +20,7 @@ export interface AuthUser {
   emailVerified: boolean;
   role: UserRole;
   plan: SubscriptionPlan;
+  credits: number; // 充值问答条数
   avatar: string | null;
   canUseProFeatures: boolean;
 }

@@ -33,6 +33,7 @@ interface User {
   emailVerified: boolean;
   role: UserRole;
   plan: SubscriptionPlan;
+  credits: number;
   avatar: string | null;
   createdAt: string;
   lastLoginAt: string | null;
@@ -332,6 +333,25 @@ function AdminUsersContent() {
     }
   };
 
+  const handleCreditsChange = async (userId: string, credits: number) => {
+    try {
+      const res = await fetch('/api/admin/users', {
+        method: 'PUT', headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ userId, credits }),
+      });
+      if (res.ok) {
+        setUsers(users.map(u => u.id === userId ? { ...u, credits } : u));
+        showSuccess(`充值成功：${credits} 条`);
+      } else {
+        const data = await res.json();
+        showError(data.error || '充值失败');
+      }
+    } catch {
+      showError('充值失败');
+    }
+  };
+
   const handleDelete = async (userId: string) => {
     if (!confirm('确定要禁用此用户吗？')) return;
     try {
@@ -605,6 +625,7 @@ function AdminUsersContent() {
                         <th className="px-3 py-3 font-medium cursor-pointer select-none hover:text-text-primary" onClick={() => handleSort('plan')}>
                           套餐 <SortIcon k="plan" />
                         </th>
+                        <th className="px-3 py-3 font-medium">充值</th>
                         <th className="px-3 py-3 font-medium">活跃轨迹</th>
                         <th className="px-3 py-3 font-medium cursor-pointer select-none hover:text-text-primary" onClick={() => handleSort('todayCount')}>
                           今日 <SortIcon k="todayCount" />
@@ -715,6 +736,20 @@ function AdminUsersContent() {
                               </div>
                             </td>
 
+                            {/* Credits */}
+                            <td className="px-3 py-3.5">
+                              {user.credits > 0 ? (
+                                <div className="flex items-center gap-1">
+                                  <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full bg-prism-blue/10 text-prism-blue text-[10px] font-semibold">
+                                    <Zap className="w-2.5 h-2.5" />
+                                    {user.credits}
+                                  </span>
+                                </div>
+                              ) : (
+                                <span className="text-[10px] text-text-muted">-</span>
+                              )}
+                            </td>
+
                             {/* Sparkline (7 days mini bar) */}
                             <td className="px-3 py-3.5">
                               <MiniSparkline todayCount={uToday} />
@@ -767,6 +802,15 @@ function AdminUsersContent() {
                                   <button onClick={() => startEdit(user)}
                                     className="p-1.5 rounded-lg text-text-muted hover:bg-bg-surface hover:text-prism-blue" title="编辑信息">
                                     <Edit3 className="w-3.5 h-3.5" />
+                                  </button>
+                                  <button onClick={() => {
+                                      const amount = prompt('请输入充值条数（如：200、600、1500）：');
+                                      if (amount && !isNaN(Number(amount)) && Number(amount) > 0) {
+                                        handleCreditsChange(user.id, Number(amount));
+                                      }
+                                    }}
+                                    className="p-1.5 rounded-lg text-prism-blue hover:bg-prism-blue/10" title="充值条数">
+                                    <Zap className="w-3.5 h-3.5" />
                                   </button>
                                   <button onClick={() => handleDelete(user.id)}
                                     className="p-1.5 rounded-lg text-red-400 hover:bg-red-400/10" title="禁用用户">

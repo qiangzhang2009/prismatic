@@ -1,10 +1,10 @@
 /**
  * GET /api/admin/users — List all users (admin only)
- * PUT /api/admin/users — Update user role/plan
+ * PUT /api/admin/users — Update user role/plan/credits
  * DELETE /api/admin/users — Deactivate user
  */
 import { NextRequest, NextResponse } from 'next/server';
-import { authenticateAdminRequest, getAllUsers, getUserById, updateUserRole, updateUserPlan, updateUserName, updateUserProfile, updateUserEmail, deleteUser } from '@/lib/user-management';
+import { authenticateAdminRequest, getAllUsers, getUserById, updateUserRole, updateUserPlan, updateUserCredits, updateUserName, updateUserProfile, updateUserEmail, deleteUser } from '@/lib/user-management';
 
 export async function GET(req: NextRequest) {
   const adminId = await authenticateAdminRequest(req);
@@ -22,9 +22,15 @@ export async function PUT(req: NextRequest) {
   }
   try {
     const body = await req.json();
-    const { userId, role, plan, name, gender, province, email } = body;
+    const { userId, role, plan, credits, name, gender, province, email } = body;
     if (!userId) {
       return NextResponse.json({ error: 'userId is required' }, { status: 400 });
+    }
+    if (credits !== undefined) {
+      if (typeof credits !== 'number' || credits < 0) {
+        return NextResponse.json({ error: 'credits must be a non-negative number' }, { status: 400 });
+      }
+      await updateUserCredits(userId, credits);
     }
     if (role) await updateUserRole(userId, role);
     if (plan) await updateUserPlan(userId, plan);

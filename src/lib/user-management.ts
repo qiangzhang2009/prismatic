@@ -23,6 +23,7 @@ export interface PublicUser {
   emailVerified: boolean;
   role: UserRole;
   plan: SubscriptionPlan;
+  credits: number; // 充值问答条数（仅充值用户有）
   avatar: string | null;
   createdAt: Date;
   lastLoginAt: Date | null;
@@ -81,7 +82,7 @@ export async function createUser(input: CreateUserInput & { emailVerified?: bool
       'FREE',
       TRUE
     )
-    RETURNING id, email, name, gender, province, email_verified, role, plan, avatar, created_at, last_login_at
+    RETURNING id, email, name, gender, province, email_verified, role, plan, credits, avatar, created_at, last_login_at
   `;
 
   if (rows.length === 0) return null;
@@ -95,6 +96,7 @@ export async function createUser(input: CreateUserInput & { emailVerified?: bool
     emailVerified: row.email_verified,
     role: row.role as UserRole,
     plan: row.plan as SubscriptionPlan,
+    credits: Number(row.credits ?? 0),
     avatar: row.avatar,
     createdAt: row.created_at,
     lastLoginAt: row.last_login_at,
@@ -105,7 +107,7 @@ export async function verifyCredentials(email: string, password: string): Promis
   const sql = getSql();
 
   const rows = await sql`
-    SELECT id, email, password_hash, name, gender, province, email_verified, role, plan, avatar, created_at, last_login_at
+    SELECT id, email, password_hash, name, gender, province, email_verified, role, plan, credits, avatar, created_at, last_login_at
     FROM prismatic_users
     WHERE email = ${email.toLowerCase()} AND is_active = TRUE
   `;
@@ -130,6 +132,7 @@ export async function verifyCredentials(email: string, password: string): Promis
     emailVerified: row.email_verified,
     role: row.role as UserRole,
     plan: row.plan as SubscriptionPlan,
+    credits: Number(row.credits ?? 0),
     avatar: row.avatar,
     createdAt: row.created_at,
     lastLoginAt: row.last_login_at,
@@ -139,7 +142,7 @@ export async function verifyCredentials(email: string, password: string): Promis
 export async function getUserById(id: string): Promise<PublicUser | null> {
   const sql = getSql();
   const rows = await sql`
-    SELECT id, email, name, gender, province, email_verified, role, plan, avatar, created_at, last_login_at
+    SELECT id, email, name, gender, province, email_verified, role, plan, credits, avatar, created_at, last_login_at
     FROM prismatic_users WHERE id = ${id} AND is_active = TRUE
   `;
   if (rows.length === 0) return null;
@@ -153,6 +156,7 @@ export async function getUserById(id: string): Promise<PublicUser | null> {
     emailVerified: row.email_verified,
     role: row.role as UserRole,
     plan: row.plan as SubscriptionPlan,
+    credits: Number(row.credits ?? 0),
     avatar: row.avatar,
     createdAt: row.created_at,
     lastLoginAt: row.last_login_at,
@@ -162,7 +166,7 @@ export async function getUserById(id: string): Promise<PublicUser | null> {
 export async function getUserByEmail(email: string): Promise<PublicUser | null> {
   const sql = getSql();
   const rows = await sql`
-    SELECT id, email, name, gender, province, email_verified, role, plan, avatar, created_at, last_login_at
+    SELECT id, email, name, gender, province, email_verified, role, plan, credits, avatar, created_at, last_login_at
     FROM prismatic_users WHERE email = ${email.toLowerCase()} AND is_active = TRUE
   `;
   if (rows.length === 0) return null;
@@ -176,6 +180,7 @@ export async function getUserByEmail(email: string): Promise<PublicUser | null> 
     emailVerified: row.email_verified,
     role: row.role as UserRole,
     plan: row.plan as SubscriptionPlan,
+    credits: Number(row.credits ?? 0),
     avatar: row.avatar,
     createdAt: row.created_at,
     lastLoginAt: row.last_login_at,
@@ -185,7 +190,7 @@ export async function getUserByEmail(email: string): Promise<PublicUser | null> 
 export async function getAllUsers(): Promise<PublicUser[]> {
   const sql = getSql();
   const rows = await sql`
-    SELECT id, email, name, gender, province, email_verified, role, plan, avatar, created_at, last_login_at
+    SELECT id, email, name, gender, province, email_verified, role, plan, credits, avatar, created_at, last_login_at
     FROM prismatic_users WHERE is_active = TRUE
     ORDER BY created_at DESC
   `;
@@ -198,6 +203,7 @@ export async function getAllUsers(): Promise<PublicUser[]> {
     emailVerified: row.email_verified,
     role: row.role as UserRole,
     plan: row.plan as SubscriptionPlan,
+    credits: Number(row.credits ?? 0),
     avatar: row.avatar,
     createdAt: row.created_at,
     lastLoginAt: row.last_login_at,
@@ -215,6 +221,23 @@ export async function updateUserPlan(userId: string, plan: SubscriptionPlan): Pr
   const role = plan === 'FREE' ? 'FREE' : 'PRO';
   await sql`UPDATE prismatic_users SET plan = ${plan}, role = ${role}, updated_at = NOW() WHERE id = ${userId}`;
   return true;
+}
+
+export async function updateUserCredits(userId: string, credits: number): Promise<boolean> {
+  const sql = getSql();
+  await sql`UPDATE prismatic_users SET credits = ${credits}, updated_at = NOW() WHERE id = ${userId}`;
+  return true;
+}
+
+export async function addUserCredits(userId: string, amount: number): Promise<number> {
+  const sql = getSql();
+  const rows = await sql`
+    UPDATE prismatic_users
+    SET credits = GREATEST(0, credits + ${amount}), updated_at = NOW()
+    WHERE id = ${userId}
+    RETURNING credits
+  `;
+  return rows.length > 0 ? Number(rows[0].credits) : 0;
 }
 
 export async function updateUserName(userId: string, name: string): Promise<boolean> {
@@ -304,6 +327,7 @@ export function createDemoUserFromId(userId: string) {
     role: 'PRO' as UserRole,
     plan: 'LIFETIME' as SubscriptionPlan,
     avatar: null,
+    credits: 0,
     canUseProFeatures: true,
     createdAt: new Date().toISOString(),
     lastLoginAt: null,
@@ -487,8 +511,8 @@ export async function getUserStats(): Promise<{
 
 // ─── Permission Helpers ───────────────────────────────────────────────────────
 
-export function canUseProFeatures(role: UserRole, plan: SubscriptionPlan): boolean {
-  return plan !== 'FREE' || role === 'ADMIN';
+export function canUseProFeatures(role: UserRole, plan: SubscriptionPlan, credits: number = 0): boolean {
+  return plan !== 'FREE' || role === 'ADMIN' || credits > 0;
 }
 
 export function isAdmin(role: UserRole): boolean {

@@ -32,7 +32,7 @@ export async function GET(req: NextRequest) {
   return NextResponse.json({
     user: {
       ...user,
-      canUseProFeatures: canUseProFeatures(user.role, user.plan),
+      canUseProFeatures: canUseProFeatures(user.role, user.plan, user.credits),
       isAdmin: user.role === 'ADMIN',
     }
   }, { headers: NO_CACHE_HEADERS });
