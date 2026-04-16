@@ -45,17 +45,41 @@ export async function GET(req: NextRequest) {
 
   const userId: string = payload.userId;
 
-  // ── Demo user: JWT has demo_{UUID} — strip prefix, use UUID for DB lookup ──
+  // ── Demo user: JWT has "demo_{...}" — determine DB UUID from format ──
   if (isDemoUserId(userId)) {
-    const uuid = userId.replace('demo_', '');
-    const email = payload.email || 'demo1@prismatic.app';
+    const suffix = userId.replace('demo_', '');
+
+    // Old format: demo_ZGVtbzE (base64 of email)
+    // New format: demo_{UUID}
+    let dbId: string;
+    let email: string;
+
+    if (suffix.includes('-')) {
+      // New format: UUID directly
+      dbId = suffix;
+      email = payload.email || 'demo1@prismatic.app';
+    } else {
+      // Old format: base64-encoded email → decode → derive UUID
+      try {
+        const decoded = Buffer.from(suffix, 'base64').toString();
+        if (decoded.includes('@')) {
+          email = decoded;
+        } else {
+          email = `demo${suffix}@prismatic.app`;
+        }
+      } catch {
+        email = 'demo1@prismatic.app';
+      }
+      dbId = demoEmailToUUID(email.toLowerCase());
+    }
+
     const num = parseDemoNumber(email);
     const name = `演示账号 ${num}`;
 
     // Ensure the demo user exists in DB before querying (await, not fire-and-forget)
-    await ensureDemoUserInDB(uuid, email, name);
+    await ensureDemoUserInDB(dbId, email, name);
 
-    const user = await getUserById(uuid);
+    const user = await getUserById(dbId);
     if (!user) return NextResponse.json({ user: null }, { headers: NO_CACHE_HEADERS });
     return NextResponse.json({
       user: {
@@ -96,8 +120,22 @@ export async function PUT(req: NextRequest) {
     const body = await req.json();
     const { name, gender, province } = body;
 
-    // For demo users, JWT userId is "demo_{UUID}" — strip prefix to get DB UUID
-    const dbId = isDemoUserId(userId) ? userId.replace('demo_', '') : userId;
+    // Demo user: handle both old (demo_{base64}) and new (demo_{UUID}) formats
+    let dbId: string = userId;
+    if (isDemoUserId(userId)) {
+      const suffix = userId.replace('demo_', '');
+      if (suffix.includes('-')) {
+        dbId = suffix; // new format: UUID directly
+      } else {
+        // old format: base64 email → decode → derive UUID
+        try {
+          const decoded = Buffer.from(suffix, 'base64').toString();
+          dbId = demoEmailToUUID(decoded.includes('@') ? decoded : `demo${suffix}@prismatic.app`);
+        } catch {
+          dbId = userId; // fallback
+        }
+      }
+    }
 
     await updateUserName(dbId, name);
     if (gender !== undefined || province !== undefined) {
