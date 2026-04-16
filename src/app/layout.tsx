@@ -3,6 +3,7 @@ import Script from 'next/script';
 import './globals.css';
 import { Providers } from '@/components/providers';
 import { NavBar } from '@/components/nav-bar';
+import { Analytics } from '@vercel/analytics/next';
 
 export const metadata: Metadata = {
   title: 'Prismatic · 棱镜之光',
@@ -36,6 +37,7 @@ export default function RootLayout({
       <body className="min-h-screen bg-bg-base antialiased">
         <NavBar />
         <Providers>{children}</Providers>
+        <Analytics />
       </body>
     </html>
   );
