@@ -4,9 +4,8 @@
  */
 import { NextRequest, NextResponse } from 'next/server';
 import {
-  verifyJWTToken, getUserById, updateUserName,
-  canUseProFeatures, isDemoUserId, ensureDemoUserInDB,
-  demoEmailToUUID,
+  verifyJWTToken, getUserById, updateUserName, updateUserProfile,
+  canUseProFeatures, isDemoUserId, demoEmailToUUID,
 } from '@/lib/user-management';
 
 const NO_CACHE_HEADERS = {
@@ -20,16 +19,6 @@ interface JWTPayload {
   iat?: number;
   exp?: number;
 }
-
-function parseDemoNumber(email: string): string {
-  return email.match(/demo(\d+)/)?.[1] || '1';
-}
-
-/**
- * Demo users: JWT payload.email → UUID for DB lookup (same as login).
- * parseDemoNumber extracts the demo account number from email.
- */
-
 
 export async function GET(req: NextRequest) {
   const token = req.cookies.get('prismatic_token')?.value;
@@ -45,44 +34,28 @@ export async function GET(req: NextRequest) {
 
   const userId: string = payload.userId;
 
-  // ── Demo user: JWT has "demo_{...}" — determine DB UUID from format ──
+  // ── Demo user: JWT has "demo_{...}" ──────────────────────────────────────────
   if (isDemoUserId(userId)) {
     const suffix = userId.replace('demo_', '');
-
-    // Old format: demo_ZGVtbzE (base64 of email)
-    // New format: demo_{UUID}
     let dbId: string;
     let email: string;
 
     if (suffix.includes('-')) {
-      // New format: UUID directly
+      // New format: demo_{UUID} → strip prefix to get DB UUID
       dbId = suffix;
       email = payload.email || 'demo1@prismatic.app';
     } else {
-      // Old format: base64-encoded email → decode → derive UUID
+      // Old format: demo_{base64} → decode → derive UUID
       try {
         const decoded = Buffer.from(suffix, 'base64').toString();
-        if (decoded.includes('@')) {
-          email = decoded;
-        } else {
-          email = `demo${suffix}@prismatic.app`;
-        }
+        email = decoded.includes('@') ? decoded : `demo${suffix}@prismatic.app`;
       } catch {
         email = 'demo1@prismatic.app';
       }
       dbId = demoEmailToUUID(email.toLowerCase());
     }
 
-    const num = parseDemoNumber(email);
-    const name = `演示账号 ${num}`;
-
-    // Ensure the demo user exists in DB before querying (await, not fire-and-forget)
-    console.log('[DEBUG me] isDemoUserId=true, dbId=' + dbId + ', email=' + email);
-    await ensureDemoUserInDB(dbId, email, name);
-    console.log('[DEBUG me] ensureDemoUserInDB done');
-
     const user = await getUserById(dbId);
-    console.log('[DEBUG me] getUserById result:', JSON.stringify(user));
     if (!user) return NextResponse.json({ user: null }, { headers: NO_CACHE_HEADERS });
     return NextResponse.json({
       user: {
@@ -93,7 +66,7 @@ export async function GET(req: NextRequest) {
     }, { headers: NO_CACHE_HEADERS });
   }
 
-  // ── Regular user: always query DB ────────────────────────────────────────────
+  // ── Regular user: query DB by userId ────────────────────────────────────────
   const user = await getUserById(userId);
   if (!user) return NextResponse.json({ user: null }, { headers: NO_CACHE_HEADERS });
   return NextResponse.json({
@@ -123,27 +96,25 @@ export async function PUT(req: NextRequest) {
     const body = await req.json();
     const { name, gender, province } = body;
 
-    // Demo user: handle both old (demo_{base64}) and new (demo_{UUID}) formats
+    // Demo user: strip demo_ prefix to get DB UUID
     let dbId: string = userId;
     if (isDemoUserId(userId)) {
       const suffix = userId.replace('demo_', '');
       if (suffix.includes('-')) {
-        dbId = suffix; // new format: UUID directly
+        dbId = suffix;
       } else {
-        // old format: base64 email → decode → derive UUID
         try {
           const decoded = Buffer.from(suffix, 'base64').toString();
           dbId = demoEmailToUUID(decoded.includes('@') ? decoded : `demo${suffix}@prismatic.app`);
         } catch {
-          dbId = userId; // fallback
+          dbId = userId;
         }
       }
     }
 
-    await updateUserName(dbId, name);
+    if (name !== undefined) await updateUserName(dbId, name);
     if (gender !== undefined || province !== undefined) {
-      const { updateUserProfile } = await import('@/lib/user-management');
-      await updateUserProfile(dbId, { name, gender, province });
+      await updateUserProfile(dbId, { gender, province });
     }
     const user = await getUserById(dbId);
     return NextResponse.json({ user }, { headers: NO_CACHE_HEADERS });
