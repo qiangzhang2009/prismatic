@@ -21,7 +21,7 @@ export async function GET(req: NextRequest) {
     // Direct unsafe query to bypass any type coercion
     const result = await sql.unsafe(
       `SELECT id, email, role, plan, credits FROM prismatic_users WHERE id = '${userId}' AND is_active = TRUE`
-    );
+    ) as any;
     return NextResponse.json({ userId, result, length: result.length });
   } catch (e: any) {
     return NextResponse.json({ error: e.message }, { status: 500 });
