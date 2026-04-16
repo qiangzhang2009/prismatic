@@ -14,14 +14,11 @@ const NO_CACHE_HEADERS = {
   'Pragma': 'no-cache',
 };
 
-function parseDemoEmail(userId: string): string {
-  const base64 = userId.replace('demo_', '');
-  try {
-    const decoded = Buffer.from(base64, 'base64').toString();
-    return decoded.includes('@') ? decoded : 'demo1@prismatic.app';
-  } catch {
-    return 'demo1@prismatic.app';
-  }
+interface JWTPayload {
+  userId: string;
+  email?: string;
+  iat?: number;
+  exp?: number;
 }
 
 function parseDemoNumber(email: string): string {
@@ -33,17 +30,13 @@ function parseDemoNumber(email: string): string {
  * Derive a stable UUID v5 from the email — same email always → same UUID.
  */
 function demoEmailToUUID(email: string): string {
-  // Derive a stable, valid UUID v5 from email — same email → same UUID
-  const hash = createHash('sha1').update(email.toLowerCase()).digest('hex');
-  // UUID = 8+4+4+4+12 = 32 hex chars (hash has 40, we use first 32)
-  // version 5 variant: replace char[12] with '5', char[16] with N variant
-  const hex = hash.slice(0, 32);
+  const hash = createHash('sha1').update(email.toLowerCase()).digest('hex').slice(0, 32);
   return (
-    hex.slice(0, 8) + '-' +
-    hex.slice(8, 12) + '-' +
-    '5' + hex.slice(13, 16) + '-' +
-    ((parseInt(hex[16], 16) & 0x3) | 0x8).toString(16) + hex.slice(17, 20) + '-' +
-    hex.slice(20, 32)
+    hash.slice(0, 8) + '-' +
+    hash.slice(8, 12) + '-' +
+    '5' + hash.slice(13, 16) + '-' +
+    ((parseInt(hash[16], 16) & 0x3) | 0x8).toString(16) + hash.slice(17, 20) + '-' +
+    hash.slice(20, 32)
   );
 }
 
@@ -51,22 +44,22 @@ export async function GET(req: NextRequest) {
   const token = req.cookies.get('prismatic_token')?.value;
   if (!token) return NextResponse.json({ user: null }, { headers: NO_CACHE_HEADERS });
 
-  let payload: { userId: string; email?: string };
+  let payload: JWTPayload;
   try {
-    payload = verifyJWTToken(token) as { userId: string; email?: string };
+    payload = verifyJWTToken(token) as JWTPayload;
     if (!payload?.userId) throw new Error('Invalid payload');
   } catch {
     return NextResponse.json({ user: null }, { headers: NO_CACHE_HEADERS });
   }
 
-  const userId = payload.userId;
+  const userId: string = payload.userId;
 
-  // ── Demo user: map demo_{base64} JWT id → valid UUID for DB, then seed ───────
+  // ── Demo user: JWT payload has { userId, email } — use email for UUID derivation ─
   if (isDemoUserId(userId)) {
-    const email = parseDemoEmail(userId);
+    // Email comes from the JWT payload, NOT derived from userId
+    const email = payload.email || 'demo1@prismatic.app';
     const num = parseDemoNumber(email);
     const name = `演示账号 ${num}`;
-    // Derive the UUID that this demo user's DB record uses
     const dbId = demoEmailToUUID(email);
 
     // Fire-and-forget seed — errors are swallowed
@@ -99,22 +92,24 @@ export async function PUT(req: NextRequest) {
   const token = req.cookies.get('prismatic_token')?.value;
   if (!token) return NextResponse.json({ error: 'Unauthorized' }, { status: 401, headers: NO_CACHE_HEADERS });
 
-  let payload: { userId: string };
+  let payload: JWTPayload;
   try {
-    payload = verifyJWTToken(token) as { userId: string };
+    payload = verifyJWTToken(token) as JWTPayload;
     if (!payload?.userId) throw new Error('Invalid payload');
   } catch {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401, headers: NO_CACHE_HEADERS });
   }
 
-  const userId = payload.userId;
+  const userId: string = payload.userId;
 
   try {
     const body = await req.json();
     const { name, gender, province } = body;
 
-    // For demo users, map JWT id → DB UUID
-    const dbId = isDemoUserId(userId) ? demoEmailToUUID(parseDemoEmail(userId)) : userId;
+    // For demo users, derive DB UUID from JWT email (not from userId)
+    const dbId = isDemoUserId(userId)
+      ? demoEmailToUUID(payload.email || 'demo1@prismatic.app')
+      : userId;
 
     await updateUserName(dbId, name);
     if (gender !== undefined || province !== undefined) {
