@@ -46,22 +46,16 @@ const SDK_SOURCE = `
 
   function getGeoInfo() {
     return new Promise(function(resolve) {
-      fetch('https://ipapi.co/json/')
-        .then(function(r) { return r.json(); })
+      var timeout = setTimeout(function() { resolve(geoCache); }, 3000);
+      fetch('https://ip-api.com/json/?fields=status,country,region,city,org')
+        .then(function(r) { clearTimeout(timeout); return r.json(); })
         .then(function(data) {
-          if (data && (data.country_name || data.country)) {
-            geoCache = { country: data.country_name || data.country || '', region: data.region || '', city: data.city || '', isp: data.org || '' };
-            resolve(geoCache); return;
+          if (data && data.status === 'success') {
+            geoCache = { country: data.country || '', region: data.regionName || '', city: data.city || '', isp: data.org || '' };
           }
-          fetch('https://ipwho.is/')
-            .then(function(r2) { return r2.json(); })
-            .then(function(d2) {
-              if (d2 && d2.country) geoCache = { country: d2.country || '', region: d2.region || '', city: d2.city || '', isp: d2.connection ? (d2.connection.isp || '') : '' };
-              resolve(geoCache);
-            })
-            .catch(function() { resolve(geoCache); });
+          resolve(geoCache);
         })
-        .catch(function() { resolve(geoCache); });
+        .catch(function() { clearTimeout(timeout); resolve(geoCache); });
     });
   }
 
