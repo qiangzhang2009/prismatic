@@ -34,8 +34,9 @@ function isDemoAccount(email: string, password: string) {
 
 function createDemoUser(email: string) {
   const num = email.match(/demo(\d+)/)?.[1] || '1';
+  const uuid = demoEmailToUUID(email.toLowerCase());
   return {
-    id: demoEmailToUUID(email.toLowerCase()),
+    id: `demo_${uuid}`,  // prefix lets isDemoUserId() identify demo users
     email: email.toLowerCase(),
     name: `演示账号 ${num}`,
     nameZh: `演示账号 ${num}`,

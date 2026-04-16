@@ -45,18 +45,17 @@ export async function GET(req: NextRequest) {
 
   const userId: string = payload.userId;
 
-  // ── Demo user: JWT payload has { userId, email } — use email for UUID derivation ─
+  // ── Demo user: JWT has demo_{UUID} — strip prefix, use UUID for DB lookup ──
   if (isDemoUserId(userId)) {
-    // Email comes from the JWT payload, NOT derived from userId
+    const uuid = userId.replace('demo_', '');
     const email = payload.email || 'demo1@prismatic.app';
     const num = parseDemoNumber(email);
     const name = `演示账号 ${num}`;
-    const dbId = demoEmailToUUID(email);
 
-    // Fire-and-forget seed — errors are swallowed
-    ensureDemoUserInDB(dbId, email, name).catch(() => {});
+    // Ensure the demo user exists in DB before querying (await, not fire-and-forget)
+    await ensureDemoUserInDB(uuid, email, name);
 
-    const user = await getUserById(dbId);
+    const user = await getUserById(uuid);
     if (!user) return NextResponse.json({ user: null }, { headers: NO_CACHE_HEADERS });
     return NextResponse.json({
       user: {
@@ -97,10 +96,8 @@ export async function PUT(req: NextRequest) {
     const body = await req.json();
     const { name, gender, province } = body;
 
-    // For demo users, derive DB UUID from JWT email (not from userId)
-    const dbId = isDemoUserId(userId)
-      ? demoEmailToUUID(payload.email || 'demo1@prismatic.app')
-      : userId;
+    // For demo users, JWT userId is "demo_{UUID}" — strip prefix to get DB UUID
+    const dbId = isDemoUserId(userId) ? userId.replace('demo_', '') : userId;
 
     await updateUserName(dbId, name);
     if (gender !== undefined || province !== undefined) {
