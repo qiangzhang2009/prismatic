@@ -45,21 +45,10 @@ const SDK_SOURCE = `
   var geoCache = { country: '', region: '', city: '', isp: '' };
 
   function getGeoInfo() {
-    return new Promise(function(resolve) {
-      var timeout = setTimeout(function() { resolve(geoCache); }, 3000);
-      fetch('https://ip-api.com/json/?fields=status,country,region,city,org')
-        .then(function(r) { clearTimeout(timeout); return r.json(); })
-        .then(function(data) {
-          if (data && data.status === 'success') {
-            geoCache = { country: data.country || '', region: data.regionName || '', city: data.city || '', isp: data.org || '' };
-          }
-          resolve(geoCache);
-        })
-        .catch(function() { clearTimeout(timeout); resolve(geoCache); });
-    });
+    return new Promise(function(resolve) { resolve(geoCache); });
   }
 
-  function initGeoInfo() { getGeoInfo().then(function(info) { geoCache = info; }); }
+  function initGeoInfo() {}
 
   function generateId(prefix) { return prefix + '_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9); }
 
