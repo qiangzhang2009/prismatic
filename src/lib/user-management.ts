@@ -308,6 +308,20 @@ export function isDemoUserId(userId: string) {
   return userId.startsWith('demo_');
 }
 
+export async function ensureDemoUserInDB(userId: string, email: string, name: string): Promise<void> {
+  const passwordHash = await bcrypt.hash('demo-no-password', 4);
+  const sql = getSql();
+  try {
+    await sql`
+      INSERT INTO prismatic_users (id, email, password_hash, name, role, plan, credits, email_verified, is_active)
+      VALUES (${userId}, ${email.toLowerCase()}, ${passwordHash}, ${name}, 'PRO', 'LIFETIME', 0, TRUE, TRUE)
+      ON CONFLICT (id) DO NOTHING
+    `;
+  } catch {
+    // Ignore — user might already exist
+  }
+}
+
 export function createDemoUserFromId(userId: string) {
   const base64 = userId.replace('demo_', '');
   let email = 'demo1@prismatic.app';
