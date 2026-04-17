@@ -54,13 +54,6 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
   isInitialized: false,
 
   init: async () => {
-    // Skip if user already exists — prevents race with login/register setting user first.
-    // Demo users' /api/auth/me returns null due to Vercel DB query issues,
-    // so we must not overwrite the valid user set by login/register.
-    if (get().user) {
-      set({ isInitialized: true });
-      return;
-    }
     try {
       set({ isLoading: true });
       const res = await fetch('/api/auth/me', { credentials: 'include' });
