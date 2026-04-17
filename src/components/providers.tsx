@@ -32,15 +32,11 @@ export function Providers({ children }: { children: ReactNode }) {
  *
  * Zustand store is purely in-memory (no localStorage persist for user).
  * Token lives in httpOnly cookie; server is always authoritative.
- * initRef prevents duplicate init() calls from parallel useEffect execution.
  */
 function AuthInitializer() {
   const init = useAuthStore((s) => s.init);
-  const initRef = useRef(false);
 
   useEffect(() => {
-    if (initRef.current) return;
-    initRef.current = true;
     init();
   }, [init]);
 
