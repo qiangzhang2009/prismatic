@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { Suspense, useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import {
   Users, Search, ChevronDown, ChevronUp, Edit3, Trash2, Crown,
@@ -22,7 +22,7 @@ const PROVINCES = [
   '港澳台', '海外', '未知',
 ];
 
-export default function AdminUsersPage() {
+function AdminUsersPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -66,15 +66,6 @@ export default function AdminUsersPage() {
     setSearchTerm(value);
     setFilters(prev => ({ ...prev, search: value, page: 1 }));
   };
-
-  const filteredUsers = useMemo(() => {
-    const currentUsers = data?.items || [];
-    return currentUsers.filter(user => {
-      if (selectedStatus && user.status !== selectedStatus) return false;
-      if (selectedPlan && user.plan !== selectedPlan) return false;
-      return true;
-    });
-  }, [data?.items, selectedStatus, selectedPlan]);
 
   const handleSort = (key: UserFilter['sortBy']) => {
     setFilters(prev => ({
@@ -480,5 +471,14 @@ export default function AdminUsersPage() {
         )}
       </div>
     </div>
+  );
+}
+
+// Wrap with Suspense for useSearchParams
+export default function AdminUsersPageWrapper() {
+  return (
+    <Suspense fallback={<div className="p-8 text-center text-gray-400">加载中...</div>}>
+      <AdminUsersPage />
+    </Suspense>
   );
 }

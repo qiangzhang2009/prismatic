@@ -171,8 +171,8 @@ export async function trackEvent(data: EventData): Promise<string | null> {
         sessionId: data.sessionId,
         eventType: data.eventType,
         eventName: data.eventName,
-        properties: data.properties ? JSON.stringify(data.properties) : null,
-        context: data.context ? JSON.stringify(data.context) : null,
+        properties: data.properties ? JSON.stringify(data.properties) : undefined,
+        context: data.context ? JSON.stringify(data.context) : undefined,
         personaId: data.personaId,
         personaName: data.personaName,
         conversationId: data.conversationId,
@@ -191,25 +191,54 @@ export async function trackEvent(data: EventData): Promise<string | null> {
  */
 export async function trackEvents(events: EventData[]): Promise<string[]> {
   try {
-    const created = await prisma.userEvent.createMany({
+    await prisma.userEvent.createMany({
       data: events.map(e => ({
         userId: e.userId,
-        sessionId: e.sessionId,
+        sessionId: e.sessionId || undefined,
         eventType: e.eventType,
         eventName: e.eventName,
-        properties: e.properties ? JSON.stringify(e.properties) : null,
-        context: e.context ? JSON.stringify(e.context) : null,
+        properties: e.properties ? JSON.stringify(e.properties) : undefined,
+        context: e.context ? JSON.stringify(e.context) : undefined,
         personaId: e.personaId,
         personaName: e.personaName,
         conversationId: e.conversationId,
         createdAt: e.createdAt || new Date(),
       })),
     });
-    return created.map((_, idx) => `${Date.now()}-${idx}`);
+    // createMany 不返回 IDs，用时间戳+索引生成唯一标识符
+    return events.map((_, idx) => `${Date.now()}-${idx}`);
   } catch (error) {
     console.error('[Analytics] trackEvents error:', error);
     return [];
   }
+}
+
+// ─── Chat-specific Tracking ─────────────────────────────────────────────────────
+
+/**
+ * 追踪对话开始事件。
+ */
+export async function trackChatStart(personaId: string, personaName?: string): Promise<string | null> {
+  return trackEvent({
+    userId: '', // 需要在调用时填充
+    eventType: 'chat_start',
+    eventName: 'chat_start',
+    personaId,
+    personaName,
+  });
+}
+
+/**
+ * 追踪对话结束事件。
+ */
+export async function trackChatEnd(conversationId: string, properties?: Record<string, unknown>): Promise<string | null> {
+  return trackEvent({
+    userId: '', // 需要在调用时填充
+    eventType: 'chat_end',
+    eventName: 'chat_end',
+    conversationId,
+    properties,
+  });
 }
 
 // ─── Daily Metrics ──────────────────────────────────────────────────────────────

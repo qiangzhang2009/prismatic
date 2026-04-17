@@ -293,7 +293,7 @@ export default function ConversationAnalysisPage() {
                 outerRadius={90}
                 paddingAngle={2}
                 dataKey="value"
-                label={({ name, percent }) => `${name} (${(percent * 100).toFixed(0)}%)`}
+                label={({ name, percent }) => `${name} (${((percent || 0) * 100).toFixed(0)}%)`}
               >
                 {modeChartData.map((_, index) => (
                   <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
@@ -320,7 +320,7 @@ export default function ConversationAnalysisPage() {
             <YAxis dataKey="name" type="category" stroke="#9ca3af" fontSize={12} width={80} />
             <Tooltip
               contentStyle={{ backgroundColor: '#1f2937', border: '1px solid #374151', borderRadius: '8px' }}
-              formatter={(value: number) => [`¥${value.toFixed(4)}`, '成本']}
+              formatter={(value) => [`¥${Number(value).toFixed(4)}`, '成本']}
             />
             <Bar dataKey="cost" fill="#f59e0b" name="API 成本" />
           </BarChart>

@@ -20,12 +20,6 @@ export function Providers({ children }: { children: ReactNode }) {
             retry: 0, // Don't retry mutations by default
           },
         },
-        logger: {
-          // Log errors in development
-          log: process.env.NODE_ENV === 'development' ? console.log : () => {},
-          warn: process.env.NODE_ENV === 'development' ? console.warn : () => {},
-          error: process.env.NODE_ENV === 'development' ? console.error : () => {},
-        },
       })
   );
 

@@ -14,8 +14,8 @@ import {
 } from 'lucide-react';
 import {
   LineChart as RechartsLineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip,
-  ResponsiveContainer, BarChart, Bar, PieChart as RePieChart, Cell,
-  AreaChart, Area, Legend
+  ResponsiveContainer, BarChart, Bar, PieChart as RePieChart, Pie, Cell, Legend,
+  AreaChart, Area
 } from 'recharts';
 import { useAnalyticsOverview, useAnalyticsTrend, useAnalyticsPersonas } from '@/lib/use-admin-data';
 
@@ -191,7 +191,7 @@ function DevicePieChart({ data }: { data: Array<{ device_type: string; count: nu
       <h3 className="text-lg font-semibold text-white mb-4">设备分布</h3>
       <ResponsiveContainer width="100%" height={250}>
         <RePieChart>
-          <PieChart
+          <Pie
             data={data}
             cx="50%"
             cy="50%"
@@ -199,12 +199,12 @@ function DevicePieChart({ data }: { data: Array<{ device_type: string; count: nu
             outerRadius={100}
             paddingAngle={2}
             dataKey="count"
-            label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+            label={({ name, percent }) => `${name} ${((percent || 0) * 100).toFixed(0)}%`}
           >
             {data.map((_, index) => (
               <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
             ))}
-          </PieChart>
+          </Pie>
           <Tooltip
             contentStyle={{
               backgroundColor: '#1f2937',
@@ -361,7 +361,7 @@ export default function AnalyticsDashboard() {
               <div>
                 <h4 className="text-white font-medium">对话质量</h4>
                 <p className="text-sm text-gray-400 mt-1">
-                  平均每次对话产生{(overview?.totalMessages / Math.max(overview?.totalConversations, 1)).toFixed(1)}条消息，说明用户参与度高。
+                  平均每次对话产生{((overview?.totalMessages || 0) / Math.max(overview?.totalConversations || 1, 1)).toFixed(1)}条消息，说明用户参与度高。
                 </p>
               </div>
             </div>
@@ -374,7 +374,7 @@ export default function AnalyticsDashboard() {
               <div>
                 <h4 className="text-white font-medium">成本控制</h4>
                 <p className="text-sm text-gray-400 mt-1">
-                  API成本¥{(overview?.totalApiCost || 0).toFixed(2)}，平均每次对话成本¥{((overview?.totalApiCost || 0) / Math.max(overview?.totalConversations, 1)).toFixed(4)}。
+                  API成本¥{(overview?.totalApiCost || 0).toFixed(2)}，平均每次对话成本¥{((overview?.totalApiCost || 0) / Math.max(overview?.totalConversations || 1, 1)).toFixed(4)}。
                 </p>
               </div>
             </div>

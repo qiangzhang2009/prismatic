@@ -22,7 +22,8 @@ import { authenticateRequest } from '@/lib/user-management';
 import { checkUserDailyLimit } from '@/lib/message-stats';
 import { getUserById } from '@/lib/user-management';
 import { prisma } from '@/lib/prisma';
-import { trackEvent, incrementSessionMessages, trackChatStart, trackChatEnd } from '@/lib/analytics';
+import { trackEvent, trackEvents, incrementSessionMessages, trackChatStart, trackChatEnd } from '@/lib/analytics';
+import type { Mode } from '@/lib/types';
 
 export const runtime = 'nodejs';
 
@@ -87,12 +88,12 @@ async function persistConversation(
       userId,
       role: msg.role === 'agent' ? 'assistant' : msg.role,
       content: msg.content,
-      personaId: msg.personaId || null,
-      modelUsed: msg.modelUsed || null,
-      tokensInput: msg.tokensInput || null,
-      tokensOutput: msg.tokensOutput || null,
-      apiCost: msg.apiCost ? parseFloat(String(msg.apiCost)) : null,
-      metadata: msg.metadata ? JSON.stringify(msg.metadata) : null,
+      personaId: msg.personaId || undefined,
+      modelUsed: msg.modelUsed || undefined,
+      tokensInput: msg.tokensInput || undefined,
+      tokensOutput: msg.tokensOutput || undefined,
+      apiCost: msg.apiCost ? parseFloat(String(msg.apiCost)) : undefined,
+      metadata: msg.metadata ? JSON.stringify(msg.metadata) : undefined,
       createdAt: new Date(msg.timestamp || Date.now()),
     }));
 
@@ -950,7 +951,7 @@ export async function POST(request: NextRequest) {
         personaId: msg.personaId,
         conversationId: convId,
       }));
-      await trackEvent(messageEvents);
+      await trackEvents(messageEvents);
     } catch (err) {
       console.error('[Analytics] track chat messages failed:', err);
     }

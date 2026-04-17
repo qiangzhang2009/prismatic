@@ -11,6 +11,7 @@
 'use client';
 
 import { useEffect, useRef, useCallback } from 'react';
+import { trackSession, trackEvent, trackChatStart, trackChatEnd } from './analytics';
 
 // ─── Storage Keys ────────────────────────────────────────────────────────────────
 
@@ -52,6 +53,8 @@ interface SessionData {
   userAgent?: string;
   referrer?: string;
   deviceType?: 'mobile' | 'desktop' | 'tablet';
+  browser?: string;
+  os?: string;
 }
 
 interface EventData {

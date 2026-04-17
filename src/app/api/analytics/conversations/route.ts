@@ -65,19 +65,21 @@ export async function GET(request: NextRequest) {
 
     // Enrich with persona names
     const personaWithNames = await Promise.all(
-      personaStats.map(async (stat) => {
-        const persona = await prisma.persona.findUnique({
-          where: { slug: stat.personaId },
-          select: { name: true, nameZh: true },
-        });
-        return {
-          personaId: stat.personaId,
-          personaName: persona?.nameZh || persona?.name || stat.personaId,
-          conversationCount: stat._count.id,
-          totalTokens: (stat._sum.tokensInput || 0) + (stat._sum.tokensOutput || 0),
-          totalCost: Number(stat._sum.apiCost || 0),
-        };
-      })
+      personaStats
+        .filter(stat => stat.personaId !== null)
+        .map(async (stat) => {
+          const persona = await prisma.persona.findUnique({
+            where: { slug: stat.personaId as string },
+            select: { name: true, nameZh: true },
+          });
+          return {
+            personaId: stat.personaId as string,
+            personaName: persona?.nameZh || persona?.name || stat.personaId,
+            conversationCount: stat._count.id,
+            totalTokens: (stat._sum.tokensInput || 0) + (stat._sum.tokensOutput || 0),
+            totalCost: Number(stat._sum.apiCost || 0),
+          };
+        })
     );
 
     // ─── Daily Trend ─────────────────────────────────────────────────────────────

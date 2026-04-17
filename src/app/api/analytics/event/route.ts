@@ -35,14 +35,14 @@ export async function POST(request: NextRequest) {
     const created = await prisma.userEvent.createMany({
       data: events.map(e => ({
         userId: e.userId,
-        sessionId: e.sessionId || null,
+        sessionId: e.sessionId || undefined,
         eventType: e.eventType,
         eventName: e.eventName,
-        properties: e.properties ? JSON.stringify(e.properties) : null,
-        context: e.context ? JSON.stringify(e.context) : null,
-        personaId: e.personaId || null,
-        personaName: e.personaName || null,
-        conversationId: e.conversationId || null,
+        properties: e.properties ? JSON.stringify(e.properties) : undefined,
+        context: e.context ? JSON.stringify(e.context) : undefined,
+        personaId: e.personaId || undefined,
+        personaName: e.personaName || undefined,
+        conversationId: e.conversationId || undefined,
         createdAt: new Date(),
       })),
       skipDuplicates: false, // 新表不设唯一约束
