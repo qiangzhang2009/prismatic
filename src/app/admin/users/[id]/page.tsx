@@ -15,7 +15,7 @@ import {
   BarChart2, PieChart, LineChart, RefreshCw
 } from 'lucide-react';
 import {
-  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend,
+  LineChart as RechartsLineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend,
   ResponsiveContainer, BarChart, Bar
 } from 'recharts';
 import { useUser, useUserActivity, useUpdateUser, useDeleteUser, useAddCredits } from '@/lib/use-admin-data';
@@ -257,7 +257,7 @@ export default function UserDetailPage() {
             <h3 className="text-lg font-semibold text-white mb-4">30天活动趋势</h3>
             {activityData.length > 0 ? (
               <ResponsiveContainer width="100%" height={250}>
-                <LineChart data={activityData}>
+                <RechartsLineChart data={activityData}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
                   <XAxis dataKey="date" stroke="#9ca3af" fontSize={12} />
                   <YAxis stroke="#9ca3af" fontSize={12} />
@@ -265,7 +265,7 @@ export default function UserDetailPage() {
                   <Legend />
                   <Line type="monotone" dataKey="messages" stroke="#8b5cf6" name="消息数" />
                   <Line type="monotone" dataKey="personas" stroke="#06b6d4" name="使用人物数" />
-                </LineChart>
+                </RechartsLineChart>
               </ResponsiveContainer>
             ) : (
               <div className="text-center py-12 text-gray-500">暂无活动数据</div>

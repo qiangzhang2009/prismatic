@@ -13,7 +13,7 @@ import {
   Clock, Eye, BarChart2, PieChart
 } from 'lucide-react';
 import {
-  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip,
+  LineChart as RechartsLineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip,
   ResponsiveContainer, BarChart, Bar, PieChart as RePieChart, Cell,
   AreaChart, Area, Legend
 } from 'recharts';

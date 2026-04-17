@@ -13,7 +13,7 @@ import {
 } from 'lucide-react';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
-  ResponsiveContainer, PieChart, Pie, Cell, Legend,
+  ResponsiveContainer, PieChart as RechartsPieChart, Pie, Cell, Legend,
   AreaChart, Area
 } from 'recharts';
 import { useQuery } from '@tanstack/react-query';
@@ -284,7 +284,7 @@ export default function ConversationAnalysisPage() {
         >
           <h3 className="text-lg font-semibold text-white mb-4">对话模式分布</h3>
           <ResponsiveContainer width="100%" height={250}>
-            <PieChart>
+            <RechartsPieChart>
               <Pie
                 data={modeChartData}
                 cx="50%"
@@ -300,7 +300,7 @@ export default function ConversationAnalysisPage() {
                 ))}
               </Pie>
               <Tooltip contentStyle={{ backgroundColor: '#1f2937', border: '1px solid #374151', borderRadius: '8px' }} />
-            </PieChart>
+            </RechartsPieChart>
           </ResponsiveContainer>
         </motion.div>
       </div>
