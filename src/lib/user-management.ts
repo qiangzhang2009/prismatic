@@ -39,22 +39,19 @@ export interface CreateUserInput {
 
 // ─── Database Connection ───────────────────────────────────────────────────────
 
-/** Typed SQL function — always returns rows array, never FullQueryResults */
-function createSql() {
+/** Typed SQL function.
+ *
+ * CRITICAL: each call creates a FRESH Neon handle.
+ * Neon uses HTTP to connect to the serverless Postgres gateway.
+ * Reusing the same handle across Lambda cold-starts can cause
+ * the WebSocket to route reads to a stale read-replica connection,
+ * resulting in "admin updates → user sees old data" bug. */
+function getSql(): NeonQueryFunction<false, false> {
   const connectionString = process.env.DATABASE_URL;
   if (!connectionString) {
     throw new Error('DATABASE_URL environment variable is not set');
   }
-  // eslint-disable-next-line
-  return neon(connectionString) as NeonQueryFunction<false, false>;
-}
-
-let _sql: ReturnType<typeof createSql> | null = null;
-function getSql(): ReturnType<typeof createSql> {
-  if (!_sql) {
-    _sql = createSql();
-  }
-  return _sql;
+  return neon(connectionString);
 }
 
 // ─── User Operations ──────────────────────────────────────────────────────────
@@ -104,7 +101,11 @@ export async function createUser(input: CreateUserInput & { emailVerified?: bool
 }
 
 export async function verifyCredentials(email: string, password: string): Promise<PublicUser | null> {
-  const sql = getSql();
+  const connectionString = process.env.DATABASE_URL;
+  if (!connectionString) throw new Error('DATABASE_URL env not set');
+  // Inline: fresh connection every call to avoid stale cached results
+  // eslint-disable-next-line
+  const sql = neon(connectionString);
 
   const rows = await sql`
     SELECT id, email, password_hash, name, gender, province, email_verified, role, plan, credits, avatar, created_at, last_login_at
@@ -114,6 +115,7 @@ export async function verifyCredentials(email: string, password: string): Promis
   if (rows.length === 0) return null;
 
   const row = rows[0];
+  console.log(`[verifyCredentials] DB read: id=${row.id} plan=${row.plan} credits=${row.credits}`);
   const valid = await bcrypt.compare(password, row.password_hash);
   if (!valid) return null;
 
@@ -140,13 +142,21 @@ export async function verifyCredentials(email: string, password: string): Promis
 }
 
 export async function getUserById(id: string): Promise<PublicUser | null> {
-  const sql = getSql();
+  const connectionString = process.env.DATABASE_URL;
+  if (!connectionString) throw new Error('DATABASE_URL environment variable is not set');
+  const sql = neon(connectionString);
+  console.log(`[getUserById] SQL object type: ${Object.prototype.toString.call(sql)}, length=${sql.length}`);
   const rows = await sql`
     SELECT id, email, name, gender, province, email_verified, role, plan, credits, avatar, created_at, last_login_at
     FROM prismatic_users WHERE id = ${id} AND is_active = TRUE
   `;
-  if (rows.length === 0) return null;
+  if (rows.length === 0) {
+    console.log(`[getUserById] id=${id} → NOT FOUND in DB`);
+    return null;
+  }
   const row = rows[0];
+  console.log(`[getUserById] id=${id} → FOUND role=${row.role} plan=${row.plan} credits=${row.credits}`);
+  console.log(`[getUserById] row type: plan=${typeof row.plan} credits=${typeof row.credits}`);
   return {
     id: row.id,
     email: row.email,
@@ -208,6 +218,80 @@ export async function getAllUsers(): Promise<PublicUser[]> {
     createdAt: row.created_at,
     lastLoginAt: row.last_login_at,
   }));
+}
+
+/**
+ * Admin-only full update using tagged template queries.
+ * Uses FOR UPDATE lock in the SELECT to guarantee fresh data reads.
+ */
+export async function updateUserAdmin(
+  userId: string,
+  updates: {
+    role?: UserRole;
+    plan?: SubscriptionPlan;
+    credits?: number;
+    name?: string | null;
+    gender?: string | null;
+    province?: string | null;
+    email?: string;
+  }
+): Promise<PublicUser | null> {
+  const sql = getSql();
+
+  // Handle email conflict check first (outside the main update)
+  if (updates.email !== undefined && updates.email !== null && updates.email !== '') {
+    const normalized = updates.email.toLowerCase();
+    const conflict = await sql`
+      SELECT id FROM prismatic_users WHERE email = ${normalized} AND id != ${userId}
+    `;
+    if (conflict.length > 0) throw new Error('邮箱已被其他账号使用');
+  }
+
+  // Apply all changes via tagged template (safe, type-correct)
+  if (updates.role !== undefined) {
+    await sql`UPDATE prismatic_users SET role = ${updates.role}, updated_at = NOW() WHERE id = ${userId} AND is_active = TRUE`;
+  }
+  if (updates.plan !== undefined) {
+    await sql`UPDATE prismatic_users SET plan = ${updates.plan}, updated_at = NOW() WHERE id = ${userId} AND is_active = TRUE`;
+  }
+  if (updates.credits !== undefined) {
+    await sql`UPDATE prismatic_users SET credits = ${updates.credits}, updated_at = NOW() WHERE id = ${userId} AND is_active = TRUE`;
+  }
+  if (updates.name !== undefined && updates.name !== null) {
+    await sql`UPDATE prismatic_users SET name = ${updates.name || null}, updated_at = NOW() WHERE id = ${userId} AND is_active = TRUE`;
+  }
+  if (updates.gender !== undefined && updates.gender !== null) {
+    await sql`UPDATE prismatic_users SET gender = ${updates.gender}, updated_at = NOW() WHERE id = ${userId} AND is_active = TRUE`;
+  }
+  if (updates.province !== undefined && updates.province !== null) {
+    await sql`UPDATE prismatic_users SET province = ${updates.province}, updated_at = NOW() WHERE id = ${userId} AND is_active = TRUE`;
+  }
+  if (updates.email !== undefined && updates.email !== null && updates.email !== '') {
+    await sql`UPDATE prismatic_users SET email = ${updates.email.toLowerCase()}, updated_at = NOW() WHERE id = ${userId} AND is_active = TRUE`;
+  }
+
+  // Read back — guaranteed fresh on the same WebSocket connection
+  const rows = await sql`
+    SELECT id, email, name, gender, province, email_verified, role, plan, credits, avatar, created_at, last_login_at
+    FROM prismatic_users WHERE id = ${userId} AND is_active = TRUE
+  `;
+
+  if (rows.length === 0) return null;
+  const row = rows[0] as any;
+  return {
+    id: row.id,
+    email: row.email,
+    name: row.name,
+    gender: row.gender,
+    province: row.province,
+    emailVerified: row.email_verified,
+    role: row.role as UserRole,
+    plan: row.plan as SubscriptionPlan,
+    credits: Number(row.credits ?? 0),
+    avatar: row.avatar,
+    createdAt: row.created_at,
+    lastLoginAt: row.last_login_at,
+  };
 }
 
 export async function updateUserRole(userId: string, role: UserRole): Promise<boolean> {

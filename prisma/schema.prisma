@@ -71,6 +71,13 @@ model User {
   tokenCount    Int        @default(0)
   tokenUpdatedAt DateTime  @default(now())
 
+  // Analytics relations
+  sessions      UserSession[]
+  events        UserEvent[]
+  dailyMetrics  DailyMetric[]
+  auditLogsAsAdmin    AdminAuditLog[] @relation("AdminAuditAsAdmin")
+  auditLogsAsTarget   AdminAuditLog[] @relation("AdminAuditAsTarget")
+
   @@map("users")
 }
 
@@ -241,6 +248,15 @@ model Conversation {
   archived   Boolean  @default(false)
   tags       String[]
 
+  // Analytics: pre-computed stats (avoid real-time COUNT)
+  messageCount Int     @default(0)
+  totalTokens  Int     @default(0)
+  totalCost    Decimal? @default(0)
+  personaIds   String[] @default([])  // explicit persona IDs array
+
+  // Relations for analytics
+  userEvents   UserEvent[]
+
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 
@@ -258,7 +274,7 @@ model Message {
   userId         String
   user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  role           String   // user, assistant, system
+  role           String   // user | assistant | system
   content        String
 
   // For agent messages
@@ -271,6 +287,12 @@ model Message {
   // Multi-agent metadata
   round          Int?
   consensus      Boolean? @default(false)
+
+  // Analytics: token usage and cost tracking
+  tokensInput    Int?     @default(0)
+  tokensOutput   Int?     @default(0)
+  apiCost        Decimal? @default(0)
+  metadata       Json?    @default("{}")  // {temperature, top_p, model_params...}
 
   createdAt      DateTime @default(now())
 
@@ -343,4 +365,152 @@ model GuardianDuty {
   @@unique([personaId, dutyDate])
   @@index([dutyDate, status])
   @@map("guardian_duties")
+}
+
+// ─── Analytics: User Session ────────────────────────────────────────────────────
+
+model UserSession {
+  id               String   @id @default(cuid())
+  userId           String
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  sessionId        String   @unique
+  ipAddress        String?
+  userAgent        String?
+  referrer         String?
+  country          String?
+  deviceType       String?  // mobile | desktop | tablet
+  browser          String?
+  os               String?
+
+  startedAt        DateTime @default(now())
+  endedAt          DateTime?
+  durationSeconds  Int?
+  pageViews        Int      @default(0)
+  messagesSent     Int      @default(0)
+
+  @@index([userId, startedAt])
+  @@index([sessionId])
+  @@map("user_sessions")
+}
+
+// ─── Analytics: User Events ─────────────────────────────────────────────────────
+
+model UserEvent {
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  sessionId  String?
+  eventType  String   // page_view | button_click | persona_chat_start | feature_used | admin_action
+  eventName  String
+  properties Json?    @default("{}")
+  context    Json?    @default("{}")
+
+  personaId  String?
+  personaName String?
+  persona    Persona? @relation(fields: [personaId], references: [slug])
+
+  conversationId String?
+  conversation   Conversation? @relation(fields: [conversationId], references: [id], onDelete: SetNull)
+
+  createdAt  DateTime @default(now())
+
+  @@index([userId, createdAt])
+  @@index([eventType, createdAt])
+  @@index([sessionId])
+  @@map("user_events")
+}
+
+// ─── Analytics: Daily Metrics ────────────────────────────────────────────────────
+
+model DailyMetric {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  statDate  DateTime @db.Date
+  messagesSent        Int      @default(0)
+  personasUsedCount   Int      @default(0)
+  timeSpentSeconds    Int      @default(0)
+  featuresUsed        Json?    @default("{}")
+  lastConversationAt  DateTime?
+
+  @@unique([userId, statDate])
+  @@index([userId, statDate])
+  @@index([statDate])
+  @@map("daily_metrics")
+}
+
+// ─── Analytics: Admin Audit Log ─────────────────────────────────────────────────
+
+model AdminAuditLog {
+  id            String   @id @default(cuid())
+  adminId       String
+  admin         User     @relation("AdminAuditAsAdmin", fields: [adminId], references: [id], onDelete: Cascade)
+
+  targetUserId  String
+  targetUser    User     @relation("AdminAuditAsTarget", fields: [targetUserId], references: [id], onDelete: Cascade)
+
+  action        String   // user_role_change | user_plan_change | user_credits_add | user_delete
+  oldValues     Json?    @default("{}")
+  newValues     Json?    @default("{}")
+  reason        String?
+
+  ipAddress     String?
+  userAgent     String?
+
+  createdAt     DateTime @default(now())
+
+  @@index([adminId, createdAt])
+  @@index([targetUserId, createdAt])
+  @@index([createdAt])
+  @@map("admin_audit_logs")
+}
+
+// ─── Analytics: System Daily Stats ───────────────────────────────────────────────
+
+model SystemDailyStat {
+  id              String   @id @default(cuid())
+  statDate        DateTime @unique @db.Date
+
+  totalUsers      Int      @default(0)
+  activeUsers     Int      @default(0)
+  newUsers        Int      @default(0)
+  totalMessages   Int      @default(0)
+  totalConversations Int   @default(0)
+  totalApiCost    Decimal? @default(0)
+  revenueEstimate Decimal? @default(0)
+
+  dau             Int      @default(0)
+  mau             Int      @default(0)
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@map("system_daily_stats")
+}
+
+// ─── Persona (for analytics reference) ──────────────────────────────────────────
+// Note: Personas are defined in src/lib/personas.ts as constants.
+// This model stores persona metadata that needs DB queries (views, conversations).
+// The full persona definitions remain in code (version-controlled).
+
+model Persona {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  name        String
+  nameZh      String
+  description String?
+  domain      String   // e.g. "product", "strategy"
+  icon        String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Analytics relations (optional)
+  events        UserEvent[]
+
+  @@index([slug])
+  @@index([domain])
+  @@map("personas")
 }

@@ -18,16 +18,12 @@ import { getTodayGuardians, recordPersonaInteraction, buildPersonaInteractionPro
 import { getPersonasByIds } from '@/lib/personas';
 import { createLLMProvider } from '@/lib/llm';
 
-// Module-level singleton — persists across calls within the same serverless invocation
-let _sql: NeonQueryFunction<false, false> | null = null;
-
+/** Create a fresh Neon handle per call to avoid stale pool connections in Vercel serverless. */
 function getSql(): NeonQueryFunction<false, false> {
-  if (!_sql) {
-    const connectionString = process.env.DATABASE_URL;
-    if (!connectionString) throw new Error('DATABASE_URL not set');
-    _sql = neon(connectionString) as NeonQueryFunction<false, false>;
-  }
-  return _sql;
+  const connectionString = process.env.DATABASE_URL;
+  if (!connectionString) throw new Error('DATABASE_URL not set');
+  // eslint-disable-next-line
+  return neon(connectionString) as NeonQueryFunction<false, false>;
 }
 
 function getLLMType(): 'deepseek' | 'openai' | 'anthropic' {

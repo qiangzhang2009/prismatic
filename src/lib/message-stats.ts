@@ -7,16 +7,12 @@
 import { neon, NeonQueryFunction } from '@neondatabase/serverless';
 import type { SubscriptionPlan } from '@/lib/user-management';
 
-// Module-level singleton
-let _sql: NeonQueryFunction<false, false> | null = null;
-
+/** Create a fresh Neon handle per call to avoid stale pool connections in Vercel serverless. */
 function getSql(): NeonQueryFunction<false, false> {
-  if (!_sql) {
-    const connectionString = process.env.DATABASE_URL;
-    if (!connectionString) throw new Error('DATABASE_URL environment variable is not set');
-    _sql = neon(connectionString) as NeonQueryFunction<false, false>;
-  }
-  return _sql;
+  const connectionString = process.env.DATABASE_URL;
+  if (!connectionString) throw new Error('DATABASE_URL environment variable is not set');
+  // eslint-disable-next-line
+  return neon(connectionString) as NeonQueryFunction<false, false>;
 }
 
 // ─── Daily limit constants ───────────────────────────────────────────────────

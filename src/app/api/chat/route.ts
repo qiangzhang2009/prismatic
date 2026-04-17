@@ -19,9 +19,10 @@ import { createLLMProvider } from '@/lib/llm';
 import { getPersonasByIds } from '@/lib/personas';
 import { PERSONA_CONFIDENCE } from '@/lib/confidence';
 import { authenticateRequest } from '@/lib/user-management';
-import { recordMessage, checkUserDailyLimit } from '@/lib/message-stats';
-import type { Mode } from '@/lib/types';
+import { checkUserDailyLimit } from '@/lib/message-stats';
 import { getUserById } from '@/lib/user-management';
+import { prisma } from '@/lib/prisma';
+import { trackEvent, incrementSessionMessages, trackChatStart, trackChatEnd } from '@/lib/analytics';
 
 export const runtime = 'nodejs';
 
@@ -37,6 +38,109 @@ function getModelName(): string {
   if (p === 'openai') return 'gpt-4o';
   if (p === 'anthropic') return 'claude-sonnet-4-20250514';
   return 'deepseek-chat';
+}
+
+// ─── Persistence ────────────────────────────────────────────────────────────────
+
+/**
+ * 持久化对话和消息记录到数据库。
+ * 包括统计信息的更新（消息数、token、成本）。
+ */
+async function persistConversation(
+  userId: string,
+  conversationId: string,
+  mode: string,
+  participantIds: string[],
+  messages: any[],
+  totalTokens?: number,
+  totalCost?: number
+) {
+  try {
+    // Upsert conversation
+    const conversation = await prisma.conversation.upsert({
+      where: { id: conversationId },
+      create: {
+        id: conversationId,
+        userId,
+        mode,
+        participants: participantIds,
+        messageCount: messages.length,
+        totalTokens: totalTokens || 0,
+        totalCost: totalCost ? parseFloat(String(totalCost)) : 0,
+        personaIds: participantIds,
+        archived: false,
+        tags: [],
+      },
+      update: {
+        messageCount: messages.length,
+        totalTokens: totalTokens || 0,
+        totalCost: totalCost ? parseFloat(String(totalCost)) : 0,
+        personaIds: participantIds,
+        updatedAt: new Date(),
+      },
+    });
+
+    // Create messages
+    const messageRecords = messages.map(msg => ({
+      id: msg.id || nanoid(),
+      conversationId,
+      userId,
+      role: msg.role === 'agent' ? 'assistant' : msg.role,
+      content: msg.content,
+      personaId: msg.personaId || null,
+      modelUsed: msg.modelUsed || null,
+      tokensInput: msg.tokensInput || null,
+      tokensOutput: msg.tokensOutput || null,
+      apiCost: msg.apiCost ? parseFloat(String(msg.apiCost)) : null,
+      metadata: msg.metadata ? JSON.stringify(msg.metadata) : null,
+      createdAt: new Date(msg.timestamp || Date.now()),
+    }));
+
+    await prisma.message.createMany({
+      data: messageRecords,
+      skipDuplicates: true, // 避免重复插入
+    });
+
+    // Update conversation message count (defensive)
+    await prisma.conversation.update({
+      where: { id: conversationId },
+      data: { messageCount: { increment: messages.length } },
+    });
+
+    return conversation;
+  } catch (error) {
+    console.error('[Analytics] persistConversation error:', error);
+    return null;
+  }
+}
+
+/**
+ * 计算单个 LLM 调用的 token 使用和成本。
+ */
+function estimateTokenCost(model: string, inputTokens: number, outputTokens: number): { tokensInput: number; tokensOutput: number; cost: number } {
+  // 简化的估算模型（实际应从 LLM provider 响应头获取）
+  const inputCostPer1k: Record<string, number> = {
+    'deepseek-chat': 0.014,   // $0.014 / 1K input tokens
+    'gpt-4o': 0.03,
+    'claude-sonnet-4-20250514': 0.03,
+  };
+  const outputCostPer1k: Record<string, number> = {
+    'deepseek-chat': 0.014,
+    'gpt-4o': 0.06,
+    'claude-sonnet-4-20250514': 0.15,
+  };
+
+  const inputRate = inputCostPer1k[model] || 0.01;
+  const outputRate = outputCostPer1k[model] || 0.01;
+
+  const inputCost = (inputTokens / 1000) * inputRate;
+  const outputCost = (outputTokens / 1000) * outputRate;
+
+  return {
+    tokensInput: inputTokens,
+    tokensOutput: outputTokens,
+    cost: inputCost + outputCost,
+  };
 }
 
 async function llmChat(
@@ -769,9 +873,91 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: 'Unknown mode' }, { status: 400 });
     }
 
-    // Record message usage for admin stats
+    // ── Persistence ────────────────────────────────────────────────────────────
+    // Extract all messages (including user message and AI responses)
+    const allMessages = [
+      { id: nanoid(), role: 'user', content: message, timestamp: new Date() },
+      ...(data.messages || data.debate?.turns || data.mission?.taskPlan?.map((t: any) => ({
+        id: nanoid(),
+        role: 'agent',
+        content: t.description,
+        personaId: t.assignedTo,
+        timestamp: new Date(),
+      })) || []),
+    ].filter(Boolean);
+
+    // Estimate token usage and cost
+    const totalInputTokens = allMessages.reduce((sum: number, msg: any) => {
+      // Rough estimate: 1 token ≈ 4 characters (simplified)
+      return sum + Math.ceil((msg.content?.length || 0) / 4);
+    }, 0);
+    const totalOutputTokens = allMessages.reduce((sum: number, msg: any) => {
+      if (msg.role === 'agent') {
+        return sum + Math.ceil((msg.content?.length || 0) / 4);
+      }
+      return sum;
+    }, 0);
+    const { cost } = estimateTokenCost(getModelName(), totalInputTokens, totalOutputTokens);
+
+    // Persist conversation and messages
+    await persistConversation(
+      userId,
+      convId,
+      mode,
+      participantIds,
+      allMessages,
+      totalInputTokens + totalOutputTokens,
+      cost
+    );
+
+    // Update conversation total tokens and cost
+    await prisma.conversation.update({
+      where: { id: convId },
+      data: {
+        totalTokens: totalInputTokens + totalOutputTokens,
+        totalCost: cost,
+      },
+    });
+
+    // ── Analytics Tracking ─────────────────────────────────────────────────────
+    // Track chat start event
     try {
-      await recordMessage(userId);
+      await trackChatStart(participantIds[0], personas[0]?.nameZh || '');
+    } catch (err) {
+      console.error('[Analytics] trackChatStart failed:', err);
+    }
+
+    // Track chat end event
+    try {
+      await trackChatEnd(convId, {
+        mode,
+        messageCount: allMessages.length,
+        tokens: totalInputTokens + totalOutputTokens,
+        cost,
+      });
+    } catch (err) {
+      console.error('[Analytics] trackChatEnd failed:', err);
+    }
+
+    // Track individual messages as events
+    try {
+      const messageEvents = allMessages.map(msg => ({
+        userId,
+        sessionId: undefined,
+        eventType: 'chat_message',
+        eventName: 'chat_message',
+        properties: { messageId: msg.id, contentLength: msg.content?.length || 0 },
+        personaId: msg.personaId,
+        conversationId: convId,
+      }));
+      await trackEvent(messageEvents);
+    } catch (err) {
+      console.error('[Analytics] track chat messages failed:', err);
+    }
+
+    // Record message usage for admin stats (legacy)
+    try {
+      await incrementSessionMessages(convId);
     } catch (err) {
       console.error('[Chat API] Failed to record message:', err);
     }

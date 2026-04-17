@@ -20,15 +20,12 @@ import {
   DAILY_LIMITS,
 } from '@/lib/constants';
 
-// Module-level singleton
-let _sql: NeonQueryFunction<false, false> | null = null;
+/** Create a fresh Neon handle per call to avoid stale pool connections in Vercel serverless. */
 function getSql(): NeonQueryFunction<false, false> {
-  if (!_sql) {
-    const connectionString = process.env.DATABASE_URL;
-    if (!connectionString) throw new Error('DATABASE_URL not set');
-    _sql = neon(connectionString) as NeonQueryFunction<false, false>;
-  }
-  return _sql;
+  const connectionString = process.env.DATABASE_URL;
+  if (!connectionString) throw new Error('DATABASE_URL not set');
+  // eslint-disable-next-line
+  return neon(connectionString) as NeonQueryFunction<false, false>;
 }
 
 /** Executes a sql query, returning [] if the table doesn't exist yet. */

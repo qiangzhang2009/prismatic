@@ -54,12 +54,24 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
   isInitialized: false,
 
   init: async () => {
+    // Only show loading state — do NOT clear user data here.
+    // Clearing `user` caused old data to flash on Settings page.
+    // Zustand's in-memory store is session-only; we want the existing
+    // data to remain visible while fetching fresh data.
+    set({ isLoading: true });
     try {
-      set({ isLoading: true });
       const res = await fetch('/api/auth/me', { credentials: 'include' });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
-      set({ user: data.user || null, isLoading: false, isInitialized: true });
-    } catch {
+      const newUser = data.user || null;
+      set({ user: newUser, isLoading: false, isInitialized: true });
+      if (!newUser) {
+        console.warn('[auth] init: /api/auth/me returned null user');
+      } else {
+        console.log('[auth] init: loaded user', newUser.email, newUser.role, newUser.plan, newUser.credits);
+      }
+    } catch (err) {
+      console.error('[auth] init: failed to fetch user', err);
       set({ isLoading: false, isInitialized: true });
     }
   },
@@ -137,9 +149,31 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
     try {
       const res = await fetch('/api/auth/me', { credentials: 'include' });
       const data = await res.json();
-      set({ user: data.user || null });
-    } catch {
-      // ignore
+      if (!res.ok) {
+        console.warn('[auth] fetchUser: server returned', res.status, data);
+        return;
+      }
+      const newUser = data.user || null;
+      if (newUser) {
+        set(state => {
+          const changed = state.user
+            ? JSON.stringify({ role: state.user.role, plan: state.user.plan, credits: state.user.credits })
+            !== JSON.stringify({ role: newUser.role, plan: newUser.plan, credits: newUser.credits })
+            : true;
+          if (changed) {
+            console.log('[auth] fetchUser: user data changed → updating store', {
+              role: `${state.user?.role} → ${newUser.role}`,
+              plan: `${state.user?.plan} → ${newUser.plan}`,
+              credits: `${state.user?.credits} → ${newUser.credits}`,
+            });
+          }
+          return { user: newUser };
+        });
+      } else {
+        set({ user: null });
+      }
+    } catch (err) {
+      console.error('[auth] fetchUser: network error', err);
     }
   },
 
@@ -147,9 +181,13 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
     try {
       const res = await fetch('/api/auth/me', { credentials: 'include' });
       const data = await res.json();
+      if (!res.ok) {
+        console.warn('[auth] refresh: server returned', res.status, data);
+        return;
+      }
       set({ user: data.user || null });
-    } catch {
-      // ignore
+    } catch (err) {
+      console.error('[auth] refresh: network error', err);
     }
   },
 

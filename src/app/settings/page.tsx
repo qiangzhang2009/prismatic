@@ -3,9 +3,9 @@
 /**
  * Prismatic — Account Settings Page
  *
- * CRITICAL: We always revalidate from server on mount so admin changes
- * (role/plan/credits) are immediately reflected, regardless of localStorage
- * cache, Zustand hydration timing, or any init() race conditions.
+ * Uses useAuthMe (React Query) as the authoritative data source for user info.
+ * Zustand store is NOT used here to avoid any caching/reactivity edge cases.
+ * React Query with staleTime:0 ensures we ALWAYS get fresh data from /api/auth/me.
  */
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
@@ -17,7 +17,7 @@ import {
   ChevronRight, Smartphone, Github, Crown,
   Edit3, X, Check, Eye, EyeOff, Zap, CreditCard, DollarSign, ChevronDown
 } from 'lucide-react';
-import { useAuthStore, AuthUser } from '@/lib/auth-store';
+import { useAuthMe, type AuthUserMe } from '@/lib/use-auth-me';
 
 const PROVINCES = [
   '北京', '上海', '天津', '重庆',
@@ -32,16 +32,13 @@ const PROVINCES = [
 type Tab = 'profile' | 'account' | 'subscription' | 'security' | 'notifications';
 
 export default function SettingsPage() {
-  const { user, refresh, fetchUser } = useAuthStore();
+  // Use React Query as authoritative data source — always fresh from server.
+  // Bypasses Zustand store completely to eliminate any caching issues.
+  const { data: user, isLoading, refetch, isFetching } = useAuthMe();
   const [activeTab, setActiveTab] = useState<Tab>('profile');
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState('');
   const [error, setError] = useState('');
-
-  // Always revalidate from server on every mount — admin changes are reflected immediately.
-  useEffect(() => {
-    fetchUser();
-  }, [fetchUser]);
 
   const showSuccess = (msg: string) => {
     setSuccess(msg);
@@ -52,6 +49,17 @@ export default function SettingsPage() {
     setError(msg);
     setTimeout(() => setError(''), 3000);
   };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-bg-base flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-8 h-8 border-2 border-prism-blue/30 border-t-prism-blue rounded-full animate-spin mx-auto mb-3" />
+          <p className="text-text-secondary text-sm">加载中...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (!user) {
     return (
@@ -92,7 +100,7 @@ export default function SettingsPage() {
               </span>
             )}
             <button
-              onClick={refresh}
+              onClick={() => refetch()}
               className="text-xs text-text-muted hover:text-text-primary transition-colors flex items-center gap-1"
               title="从服务器刷新身份信息"
             >
@@ -173,16 +181,25 @@ export default function SettingsPage() {
 
 /* ─── Profile Tab ─── */
 function ProfileTab({ user, onSuccess, onError, onLoading }: {
-  user: AuthUser;
+  user: AuthUserMe;
   onSuccess: (m: string) => void;
   onError: (m: string) => void;
   onLoading: (b: boolean) => void;
 }) {
-  const { refresh } = useAuthStore();
+  const { refetch } = useAuthMe();
   const [name, setName] = useState(user.name || '');
   const [gender, setGender] = useState(user.gender || '');
   const [province, setProvince] = useState(user.province || '');
   const [editing, setEditing] = useState(false);
+
+  // Sync local form state when admin updates the user's profile.
+  useEffect(() => {
+    if (!editing) {
+      setName(user.name || '');
+      setGender(user.gender || '');
+      setProvince(user.province || '');
+    }
+  }, [user, editing]);
 
   const handleSave = async () => {
     onLoading(true);
@@ -195,7 +212,7 @@ function ProfileTab({ user, onSuccess, onError, onLoading }: {
       });
       const data = await res.json();
       if (res.ok) {
-        await refresh();
+        await refetch();
         setEditing(false);
         onSuccess('个人信息已更新');
       } else {
@@ -286,11 +303,11 @@ function ProfileTab({ user, onSuccess, onError, onLoading }: {
 
 /* ─── Account Tab ─── */
 function AccountTab({ user, onSuccess, onError }: {
-  user: AuthUser;
+  user: AuthUserMe;
   onSuccess: (m: string) => void;
   onError: (m: string) => void;
 }) {
-  const { refresh } = useAuthStore();
+  const { refetch } = useAuthMe();
   const planLabels: Record<string, string> = {
     FREE: '免费版',
     MONTHLY: '月度会员',
@@ -302,13 +319,14 @@ function AccountTab({ user, onSuccess, onError }: {
     PRO: '高级用户',
     ADMIN: '管理员',
   };
+  const genderLabels = { male: '男', female: '女', null: '-' };
 
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-lg font-medium text-text-primary">账号信息</h2>
         <button
-          onClick={refresh}
+          onClick={() => refetch()}
           className="flex items-center gap-1.5 text-xs text-text-muted hover:text-text-primary transition-colors"
           title="从服务器刷新最新身份"
         >
@@ -383,8 +401,8 @@ function AccountTab({ user, onSuccess, onError }: {
 }
 
 /* ─── Subscription Tab ─── */
-function SubscriptionTab({ user }: { user: AuthUser }) {
-  const { refresh } = useAuthStore();
+function SubscriptionTab({ user }: { user: AuthUserMe }) {
+  const { refetch } = useAuthMe();
   const planLabels: Record<string, string> = {
     FREE: '免费版',
     MONTHLY: '月度会员',
@@ -409,7 +427,7 @@ function SubscriptionTab({ user }: { user: AuthUser }) {
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-lg font-medium text-text-primary">会员订阅</h2>
         <button
-          onClick={refresh}
+          onClick={() => refetch()}
           className="flex items-center gap-1.5 text-xs text-text-muted hover:text-text-primary transition-colors"
         >
           <RefreshCw className="w-3.5 h-3.5" />
@@ -522,7 +540,7 @@ function SubscriptionTab({ user }: { user: AuthUser }) {
 
 /* ─── Security Tab ─── */
 function SecurityTab({ user, onSuccess, onError }: {
-  user: AuthUser;
+  user: AuthUserMe;
   onSuccess: (m: string) => void;
   onError: (m: string) => void;
 }) {

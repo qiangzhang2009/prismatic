@@ -13,19 +13,13 @@ import { neon, NeonQueryFunction } from '@neondatabase/serverless';
 import { getPersonasByIds, PERSONAS } from '@/lib/personas';
 import { BANNED_PERSONAS } from '@/lib/personas';
 
-// Module-level singleton
-let _sql: NeonQueryFunction<false, false> | null = null;
-
+/** Create a fresh Neon handle per call to avoid stale pool connections in Vercel serverless. */
 function getSql(): NeonQueryFunction<false, false> {
-  if (!_sql) {
-    const connectionString = process.env.DATABASE_URL;
-    if (!connectionString) throw new Error('DATABASE_URL environment variable is not set');
-    _sql = neon(connectionString) as NeonQueryFunction<false, false>;
-  }
-  return _sql;
+  const connectionString = process.env.DATABASE_URL;
+  if (!connectionString) throw new Error('DATABASE_URL environment variable is not set');
+  // eslint-disable-next-line
+  return neon(connectionString) as NeonQueryFunction<false, false>;
 }
-
-/** Checks if a table exists. Returns false on any database error. */
 async function tableExists(tableName: string): Promise<boolean> {
   try {
     const sql = getSql();

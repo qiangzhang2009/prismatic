@@ -6,22 +6,21 @@
 
 import { neon, NeonQueryFunction } from '@neondatabase/serverless';
 
-const connectionString = process.env.DATABASE_URL;
+function requireDatabase(): NeonQueryFunction<false, false> {
+  const connectionString = process.env.DATABASE_URL;
+  if (!connectionString) throw new Error('DATABASE_URL not set');
+  // eslint-disable-next-line
+  return neon(connectionString) as NeonQueryFunction<false, false>;
+}
 
-// Module-level singleton
-let _sql: NeonQueryFunction<false, false> | null = null;
-function getSql(): NeonQueryFunction<false, false> {
-  if (!_sql) {
-    if (!connectionString) throw new Error('DATABASE_URL not set');
-    _sql = neon(connectionString) as NeonQueryFunction<false, false>;
-  }
-  return _sql;
+function hasDatabase(): boolean {
+  return !!process.env.DATABASE_URL;
 }
 
 /** Executes a sql query, returning [] if any database error occurs. */
 async function safeQuery<T>(fn: (s: NeonQueryFunction<false, false>) => Promise<T>): Promise<T> {
   try {
-    return await fn(getSql());
+    return await fn(requireDatabase());
   } catch {
     return [] as unknown as T;
   }
@@ -33,8 +32,9 @@ const PRISMATIC_TENANT_ID = '97e7123c-a201-4cbf-a483-b6d777433818';
 // ─── Health Check ──────────────────────────────────────────────────────────────
 
 export async function isTrackingConfigured(): Promise<boolean> {
+  if (!hasDatabase()) return false;
   try {
-    await getSql()`SELECT 1`;
+    await requireDatabase()`SELECT 1`;
     return true;
   } catch {
     return false;
@@ -58,7 +58,7 @@ export async function insertPrismaticEvent(data: {
   mode?: string;
 }): Promise<string | null> {
   try {
-    const sql = getSql();
+    const sql = requireDatabase();
     const rows = await sql`
       INSERT INTO public.prismatic_events
         (tenant_id, session_id, visitor_id, persona_id, persona_name, domain,
@@ -112,7 +112,7 @@ export async function insertPageEvent(data: {
   referrerDomain?: string;
 }): Promise<string | null> {
   try {
-    const sql = getSql();
+    const sql = requireDatabase();
     const rows = await sql`
       INSERT INTO public.page_events
         (tenant_id, session_id, visitor_id, event_type, url_path,
@@ -160,7 +160,7 @@ export async function upsertSession(data: {
   country?: string;
 }): Promise<string | null> {
   try {
-    const sql = getSql();
+    const sql = requireDatabase();
     const rows = await sql`
       INSERT INTO public.sessions
         (tenant_id, session_id, visitor_id, browser, os, device_type, country,
@@ -194,7 +194,7 @@ export async function getTrackingOverview(days: number = 7): Promise<{
   sessions: number; totalEvents: number;
   totalPersonas: number; totalConversations: number;
 }> {
-  if (!connectionString) {
+  if (!hasDatabase()) {
     return { dau: 0, wau: 0, mau: 0, sessions: 0, totalEvents: 0, totalPersonas: 0, totalConversations: 0 };
   }
 
@@ -225,7 +225,7 @@ export async function getTrackingPersonas(days: number = 30, limit: number = 50)
   persona_id: string; persona_name: string; domain: string;
   views: number; conversations: number; avg_turns: number; graph_clicks: number;
 }>> {
-  if (!connectionString) return [];
+  if (!hasDatabase()) return [];
 
   const rows = await safeQuery(sql => sql`
     SELECT
@@ -262,7 +262,7 @@ export async function getTrackingPersonas(days: number = 30, limit: number = 50)
 // ─── Funnel ───────────────────────────────────────────────────────────────────
 
 export async function getTrackingFunnel(days: number = 30): Promise<Array<{ name: string; count: number; rate: number }>> {
-  if (!connectionString) return [
+  if (!hasDatabase()) return [
     { name: '入口页浏览', count: 0, rate: 100 },
     { name: '人物浏览', count: 0, rate: 0 },
     { name: '对话开始', count: 0, rate: 0 },
@@ -296,7 +296,7 @@ export async function getTrackingVisitors(limit: number = 100): Promise<Array<{
   visitor_id: string; visit_count: number; total_duration_seconds: number;
   first_visit: string; last_visit: string; device_type: string; country: string;
 }>> {
-  if (!connectionString) return [];
+  if (!hasDatabase()) return [];
 
   const rows = await safeQuery(sql => sql`
     SELECT
@@ -331,7 +331,7 @@ export async function getTrackingVisitors(limit: number = 100): Promise<Array<{
 export async function getTrackingTrend(days: number = 7): Promise<Array<{
   date: string; dau: number; sessions: number; pageviews: number;
 }>> {
-  if (!connectionString) {
+  if (!hasDatabase()) {
     const result = [];
     const now = new Date();
     for (let i = days - 1; i >= 0; i--) {
@@ -367,7 +367,7 @@ export async function getTrackingTrend(days: number = 7): Promise<Array<{
 export async function getTrackingDeviceStats(days: number = 30): Promise<Array<{
   device_type: string; count: number; percentage: number;
 }>> {
-  if (!connectionString) return [];
+  if (!hasDatabase()) return [];
 
   const rows = await safeQuery(sql => sql`
     SELECT
@@ -393,7 +393,7 @@ export async function getTrackingDeviceStats(days: number = 30): Promise<Array<{
 export async function getTrackingContentHealth(days: number = 30, limit: number = 50): Promise<Array<{
   url_path: string; pv: number; uv: number; bounceRate: number; avgScrollDepth: number;
 }>> {
-  if (!connectionString) return [];
+  if (!hasDatabase()) return [];
 
   const rows = await safeQuery(sql => sql`
     SELECT

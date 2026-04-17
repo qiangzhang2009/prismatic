@@ -11,9 +11,20 @@ export function Providers({ children }: { children: ReactNode }) {
       new QueryClient({
         defaultOptions: {
           queries: {
-            staleTime: 60 * 1000,
+            staleTime: 1000 * 60 * 5, // 5 minutes
+            gcTime: 1000 * 60 * 30, // 30 minutes (formerly cacheTime)
             refetchOnWindowFocus: false,
+            retry: 1, // Retry failed queries once
           },
+          mutations: {
+            retry: 0, // Don't retry mutations by default
+          },
+        },
+        logger: {
+          // Log errors in development
+          log: process.env.NODE_ENV === 'development' ? console.log : () => {},
+          warn: process.env.NODE_ENV === 'development' ? console.warn : () => {},
+          error: process.env.NODE_ENV === 'development' ? console.error : () => {},
         },
       })
   );

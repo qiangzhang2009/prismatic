@@ -85,6 +85,7 @@ export async function POST(req: NextRequest) {
         { status: 401, headers: NO_CACHE_HEADERS }
       );
     }
+    console.log(`[POST /api/auth/login] verifyCredentials returned: id=${user.id} plan=${user.plan} credits=${user.credits}`);
 
     const token = createJWTToken(user.id, user.email);
 
