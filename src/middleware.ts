@@ -50,11 +50,19 @@ async function getUserRoleFromDB(userId: string): Promise<string> {
     if (!connectionString) return 'FREE';
     // eslint-disable-next-line
     const sql = neon(connectionString);
-    const rows = await sql`SELECT role FROM users WHERE id = ${userId} AND status = 'ACTIVE' LIMIT 1`;
+    // Cast enums to text for proper string comparison
+    const rows = await sql`
+      SELECT role::text as role
+      FROM users
+      WHERE id = ${userId}
+        AND status::text = 'ACTIVE'
+      LIMIT 1
+    `;
     if (rows.length === 0) return 'FREE';
     return String(rows[0].role);
-  } catch {
+  } catch (err) {
     // DB unavailable — let the request through; /api/auth/me will handle auth errors.
+    console.error('[middleware] getUserRoleFromDB error:', err);
     return 'FREE';
   }
 }
