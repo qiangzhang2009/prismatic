@@ -50,7 +50,7 @@ async function getUserRoleFromDB(userId: string): Promise<string> {
     if (!connectionString) return 'FREE';
     // eslint-disable-next-line
     const sql = neon(connectionString);
-    const rows = await sql`SELECT role FROM prismatic_users WHERE id = ${userId} AND is_active = TRUE LIMIT 1`;
+    const rows = await sql`SELECT role FROM users WHERE id = ${userId} AND status = 'ACTIVE' LIMIT 1`;
     if (rows.length === 0) return 'FREE';
     return String(rows[0].role);
   } catch {

@@ -67,6 +67,11 @@ model User {
   bannedAt      DateTime?
   banReason     String?
 
+  // Role & Subscription (新增字段 - 替代旧 prismatic_users 表)
+  role          UserRole?  @default(FREE)  // ADMIN, PRO, FREE
+  plan          SubscriptionPlan? @default(FREE)  // FREE, MONTHLY, YEARLY, LIFETIME
+  credits       Int        @default(0)  // 充值问答条数
+
   // Token bucket for rate limiting
   tokenCount    Int        @default(0)
   tokenUpdatedAt DateTime  @default(now())
@@ -79,6 +84,21 @@ model User {
   auditLogsAsTarget   AdminAuditLog[] @relation("AdminAuditAsTarget")
 
   @@map("users")
+}
+
+// ─── Enums ───────────────────────────────────────────────────────────────────────
+
+enum UserRole {
+  ADMIN
+  PRO
+  FREE
+}
+
+enum SubscriptionPlan {
+  FREE
+  MONTHLY
+  YEARLY
+  LIFETIME
 }
 
 enum UserStatus {
