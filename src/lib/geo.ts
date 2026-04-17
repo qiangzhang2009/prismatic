@@ -11,7 +11,7 @@ export interface GeoResult {
 }
 
 // Country code -> formatted display name
-const COUNTRY_NAMES: Record<string, string> = {
+export const COUNTRY_NAMES: Record<string, string> = {
   CN: '中国',
   HK: '中国香港',
   TW: '中国台湾',

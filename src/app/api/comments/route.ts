@@ -8,7 +8,7 @@ import { neon } from '@neondatabase/serverless';
 import { cookies } from 'next/headers';
 import { processCommentInteractions } from '@/lib/guardian-engine';
 import { verifyJWTToken } from '@/lib/user-management';
-import { lookupIP, generateAvatarSeed, getAvatarUrl } from '@/lib/geo';
+import { lookupIP, generateAvatarSeed, getAvatarUrl, COUNTRY_NAMES } from '@/lib/geo';
 
 const PRISMATIC_TENANT_ID = '97e7123c-a201-4cbf-a483-b6d777433818';
 
@@ -146,7 +146,11 @@ export async function GET(req: NextRequest) {
         ? getAvatarUrl(c.avatar_seed, c.gender || undefined)
         : (c.author_avatar || null);
 
-      const location = [c.geo_country, c.geo_region, c.geo_city]
+      const geoCountry = COUNTRY_NAMES[c.geo_country_code || ''] || c.geo_country || '';
+      const geoRegion = c.geo_region || '';
+      const geoCity = c.geo_city || '';
+      // Only show region if it's meaningfully different from city
+      const location = [geoCountry, geoRegion !== geoCity ? geoRegion : '', geoCity]
         .filter(Boolean)
         .join(' · ');
 
