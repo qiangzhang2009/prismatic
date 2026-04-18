@@ -25,9 +25,38 @@ function loadConversation(personaIds: string[]): AgentMessage[] {
   try {
     const raw = localStorage.getItem(getStorageKey(personaIds));
     if (!raw) return [];
-    const store: ConversationStore = JSON.parse(raw);
-    if (store.version !== STORAGE_VERSION) return [];
-    return store.messages ?? [];
+    const parsed = JSON.parse(raw);
+
+    // v1: raw array stored directly
+    if (Array.isArray(parsed)) {
+      const store: ConversationStore = {
+        version: STORAGE_VERSION,
+        messages: parsed as AgentMessage[],
+        lastUpdated: Date.now(),
+      };
+      localStorage.setItem(getStorageKey(personaIds), JSON.stringify(store));
+      return parsed;
+    }
+
+    const store = parsed as ConversationStore;
+
+    // Already current version
+    if (store.version === STORAGE_VERSION) {
+      return store.messages ?? [];
+    }
+
+    // v1 object with version field: migrate
+    if (store.version === 1) {
+      const migrated: ConversationStore = {
+        version: STORAGE_VERSION,
+        messages: store.messages ?? [],
+        lastUpdated: Date.now(),
+      };
+      localStorage.setItem(getStorageKey(personaIds), JSON.stringify(migrated));
+      return store.messages ?? [];
+    }
+
+    return [];
   } catch {
     return [];
   }
