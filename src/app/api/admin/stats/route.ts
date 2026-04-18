@@ -1,6 +1,8 @@
 /**
  * GET /api/admin/stats — Get user statistics (admin only)
  */
+export const runtime = 'nodejs';
+
 import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
 import { authenticateAdminRequest, getUserStats } from '@/lib/user-management';

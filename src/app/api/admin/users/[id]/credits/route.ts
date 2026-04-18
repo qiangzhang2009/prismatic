@@ -1,6 +1,8 @@
 /**
  * POST /api/admin/users/[id]/credits — Add credits to a user (admin only)
  */
+export const runtime = 'nodejs';
+
 import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
 import { authenticateAdminRequest } from '@/lib/user-management';
