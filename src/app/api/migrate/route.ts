@@ -37,7 +37,7 @@ export async function POST(req: NextRequest) {
           geo_city   VARCHAR(100),
           parent_id   VARCHAR(255),
           type        VARCHAR(20) DEFAULT 'comment',
-          reactions   JSONB DEFAULT '{}',
+          reactions   JSONB DEFAULT '[]',
           status      VARCHAR(20) DEFAULT 'published',
           persona_slug VARCHAR(255),
           created_at  TIMESTAMPTZ DEFAULT NOW(),

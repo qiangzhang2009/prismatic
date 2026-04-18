@@ -357,7 +357,7 @@ model Comment {
   type       String   @default("comment")  // comment | reply
 
   // Reactions stored as JSON { emoji: count }
-  reactions  Json     @default("{}")
+  reactions  Json     @default("[]")
 
   // Status
   status     String   @default("published")  // published | deleted | flagged

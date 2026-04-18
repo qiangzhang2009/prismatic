@@ -274,7 +274,7 @@ export async function runGuardianAutonomousDiscussion(
             geoCountry: COUNTRY_NAMES[loc.countryCode] || loc.countryCode,
             geoRegion: loc.region,
             geoCity: loc.city,
-            reactions: {},
+            reactions: [],
           },
         });
         results.push({ personaId: guardian.personaId, personaNameZh: guardian.personaNameZh, content, tone });

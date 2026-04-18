@@ -3,13 +3,11 @@
  * POST /api/comments — Create a comment (open to everyone)
  */
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '@/lib/prisma';
 import { cookies } from 'next/headers';
 import { processCommentInteractions } from '@/lib/guardian-engine';
 import { verifyJWTToken } from '@/lib/user-management';
 import { lookupIP, generateAvatarSeed, getAvatarUrl, COUNTRY_NAMES } from '@/lib/geo';
-
-const prisma = new PrismaClient();
 
 const RATE_LIMIT = 10;
 const RATE_WINDOW = 60 * 1000;
@@ -85,14 +83,24 @@ export async function GET(req: NextRequest) {
     const total = await prisma.comment.count({ where });
 
     const processedComments = comments.map(c => {
-      const reactions: any[] = typeof c.reactions === 'string' ? JSON.parse(c.reactions as string) : (c.reactions || []);
+      // reactions is stored as either:
+      // - object {emoji: count} — legacy/seed format
+      // - array [{emoji, visitorId}] — real-time user reactions
+      const rawReactions = typeof c.reactions === 'string' ? JSON.parse(c.reactions as string) : (c.reactions || []);
       const counts: Record<string, number> = {};
       let userReaction: string | null = null;
 
-      for (const r of reactions) {
-        counts[r.emoji] = (counts[r.emoji] || 0) + 1;
-        if (r.visitorId === visitorId) {
-          userReaction = r.emoji;
+      if (Array.isArray(rawReactions)) {
+        for (const r of rawReactions as any[]) {
+          counts[r.emoji] = (counts[r.emoji] || 0) + 1;
+          if ((r as any).visitorId === visitorId) {
+            userReaction = r.emoji;
+          }
+        }
+      } else if (rawReactions && typeof rawReactions === 'object') {
+        // Object format: {emoji: count}
+        for (const [emoji, count] of Object.entries(rawReactions)) {
+          counts[emoji] = Number(count);
         }
       }
 
@@ -118,7 +126,7 @@ export async function GET(req: NextRequest) {
         is_edited: false,
         likes: 0,
         reactions: counts,
-        reactionCount: reactions.length,
+        reactionCount: Object.values(counts).reduce((a, b) => a + b, 0),
         userReaction,
         view_count: 0,
         report_count: 0,
@@ -234,7 +242,7 @@ export async function POST(req: NextRequest) {
         type: parentId ? 'reply' : 'comment',
         personaSlug: personaSlug || null,
         status: 'published',
-        reactions: {},
+          reactions: [],
       },
     });
 
@@ -261,7 +269,7 @@ export async function POST(req: NextRequest) {
         is_pinned: false,
         is_edited: false,
         likes: 0,
-        reactions: {},
+          reactions: [],
         reactionCount: 0,
         userReaction: null,
         view_count: 0,
