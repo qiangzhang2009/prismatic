@@ -140,8 +140,9 @@ export async function GET(req: NextRequest) {
       hasMore: offset + limit < total,
     });
   } catch (error) {
-    console.error('Failed to fetch comments:', error);
-    return NextResponse.json({ error: 'Failed to fetch comments' }, { status: 500 });
+    const msg = error instanceof Error ? error.message : String(error);
+    console.error('Failed to fetch comments:', msg);
+    return NextResponse.json({ error: 'Failed to fetch comments', detail: msg }, { status: 500 });
   }
 }
 
