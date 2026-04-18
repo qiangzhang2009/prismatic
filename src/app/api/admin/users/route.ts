@@ -54,17 +54,17 @@ export async function GET(req: NextRequest) {
         },
       }),
       prisma.user.count({ where }),
-      prisma.$queryRaw<Array<{ user_id: string; last_created_at: Date | null }>>`
-        SELECT user_id, MAX(created_at) as last_created_at
+      prisma.$queryRaw<Array<{ userId: string; lastCreatedAt: Date | null }>>`
+        SELECT "userId", MAX("createdAt") as "lastCreatedAt"
         FROM messages
         WHERE content != '[message-counted]'
-        GROUP BY user_id
+        GROUP BY "userId"
       `,
     ]);
 
     const lastMsgMap = new Map<string, string | null>();
     for (const r of lastMsgRows) {
-      lastMsgMap.set(r.user_id, r.last_created_at?.toISOString() ?? null);
+      lastMsgMap.set(r.userId, r.lastCreatedAt?.toISOString() ?? null);
     }
 
     const items = users.map(user => {

@@ -77,7 +77,7 @@ export async function createUser(input: CreateUserInput & { emailVerified?: bool
     const prefs = JSON.stringify({ gender: input.gender, province: input.province });
 
     await sql`
-      INSERT INTO users (id, email, "passwordHash", name, preferences, status, role, plan, credits, email_verified, "createdAt", "updatedAt")
+      INSERT INTO users (id, email, "passwordHash", name, preferences, status, role, plan, credits, "emailVerified", "createdAt", "updatedAt")
       VALUES (
         ${userId},
         ${input.email.toLowerCase()},
@@ -120,8 +120,8 @@ export async function verifyCredentials(email: string, password: string): Promis
     // Query the users table using raw SQL (neon) — works regardless of Prisma schema state
     const rows = await sql`
       SELECT id, email, name, avatar,
-             "passwordHash", email_verified, role, plan, credits,
-             created_at, updated_at, preferences, status
+             "passwordHash", "emailVerified", role, plan, credits,
+             "createdAt", "updatedAt", preferences, status
       FROM users
       WHERE email = ${email.toLowerCase()}
         AND status::text = 'ACTIVE'
@@ -139,13 +139,13 @@ export async function verifyCredentials(email: string, password: string): Promis
       name: user.name,
       gender: getGender(user),
       province: getProvince(user),
-      emailVerified: !!user.email_verified,
+      emailVerified: !!user.emailVerified,
       role: (user.role || 'FREE') as UserRole,
       plan: (user.plan || 'FREE') as SubscriptionPlan,
       credits: user.credits || 0,
       avatar: user.avatar,
-      createdAt: new Date(user.created_at),
-      lastLoginAt: new Date(user.updated_at),
+      createdAt: new Date(user.createdAt),
+      lastLoginAt: new Date(user.updatedAt),
     };
   } catch (error) {
     console.error('[verifyCredentials] Error:', error);
@@ -173,13 +173,13 @@ export async function getUserById(userId: string): Promise<PublicUser | null> {
       name: user.name,
       gender: getGender(user),
       province: getProvince(user),
-      emailVerified: !!user.email_verified,
+      emailVerified: !!user.emailVerified,
       role: (user.role || 'FREE') as UserRole,
       plan: (user.plan || 'FREE') as SubscriptionPlan,
       credits: user.credits || 0,
       avatar: user.avatar,
-      createdAt: new Date(user.created_at),
-      lastLoginAt: new Date(user.updated_at),
+      createdAt: new Date(user.createdAt),
+      lastLoginAt: new Date(user.updatedAt),
     };
   } catch (error) {
     console.error('[getUserById] Error:', error);
