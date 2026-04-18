@@ -8,6 +8,8 @@
  */
 
 import { PrismaClient } from '@prisma/client';
+import { Prisma } from '@prisma/client';
+import { neon } from '@neondatabase/serverless';
 import { COUNTRY_NAMES } from '../src/lib/geo';
 
 const prisma = new PrismaClient();
@@ -547,8 +549,41 @@ function hoursAgo(hours: number): Date {
   return new Date(Date.now() - Math.abs(hours) * 60 * 60 * 1000);
 }
 
+async function ensureCommentsTable() {
+  const sql = neon(process.env.DATABASE_URL!);
+  try {
+    await sql`
+      CREATE TABLE IF NOT EXISTS public.comments (
+        id          VARCHAR(255) PRIMARY KEY DEFAULT gen_random_uuid(),
+        content     TEXT NOT NULL,
+        user_id     VARCHAR(255),
+        nickname    VARCHAR(255),
+        gender      VARCHAR(50),
+        avatar_seed VARCHAR(255),
+        ip_hash     VARCHAR(255),
+        geo_country_code VARCHAR(10),
+        geo_country VARCHAR(100),
+        geo_region VARCHAR(100),
+        geo_city   VARCHAR(100),
+        parent_id   VARCHAR(255),
+        type        VARCHAR(20) DEFAULT 'comment',
+        reactions   JSONB DEFAULT '{}',
+        status      VARCHAR(20) DEFAULT 'published',
+        persona_slug VARCHAR(255),
+        created_at  TIMESTAMPTZ DEFAULT NOW(),
+        updated_at  TIMESTAMPTZ DEFAULT NOW()
+      )
+    `;
+    console.log('  ✓ comments table ready');
+  } catch (err) {
+    console.log('  ℹ comments table may already exist:', err instanceof Error ? err.message.slice(0, 80) : String(err));
+  }
+}
+
 async function main() {
   console.log('🌱 Seeding comments...\n');
+
+  await ensureCommentsTable();
 
   // Check if we already have seeded data
   const existingCount = await prisma.comment.count({

@@ -20,6 +20,63 @@ export async function POST(req: NextRequest) {
     // Run migrations
     const results: string[] = [];
 
+    // ── comments (Prisma-managed table) ─────────────────────────────────────────
+    try {
+      await sql`
+        CREATE TABLE IF NOT EXISTS public.comments (
+          id          VARCHAR(255) PRIMARY KEY DEFAULT gen_random_uuid(),
+          content     TEXT NOT NULL,
+          user_id     VARCHAR(255),
+          nickname    VARCHAR(255),
+          gender      VARCHAR(50),
+          avatar_seed VARCHAR(255),
+          ip_hash     VARCHAR(255),
+          geo_country_code VARCHAR(10),
+          geo_country VARCHAR(100),
+          geo_region VARCHAR(100),
+          geo_city   VARCHAR(100),
+          parent_id   VARCHAR(255),
+          type        VARCHAR(20) DEFAULT 'comment',
+          reactions   JSONB DEFAULT '{}',
+          status      VARCHAR(20) DEFAULT 'published',
+          persona_slug VARCHAR(255),
+          created_at  TIMESTAMPTZ DEFAULT NOW(),
+          updated_at  TIMESTAMPTZ DEFAULT NOW()
+        )
+      `;
+      await sql`CREATE INDEX IF NOT EXISTS idx_comments_user_created ON public.comments(user_id, created_at DESC)`;
+      await sql`CREATE INDEX IF NOT EXISTS idx_comments_parent ON public.comments(parent_id)`;
+      await sql`CREATE INDEX IF NOT EXISTS idx_comments_status_created ON public.comments(status, created_at DESC)`;
+      await sql`CREATE INDEX IF NOT EXISTS idx_comments_persona_slug ON public.comments(persona_slug, created_at DESC)`;
+      results.push('comments (Prisma) ✓');
+    } catch (e: any) {
+      results.push(`comments (Prisma): ${e.message}`);
+    }
+
+    // ── guardian_discussions ────────────────────────────────────────────────────
+    try {
+      await sql`
+        CREATE TABLE IF NOT EXISTS public.guardian_discussions (
+          id              BIGSERIAL PRIMARY KEY,
+          topic          TEXT NOT NULL,
+          topic_source   VARCHAR(20) NOT NULL DEFAULT 'auto',
+          content        TEXT DEFAULT '',
+          participant_ids TEXT[] NOT NULL DEFAULT '{}',
+          round_count    INTEGER DEFAULT 0,
+          view_count     INTEGER DEFAULT 0,
+          status         VARCHAR(20) NOT NULL DEFAULT 'active',
+          started_at     TIMESTAMPTZ DEFAULT NOW(),
+          ended_at       TIMESTAMPTZ,
+          created_at     TIMESTAMPTZ DEFAULT NOW()
+        )
+      `;
+      await sql`CREATE INDEX IF NOT EXISTS idx_guardian_discussions_status ON public.guardian_discussions(status, created_at DESC)`;
+      await sql`CREATE INDEX IF NOT EXISTS idx_guardian_discussions_started ON public.guardian_discussions(started_at DESC)`;
+      results.push('guardian_discussions ✓');
+    } catch (e: any) {
+      results.push(`guardian_discussions: ${e.message}`);
+    }
+
     // ── prismatic_comments ──────────────────────────────────────────────────────
     try {
       await sql`
@@ -241,6 +298,8 @@ export async function GET() {
     const sql = neon(process.env.DATABASE_URL!);
     const tableResults: Record<string, boolean> = {};
     const tables = [
+      'comments',
+      'guardian_discussions',
       'prismatic_comments',
       'prismatic_guardian_schedule',
       'prismatic_guardian_stats',
