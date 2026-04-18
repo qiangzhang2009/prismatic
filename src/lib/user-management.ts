@@ -68,58 +68,36 @@ function getProvince(user: any): string | null {
 
 export async function createUser(input: CreateUserInput & { emailVerified?: boolean }): Promise<PublicUser | null> {
   try {
-    const existing = await prisma.user.findFirst({
-      where: { email: input.email.toLowerCase() },
-    });
-    if (existing) return null;
+    const sql = getSql();
+    const existing = await sql`SELECT id FROM users WHERE email = ${input.email.toLowerCase()} LIMIT 1`;
+    if (existing.length > 0) return null;
 
     const passwordHash = await bcrypt.hash(input.password, 12);
+    const userId = crypto.randomUUID();
+    const prefs = JSON.stringify({ gender: input.gender, province: input.province });
 
-    // 创建新表记录
-    const newUser = await prisma.user.create({
-      data: {
-        id: crypto.randomUUID(),
-        email: input.email.toLowerCase(),
-        passwordHash,
-        name: input.name || null,
-        preferences: JSON.stringify({
-          gender: input.gender,
-          province: input.province,
-        }),
-        status: 'ACTIVE',
-        role: 'FREE',
-        plan: 'FREE',
-        credits: 0,
-        emailVerified: input.emailVerified ? new Date() : null,
-      },
-    });
-
-    // 同步到旧表
-    const sql = getSql();
     await sql`
-      INSERT INTO prismatic_users
-        (id, email, password_hash, name, gender, province, email_verified, role, plan, credits, is_active, created_at, updated_at)
+      INSERT INTO users (id, email, "passwordHash", name, preferences, status, role, plan, credits, email_verified, "createdAt", "updatedAt")
       VALUES (
-        ${newUser.id},
-        ${newUser.email},
+        ${userId},
+        ${input.email.toLowerCase()},
         ${passwordHash},
         ${input.name ?? null},
-        ${input.gender ?? null},
-        ${input.province ?? null},
-        ${input.emailVerified ?? false},
-        'FREE',
-        'FREE',
+        ${prefs},
+        'ACTIVE'::user_status,
+        'FREE'::user_role,
+        'FREE'::subscription_plan,
         0,
-        TRUE,
-        ${newUser.createdAt},
-        ${newUser.updatedAt}
+        ${input.emailVerified ? new Date() : null},
+        NOW(),
+        NOW()
       )
     `;
 
     return {
-      id: newUser.id,
-      email: newUser.email || '',
-      name: newUser.name,
+      id: userId,
+      email: input.email.toLowerCase(),
+      name: input.name || null,
       gender: input.gender || null,
       province: input.province || null,
       emailVerified: !!input.emailVerified,
@@ -127,7 +105,7 @@ export async function createUser(input: CreateUserInput & { emailVerified?: bool
       plan: 'FREE',
       credits: 0,
       avatar: null,
-      createdAt: newUser.createdAt,
+      createdAt: new Date(),
       lastLoginAt: null,
     };
   } catch (error) {
@@ -138,14 +116,19 @@ export async function createUser(input: CreateUserInput & { emailVerified?: bool
 
 export async function verifyCredentials(email: string, password: string): Promise<PublicUser | null> {
   try {
-    // Query the users table (Prisma) instead of the legacy prismatic_users table
-    const user = await prisma.user.findFirst({
-      where: {
-        email: email.toLowerCase(),
-        status: 'ACTIVE',
-      },
-    });
-    if (!user) return null;
+    const sql = getSql();
+    // Query the users table using raw SQL (neon) — works regardless of Prisma schema state
+    const rows = await sql`
+      SELECT id, email, name, avatar,
+             "passwordHash", email_verified, role, plan, credits,
+             created_at, updated_at, preferences, status
+      FROM users
+      WHERE email = ${email.toLowerCase()}
+        AND status::text = 'ACTIVE'
+      LIMIT 1
+    `;
+    if (rows.length === 0) return null;
+    const user: any = rows[0];
 
     const valid = await bcrypt.compare(password, user.passwordHash || '');
     if (!valid) return null;
@@ -156,13 +139,13 @@ export async function verifyCredentials(email: string, password: string): Promis
       name: user.name,
       gender: getGender(user),
       province: getProvince(user),
-      emailVerified: !!user.emailVerified,
+      emailVerified: !!user.email_verified,
       role: (user.role || 'FREE') as UserRole,
       plan: (user.plan || 'FREE') as SubscriptionPlan,
       credits: user.credits || 0,
       avatar: user.avatar,
-      createdAt: user.createdAt,
-      lastLoginAt: user.updatedAt,
+      createdAt: new Date(user.created_at),
+      lastLoginAt: new Date(user.updated_at),
     };
   } catch (error) {
     console.error('[verifyCredentials] Error:', error);
@@ -172,10 +155,17 @@ export async function verifyCredentials(email: string, password: string): Promis
 
 export async function getUserById(userId: string): Promise<PublicUser | null> {
   try {
-    const user = await prisma.user.findUnique({
-      where: { id: userId },
-    });
-    if (!user) return null;
+    const sql = getSql();
+    const rows = await sql`
+      SELECT id, email, name, avatar,
+             "passwordHash", email_verified, role, plan, credits,
+             created_at, updated_at, preferences, status
+      FROM users
+      WHERE id = ${userId}
+      LIMIT 1
+    `;
+    if (rows.length === 0) return null;
+    const user: any = rows[0];
 
     return {
       id: user.id,
@@ -183,13 +173,13 @@ export async function getUserById(userId: string): Promise<PublicUser | null> {
       name: user.name,
       gender: getGender(user),
       province: getProvince(user),
-      emailVerified: !!user.emailVerified,
+      emailVerified: !!user.email_verified,
       role: (user.role || 'FREE') as UserRole,
       plan: (user.plan || 'FREE') as SubscriptionPlan,
       credits: user.credits || 0,
       avatar: user.avatar,
-      createdAt: user.createdAt,
-      lastLoginAt: user.updatedAt,
+      createdAt: new Date(user.created_at),
+      lastLoginAt: new Date(user.updated_at),
     };
   } catch (error) {
     console.error('[getUserById] Error:', error);
@@ -497,8 +487,21 @@ export async function authenticateAdminRequest(
   const userId = await authenticateRequest(req);
   if (!userId) return null;
   if (isDemoUserId(userId)) return null;
-  const user = await getUserById(userId);
-  if (!user || !isAdmin(user.role)) return null;
+
+  // Read from users table (authoritative) to match what login route uses.
+  // The admin management page writes via Prisma -> users table.
+  // Previously this read from prismatic_users (getUserById), causing the
+  // dual-table setup to go out of sync and 403 on admin pages.
+  const sql = getSql();
+  const rows = await sql`
+    SELECT id, role FROM users
+    WHERE id = ${userId}
+      AND status::text = 'ACTIVE'
+    LIMIT 1
+  `;
+  if (rows.length === 0) return null;
+  const role = (rows[0] as any).role;
+  if (!isAdmin(role as UserRole)) return null;
   return userId;
 }
 
@@ -761,27 +764,42 @@ export function demoEmailToUUID(email: string): string {
 }
 
 export async function ensureDemoUserInDB(userId: string, email: string, name: string): Promise<void> {
-  const sql = getSql();
   const dbId = userId.replace('demo_', '');
+  const sql = getSql();
 
-  await sql`
-    INSERT INTO prismatic_users (id, email, name, role, plan, is_active, created_at, updated_at)
-    VALUES (
-      ${dbId},
-      ${email.toLowerCase()},
-      ${name},
-      'PRO',
-      'LIFETIME',
-      TRUE,
-      NOW(),
-      NOW()
-    )
-    ON CONFLICT (id) DO UPDATE SET
-      email = EXCLUDED.email,
-      name = EXCLUDED.name,
-      is_active = TRUE,
-      updated_at = NOW()
-  `;
+  try {
+    // Upsert demo user in users table using raw SQL
+    const existing = await sql`SELECT id FROM users WHERE id = ${dbId} LIMIT 1`;
+    if (existing.length > 0) {
+      await sql`
+        UPDATE users SET
+          email = ${email.toLowerCase()},
+          name = ${name},
+          status = 'ACTIVE'::user_status,
+          role = 'PRO'::user_role,
+          plan = 'LIFETIME'::subscription_plan,
+          "updatedAt" = NOW()
+        WHERE id = ${dbId}
+      `;
+    } else {
+      await sql`
+        INSERT INTO users (id, email, name, status, role, plan, credits, "createdAt", "updatedAt")
+        VALUES (
+          ${dbId},
+          ${email.toLowerCase()},
+          ${name},
+          'ACTIVE'::user_status,
+          'PRO'::user_role,
+          'LIFETIME'::subscription_plan,
+          999999,
+          NOW(),
+          NOW()
+        )
+      `;
+    }
+  } catch (error) {
+    console.error('[ensureDemoUserInDB] error:', error);
+  }
 }
 
 // ─── Admin Operations (Advanced) ─────────────────────────────────────────────────

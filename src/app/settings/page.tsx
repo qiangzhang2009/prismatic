@@ -204,7 +204,7 @@ function ProfileTab({ user, onSuccess, onError, onLoading }: {
   const handleSave = async () => {
     onLoading(true);
     try {
-      const res = await fetch('/api/auth/me', {
+      const res = await fetch('/api/user/me', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',

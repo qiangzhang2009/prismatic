@@ -155,7 +155,7 @@ export function GuardianBanner() {
         fetch('/api/guardian'),
         fetch('/api/guardian/stats'),
         fetch('/api/forum/debate'),
-        fetch('/api/auth/me'),
+        fetch('/api/user/me'),
       ]);
 
       const guardianData = guardianRes.ok ? await guardianRes.json() : {};

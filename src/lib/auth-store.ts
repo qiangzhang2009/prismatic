@@ -60,13 +60,13 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
     // data to remain visible while fetching fresh data.
     set({ isLoading: true });
     try {
-      const res = await fetch('/api/auth/me', { credentials: 'include' });
+      const res = await fetch('/api/user/me', { credentials: 'include' });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
       const newUser = data.user || null;
       set({ user: newUser, isLoading: false, isInitialized: true });
       if (!newUser) {
-        console.warn('[auth] init: /api/auth/me returned null user');
+        console.warn('[auth] init: /api/user/me returned null user');
       } else {
         console.log('[auth] init: loaded user', newUser.email, newUser.role, newUser.plan, newUser.credits);
       }
@@ -147,7 +147,7 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
 
   fetchUser: async () => {
     try {
-      const res = await fetch('/api/auth/me', { credentials: 'include' });
+      const res = await fetch('/api/user/me', { credentials: 'include' });
       const data = await res.json();
       if (!res.ok) {
         console.warn('[auth] fetchUser: server returned', res.status, data);
@@ -179,7 +179,7 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
 
   refresh: async () => {
     try {
-      const res = await fetch('/api/auth/me', { credentials: 'include' });
+      const res = await fetch('/api/user/me', { credentials: 'include' });
       const data = await res.json();
       if (!res.ok) {
         console.warn('[auth] refresh: server returned', res.status, data);

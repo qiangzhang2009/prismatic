@@ -1318,7 +1318,7 @@ export function CommentsSection() {
             <div className="flex items-center justify-center gap-2">
               {/* Prev */}
               <button
-                onClick={() => { window.scrollTo({ top: 0, behavior: 'smooth' }); fetchComments(page - 1, true); }}
+                onClick={() => fetchComments(page - 1, true)}
                 disabled={page === 0 || loading}
                 className="px-3 py-1.5 rounded-lg border border-white/10 text-xs text-text-muted hover:bg-white/5 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
               >
@@ -1346,7 +1346,7 @@ export function CommentsSection() {
                   ) : (
                     <button
                       key={p}
-                      onClick={() => { window.scrollTo({ top: 0, behavior: 'smooth' }); fetchComments(p, true); }}
+                      onClick={() => fetchComments(p, true)}
                       disabled={loading}
                       className={cn(
                         'w-9 h-9 rounded-lg border text-xs transition-all',
@@ -1364,7 +1364,7 @@ export function CommentsSection() {
 
               {/* Next */}
               <button
-                onClick={() => { window.scrollTo({ top: 0, behavior: 'smooth' }); fetchComments(page + 1, true); }}
+                onClick={() => fetchComments(page + 1, true)}
                 disabled={!hasMore || loading}
                 className="px-3 py-1.5 rounded-lg border border-white/10 text-xs text-text-muted hover:bg-white/5 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
               >

@@ -47,12 +47,12 @@ export function useAuthMe() {
 
       setIsFetching(true);
       try {
-        const res = await fetch('/api/auth/me', { credentials: 'include' });
+        const res = await fetch('/api/user/me', { credentials: 'include' });
         if (cancelled || currentCount !== fetchCountRef.current) return;
         if (!mountedRef.current) return;
 
         if (!res.ok) {
-          console.log('[useAuthMe] /api/auth/me returned', res.status);
+          console.log('[useAuthMe] /api/user/me returned', res.status);
           if (mountedRef.current) {
             setUser(null);
             setIsLoading(false);

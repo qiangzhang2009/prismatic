@@ -232,7 +232,7 @@ export function DebateArenaClient({ debate, preview, error }: DebateArenaClientP
 
   // Check admin status on mount
   useEffect(() => {
-    fetch('/api/auth/me')
+    fetch('/api/user/me')
       .then(r => r.ok ? r.json() : null)
       .then(data => {
         if (data?.user?.isAdmin) setIsAdmin(true);
