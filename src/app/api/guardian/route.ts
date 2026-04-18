@@ -12,9 +12,9 @@ async function withTimeout<T>(promise: Promise<T>, timeoutMs: number = 5000): Pr
 
 export async function GET() {
   try {
-    const guardians = await withTimeout(getTodayGuardians(), 8000);
+    // Allow up to 30s for cold-start serverless environments with Neon connections
+    const guardians = await withTimeout(getTodayGuardians(), 30_000);
     if (guardians === null) {
-      // Return empty array on timeout instead of error
       return NextResponse.json({ guardians: [], note: 'Guardian data temporarily unavailable' });
     }
     return NextResponse.json({ guardians });
