@@ -98,6 +98,8 @@ export async function POST(req: NextRequest) {
           role: user.role,
           plan: user.plan,
           avatar: user.avatar,
+          canUseProFeatures: canUseProFeatures(user.role, user.plan, user.credits),
+          isAdmin: user.role === 'ADMIN',
         },
         message: 'Login successful'
       },

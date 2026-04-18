@@ -199,13 +199,14 @@ export async function recordDebateTurn(
 export async function getDebateByDate(date?: string): Promise<DebateRecord | null> {
   const targetDate = date ?? new Date().toISOString().slice(0, 10);
 
-  const rows = await safeQuery((sql) => sql`
-    SELECT * FROM prismatic_forum_debates
-    WHERE date = ${targetDate}
-    LIMIT 1
-  `);
+  try {
+    const rows = await safeQuery((sql) => sql`
+      SELECT * FROM prismatic_forum_debates
+      WHERE date = ${targetDate}
+      LIMIT 1
+    `);
 
-  if (!Array.isArray(rows) || rows.length === 0) return null;
+    if (!Array.isArray(rows) || rows.length === 0) return null;
 
   const row = rows[0] as any;
   const turnRows = await safeQuery((sql) => sql`
@@ -247,6 +248,10 @@ export async function getDebateByDate(date?: string): Promise<DebateRecord | nul
     completedAt: row.completed_at ? (row.completed_at instanceof Date ? row.completed_at.toISOString() : String(row.completed_at)) : null,
     turns,
   };
+  } catch (err) {
+    console.warn('[DebateArena] getDebateByDate failed:', err instanceof Error ? err.message : String(err));
+    return null;
+  }
 }
 
 export async function getDebateById(debateId: number): Promise<DebateRecord | null> {
@@ -715,7 +720,14 @@ export async function previewTodaysDebate(): Promise<{
   highlights: string[];
   conflicts: string[];
 }> {
-  const guardians = await getTodayGuardians();
+  let guardians: Array<{ personaId: string; personaNameZh: string }> = [];
+  try {
+    const raw = await getTodayGuardians();
+    guardians = raw.map(g => ({ personaId: g.personaId, personaNameZh: g.personaNameZh }));
+  } catch (err) {
+    console.warn('[DebateArena] previewTodaysDebate — getTodayGuardians failed:', err instanceof Error ? err.message : String(err));
+  }
+
   const topic = pickDailyTopic();
 
   // 基于话题生成亮点和矛盾点

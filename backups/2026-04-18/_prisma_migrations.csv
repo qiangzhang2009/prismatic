@@ -1,0 +1,2 @@
+id,checksum,finished_at,migration_name,logs,rolled_back_at,started_at,applied_steps_count
+77c7f1d1-fc08-4627-82de-95afa4e76a38,df657fe235509df2db3a17ed5190beaacb0e19d1f69bf03cc52100c4f2abff00,"""2026-04-17T08:13:26.041Z""",20260417081322_add_analytics_tables,,,"""2026-04-17T08:13:23.845Z""",1

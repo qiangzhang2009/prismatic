@@ -1,24 +1,20 @@
 /**
- * Comments Reactions API - POST (add reaction)
+ * Comments Reactions API - POST (add/remove reaction)
  */
-
 import { NextRequest, NextResponse } from 'next/server';
-import { neon } from '@neondatabase/serverless';
+import { PrismaClient } from '@prisma/client';
 import { cookies } from 'next/headers';
 
-const PRISMATIC_TENANT_ID = '97e7123c-a201-4cbf-a483-b6d777433818';
+const prisma = new PrismaClient();
 
 const VALID_REACTIONS = ['👍', '❤️', '😂', '😮', '😢', '🙏', '🔥', '💯', '✨', '🎉'];
 
-// Get or create visitor ID
 async function getVisitorId(): Promise<string> {
   const cookieStore = await cookies();
   let visitorId = cookieStore.get('prismatic-visitor')?.value;
-  
   if (!visitorId) {
     visitorId = crypto.randomUUID();
   }
-  
   return visitorId;
 }
 
@@ -27,58 +23,48 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
-  
+
   try {
     const body = await req.json();
     const { emoji } = body;
-    
+
     if (!VALID_REACTIONS.includes(emoji)) {
       return NextResponse.json({ error: 'Invalid reaction' }, { status: 400 });
     }
-    
+
     const visitorId = await getVisitorId();
-    const sql = neon(process.env.DATABASE_URL!);
-    
-    // Get current reactions
-    const comment = await sql`
-      SELECT reactions FROM public.prismatic_comments 
-      WHERE id = ${id} AND tenant_id = ${PRISMATIC_TENANT_ID}
-    `;
-    
-    if (!comment || comment.length === 0) {
+
+    const comment = await prisma.comment.findUnique({ where: { id } });
+    if (!comment) {
       return NextResponse.json({ error: 'Comment not found' }, { status: 404 });
     }
-    
-    let reactions = comment[0].reactions || [];
-    
-    // Check if visitor already reacted with this emoji
+
+    const reactions: any[] = typeof comment.reactions === 'string'
+      ? JSON.parse(comment.reactions as string)
+      : (comment.reactions || []);
+
     const existingIndex = reactions.findIndex(
       (r: any) => r.emoji === emoji && r.visitorId === visitorId
     );
-    
+
     if (existingIndex >= 0) {
-      // Remove reaction (toggle off)
       reactions.splice(existingIndex, 1);
     } else {
-      // Add reaction
       reactions.push({ emoji, visitorId, addedAt: new Date().toISOString() });
     }
-    
-    // Update database
-    await sql`
-      UPDATE public.prismatic_comments 
-      SET reactions = ${JSON.stringify(reactions)}, updated_at = NOW()
-      WHERE id = ${id}
-    `;
-    
-    // Get updated counts
+
+    await prisma.comment.update({
+      where: { id },
+      data: { reactions: JSON.stringify(reactions) },
+    });
+
     const counts: Record<string, number> = {};
     for (const r of reactions) {
       counts[r.emoji] = (counts[r.emoji] || 0) + 1;
     }
-    
+
     const userReacted = reactions.some((r: any) => r.visitorId === visitorId);
-    
+
     return NextResponse.json({
       success: true,
       counts,

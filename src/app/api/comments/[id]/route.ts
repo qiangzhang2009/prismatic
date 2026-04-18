@@ -1,14 +1,12 @@
 /**
  * Comments API - PATCH (admin actions) and DELETE
  */
-
 import { NextRequest, NextResponse } from 'next/server';
-import { neon } from '@neondatabase/serverless';
+import { PrismaClient } from '@prisma/client';
 import { authenticateRequest, authenticateAdminRequest } from '@/lib/user-management';
 
-const PRISMATIC_TENANT_ID = '97e7123c-a201-4cbf-a483-b6d777433818';
+const prisma = new PrismaClient();
 
-// PATCH - Admin actions (pin, hide, edit)
 export async function PATCH(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -23,30 +21,27 @@ export async function PATCH(
     const body = await req.json();
     const { action, content } = body;
 
-    const sql = neon(process.env.DATABASE_URL!);
-
-    if (action === 'pin') {
-      await sql`UPDATE prismatic_comments SET is_pinned = TRUE WHERE id = ${id}`;
-      return NextResponse.json({ success: true });
-    }
-
-    if (action === 'unpin') {
-      await sql`UPDATE prismatic_comments SET is_pinned = FALSE WHERE id = ${id}`;
-      return NextResponse.json({ success: true });
-    }
-
     if (action === 'hide') {
-      await sql`UPDATE prismatic_comments SET is_hidden = TRUE WHERE id = ${id}`;
+      await prisma.comment.update({
+        where: { id },
+        data: { status: 'deleted' },
+      });
       return NextResponse.json({ success: true });
     }
 
     if (action === 'show') {
-      await sql`UPDATE prismatic_comments SET is_hidden = FALSE WHERE id = ${id}`;
+      await prisma.comment.update({
+        where: { id },
+        data: { status: 'published' },
+      });
       return NextResponse.json({ success: true });
     }
 
     if (action === 'edit' && content !== undefined) {
-      await sql`UPDATE prismatic_comments SET content = ${content}, updated_at = NOW() WHERE id = ${id}`;
+      await prisma.comment.update({
+        where: { id },
+        data: { content, updatedAt: new Date() },
+      });
       return NextResponse.json({ success: true });
     }
 
@@ -57,7 +52,6 @@ export async function PATCH(
   }
 }
 
-// DELETE - Delete a comment
 export async function DELETE(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -71,21 +65,20 @@ export async function DELETE(
 
   const { id } = await params;
   try {
-    const sql = neon(process.env.DATABASE_URL!);
-
-    // Check comment exists
-    const [comment] = await sql`SELECT user_id FROM prismatic_comments WHERE id = ${id}`;
+    const comment = await prisma.comment.findUnique({ where: { id } });
     if (!comment) {
       return NextResponse.json({ error: 'Comment not found' }, { status: 404 });
     }
 
-    // Only the author or an admin can delete
     const isAdminUser = !!adminId;
-    if (comment.user_id !== userId && !isAdminUser) {
+    if (comment.userId !== userId && !isAdminUser) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
-    await sql`DELETE FROM prismatic_comments WHERE id = ${id}`;
+    await prisma.comment.update({
+      where: { id },
+      data: { status: 'deleted' },
+    });
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error('Delete comment error:', error);

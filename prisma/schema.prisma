@@ -76,6 +76,13 @@ model User {
   tokenCount    Int        @default(0)
   tokenUpdatedAt DateTime  @default(now())
 
+  // User-provided API Key（加密存储，永远不明文暴露）
+  apiKeyEncrypted String?   // AES-256-GCM 加密后的 Key
+  apiKeyIv        String?   // 加密向量
+  apiKeyHash      String?   // Key 的前 8 位 hash（用于显示脱敏格式 "sk-xxxx...xxxx"）
+  apiKeySetAt     DateTime? // 设置时间
+  apiKeyProvider  String?   @default("deepseek") // deepseek | openai | anthropic
+
   // Analytics relations
   sessions      UserSession[]
   events        UserEvent[]
@@ -366,6 +373,26 @@ model Comment {
   @@index([status, createdAt])
   @@index([personaSlug, createdAt])
   @@map("comments")
+}
+
+// ─── Guardian Discussions (autonomous topic-based discussions) ──────────────────────
+
+model GuardianDiscussion {
+  id           String   @id @default(cuid())
+  topic        String
+  topicSource  String   @default("auto")  // auto | manual | guardian
+  content      String   @default("")      // full discussion content (HTML/markdown)
+  participantIds String[] @default([])
+  roundCount   Int      @default(0)
+  viewCount    Int      @default(0)
+  status       String   @default("active") // active | completed | archived
+  startedAt    DateTime @default(now())
+  endedAt      DateTime?
+  createdAt    DateTime @default(now())
+
+  @@index([status, createdAt])
+  @@index([startedAt])
+  @@map("guardian_discussions")
 }
 
 // ─── Guardian Duty ─────────────────────────────────────────────────────────────

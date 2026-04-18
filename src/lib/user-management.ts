@@ -1,7 +1,6 @@
 /**
  * Prismatic — User Management System
- * 双写策略：同时维护 Prisma User 表和旧表 prismatic_users
- * 保证中间件鉴权（使用旧表）和新功能（使用新表）的兼容性
+ * 使用 Prisma User 表进行用户管理
  */
 
 import { PrismaClient } from '@prisma/client';
@@ -139,38 +138,31 @@ export async function createUser(input: CreateUserInput & { emailVerified?: bool
 
 export async function verifyCredentials(email: string, password: string): Promise<PublicUser | null> {
   try {
-    const sql = getSql();
-    const rows = await sql`
-      SELECT id, email, password_hash, name, gender, province, email_verified, role, plan, credits, created_at
-      FROM prismatic_users
-      WHERE email = ${email.toLowerCase()} AND is_active = TRUE
-      LIMIT 1
-    `;
+    // Query the users table (Prisma) instead of the legacy prismatic_users table
+    const user = await prisma.user.findFirst({
+      where: {
+        email: email.toLowerCase(),
+        status: 'ACTIVE',
+      },
+    });
+    if (!user) return null;
 
-    if (rows.length === 0) return null;
-    const row = rows[0];
-
-    const valid = await bcrypt.compare(password, row.password_hash);
+    const valid = await bcrypt.compare(password, user.passwordHash || '');
     if (!valid) return null;
 
-    // 尝试更新 last_login_at（如果列存在）
-    try {
-      await sql`UPDATE prismatic_users SET last_login_at = NOW() WHERE id = ${row.id}`;
-    } catch { /* 列不存在则忽略 */ }
-
     return {
-      id: row.id,
-      email: row.email,
-      name: row.name,
-      gender: row.gender as any,
-      province: row.province,
-      emailVerified: row.email_verified,
-      role: row.role as UserRole,
-      plan: row.plan as SubscriptionPlan,
-      credits: Number(row.credits ?? 0),
-      avatar: null,
-      createdAt: row.created_at,
-      lastLoginAt: null,
+      id: user.id,
+      email: user.email || '',
+      name: user.name,
+      gender: getGender(user),
+      province: getProvince(user),
+      emailVerified: !!user.emailVerified,
+      role: (user.role || 'FREE') as UserRole,
+      plan: (user.plan || 'FREE') as SubscriptionPlan,
+      credits: user.credits || 0,
+      avatar: user.avatar,
+      createdAt: user.createdAt,
+      lastLoginAt: user.updatedAt,
     };
   } catch (error) {
     console.error('[verifyCredentials] Error:', error);
@@ -183,50 +175,21 @@ export async function getUserById(userId: string): Promise<PublicUser | null> {
     const user = await prisma.user.findUnique({
       where: { id: userId },
     });
-    if (user) {
-      return {
-        id: user.id,
-        email: user.email || '',
-        name: user.name,
-        gender: getGender(user),
-        province: getProvince(user),
-        emailVerified: !!user.emailVerified,
-        role: (user.role || 'FREE') as UserRole,
-        plan: (user.plan || 'FREE') as SubscriptionPlan,
-        credits: user.credits || 0,
-        avatar: user.avatar,
-        createdAt: user.createdAt,
-        lastLoginAt: user.updatedAt, // 使用 updatedAt 作为最后登录时间
-      };
-    }
-
-    const sql = getSql();
-    const rows = await sql`
-      SELECT id, email, name, gender, province, email_verified, role, plan, credits, created_at
-      FROM prismatic_users
-      WHERE id = ${userId} AND is_active = TRUE
-      LIMIT 1
-    `;
-
-    if (rows.length === 0) return null;
-    const row = rows[0];
-
-    // 异步同步到新表
-    syncUserToNewTable(row).catch(console.error);
+    if (!user) return null;
 
     return {
-      id: row.id,
-      email: row.email,
-      name: row.name,
-      gender: row.gender as any,
-      province: row.province,
-      emailVerified: row.email_verified,
-      role: row.role as UserRole,
-      plan: row.plan as SubscriptionPlan,
-      credits: Number(row.credits ?? 0),
-      avatar: null,
-      createdAt: row.created_at,
-      lastLoginAt: null,
+      id: user.id,
+      email: user.email || '',
+      name: user.name,
+      gender: getGender(user),
+      province: getProvince(user),
+      emailVerified: !!user.emailVerified,
+      role: (user.role || 'FREE') as UserRole,
+      plan: (user.plan || 'FREE') as SubscriptionPlan,
+      credits: user.credits || 0,
+      avatar: user.avatar,
+      createdAt: user.createdAt,
+      lastLoginAt: user.updatedAt,
     };
   } catch (error) {
     console.error('[getUserById] Error:', error);
@@ -643,33 +606,39 @@ export async function getUserStats(): Promise<{
   byRole: Record<string, number>;
   byPlan: Record<string, number>;
 }> {
-  const sql = getSql();
-  const today = new Date().toISOString().slice(0, 10);
+  const today = new Date();
+  const todayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate());
 
-  const totalUsers = Number((await sql`SELECT COUNT(*) FROM prismatic_users WHERE is_active = TRUE`)[0].count);
-  const activeUsers = Number((await sql`
-    SELECT COUNT(DISTINCT user_id) FROM prismatic_message_stats
-    WHERE date >= ${today}
-  `)[0].count || 0);
-  const newUsersToday = Number((await sql`
-    SELECT COUNT(*) FROM prismatic_users
-    WHERE DATE(created_at) = ${today} AND is_active = TRUE
-  `)[0].count || 0);
-
-  const byRoleRows = await sql`
-    SELECT role, COUNT(*) as count FROM prismatic_users WHERE is_active = TRUE GROUP BY role
-  `;
-  const byPlanRows = await sql`
-    SELECT plan, COUNT(*) as count FROM prismatic_users WHERE is_active = TRUE GROUP BY plan
-  `;
+  const [totalUsers, newUsersToday, byRoleRows, byPlanRows, activeUsers] = await Promise.all([
+    prisma.user.count({ where: { status: 'ACTIVE' } }),
+    prisma.user.count({
+      where: {
+        createdAt: { gte: todayStart },
+        status: 'ACTIVE',
+      },
+    }),
+    prisma.user.groupBy({
+      by: ['role'],
+      where: { status: 'ACTIVE' },
+      _count: { role: true },
+    }),
+    prisma.user.groupBy({
+      by: ['plan'],
+      where: { status: 'ACTIVE' },
+      _count: { plan: true },
+    }),
+    prisma.conversation.groupBy({
+      by: ['userId'],
+      where: { createdAt: { gte: todayStart } },
+    }),
+  ]);
 
   const byRole: Record<string, number> = {};
+  for (const r of byRoleRows) byRole[r.role || 'FREE'] = r._count.role;
   const byPlan: Record<string, number> = {};
+  for (const r of byPlanRows) byPlan[r.plan || 'FREE'] = r._count.plan;
 
-  for (const r of byRoleRows as any[]) byRole[r.role] = Number(r.count);
-  for (const r of byPlanRows as any[]) byPlan[r.plan] = Number(r.count);
-
-  return { totalUsers, activeUsers, newUsersToday, byRole, byPlan };
+  return { totalUsers, activeUsers: activeUsers.length, newUsersToday, byRole, byPlan };
 }
 
 // ─── Feature Access ──────────────────────────────────────────────────────────────
@@ -681,9 +650,16 @@ export function canUseProFeatures(role: UserRole, plan: SubscriptionPlan, credit
 // ─── Additional Admin Helper Functions ──────────────────────────────────────────
 
 export async function updateUserName(userId: string, name: string): Promise<boolean> {
-  const sql = getSql();
-  await sql`UPDATE prismatic_users SET name = ${name}, updated_at = NOW() WHERE id = ${userId} AND is_active = TRUE`;
-  return true;
+  try {
+    await prisma.user.update({
+      where: { id: userId },
+      data: { name },
+    });
+    return true;
+  } catch (error) {
+    console.error('[updateUserName] Error:', error);
+    return false;
+  }
 }
 
 export async function updateUserProfile(userId: string, data: {
@@ -694,17 +670,25 @@ export async function updateUserProfile(userId: string, data: {
   if (data.name === undefined && data.gender === undefined && data.province === undefined) {
     return true;
   }
-  const sql = getSql();
-  await sql`
-    UPDATE prismatic_users
-    SET
-      name = COALESCE(${data.name}, name),
-      gender = COALESCE(${data.gender}, gender),
-      province = COALESCE(${data.province}, province),
-      updated_at = NOW()
-    WHERE id = ${userId}
-  `;
-  return true;
+  try {
+    const prismaData: any = {};
+    if (data.name !== undefined) prismaData.name = data.name;
+    if (data.gender !== undefined || data.province !== undefined) {
+      const existing = await prisma.user.findUnique({ where: { id: userId } });
+      const prefs = existing?.preferences ? JSON.parse(existing.preferences as string) : {};
+      if (data.gender !== undefined) prefs.gender = data.gender;
+      if (data.province !== undefined) prefs.province = data.province;
+      prismaData.preferences = JSON.stringify(prefs);
+    }
+    await prisma.user.update({
+      where: { id: userId },
+      data: prismaData,
+    });
+    return true;
+  } catch (error) {
+    console.error('[updateUserProfile] Error:', error);
+    return false;
+  }
 }
 
 export async function verifyUserEmail(userId: string): Promise<boolean> {
@@ -812,25 +796,25 @@ export async function updateUserAdmin(
     gender?: string | null;
     province?: string | null;
     email?: string;
+    status?: string;
   }
 ): Promise<PublicUser | null> {
-  const sql = getSql();
-
-  // 检查邮箱冲突
+  // 检查邮箱冲突 using Prisma
   if (updates.email !== undefined && updates.email !== null && updates.email !== '') {
     const normalized = updates.email.toLowerCase();
-    const conflict = await sql`
-      SELECT id FROM prismatic_users WHERE email = ${normalized} AND id != ${userId}
-    `;
-    if (conflict.length > 0) throw new Error('邮箱已被其他账号使用');
+    const conflict = await prisma.user.findFirst({
+      where: { email: normalized, id: { not: userId } },
+    });
+    if (conflict) throw new Error('邮箱已被其他账号使用');
   }
 
-  // 更新新表
+  // 构建 Prisma 更新数据
   const prismaData: any = {};
   if (updates.role !== undefined) prismaData.role = updates.role;
   if (updates.plan !== undefined) prismaData.plan = updates.plan;
   if (updates.credits !== undefined) prismaData.credits = updates.credits;
   if (updates.name !== undefined) prismaData.name = updates.name || null;
+  if (updates.status !== undefined) prismaData.status = updates.status;
   if (updates.gender !== undefined || updates.province !== undefined) {
     const existingUser = await prisma.user.findUnique({ where: { id: userId } });
     const prefs = existingUser?.preferences ? JSON.parse(existingUser.preferences as string) : {};
@@ -846,50 +830,23 @@ export async function updateUserAdmin(
     });
   }
 
-  // 更新旧表 - 每个字段单独执行 UPDATE，避免模板字符串拼接错误
-  if (updates.role !== undefined) {
-    await sql`UPDATE prismatic_users SET role = ${updates.role}, updated_at = NOW() WHERE id = ${userId}`;
-  }
-  if (updates.plan !== undefined) {
-    await sql`UPDATE prismatic_users SET plan = ${updates.plan}, updated_at = NOW() WHERE id = ${userId}`;
-  }
-  if (updates.credits !== undefined) {
-    await sql`UPDATE prismatic_users SET credits = ${updates.credits}, updated_at = NOW() WHERE id = ${userId}`;
-  }
-  if (updates.name !== undefined) {
-    await sql`UPDATE prismatic_users SET name = ${updates.name || null}, updated_at = NOW() WHERE id = ${userId}`;
-  }
-  if (updates.gender !== undefined) {
-    await sql`UPDATE prismatic_users SET gender = ${updates.gender}, updated_at = NOW() WHERE id = ${userId}`;
-  }
-  if (updates.province !== undefined) {
-    await sql`UPDATE prismatic_users SET province = ${updates.province}, updated_at = NOW() WHERE id = ${userId}`;
-  }
-  if (updates.email !== undefined && updates.email !== null && updates.email !== '') {
-    await sql`UPDATE prismatic_users SET email = ${updates.email.toLowerCase()}, updated_at = NOW() WHERE id = ${userId}`;
-  }
+  // 从 Prisma users 表返回更新后的数据
+  const user = await prisma.user.findUnique({ where: { id: userId } });
+  if (!user) return null;
 
-  // 返回更新后的数据
-  const rows = await sql`
-    SELECT id, email, name, gender, province, email_verified, role, plan, credits, avatar, created_at, last_login_at
-    FROM prismatic_users WHERE id = ${userId} AND is_active = TRUE
-  `;
-
-  if (rows.length === 0) return null;
-  const row = rows[0] as any;
   return {
-    id: row.id,
-    email: row.email,
-    name: row.name,
-    gender: row.gender,
-    province: row.province,
-    emailVerified: row.email_verified,
-    role: row.role as UserRole,
-    plan: row.plan as SubscriptionPlan,
-    credits: Number(row.credits ?? 0),
-    avatar: row.avatar,
-    createdAt: row.created_at,
-    lastLoginAt: row.last_login_at,
+    id: user.id,
+    email: user.email || '',
+    name: user.name,
+    gender: getGender(user),
+    province: getProvince(user),
+    emailVerified: !!user.emailVerified,
+    role: (user.role || 'FREE') as UserRole,
+    plan: (user.plan || 'FREE') as SubscriptionPlan,
+    credits: user.credits || 0,
+    avatar: user.avatar,
+    createdAt: user.createdAt,
+    lastLoginAt: user.updatedAt,
   };
 }
 
@@ -899,10 +856,6 @@ export async function deleteUser(userId: string): Promise<boolean> {
       where: { id: userId },
       data: { status: 'DELETED' },
     });
-
-    const sql = getSql();
-    await sql`UPDATE prismatic_users SET is_active = FALSE, updated_at = NOW() WHERE id = ${userId}`;
-
     return true;
   } catch (error) {
     console.error('[deleteUser] Error:', error);

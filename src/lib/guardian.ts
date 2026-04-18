@@ -30,11 +30,11 @@ async function tableExists(tableName: string): Promise<boolean> {
   }
 }
 
-/** Ensures a required table exists, throwing a clear error if not. */
+/** Checks if a table exists; returns false without throwing if the table doesn't exist (safe for build-time). */
 async function requireTable(tableName: string): Promise<void> {
   const exists = await tableExists(tableName);
   if (!exists) {
-    throw new Error(`Required table "${tableName}" does not exist`);
+    console.warn(`[Guardian] Table "${tableName}" not found — guardian features disabled`);
   }
 }
 

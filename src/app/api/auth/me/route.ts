@@ -8,11 +8,13 @@
 export const dynamic = 'force-dynamic';
 
 import { NextRequest, NextResponse } from 'next/server';
-import { neon } from '@neondatabase/serverless';
+import { PrismaClient } from '@prisma/client';
 import {
   verifyJWTToken, updateUserName, updateUserProfile,
-  canUseProFeatures, isDemoUserId, demoEmailToUUID, ensureDemoUserInDB,
+  canUseProFeatures, isDemoUserId, demoEmailToUUID,
 } from '@/lib/user-management';
+
+const prisma = new PrismaClient();
 
 const NO_CACHE_HEADERS = {
   'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
@@ -40,79 +42,54 @@ export async function GET(req: NextRequest) {
 
   const userId: string = payload.userId;
 
-  // ── Demo user: JWT has "demo_{...}" ──────────────────────────────────────────
+  // ── Demo user: return hardcoded demo user (no DB required) ───────────────────
   if (isDemoUserId(userId)) {
-    const suffix = userId.replace('demo_', '');
-    let dbId: string;
-    let email: string;
-
-    if (suffix.includes('-')) {
-      dbId = suffix;
-      email = payload.email || 'demo1@prismatic.app';
-    } else {
-      try {
-        const decoded = Buffer.from(suffix, 'base64').toString();
-        email = decoded.includes('@') ? decoded : `demo${suffix}@prismatic.app`;
-      } catch {
-        email = 'demo1@prismatic.app';
-      }
-      dbId = demoEmailToUUID(email.toLowerCase());
-    }
-
-    // Direct neon query for demo users too
-    const connStr = process.env.DATABASE_URL;
-    if (!connStr) return NextResponse.json({ user: null }, { headers: NO_CACHE_HEADERS });
-    const demoSql = neon(connStr);
-    const demoRows = await demoSql`
-      SELECT id, email, name, gender, province, email_verified, role, plan, credits, avatar, created_at, last_login_at
-      FROM prismatic_users WHERE id = ${dbId} AND is_active = TRUE
-    `;
-    if (demoRows.length === 0) {
-      await ensureDemoUserInDB(dbId, email, `演示账号 ${payload.email?.match(/demo(\d+)/)?.[1] || '1'}`);
-      const retryRows = await demoSql`
-        SELECT id, email, name, gender, province, email_verified, role, plan, credits, avatar, created_at, last_login_at
-        FROM prismatic_users WHERE id = ${dbId} AND is_active = TRUE
-      `;
-      if (retryRows.length === 0) return NextResponse.json({ user: null }, { headers: NO_CACHE_HEADERS });
-      const r = retryRows[0];
-      const u = { id: r.id, email: r.email, name: r.name, gender: r.gender, province: r.province, emailVerified: r.email_verified, role: r.role as any, plan: r.plan as any, credits: Number(r.credits ?? 0), avatar: r.avatar, createdAt: r.created_at, lastLoginAt: r.last_login_at };
-      return NextResponse.json({ user: { ...u, canUseProFeatures: canUseProFeatures(u.role, u.plan, u.credits), isAdmin: false } }, { headers: NO_CACHE_HEADERS });
-    }
-    const d = demoRows[0];
-    const demoUser = { id: d.id, email: d.email, name: d.name, gender: d.gender, province: d.province, emailVerified: d.email_verified, role: d.role as any, plan: d.plan as any, credits: Number(d.credits ?? 0), avatar: d.avatar, createdAt: d.created_at, lastLoginAt: d.last_login_at };
-    return NextResponse.json({ user: { ...demoUser, canUseProFeatures: canUseProFeatures(demoUser.role, demoUser.plan, demoUser.credits), isAdmin: false } }, { headers: NO_CACHE_HEADERS });
+    const demoUser = {
+      id: userId,
+      email: payload.email || 'demo@prismatic.app',
+      name: '演示账号',
+      gender: null,
+      province: null,
+      emailVerified: true,
+      role: 'PRO' as const,
+      plan: 'LIFETIME' as const,
+      credits: 999999,
+      avatar: null,
+      createdAt: new Date(),
+      lastLoginAt: new Date(),
+    };
+    return NextResponse.json({ user: { ...demoUser, canUseProFeatures: true, isAdmin: false } }, { headers: NO_CACHE_HEADERS });
   }
 
   // ── Regular user: query DB by userId ────────────────────────────────────────
-  const connectionString = process.env.DATABASE_URL;
-  if (!connectionString) return NextResponse.json({ user: null }, { headers: NO_CACHE_HEADERS });
-  const sql = neon(connectionString);
-  const rows = await sql`
-    SELECT id, email, name, gender, province, email_verified, role, plan, credits, avatar, created_at, last_login_at
-    FROM prismatic_users WHERE id = ${userId} AND is_active = TRUE
-  `;
-  if (rows.length === 0) return NextResponse.json({ user: null }, { headers: NO_CACHE_HEADERS });
-  const row = rows[0];
-  const user = {
-    id: row.id,
-    email: row.email,
-    name: row.name,
-    gender: row.gender,
-    province: row.province,
-    emailVerified: row.email_verified,
-    role: row.role,
-    plan: row.plan,
-    credits: Number(row.credits ?? 0),
-    avatar: row.avatar,
-    createdAt: row.created_at,
-    lastLoginAt: row.last_login_at,
+  // Query the users table (Prisma) instead of the legacy prismatic_users table
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+  });
+  if (!user) return NextResponse.json({ user: null }, { headers: NO_CACHE_HEADERS });
+
+  const role: 'FREE' | 'PRO' | 'ADMIN' = (user.role || 'FREE') as any;
+  const plan: 'FREE' | 'MONTHLY' | 'YEARLY' | 'LIFETIME' = (user.plan || 'FREE') as any;
+  const u = {
+    id: user.id,
+    email: user.email || '',
+    name: user.name,
+    gender: (() => { try { const p = typeof user.preferences === 'string' ? JSON.parse(user.preferences as string) : user.preferences; return p?.gender || null; } catch { return null; } })() as 'male' | 'female' | null,
+    province: (() => { try { const p = typeof user.preferences === 'string' ? JSON.parse(user.preferences as string) : user.preferences; return p?.province || null; } catch { return null; } })() as string | null,
+    emailVerified: !!user.emailVerified,
+    role,
+    plan,
+    credits: user.credits || 0,
+    avatar: user.avatar,
+    createdAt: user.createdAt,
+    lastLoginAt: user.updatedAt,
   };
-  console.log(`[GET /api/auth/me] userId=${userId} → found=true role=${user.role} plan=${user.plan} credits=${user.credits}`);
+  console.log(`[GET /api/auth/me] userId=${userId} → found=true role=${u.role} plan=${u.plan} credits=${u.credits}`);
   return NextResponse.json({
     user: {
-      ...user,
-      canUseProFeatures: canUseProFeatures(user.role, user.plan, user.credits),
-      isAdmin: user.role === 'ADMIN',
+      ...u,
+      canUseProFeatures: canUseProFeatures(u.role, u.plan, u.credits),
+      isAdmin: u.role === 'ADMIN',
     }
   }, { headers: NO_CACHE_HEADERS });
 }
@@ -135,38 +112,34 @@ export async function PUT(req: NextRequest) {
     const body = await req.json();
     const { name, gender, province } = body;
 
-    // Demo user: strip demo_ prefix to get DB UUID
-    let dbId: string = userId;
+    // Demo user: read-only (no DB profile to update)
     if (isDemoUserId(userId)) {
-      const suffix = userId.replace('demo_', '');
-      if (suffix.includes('-')) {
-        dbId = suffix;
-      } else {
-        try {
-          const decoded = Buffer.from(suffix, 'base64').toString();
-          dbId = demoEmailToUUID(decoded.includes('@') ? decoded : `demo${suffix}@prismatic.app`);
-        } catch {
-          dbId = userId;
-        }
-      }
+      return NextResponse.json({ user: { id: userId, email: payload.email || 'demo@prismatic.app', name: '演示账号', role: 'PRO', plan: 'LIFETIME', credits: 999999, canUseProFeatures: true, isAdmin: false } }, { headers: NO_CACHE_HEADERS });
     }
 
-    if (name !== undefined) await updateUserName(dbId, name);
+    // Regular user: update profile using Prisma
+    if (name !== undefined) await updateUserName(userId, name);
     if (gender !== undefined || province !== undefined) {
-      await updateUserProfile(dbId, { gender, province });
+      await updateUserProfile(userId, { gender, province });
     }
-    // Direct neon read-back instead of getUserById
-    const connStr2 = process.env.DATABASE_URL;
-    if (!connStr2) return NextResponse.json({ error: 'Internal server error' }, { status: 500, headers: NO_CACHE_HEADERS });
-    const putSql = neon(connStr2);
-    const putRows = await putSql`
-      SELECT id, email, name, gender, province, email_verified, role, plan, credits, avatar, created_at, last_login_at
-      FROM prismatic_users WHERE id = ${dbId} AND is_active = TRUE
-    `;
-    if (putRows.length === 0) return NextResponse.json({ error: 'User not found' }, { status: 404, headers: NO_CACHE_HEADERS });
-    const pu = putRows[0];
-    const putUser = { id: pu.id, email: pu.email, name: pu.name, gender: pu.gender, province: pu.province, emailVerified: pu.email_verified, role: pu.role as any, plan: pu.plan as any, credits: Number(pu.credits ?? 0), avatar: pu.avatar, createdAt: pu.created_at, lastLoginAt: pu.last_login_at };
-    return NextResponse.json({ user: putUser }, { headers: NO_CACHE_HEADERS });
+    // Read back from Prisma users table
+    const updatedUser = await prisma.user.findUnique({ where: { id: userId } });
+    if (!updatedUser) return NextResponse.json({ error: 'User not found' }, { status: 404, headers: NO_CACHE_HEADERS });
+    const up = {
+      id: updatedUser.id,
+      email: updatedUser.email || '',
+      name: updatedUser.name,
+      gender: (() => { try { const p = typeof updatedUser.preferences === 'string' ? JSON.parse(updatedUser.preferences as string) : updatedUser.preferences; return p?.gender || null; } catch { return null; } })() as 'male' | 'female' | null,
+      province: (() => { try { const p = typeof updatedUser.preferences === 'string' ? JSON.parse(updatedUser.preferences as string) : updatedUser.preferences; return p?.province || null; } catch { return null; } })() as string | null,
+      emailVerified: !!updatedUser.emailVerified,
+      role: (updatedUser.role || 'FREE') as 'FREE' | 'PRO' | 'ADMIN',
+      plan: (updatedUser.plan || 'FREE') as 'FREE' | 'MONTHLY' | 'YEARLY' | 'LIFETIME',
+      credits: updatedUser.credits || 0,
+      avatar: updatedUser.avatar,
+      createdAt: updatedUser.createdAt,
+      lastLoginAt: updatedUser.updatedAt,
+    };
+    return NextResponse.json({ user: up }, { headers: NO_CACHE_HEADERS });
   } catch (error) {
     console.error('Update user error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500, headers: NO_CACHE_HEADERS });

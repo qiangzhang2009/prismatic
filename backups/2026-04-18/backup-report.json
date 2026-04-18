@@ -1,0 +1,112 @@
+{
+  "exportDate": "2026-04-18T00:39:22.018Z",
+  "database": "Neon - cold-cell-86302864",
+  "totalTables": 26,
+  "tablesWithData": 4,
+  "tableStats": {
+    "_prisma_migrations": {
+      "rows": 1,
+      "hasData": true
+    },
+    "accounts": {
+      "rows": 0,
+      "hasData": false
+    },
+    "admin_audit_logs": {
+      "rows": 0,
+      "hasData": false
+    },
+    "auth_events": {
+      "rows": 0,
+      "hasData": false
+    },
+    "comments": {
+      "rows": 0,
+      "hasData": false
+    },
+    "conversations": {
+      "rows": 0,
+      "hasData": false
+    },
+    "daily_metrics": {
+      "rows": 0,
+      "hasData": false
+    },
+    "guardian_duties": {
+      "rows": 0,
+      "hasData": false
+    },
+    "messages": {
+      "rows": 0,
+      "hasData": false
+    },
+    "personas": {
+      "rows": 0,
+      "hasData": false
+    },
+    "prismatic_comments": {
+      "rows": 0,
+      "hasData": false
+    },
+    "prismatic_forum_debate_turns": {
+      "rows": 0,
+      "hasData": false
+    },
+    "prismatic_forum_debate_views": {
+      "rows": 0,
+      "hasData": false
+    },
+    "prismatic_forum_debate_votes": {
+      "rows": 0,
+      "hasData": false
+    },
+    "prismatic_forum_debates": {
+      "rows": 0,
+      "hasData": false
+    },
+    "prismatic_forum_topic_suggestions": {
+      "rows": 0,
+      "hasData": false
+    },
+    "prismatic_guardian_schedule": {
+      "rows": 24,
+      "hasData": true
+    },
+    "prismatic_guardian_stats": {
+      "rows": 0,
+      "hasData": false
+    },
+    "prismatic_persona_interactions": {
+      "rows": 0,
+      "hasData": false
+    },
+    "prismatic_users": {
+      "rows": 4,
+      "hasData": true
+    },
+    "system_daily_stats": {
+      "rows": 0,
+      "hasData": false
+    },
+    "user_events": {
+      "rows": 0,
+      "hasData": false
+    },
+    "user_sessions": {
+      "rows": 0,
+      "hasData": false
+    },
+    "users": {
+      "rows": 4,
+      "hasData": true
+    },
+    "verification_codes": {
+      "rows": 0,
+      "hasData": false
+    },
+    "verification_tokens": {
+      "rows": 0,
+      "hasData": false
+    }
+  }
+}

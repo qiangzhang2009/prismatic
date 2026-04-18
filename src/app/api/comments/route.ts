@@ -1,21 +1,19 @@
 /**
- * Comments API - GET (list) and POST (create)
- * POST is open to everyone (anonymous + authenticated)
+ * GET /api/comments — List comments
+ * POST /api/comments — Create a comment (open to everyone)
  */
-
 import { NextRequest, NextResponse } from 'next/server';
-import { neon } from '@neondatabase/serverless';
+import { PrismaClient } from '@prisma/client';
 import { cookies } from 'next/headers';
 import { processCommentInteractions } from '@/lib/guardian-engine';
 import { verifyJWTToken } from '@/lib/user-management';
 import { lookupIP, generateAvatarSeed, getAvatarUrl, COUNTRY_NAMES } from '@/lib/geo';
 
-const PRISMATIC_TENANT_ID = '97e7123c-a201-4cbf-a483-b6d777433818';
+const prisma = new PrismaClient();
 
-// Rate limiting per IP
-const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
 const RATE_LIMIT = 10;
 const RATE_WINDOW = 60 * 1000;
+const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
 
 function checkRateLimit(ip: string): boolean {
   const now = Date.now();
@@ -29,16 +27,6 @@ function checkRateLimit(ip: string): boolean {
   return true;
 }
 
-async function getVisitorId(): Promise<string> {
-  const cookieStore = await cookies();
-  let visitorId = cookieStore.get('prismatic-visitor')?.value;
-  if (!visitorId) {
-    visitorId = crypto.randomUUID();
-  }
-  return visitorId;
-}
-
-// Random anonymous nicknames
 const ADJECTIVES = [
   '好奇的', '安静的', '热情的', '浪漫的', '理性的', '忧郁的', '乐观的', '深思的',
   '勇敢的', '温柔的', '神秘的', '幽默的', '冷静的', '活泼的', '文艺的', '务实的',
@@ -62,76 +50,42 @@ export async function GET(req: NextRequest) {
   const limit = Math.min(parseInt(searchParams.get('limit') || '20'), 50);
   const offset = parseInt(searchParams.get('offset') || '0');
   const sort = searchParams.get('sort') || 'latest';
-  const date = searchParams.get('date'); // e.g. "2026-04-14"
+  const date = searchParams.get('date');
+  const personaSlug = searchParams.get('personaSlug');
 
   try {
-    const sql = neon(process.env.DATABASE_URL!);
-    const visitorId = await getVisitorId();
+    const cookieStore = await cookies();
+    const visitorId = cookieStore.get('prismatic-visitor')?.value || 'anonymous';
 
-    // Build WHERE clause
-    const conditions = [
-      `tenant_id = '${PRISMATIC_TENANT_ID}'`,
-      'is_hidden = FALSE',
-      'parent_id IS NULL',
-    ];
+    const where: any = {
+      status: 'published',
+      parentId: null, // root comments only
+    };
+
     if (date) {
-      const dateStart = `${date}T00:00:00`;
-      const dateEnd = `${date}T23:59:59`;
-      conditions.push(`created_at >= '${dateStart}' AND created_at <= '${dateEnd}'`);
+      const dateStart = new Date(`${date}T00:00:00Z`);
+      const dateEnd = new Date(`${date}T23:59:59Z`);
+      where.createdAt = { gte: dateStart, lte: dateEnd };
     }
 
-    const whereClause = conditions.join(' AND ');
-
-    const comments = await sql`
-      SELECT
-        id, content, author_name, author_avatar, display_name,
-        created_at, updated_at, is_pinned, is_edited, likes,
-        reactions, view_count, report_count,
-        geo_country, geo_region, geo_city, gender, avatar_seed, parent_id
-      FROM public.prismatic_comments
-      WHERE ${sql.unsafe(whereClause)}
-      ORDER BY is_pinned DESC, created_at DESC
-      LIMIT ${limit}
-      OFFSET ${offset}
-    `;
-
-    const commentIds = comments.map(c => c.id);
-    let repliesMap: Record<string, number> = {};
-
-    if (commentIds.length > 0) {
-      const idList = commentIds.join(',');
-      const replies = await sql`
-        SELECT parent_id, COUNT(*)::int as count
-        FROM public.prismatic_comments
-        WHERE parent_id = ANY(${commentIds}::uuid[]) AND is_hidden = FALSE
-        GROUP BY parent_id
-      `;
-      for (const r of replies) {
-        repliesMap[r.parent_id] = Number(r.count);
-      }
+    if (personaSlug) {
+      where.personaSlug = personaSlug;
     }
 
-    // Total count (respects date filter)
-    const totalConditions = [
-      `tenant_id = '${PRISMATIC_TENANT_ID}'`,
-      'is_hidden = FALSE',
-      'parent_id IS NULL',
-    ];
-    if (date) {
-      const dateStart = `${date}T00:00:00`;
-      const dateEnd = `${date}T23:59:59`;
-      totalConditions.push(`created_at >= '${dateStart}' AND created_at <= '${dateEnd}'`);
-    }
-    const totalWhereClause = totalConditions.join(' AND ');
+    const comments = await prisma.comment.findMany({
+      where,
+      orderBy: { createdAt: 'desc' },
+      skip: offset,
+      take: limit,
+      include: {
+        _count: { select: { replies: true } },
+      },
+    });
 
-    const totalResult = await sql`
-      SELECT COUNT(*)::int as count
-      FROM public.prismatic_comments
-      WHERE ${sql.unsafe(totalWhereClause)}
-    `;
+    const total = await prisma.comment.count({ where });
 
-    let processedComments = comments.map(c => {
-      const reactions = c.reactions || [];
+    const processedComments = comments.map(c => {
+      const reactions: any[] = typeof c.reactions === 'string' ? JSON.parse(c.reactions as string) : (c.reactions || []);
       const counts: Record<string, number> = {};
       let userReaction: string | null = null;
 
@@ -142,47 +96,39 @@ export async function GET(req: NextRequest) {
         }
       }
 
-      const avatarUrl = c.avatar_seed
-        ? getAvatarUrl(c.avatar_seed, c.gender || undefined)
-        : (c.author_avatar || null);
+      const avatarUrl = c.avatarSeed
+        ? getAvatarUrl(c.avatarSeed, c.gender || undefined)
+        : null;
 
-      const geoCountry = COUNTRY_NAMES[c.geo_country_code || ''] || c.geo_country || '';
-      const geoRegion = c.geo_region || '';
-      const geoCity = c.geo_city || '';
-      // Only show region if it's meaningfully different from city
-      const location = [geoCountry, geoRegion !== geoCity ? geoRegion : '', geoCity]
-        .filter(Boolean)
-        .join(' · ');
-
-      // Never expose IP-based location for admin comments
-      const isAdminComment = typeof c.author_name === 'string' && c.author_name.startsWith('Admin');
+      const geoCountry = COUNTRY_NAMES[c.geoCountryCode || ''] || c.geoCountry || '';
+      const location = [geoCountry, c.geoRegion, c.geoCity].filter(Boolean).join(' · ') || null;
 
       return {
         id: c.id,
         content: c.content,
-        author_name: c.author_name,
-        author_avatar: c.author_avatar,
+        author_name: c.nickname,
+        author_avatar: null,
         avatar_url: avatarUrl,
-        display_name: c.display_name,
+        display_name: c.nickname,
         gender: c.gender || null,
-        location: isAdminComment ? null : (location || null),
-        created_at: c.created_at,
-        updated_at: c.updated_at,
-        is_pinned: c.is_pinned,
-        is_edited: c.is_edited,
-        likes: c.likes || 0,
+        location,
+        created_at: c.createdAt.toISOString(),
+        updated_at: c.updatedAt.toISOString(),
+        is_pinned: false,
+        is_edited: false,
+        likes: 0,
         reactions: counts,
         reactionCount: reactions.length,
         userReaction,
-        view_count: c.view_count || 0,
-        report_count: c.report_count || 0,
-        replyCount: repliesMap[c.id] || 0,
+        view_count: 0,
+        report_count: 0,
+        replyCount: c._count.replies,
+        personaSlug: c.personaSlug,
       };
     });
 
     if (sort === 'popular') {
       processedComments.sort((a, b) => {
-        if (a.is_pinned !== b.is_pinned) return a.is_pinned ? -1 : 1;
         if (b.reactionCount !== a.reactionCount) return b.reactionCount - a.reactionCount;
         return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
       });
@@ -190,8 +136,8 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json({
       comments: processedComments,
-      total: Number(totalResult[0]?.count || 0),
-      hasMore: offset + limit < Number(totalResult[0]?.count || 0),
+      total,
+      hasMore: offset + limit < total,
     });
   } catch (error) {
     console.error('Failed to fetch comments:', error);
@@ -199,7 +145,7 @@ export async function GET(req: NextRequest) {
   }
 }
 
-// POST - Create comment (open to everyone)
+// POST - Create comment
 export async function POST(req: NextRequest) {
   const ip = req.headers.get('x-forwarded-for')
     || req.headers.get('x-real-ip')
@@ -214,7 +160,7 @@ export async function POST(req: NextRequest) {
 
   try {
     const body = await req.json();
-    const { content, parentId, gender } = body;
+    const { content, parentId, gender, personaSlug } = body;
 
     if (!content || typeof content !== 'string' || content.trim().length === 0) {
       return NextResponse.json({ error: 'Content is required' }, { status: 400 });
@@ -227,9 +173,10 @@ export async function POST(req: NextRequest) {
     const cookieStore = await cookies();
     const token = cookieStore.get('prismatic_token')?.value;
 
-    let displayName: string;
-    let avatar: string;
+    let nickname: string;
     let avatarSeed: string | null = null;
+    let ipHash: string | null = null;
+    let userId: string | null = null;
 
     if (token) {
       const payload = verifyJWTToken(token);
@@ -237,29 +184,28 @@ export async function POST(req: NextRequest) {
         const { getUserById } = await import('@/lib/user-management');
         const user = await getUserById(payload.userId);
         if (user) {
-          displayName = (user.name || user.email.split('@')[0]).slice(0, 30);
-          avatar = user.avatar || '👤';
+          nickname = (user.name || user.email.split('@')[0]).slice(0, 30);
+          userId = user.id;
         } else {
-          displayName = randomNickname();
+          nickname = randomNickname();
           avatarSeed = generateAvatarSeed(ip, gender);
-          avatar = avatarSeed.slice(0, 8);
+          ipHash = ip.slice(0, 64);
         }
       } else {
-        displayName = randomNickname();
+        nickname = randomNickname();
         avatarSeed = generateAvatarSeed(ip, gender);
-        avatar = avatarSeed.slice(0, 8);
+        ipHash = ip.slice(0, 64);
       }
     } else {
-      displayName = randomNickname();
+      nickname = randomNickname();
       avatarSeed = generateAvatarSeed(ip, gender);
-      avatar = avatarSeed.slice(0, 8);
+      ipHash = ip.slice(0, 64);
     }
 
-    // Geo lookup
+    let geoCountryCode: string | null = null;
     let geoCountry: string | null = null;
     let geoRegion: string | null = null;
     let geoCity: string | null = null;
-    let geoCountryCode: string | null = null;
 
     try {
       const geo = await lookupIP(ip);
@@ -269,67 +215,48 @@ export async function POST(req: NextRequest) {
         geoCity = geo.city;
         geoCountryCode = geo.countryCode;
       }
-    } catch {
-      // geo lookup failed, continue without it
-    }
+    } catch { /* geo lookup failed */ }
 
-    const sql = neon(process.env.DATABASE_URL!);
+    const newComment = await prisma.comment.create({
+      data: {
+        content: content.trim(),
+        userId,
+        nickname,
+        avatarSeed,
+        ipHash,
+        gender: gender || null,
+        geoCountryCode,
+        geoCountry,
+        geoRegion,
+        geoCity,
+        parentId: parentId || null,
+        type: parentId ? 'reply' : 'comment',
+        personaSlug: personaSlug || null,
+        status: 'published',
+        reactions: {},
+      },
+    });
 
-    // Build location string for DB column
-    const locationStr = geoCountry
-      ? [geoCountry, geoRegion, geoCity].filter(Boolean).join(' · ')
-      : null;
+    const avatarUrl = avatarSeed ? getAvatarUrl(avatarSeed, gender || undefined) : null;
+    const location = [geoCountry, geoRegion, geoCity].filter(Boolean).join(' · ') || null;
 
-    // Single INSERT with all columns at once (type-safe via template tag)
-    const result = await sql`
-      INSERT INTO public.prismatic_comments (
-        tenant_id, content, author_name, author_avatar, display_name,
-        parent_id, ip_hash, avatar_seed, gender,
-        geo_country, geo_region, geo_city, geo_country_code, location
-      )
-      VALUES (
-        ${PRISMATIC_TENANT_ID},
-        ${content.trim()},
-        ${displayName},
-        ${avatar},
-        ${displayName},
-        ${parentId || null},
-        ${ip.slice(0, 64)},
-        ${avatarSeed || null},
-        ${gender || null},
-        ${locationStr},
-        ${geoRegion || null},
-        ${geoCity || null},
-        ${geoCountryCode || null},
-        ${locationStr}
-      )
-      RETURNING id
-    `;
-
-    const newCommentId = result[0].id;
-
-    // Build response
-    const avatarUrl = avatarSeed
-      ? getAvatarUrl(avatarSeed, gender || undefined)
-      : avatar;
-
-    // Trigger Guardian AI Engine (fire and forget)
     if (!parentId) {
-      processCommentInteractions(newCommentId, content.trim(), displayName);
+      processCommentInteractions(newComment.id, content.trim(), nickname).catch(console.error);
     }
 
     return NextResponse.json({
       success: true,
       comment: {
-        id: newCommentId,
-        content: content.trim(),
-        author_name: displayName,
-        author_avatar: avatar,
+        id: newComment.id,
+        content: newComment.content,
+        author_name: nickname,
+        author_avatar: null,
         avatar_url: avatarUrl,
-        display_name: displayName,
+        display_name: nickname,
         gender: gender || null,
-        location: locationStr,
-        created_at: new Date().toISOString(),
+        location,
+        created_at: newComment.createdAt.toISOString(),
+        updated_at: newComment.updatedAt.toISOString(),
         is_pinned: false,
         is_edited: false,
         likes: 0,
@@ -339,6 +266,7 @@ export async function POST(req: NextRequest) {
         view_count: 0,
         report_count: 0,
         replyCount: 0,
+        personaSlug: newComment.personaSlug,
       }
     });
   } catch (error) {

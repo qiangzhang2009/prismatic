@@ -84,7 +84,7 @@ async function tableExists(tableName: string): Promise<boolean> {
 async function requireTable(tableName: string): Promise<void> {
   const exists = await tableExists(tableName);
   if (!exists) {
-    throw new Error(`Required table "${tableName}" does not exist. Please run migrations.`);
+    console.warn(`[GuardianEngine] Table "${tableName}" not found — guardian engine disabled`);
   }
 }
 

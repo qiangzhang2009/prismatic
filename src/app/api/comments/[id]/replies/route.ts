@@ -1,12 +1,11 @@
 /**
  * Comments Replies API - GET (list replies for a comment)
  */
-
 import { NextRequest, NextResponse } from 'next/server';
-import { neon } from '@neondatabase/serverless';
+import { PrismaClient } from '@prisma/client';
 import { getAvatarUrl } from '@/lib/geo';
 
-const PRISMATIC_TENANT_ID = '97e7123c-a201-4cbf-a483-b6d777433818';
+const prisma = new PrismaClient();
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
@@ -17,45 +16,35 @@ export async function GET(req: NextRequest) {
   }
 
   try {
-    const sql = neon(process.env.DATABASE_URL!);
-
-    const replies = await sql`
-      SELECT
-        id,
-        content,
-        author_name,
-        author_avatar,
-        display_name,
-        created_at,
-        updated_at,
-        likes,
-        gender,
-        avatar_seed,
-        geo_country,
-        geo_region,
-        geo_city
-      FROM public.prismatic_comments
-      WHERE tenant_id = ${PRISMATIC_TENANT_ID}
-        AND is_hidden = FALSE
-        AND parent_id = ${parentId}
-      ORDER BY created_at ASC
-    `;
+    const replies = await prisma.comment.findMany({
+      where: {
+        parentId,
+        status: 'published',
+      },
+      orderBy: { createdAt: 'asc' },
+    });
 
     return NextResponse.json({
       replies: replies.map(r => {
-        const avatarUrl = r.avatar_seed
-          ? getAvatarUrl(r.avatar_seed, r.gender || undefined)
-          : (r.author_avatar || null);
-        const location = [r.geo_country, r.geo_region, r.geo_city]
+        const avatarUrl = r.avatarSeed
+          ? getAvatarUrl(r.avatarSeed, r.gender || undefined)
+          : null;
+        const location = [r.geoCountry, r.geoRegion, r.geoCity]
           .filter(Boolean)
-          .join(' · ');
+          .join(' · ') || null;
         return {
-          ...r,
+          id: r.id,
+          content: r.content,
+          author_name: r.nickname,
+          author_avatar: null,
+          display_name: r.nickname,
           avatar_url: avatarUrl,
           gender: r.gender || null,
-          location: location || null,
-          createdAt: r.created_at,
-          updatedAt: r.updated_at,
+          location,
+          created_at: r.createdAt.toISOString(),
+          updated_at: r.updatedAt.toISOString(),
+          createdAt: r.createdAt.toISOString(),
+          updatedAt: r.updatedAt.toISOString(),
         };
       }),
     });

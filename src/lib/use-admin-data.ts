@@ -42,7 +42,7 @@ export interface UserFilter {
   search?: string;
   status?: UserStatus | '';
   plan?: SubscriptionPlan | '';
-  sortBy?: 'createdAt' | 'lastActive' | 'messageCount';
+  sortBy?: 'createdAt' | 'lastActive' | 'messageCount' | 'name';
   sortOrder?: 'asc' | 'desc';
   page?: number;
   pageSize?: number;

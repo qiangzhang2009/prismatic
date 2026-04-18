@@ -169,6 +169,29 @@ export async function POST(req: NextRequest) {
       results.push(`prismatic_forum_debate_visitors: ${e.message}`);
     }
 
+    // ── guardian_discussions ────────────────────────────────────────────────────
+    try {
+      await sql`
+        CREATE TABLE IF NOT EXISTS public.guardian_discussions (
+          id              BIGSERIAL PRIMARY KEY,
+          topic          TEXT NOT NULL,
+          topic_source   VARCHAR(20) NOT NULL DEFAULT 'auto',
+          content        TEXT DEFAULT '',
+          participant_ids TEXT[] NOT NULL DEFAULT '{}',
+          round_count    INTEGER DEFAULT 0,
+          view_count     INTEGER DEFAULT 0,
+          status         VARCHAR(20) NOT NULL DEFAULT 'active'
+                              CHECK (status IN ('active', 'completed', 'archived')),
+          started_at     TIMESTAMPTZ DEFAULT NOW(),
+          ended_at       TIMESTAMPTZ,
+          created_at     TIMESTAMPTZ DEFAULT NOW()
+        )
+      `;
+      results.push('guardian_discussions ✓');
+    } catch (e: any) {
+      results.push(`guardian_discussions: ${e.message}`);
+    }
+
     // ── Indexes ────────────────────────────────────────────────────────────────
     try {
       await sql`CREATE INDEX IF NOT EXISTS idx_comments_tenant ON public.prismatic_comments(tenant_id)`;
@@ -176,6 +199,8 @@ export async function POST(req: NextRequest) {
       await sql`CREATE INDEX IF NOT EXISTS idx_comments_pinned ON public.prismatic_comments(is_pinned DESC, created_at DESC)`;
       await sql`CREATE INDEX IF NOT EXISTS idx_guardian_schedule_date ON public.prismatic_guardian_schedule(date)`;
       await sql`CREATE INDEX IF NOT EXISTS idx_guardian_stats_date ON public.prismatic_guardian_stats(date)`;
+      await sql`CREATE INDEX IF NOT EXISTS idx_guardian_discussions_status ON public.guardian_discussions(status, created_at DESC)`;
+      await sql`CREATE INDEX IF NOT EXISTS idx_guardian_discussions_started ON public.guardian_discussions(started_at DESC)`;
       await sql`CREATE INDEX IF NOT EXISTS idx_forum_debates_date ON public.prismatic_forum_debates(date DESC)`;
       await sql`CREATE INDEX IF NOT EXISTS idx_forum_debate_turns_debate ON public.prismatic_forum_debate_turns(debate_id)`;
       await sql`CREATE INDEX IF NOT EXISTS idx_debate_visitors_debate ON public.prismatic_forum_debate_visitors(debate_id)`;

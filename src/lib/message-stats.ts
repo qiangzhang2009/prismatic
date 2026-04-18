@@ -1,27 +1,20 @@
 /**
  * Prismatic — Message Usage Tracking
- * Records each message sent by a user so admins can see usage stats.
- * Uses Neon PostgreSQL (serverless, WebSocket-based).
+ * Uses Prisma messages table (replaces deprecated prismatic_message_stats).
  */
 
-import { neon, NeonQueryFunction } from '@neondatabase/serverless';
+import { PrismaClient } from '@prisma/client';
 import type { SubscriptionPlan } from '@/lib/user-management';
 
-/** Create a fresh Neon handle per call to avoid stale pool connections in Vercel serverless. */
-function getSql(): NeonQueryFunction<false, false> {
-  const connectionString = process.env.DATABASE_URL;
-  if (!connectionString) throw new Error('DATABASE_URL environment variable is not set');
-  // eslint-disable-next-line
-  return neon(connectionString) as NeonQueryFunction<false, false>;
-}
+const globalForPrisma = globalThis as unknown as { prisma: PrismaClient | undefined };
+export const prismaStats = globalForPrisma.prisma ?? new PrismaClient();
+if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prismaStats;
 
 // ─── Daily limit constants ───────────────────────────────────────────────────
 
-// 普通用户每日对话上限
 export const USER_DAILY_LIMIT = 10;
 
 // 检查用户是否达到今日对话配额上限
-// 规则：付费用户（plan != FREE）或充值用户（credits > 0）无限制；FREE 10条/天
 export async function checkUserDailyLimit(
   userId: string,
   plan: SubscriptionPlan = 'FREE',
@@ -31,7 +24,6 @@ export async function checkUserDailyLimit(
   current: number;
   limit: number;
 }> {
-  // Paid plans or has credits: unlimited
   if (plan !== 'FREE' || credits > 0) {
     return { allowed: true, current: 0, limit: 999999 };
   }
@@ -45,94 +37,108 @@ export async function checkUserDailyLimit(
 
 // ─── Record a message ─────────────────────────────────────────────────────────
 
+export async function recordMessage(userId: string): Promise<void> {
+  try {
+    await prismaStats.message.create({
+      data: {
+        conversationId: 'system',
+        userId,
+        role: 'user',
+        content: '[message-counted]',
+      },
+    });
+  } catch (error) {
+    console.error('[recordMessage] Error:', error);
+  }
+}
+
+// ─── Get daily message count ─────────────────────────────────────────────────
+
+export async function getDailyMessageCount(userId: string, date?: string): Promise<number> {
+  const targetDate = date ? new Date(date) : new Date();
+  targetDate.setHours(0, 0, 0, 0);
+  const nextDate = new Date(targetDate);
+  nextDate.setDate(nextDate.getDate() + 1);
+
+  const count = await prismaStats.message.count({
+    where: {
+      userId,
+      createdAt: { gte: targetDate, lt: nextDate },
+      content: { not: '[message-counted]' },
+    },
+  });
+  return count;
+}
+
+// ─── Get message history ────────────────────────────────────────────────────
+
 export interface MessageRecord {
   id: string;
   userId: string;
-  date: string; // 'YYYY-MM-DD'
+  date: string;
   count: number;
 }
 
-/**
- * Increment the message count for a user on a given date.
- * Uses UPSERT so we always add +1 regardless of whether a row exists.
- */
-export async function recordMessage(userId: string): Promise<void> {
-  const sql = getSql();
-  const today = new Date().toISOString().slice(0, 10); // 'YYYY-MM-DD'
-  await sql`
-    INSERT INTO prismatic_message_stats (user_id, date, message_count)
-    VALUES (${userId}, ${today}, 1)
-    ON CONFLICT (user_id, date)
-    DO UPDATE SET message_count = prismatic_message_stats.message_count + 1
-  `;
-}
-
-/**
- * Get the total message count for a user on a specific date.
- */
-export async function getDailyMessageCount(userId: string, date?: string): Promise<number> {
-  const sql = getSql();
-  const targetDate = date ?? new Date().toISOString().slice(0, 10);
-  const rows = await sql`
-    SELECT message_count FROM prismatic_message_stats
-    WHERE user_id = ${userId} AND date = ${targetDate}
-  `;
-  return rows.length > 0 ? (rows[0] as any).message_count : 0;
-}
-
-/**
- * Get message counts for a user over a date range (last N days).
- */
 export async function getUserMessageHistory(userId: string, days: number = 7): Promise<MessageRecord[]> {
-  const sql = getSql();
-  const startDate = new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
-  const rows = await sql`
-    SELECT user_id, date, message_count
-    FROM prismatic_message_stats
-    WHERE user_id = ${userId}
-      AND date >= ${startDate}
-    ORDER BY date DESC
-  `;
-  return rows.map((r: any) => ({
-    id: r.user_id,
-    userId: r.user_id,
-    date: r.date,
-    count: r.message_count,
-  }));
+  const startDate = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
+  startDate.setHours(0, 0, 0, 0);
+
+  const messages = await prismaStats.message.findMany({
+    where: {
+      userId,
+      createdAt: { gte: startDate },
+      content: { not: '[message-counted]' },
+    },
+    select: { createdAt: true },
+  });
+
+  // Group by date
+  const dateMap: Record<string, number> = {};
+  for (const m of messages) {
+    const key = m.createdAt.toISOString().slice(0, 10);
+    dateMap[key] = (dateMap[key] || 0) + 1;
+  }
+
+  return Object.entries(dateMap)
+    .map(([date, count]) => ({ id: userId, userId, date, count }))
+    .sort((a, b) => b.date.localeCompare(a.date));
 }
 
-/**
- * Get today's top N users by message count (excluding deleted users).
- */
+// ─── Get top users today ──────────────────────────────────────────────────
+
 export async function getTopUsersToday(limit: number = 10): Promise<Array<{ userId: string; date: string; count: number; email?: string; name?: string }>> {
-  const sql = getSql();
-  const today = new Date().toISOString().slice(0, 10);
-  const rows = await sql`
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const nextDate = new Date(today);
+  nextDate.setDate(nextDate.getDate() + 1);
+
+  const result = await prismaStats.$queryRaw<Array<{ userId: string; date: string; count: bigint; email: string | null; name: string | null }>>`
     SELECT
-      ms.user_id,
-      ms.date,
-      ms.message_count AS count,
+      m.user_id as "userId",
+      DATE(m.created_at) as date,
+      COUNT(*)::int as count,
       u.email,
       u.name
-    FROM prismatic_message_stats ms
-    INNER JOIN prismatic_users u ON u.id = ms.user_id::uuid AND u.is_active = TRUE
-    WHERE ms.date = ${today}
-    ORDER BY ms.message_count DESC
+    FROM messages m
+    INNER JOIN users u ON u.id = m.user_id AND u.status = 'ACTIVE'
+    WHERE m.created_at >= ${today} AND m.created_at < ${nextDate}
+      AND m.content != '[message-counted]'
+    GROUP BY m.user_id, DATE(m.created_at), u.email, u.name
+    ORDER BY count DESC
     LIMIT ${limit}
   `;
-  return rows.map((r: any) => ({
-    userId: r.user_id,
-    date: r.date,
-    count: r.count,
-    email: r.email,
-    name: r.name,
+
+  return result.map(r => ({
+    userId: r.userId,
+    date: String(r.date),
+    count: Number(r.count),
+    email: r.email || undefined,
+    name: r.name || undefined,
   }));
 }
 
-/**
- * Get global usage stats: today's total messages, this week's, and daily breakdown.
- * Only counts messages from active users.
- */
+// ─── Get global usage stats ────────────────────────────────────────────────
+
 export async function getGlobalUsageStats(days: number = 7): Promise<{
   todayTotal: number;
   weekTotal: number;
@@ -140,114 +146,93 @@ export async function getGlobalUsageStats(days: number = 7): Promise<{
   dailyBreakdown: Array<{ date: string; total: number }>;
   byHour: Array<{ hour: number; count: number }>;
 }> {
-  const sql = getSql();
-  const today = new Date().toISOString().slice(0, 10);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const nextDate = new Date(today);
+  nextDate.setDate(nextDate.getDate() + 1);
+  const weekStart = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
+  weekStart.setHours(0, 0, 0, 0);
 
-  // Today's total (only from active users)
-  const todayRows = await sql`
-    SELECT COALESCE(SUM(ms.message_count), 0) as total
-    FROM prismatic_message_stats ms
-    INNER JOIN prismatic_users u ON u.id = ms.user_id::uuid AND u.is_active = TRUE
-    WHERE ms.date = ${today}
-  `;
-  const todayTotal = Number((todayRows[0] as any)?.total ?? 0);
+  const [todayTotal, weekTotal, dailyRows] = await Promise.all([
+    prismaStats.message.count({
+      where: {
+        createdAt: { gte: today, lt: nextDate },
+        content: { not: '[message-counted]' },
+        user: { status: 'ACTIVE' },
+      },
+    }),
+    prismaStats.message.count({
+      where: {
+        createdAt: { gte: weekStart },
+        content: { not: '[message-counted]' },
+        user: { status: 'ACTIVE' },
+      },
+    }),
+    prismaStats.$queryRaw<Array<{ date: Date; total: BigInt }>>`
+      SELECT DATE(created_at) as date, COUNT(*)::int as total
+      FROM messages
+      WHERE created_at >= ${weekStart}
+        AND content != '[message-counted]'
+        AND user_id IN (SELECT id FROM users WHERE status = 'ACTIVE')
+      GROUP BY DATE(created_at)
+      ORDER BY date ASC
+    `,
+  ]);
 
-  // This week's total (only from active users)
-  const weekStart = new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
-  const weekRows = await sql`
-    SELECT COALESCE(SUM(ms.message_count), 0) as total
-    FROM prismatic_message_stats ms
-    INNER JOIN prismatic_users u ON u.id = ms.user_id::uuid AND u.is_active = TRUE
-    WHERE ms.date >= ${weekStart}
-  `;
-  const weekTotal = Number((weekRows[0] as any)?.total ?? 0);
-
-  // Daily breakdown for last N days (only from active users)
-  const dailyRows = await sql`
-    SELECT ms.date, SUM(ms.message_count) as total
-    FROM prismatic_message_stats ms
-    INNER JOIN prismatic_users u ON u.id = ms.user_id::uuid AND u.is_active = TRUE
-    WHERE ms.date >= ${weekStart}
-    GROUP BY ms.date
-    ORDER BY ms.date ASC
-  `;
-  const dailyBreakdown = dailyRows.map((r: any) => ({
-    date: r.date,
+  const dailyBreakdown = dailyRows.map(r => ({
+    date: String(r.date),
     total: Number(r.total),
   }));
 
-  // Hourly breakdown (useful for capacity planning)
-  // Note: our table only has date, not hour. We return a placeholder for now.
-  const byHour: Array<{ hour: number; count: number }> = [];
+  const avgDaily = dailyBreakdown.length > 0 ? Math.round(Number(weekTotal) / dailyBreakdown.length) : 0;
 
-  const avgDaily = dailyBreakdown.length > 0
-    ? Math.round(weekTotal / dailyBreakdown.length)
-    : 0;
-
-  return { todayTotal, weekTotal, avgDaily, dailyBreakdown, byHour };
+  return { todayTotal, weekTotal, avgDaily, dailyBreakdown, byHour: [] };
 }
 
-/**
- * Get per-user usage stats for all active users (used by admin user list).
- */
+// ─── Get all users usage ──────────────────────────────────────────────────
+
 export async function getAllUsersUsage(days: number = 7): Promise<Record<string, {
   todayCount: number;
   weekCount: number;
   totalCount: number;
   lastActivity: string | null;
 }>> {
-  const sql = getSql();
-  const today = new Date().toISOString().slice(0, 10);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const nextDate = new Date(today);
+  nextDate.setDate(nextDate.getDate() + 1);
+  const weekStart = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
+  weekStart.setHours(0, 0, 0, 0);
 
-  const weekStart = new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
-  // Only query stats from active users
-  const rows = await sql`
-    SELECT
-      ms.user_id,
-      ms.date,
-      ms.message_count,
-      MAX(ms.date) OVER (PARTITION BY ms.user_id) as last_date
-    FROM prismatic_message_stats ms
-    INNER JOIN prismatic_users u ON u.id = ms.user_id::uuid AND u.is_active = TRUE
-    WHERE ms.date >= ${weekStart}
-  `;
+  const messages = await prismaStats.message.findMany({
+    where: {
+      createdAt: { gte: weekStart },
+      content: { not: '[message-counted]' },
+      user: { status: 'ACTIVE' },
+    },
+    select: { userId: true, createdAt: true },
+  });
 
   const result: Record<string, { todayCount: number; weekCount: number; totalCount: number; lastActivity: string | null }> = {};
 
-  for (const r of rows as any[]) {
-    const uid = r.user_id;
+  for (const m of messages) {
+    const uid = m.userId;
     if (!result[uid]) {
       result[uid] = { todayCount: 0, weekCount: 0, totalCount: 0, lastActivity: null };
     }
-    result[uid].weekCount += r.message_count;
-    if (r.date === today) {
-      result[uid].todayCount = r.message_count;
+    const isToday = m.createdAt >= today && m.createdAt < nextDate;
+    if (isToday) result[uid].todayCount++;
+    result[uid].weekCount++;
+    if (!result[uid].lastActivity || m.createdAt > new Date(result[uid].lastActivity!)) {
+      result[uid].lastActivity = m.createdAt.toISOString().slice(0, 10);
     }
-    if (r.last_date === r.date) {
-      result[uid].lastActivity = r.date;
-    }
-  }
-
-  // Total count across all time (only from active users)
-  const totalRows = await sql`
-    SELECT ms.user_id, SUM(ms.message_count) as total
-    FROM prismatic_message_stats ms
-    INNER JOIN prismatic_users u ON u.id = ms.user_id::uuid AND u.is_active = TRUE
-    GROUP BY ms.user_id
-  `;
-  for (const r of totalRows as any[]) {
-    if (!result[r.user_id]) {
-      result[r.user_id] = { todayCount: 0, weekCount: 0, totalCount: 0, lastActivity: null };
-    }
-    result[r.user_id].totalCount = Number(r.total);
   }
 
   return result;
 }
 
-/**
- * Get usage for a specific user over N days with per-date breakdown.
- */
+// ─── Get user usage detail ─────────────────────────────────────────────────
+
 export async function getUserUsageDetail(userId: string, days: number = 7): Promise<{
   today: number;
   week: number;
@@ -255,53 +240,51 @@ export async function getUserUsageDetail(userId: string, days: number = 7): Prom
   history: Array<{ date: string; count: number }>;
   rank?: number;
 }> {
-  const sql = getSql();
-  const today = new Date().toISOString().slice(0, 10);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const nextDate = new Date(today);
+  nextDate.setDate(nextDate.getDate() + 1);
+  const weekStart = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
+  weekStart.setHours(0, 0, 0, 0);
 
-  const todayCount = await getDailyMessageCount(userId, today);
-  const weekStart = new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
+  const [todayCount, weekMessages, allMessages] = await Promise.all([
+    prismaStats.message.count({
+      where: {
+        userId,
+        createdAt: { gte: today, lt: nextDate },
+        content: { not: '[message-counted]' },
+      },
+    }),
+    prismaStats.message.findMany({
+      where: {
+        userId,
+        createdAt: { gte: weekStart },
+        content: { not: '[message-counted]' },
+      },
+      select: { createdAt: true },
+    }),
+    prismaStats.message.count({
+      where: {
+        userId,
+        content: { not: '[message-counted]' },
+      },
+    }),
+  ]);
 
-  const weekRows = await sql`
-    SELECT COALESCE(SUM(message_count), 0) as total
-    FROM prismatic_message_stats
-    WHERE user_id = ${userId}
-      AND date >= ${weekStart}
-  `;
-  const weekCount = Number((weekRows[0] as any)?.total ?? 0);
+  const dateMap: Record<string, number> = {};
+  for (const m of weekMessages) {
+    const key = m.createdAt.toISOString().slice(0, 10);
+    dateMap[key] = (dateMap[key] || 0) + 1;
+  }
 
-  const totalRows = await sql`
-    SELECT COALESCE(SUM(message_count), 0) as total
-    FROM prismatic_message_stats
-    WHERE user_id = ${userId}
-  `;
-  const totalCount = Number((totalRows[0] as any)?.total ?? 0);
-
-  const historyRows = await sql`
-    SELECT date, message_count as count
-    FROM prismatic_message_stats
-    WHERE user_id = ${userId}
-      AND date >= ${weekStart}
-    ORDER BY date DESC
-  `;
-
-  // Rank among today's active users
-  const rankRows = await sql`
-    SELECT COUNT(*) + 1 as rank
-    FROM prismatic_message_stats ms
-    INNER JOIN prismatic_users u ON u.id = ms.user_id::uuid AND u.is_active = TRUE
-    WHERE ms.date = ${today}
-      AND ms.message_count > (
-        SELECT COALESCE(ms2.message_count, 0) FROM prismatic_message_stats ms2
-        WHERE ms2.user_id = ${userId} AND ms2.date = ${today}
-      )
-  `;
-  const rank = Number((rankRows[0] as any)?.rank ?? 0);
+  const history = Object.entries(dateMap)
+    .map(([date, count]) => ({ date, count }))
+    .sort((a, b) => b.date.localeCompare(a.date));
 
   return {
     today: todayCount,
-    week: weekCount,
-    total: totalCount,
-    history: (historyRows as any[]).map(r => ({ date: r.date, count: Number(r.count) })),
-    rank: rank > 0 ? rank : undefined,
+    week: weekMessages.length,
+    total: allMessages,
+    history,
   };
 }
