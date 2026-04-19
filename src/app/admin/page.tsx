@@ -832,242 +832,385 @@ function UsersSection() {
 
 // ─── Tab 3: 对话资产 ──────────────────────────────────────────────────────────
 /**
- * 对话资产管理设计理念：
- * - 资产维度一：对话浏览 — 原始对话记录，可检索、可筛选
- * - 资产维度二：资产分析 — Token 消耗、成本趋势、人物互动、用户分群
- * 从"对话分析 + 对话资产"合并而来，但去重：
- *   - 对话浏览 = 原来对话资产 > 对话浏览
- *   - 资产分析 = 原来对话分析的 KPI + 图表 + 原来对话资产的子维度
+ * 对话资产管理 — 合并浏览与分析于单一视图
+ * 上部：分析维度切换 + KPI 概要
+ * 下部：对话列表（可展开查看完整聊天记录）+ 维度图表
  */
 
-type AssetSubTab = 'browse' | 'analysis';
+type AssetDim = 'overview' | 'cost' | 'topics' | 'personas' | 'behavior';
 
 function AssetsSection() {
-  const [subTab, setSubTab] = useState<AssetSubTab>('browse');
-
-  return (
-    <div className="space-y-6">
-      {/* Sub-tab Navigation */}
-      <div className="flex items-center gap-1 border-b border-gray-800">
-        {([
-          { id: 'browse' as AssetSubTab, label: '对话浏览', sub: '原始记录 · 可检索', icon: BookOpen },
-          { id: 'analysis' as AssetSubTab, label: '资产分析', sub: 'Token · 成本 · 人物 · 分群', icon: BarChart3 },
-        ]).map(t => (
-          <button
-            key={t.id}
-            onClick={() => setSubTab(t.id)}
-            className={`flex items-center gap-2 px-5 py-3 text-sm font-medium border-b-2 -mb-px transition-all ${
-              subTab === t.id
-                ? 'border-purple-500 text-white'
-                : 'border-transparent text-gray-400 hover:text-white hover:border-gray-600'
-            }`}
-          >
-            <t.icon className="w-4 h-4" />
-            {t.label}
-            <span className="text-[10px] text-gray-600 font-normal ml-1">{t.sub}</span>
-          </button>
-        ))}
-      </div>
-
-      <AnimatePresence mode="wait">
-        {subTab === 'browse' && (
-          <motion.div key="browse" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-            <ChatBrowseTab />
-          </motion.div>
-        )}
-        {subTab === 'analysis' && (
-          <motion.div key="analysis" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-            <ChatAnalysisTab />
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
-  );
-}
-
-// ─── Sub-tab: 对话浏览 ────────────────────────────────────────────────────────
-
-function ChatBrowseTab() {
-  const [page, setPage] = useState(1);
+  const [dim, setDim] = useState<AssetDim>('overview');
   const [search, setSearch] = useState('');
   const [billingMode, setBillingMode] = useState('');
   const [mode, setMode] = useState('');
   const [dateFrom, setDateFrom] = useState('');
   const [dateTo, setDateTo] = useState('');
+  const [page, setPage] = useState(1);
 
-  const params = new URLSearchParams({
+  const params = useMemo(() => new URLSearchParams({
     page: String(page), pageSize: '20',
     ...(search && { search }),
     ...(billingMode && { billingMode }),
     ...(mode && { mode }),
     ...(dateFrom && { dateFrom }),
     ...(dateTo && { dateTo }),
-  });
+  }), [page, search, billingMode, mode, dateFrom, dateTo]);
 
-  const { data: rawData, isLoading, refetch } = useQuery({
+  const { data: convData, isLoading: convLoading, refetch } = useQuery({
     queryKey: ['admin', 'chats', params.toString()],
     queryFn: () => fetch(`/api/admin/chats?${params}`).then(r => r.json()),
     staleTime: 1000 * 30,
   });
 
-  const convs = rawData?.conversations || [];
-  const total = rawData?.total || 0;
-  const totalPages = rawData?.totalPages || 1;
+  const convs = convData?.conversations || [];
+  const total = convData?.total || 0;
+  const totalPages = convData?.totalPages || 1;
 
-  return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <div>
-          <h3 className="text-base font-semibold text-white">对话浏览</h3>
-          <p className="text-xs text-gray-500 mt-0.5">共 {total} 条对话记录 · 支持多维度筛选</p>
-        </div>
-      </div>
-
-      {/* Toolbar */}
-      <div className="flex flex-wrap gap-2 items-center">
-        <input
-          value={search}
-          onChange={e => { setSearch(e.target.value); setPage(1); }}
-          placeholder="搜索对话内容..."
-          className="bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white placeholder-gray-500 flex-1 min-w-48"
-        />
-        <select value={billingMode} onChange={e => { setBillingMode(e.target.value); setPage(1); }}
-          className="bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white">
-          <option value="">全部模式</option>
-          <option value="A">User-Pays (API Key)</option>
-          <option value="B">平台代付</option>
-        </select>
-        <select value={mode} onChange={e => { setMode(e.target.value); setPage(1); }}
-          className="bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white">
-          <option value="">全部模式</option>
-          <option value="solo">Solo</option>
-          <option value="prism">Prism</option>
-          <option value="roundtable">Roundtable</option>
-          <option value="mission">Mission</option>
-          <option value="epoch">Epoch</option>
-          <option value="council">Council</option>
-          <option value="oracle">Oracle</option>
-          <option value="fiction">Fiction</option>
-        </select>
-        <input type="date" value={dateFrom} onChange={e => { setDateFrom(e.target.value); setPage(1); }}
-          className="bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white" />
-        <input type="date" value={dateTo} onChange={e => { setDateTo(e.target.value); setPage(1); }}
-          className="bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white" />
-        <button onClick={() => refetch()} className="px-3 py-2 bg-purple-600 hover:bg-purple-500 text-white text-sm rounded-lg transition-colors">
-          搜索
-        </button>
-      </div>
-
-      {/* Table */}
-      {isLoading ? (
-        <div className="space-y-2">{[1,2,3].map(i => <div key={i} className="h-16 bg-gray-900 rounded-lg animate-pulse" />)}</div>
-      ) : convs.length === 0 ? (
-        <div className="text-center py-16 text-gray-500">
-          <BookOpen className="w-12 h-12 mx-auto mb-3 opacity-30" />
-          暂无对话记录
-        </div>
-      ) : (
-        <div className="space-y-2">
-          {convs.map((conv: any) => (
-            <div key={conv.id} className="bg-gray-900/80 border border-gray-800 rounded-xl p-4 hover:border-gray-700 transition-colors">
-              <div className="flex items-center justify-between mb-2">
-                <div className="flex items-center gap-3">
-                  <span className="text-xs text-gray-500">{new Date(conv.createdAt).toLocaleString('zh-CN')}</span>
-                  <span className="text-xs px-2 py-0.5 rounded-full bg-gray-800 text-gray-400">{conv.mode}</span>
-                  <span className={`text-xs px-2 py-0.5 rounded-full ${conv.billingMode === 'A' ? 'bg-blue-900/30 text-blue-400' : 'bg-green-900/30 text-green-400'}`}>
-                    {conv.billingMode === 'A' ? 'API Key' : '平台代付'}
-                  </span>
-                  <span className="text-xs text-gray-500">用户: {conv.user?.name || conv.user?.email || '未知'}</span>
-                </div>
-                <span className="text-xs text-gray-500">
-                  {conv.messageCount} 条
-                </span>
-              </div>
-              {conv.messages?.slice(0, 3).map((msg: any) => (
-                <div key={msg.id} className="text-xs text-gray-400 truncate mt-1 pl-4 border-l border-gray-800">
-                  <span className="text-gray-600">[{msg.role}]</span> {msg.content?.slice(0, 100)}
-                </div>
-              ))}
-            </div>
-          ))}
-        </div>
-      )}
-
-      {/* Pagination */}
-      {totalPages > 1 && (
-        <div className="flex items-center justify-center gap-3 pt-4">
-          <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1}
-            className="px-3 py-1.5 bg-gray-800 hover:bg-gray-700 disabled:opacity-30 text-sm text-white rounded-lg transition-colors">
-            上一页
-          </button>
-          <span className="text-sm text-gray-400">{page} / {totalPages}（共 {total} 条）</span>
-          <button onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page >= totalPages}
-            className="px-3 py-1.5 bg-gray-800 hover:bg-gray-700 disabled:opacity-30 text-sm text-white rounded-lg transition-colors">
-            下一页
-          </button>
-        </div>
-      )}
-    </div>
-  );
-}
-
-// ─── Sub-tab: 资产分析 ────────────────────────────────────────────────────────
-// 合并原对话分析(KPI+图表) + 人物互动 + 话题聚类 + 用户分群
-// 以"分析维度切换"的方式呈现，每个维度展示核心图表
-
-type AnalysisDim = 'cost' | 'topics' | 'personas' | 'behavior';
-
-function ChatAnalysisTab() {
-  const [dim, setDim] = useState<AnalysisDim>('cost');
-  const [days, setDays] = useState(30);
+  const dimensions: Array<{ id: AssetDim; label: string; icon: React.ElementType }> = [
+    { id: 'overview', label: '总览', icon: LayoutDashboard },
+    { id: 'cost', label: 'Token 成本', icon: DollarSign },
+    { id: 'topics', label: '话题聚类', icon: Layers },
+    { id: 'personas', label: '人物互动', icon: Bot },
+    { id: 'behavior', label: '用户分群', icon: Target },
+  ];
 
   return (
     <div className="space-y-6">
-      {/* Dimension switcher */}
-      <div className="flex items-center gap-2">
-        <span className="text-sm text-gray-400 mr-2">分析维度：</span>
-        {([
-          { id: 'cost' as AnalysisDim, label: 'Token & 成本', icon: DollarSign },
-          { id: 'topics' as AnalysisDim, label: '话题聚类', icon: Layers },
-          { id: 'personas' as AnalysisDim, label: '人物互动', icon: Bot },
-          { id: 'behavior' as AnalysisDim, label: '用户分群', icon: Target },
-        ]).map(d => (
-          <button
-            key={d.id}
-            onClick={() => setDim(d.id)}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
-              dim === d.id
-                ? 'bg-purple-500/20 text-purple-300 border border-purple-500/30'
-                : 'text-gray-400 hover:text-white hover:bg-gray-800'
-            }`}
-          >
-            <d.icon className="w-3.5 h-3.5" />
-            {d.label}
-          </button>
-        ))}
-        <div className="ml-auto flex items-center gap-1 bg-gray-900/50 border border-gray-800 rounded-lg p-1">
-          {[7, 14, 30, 90].map(d => (
-            <button key={d} onClick={() => setDays(d)}
-              className={`px-2.5 py-1 rounded text-xs font-medium transition-colors ${days === d ? 'bg-gray-700 text-white' : 'text-gray-500 hover:text-gray-300'}`}>
-              {d}天
+
+      {/* ── Header: 维度切换 ── */}
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <div className="flex items-center gap-2 flex-wrap">
+          <span className="text-sm text-gray-400 mr-2">分析维度：</span>
+          {dimensions.map(d => (
+            <button
+              key={d.id}
+              onClick={() => setDim(d.id)}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
+                dim === d.id
+                  ? 'bg-purple-500/20 text-purple-300 border border-purple-500/30'
+                  : 'text-gray-400 hover:text-white hover:bg-gray-800'
+              }`}
+            >
+              <d.icon className="w-3.5 h-3.5" />
+              {d.label}
             </button>
           ))}
         </div>
+        <div className="flex items-center gap-3">
+          <span className="text-xs text-gray-500">{total} 条对话</span>
+          <div className="flex items-center gap-1 bg-gray-900/50 border border-gray-800 rounded-lg p-1">
+            {[7, 14, 30, 90].map(d => (
+              <button key={d} onClick={() => setPage(1)}
+                className="px-2.5 py-1 rounded text-xs font-medium transition-colors bg-gray-800 text-gray-300 hover:bg-gray-700">
+                {d}天
+              </button>
+            ))}
+          </div>
+        </div>
       </div>
 
-      <AnimatePresence mode="wait">
-        {dim === 'cost' && <CostAnalysis key="cost" days={days} />}
-        {dim === 'topics' && <TopicsAnalysis key="topics" days={days} />}
-        {dim === 'personas' && <PersonasAnalysis key="personas" days={days} />}
-        {dim === 'behavior' && <BehaviorAnalysis key="behavior" days={days} />}
-      </AnimatePresence>
+      {/* ── 分析面板 ── */}
+      <div className="bg-gray-900/80 border border-gray-800 rounded-2xl p-6">
+        <AnimatePresence mode="wait">
+          {dim === 'overview' && <AssetOverview key="overview" convData={convData} />}
+          {dim === 'cost' && <AssetCostAnalysis key="cost" days={30} />}
+          {dim === 'topics' && <AssetTopics key="topics" days={30} />}
+          {dim === 'personas' && <AssetPersonas key="personas" days={30} />}
+          {dim === 'behavior' && <AssetBehavior key="behavior" days={30} />}
+        </AnimatePresence>
+      </div>
+
+      {/* ── 对话浏览 ── */}
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <h3 className="text-base font-semibold text-white">对话记录</h3>
+            <p className="text-xs text-gray-500 mt-0.5">点击展开查看完整聊天记录</p>
+          </div>
+        </div>
+
+        {/* 筛选工具栏 */}
+        <div className="flex flex-wrap gap-2 items-center">
+          <input
+            value={search}
+            onChange={e => { setSearch(e.target.value); setPage(1); }}
+            placeholder="搜索对话内容..."
+            className="bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white placeholder-gray-500 flex-1 min-w-48"
+          />
+          <select value={billingMode} onChange={e => { setBillingMode(e.target.value); setPage(1); }}
+            className="bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white">
+            <option value="">全部计费</option>
+            <option value="A">API Key</option>
+            <option value="B">平台代付</option>
+          </select>
+          <select value={mode} onChange={e => { setMode(e.target.value); setPage(1); }}
+            className="bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white">
+            <option value="">全部模式</option>
+            <option value="solo">Solo</option>
+            <option value="prism">Prism</option>
+            <option value="roundtable">Roundtable</option>
+            <option value="mission">Mission</option>
+            <option value="epoch">Epoch</option>
+            <option value="council">Council</option>
+            <option value="oracle">Oracle</option>
+            <option value="fiction">Fiction</option>
+          </select>
+          <input type="date" value={dateFrom} onChange={e => { setDateFrom(e.target.value); setPage(1); }}
+            className="bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white" />
+          <input type="date" value={dateTo} onChange={e => { setDateTo(e.target.value); setPage(1); }}
+            className="bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white" />
+          <button onClick={() => refetch()} className="px-3 py-2 bg-purple-600 hover:bg-purple-500 text-white text-sm rounded-lg transition-colors">
+            搜索
+          </button>
+        </div>
+
+        {/* 对话列表 */}
+        {convLoading ? (
+          <div className="space-y-2">{[1,2,3].map(i => <div key={i} className="h-20 bg-gray-900 rounded-xl animate-pulse" />)}</div>
+        ) : convs.length === 0 ? (
+          <div className="text-center py-16 text-gray-500">
+            <BookOpen className="w-12 h-12 mx-auto mb-3 opacity-30" />
+            暂无对话记录
+          </div>
+        ) : (
+          <div className="space-y-2">
+            {convs.map((conv: any) => (
+              <ConversationCard key={conv.id} conv={conv} />
+            ))}
+          </div>
+        )}
+
+        {/* 分页 */}
+        {totalPages > 1 && (
+          <div className="flex items-center justify-center gap-3 pt-2">
+            <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1}
+              className="px-3 py-1.5 bg-gray-800 hover:bg-gray-700 disabled:opacity-30 text-sm text-white rounded-lg transition-colors">
+              上一页
+            </button>
+            <span className="text-sm text-gray-400">{page} / {totalPages}（共 {total} 条）</span>
+            <button onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page >= totalPages}
+              className="px-3 py-1.5 bg-gray-800 hover:bg-gray-700 disabled:opacity-30 text-sm text-white rounded-lg transition-colors">
+              下一页
+            </button>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
 
-// ─── Analysis: Token & Cost ───────────────────────────────────────────────────
+// ─── 对话卡片（可展开） ──────────────────────────────────────────────────────
 
-function CostAnalysis({ days }: { days: number }) {
+function ConversationCard({ conv }: { conv: any }) {
+  const [expanded, setExpanded] = useState(false);
+
+  const msgs = conv.messages || [];
+  const previewMsgs = msgs.slice(0, 3);
+  const hasMore = msgs.length > 3;
+
+  return (
+    <div className="bg-gray-900/80 border border-gray-800 rounded-2xl overflow-hidden hover:border-gray-700 transition-all">
+      {/* Header */}
+      <button
+        onClick={() => setExpanded(!expanded)}
+        className="w-full text-left px-5 py-4 flex items-center justify-between gap-4"
+      >
+        <div className="flex items-center gap-3 flex-wrap flex-1 min-w-0">
+          <div className="flex items-center gap-2 flex-shrink-0">
+            <span className="text-xs text-gray-500">{new Date(conv.createdAt).toLocaleString('zh-CN')}</span>
+            <span className="text-xs px-2 py-0.5 rounded-full bg-gray-800 text-gray-400">{conv.mode}</span>
+            <span className={`text-xs px-2 py-0.5 rounded-full ${conv.billingMode === 'A' ? 'bg-blue-900/30 text-blue-400' : 'bg-green-900/30 text-green-400'}`}>
+              {conv.billingMode === 'A' ? 'API Key' : '平台代付'}
+            </span>
+          </div>
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="text-xs text-gray-500">
+              {conv.user?.name || conv.user?.email || '未知用户'}
+            </span>
+            <span className="text-xs text-gray-600">·</span>
+            <span className="text-xs text-gray-500">{conv.messageCount} 条消息</span>
+            {conv.totalCost !== undefined && (
+              <>
+                <span className="text-xs text-gray-600">·</span>
+                <span className="text-xs text-amber-400">¥{conv.totalCost.toFixed(4)}</span>
+              </>
+            )}
+            {conv.totalTokens !== undefined && (
+              <>
+                <span className="text-xs text-gray-600">·</span>
+                <span className="text-xs text-cyan-400">{(conv.totalTokens / 1000).toFixed(1)}K tokens</span>
+              </>
+            )}
+          </div>
+        </div>
+        <div className="flex items-center gap-2 flex-shrink-0">
+          {hasMore && !expanded && (
+            <span className="text-xs text-gray-600">+{msgs.length - 3} 条</span>
+          )}
+          <ChevronRight className={`w-4 h-4 text-gray-500 transition-transform ${expanded ? 'rotate-90' : ''}`} />
+        </div>
+      </button>
+
+      {/* Expanded messages */}
+      <AnimatePresence>
+        {expanded && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="overflow-hidden border-t border-gray-800/50"
+          >
+            <div className="px-5 py-4 space-y-2 max-h-[60vh] overflow-y-auto">
+              {msgs.map((msg: any) => {
+                const isUser = msg.role === 'user' || msg.role === 'human';
+                const isAssistant = msg.role === 'assistant' || msg.role === 'ai';
+                const bgClass = isUser ? 'bg-blue-900/10 border-blue-800/30' :
+                  isAssistant ? 'bg-purple-900/10 border-purple-800/30' :
+                  'bg-gray-800/50 border-gray-700/50';
+                const roleLabel = isUser ? '用户' : isAssistant ? 'AI' : msg.role;
+
+                return (
+                  <div key={msg.id} className={`rounded-xl p-3 border ${bgClass}`}>
+                    <div className="flex items-center gap-2 mb-1.5">
+                      <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${
+                        isUser ? 'bg-blue-500/20 text-blue-400' :
+                        isAssistant ? 'bg-purple-500/20 text-purple-400' :
+                        'bg-gray-700 text-gray-400'
+                      }`}>
+                        {roleLabel}
+                      </span>
+                      {msg.personaName && (
+                        <span className="text-[10px] text-gray-500">→ {msg.personaName}</span>
+                      )}
+                      {msg.totalTokens !== undefined && (
+                        <span className="text-[10px] text-gray-600 ml-auto">{msg.totalTokens} tokens</span>
+                      )}
+                    </div>
+                    <p className="text-sm text-gray-200 leading-relaxed whitespace-pre-wrap break-words">
+                      {msg.content || <span className="text-gray-600 italic">[无内容]</span>}
+                    </p>
+                  </div>
+                );
+              })}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Collapsed preview */}
+      {!expanded && previewMsgs.length > 0 && (
+        <div className="px-5 pb-3 -mt-1">
+          <div className="space-y-1">
+            {previewMsgs.map((msg: any) => {
+              const isUser = msg.role === 'user' || msg.role === 'human';
+              return (
+                <div key={msg.id} className="text-xs text-gray-500 flex items-start gap-2 pl-4 border-l border-gray-800">
+                  <span className={isUser ? 'text-blue-400' : 'text-purple-400'}>{isUser ? 'U' : 'AI'}</span>
+                  <span className="truncate flex-1">{msg.content}</span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── 分析维度: 总览 ─────────────────────────────────────────────────────────
+
+function AssetOverview({ convData }: { convData: any }) {
+  const convs = convData?.conversations || [];
+  const total = convData?.total || 0;
+
+  const totalMessages = convs.reduce((s: number, c: any) => s + (c.messageCount || 0), 0);
+  const totalCost = convs.reduce((s: number, c: any) => s + (c.totalCost || 0), 0);
+  const totalTokens = convs.reduce((s: number, c: any) => s + (c.totalTokens || 0), 0);
+  const apiKeyCount = convs.filter((c: any) => c.billingMode === 'A').length;
+  const platformCount = convs.filter((c: any) => c.billingMode === 'B').length;
+  const modeCount = convs.reduce((acc: Record<string, number>, c: any) => {
+    const m = c.mode || 'unknown';
+    acc[m] = (acc[m] || 0) + 1;
+    return acc;
+  }, {} as Record<string, number>);
+
+  const topModes = (Object.entries(modeCount) as [string, number][])
+    .sort(([, a], [, b]) => b - a)
+    .slice(0, 5)
+    .map(([name, count]) => ({ name, count }));
+
+  return (
+    <div className="space-y-5">
+      <h4 className="text-sm font-semibold text-white">当前页面 · 总览</h4>
+      {/* KPI row */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        {[
+          { label: '对话数', value: total.toLocaleString(), color: 'text-white', icon: MessageSquare },
+          { label: '消息数', value: totalMessages.toLocaleString(), color: 'text-cyan-400', icon: Zap },
+          { label: 'API 成本', value: `¥${totalCost.toFixed(4)}`, color: 'text-amber-400', icon: DollarSign },
+          { label: 'Token 消耗', value: `${(totalTokens / 1000).toFixed(1)}K`, color: 'text-purple-400', icon: Activity },
+        ].map(card => (
+          <div key={card.label} className="bg-gray-800/50 border border-gray-700/50 rounded-xl p-4">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-xs text-gray-400">{card.label}</span>
+              <card.icon className={`w-4 h-4 ${card.color}`} />
+            </div>
+            <div className={`text-xl font-bold ${card.color}`}>{card.value}</div>
+          </div>
+        ))}
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {/* 计费模式分布 */}
+        <div className="bg-gray-800/30 rounded-xl p-4 border border-gray-700/30">
+          <h5 className="text-xs font-medium text-gray-400 mb-3">计费模式</h5>
+          <div className="space-y-2">
+            <div className="flex items-center justify-between text-sm">
+              <div className="flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-blue-500" /><span className="text-gray-300">API Key</span></div>
+              <span className="text-white font-medium">{apiKeyCount}</span>
+            </div>
+            <div className="flex items-center justify-between text-sm">
+              <div className="flex items-center gap-2"><div className="w-2 h-2 rounded-full bg-green-500" /><span className="text-gray-300">平台代付</span></div>
+              <span className="text-white font-medium">{platformCount}</span>
+            </div>
+          </div>
+          <div className="mt-3 h-1.5 bg-gray-700 rounded-full overflow-hidden flex">
+            {total > 0 && (
+              <>
+                <div className="bg-blue-500" style={{ width: `${(apiKeyCount / total) * 100}%` }} />
+                <div className="bg-green-500" style={{ width: `${(platformCount / total) * 100}%` }} />
+              </>
+            )}
+          </div>
+        </div>
+
+        {/* 对话模式分布 */}
+        <div className="bg-gray-800/30 rounded-xl p-4 border border-gray-700/30 md:col-span-2">
+          <h5 className="text-xs font-medium text-gray-400 mb-3">对话模式分布</h5>
+          <div className="space-y-1.5">
+            {topModes.map((m, i) => (
+              <div key={m.name} className="flex items-center gap-3 text-sm">
+                <span className="w-4 text-xs text-gray-500 text-right">{i + 1}</span>
+                <span className="w-20 text-gray-300 truncate">{m.name}</span>
+                <div className="flex-1 bg-gray-700 rounded-full h-1.5 overflow-hidden">
+                  <div className="h-full bg-purple-500 rounded-full" style={{ width: `${total > 0 ? (m.count / total) * 100 : 0}%` }} />
+                </div>
+                <span className="w-8 text-right text-gray-400 text-xs">{m.count}</span>
+              </div>
+            ))}
+            {topModes.length === 0 && <p className="text-xs text-gray-600">暂无数据</p>}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── 分析维度: Token 成本 ─────────────────────────────────────────────────
+
+function AssetCostAnalysis({ days }: { days: number }) {
   const { data, isLoading } = useQuery({
     queryKey: ['conversation-analysis', days],
     queryFn: async () => {
@@ -1082,161 +1225,81 @@ function CostAnalysis({ days }: { days: number }) {
   const personas = (data?.personas || []) as Array<{ personaName?: string; totalCost?: number; totalTokens?: number }>;
   const dailyTrend = (data?.dailyTrend || []) as Array<{ date: string; messages?: number }>;
   const modeStats = (data?.modeStats || []) as Array<{ mode?: string; _count?: { id?: number } }>;
-  const topUsers = (data?.topUsers || []) as Array<{ userId?: string; name?: string; messageCount?: number; totalCost?: number }>;
 
   const modeChartData = modeStats.map(m => ({ name: m.mode || 'Unknown', value: m._count?.id || 0 }));
-  const costChartData = personas.slice(0, 10).map(p => {
+  const costChartData = personas.slice(0, 8).map(p => {
     const name = p.personaName || '';
-    return {
-      name: name.length > 8 ? name.slice(0, 8) + '...' : name,
-      fullName: name,
-      cost: p.totalCost || 0,
-      tokens: p.totalTokens || 0,
-    };
+    return { name: name.length > 10 ? name.slice(0, 10) + '...' : name, cost: p.totalCost || 0 };
   });
 
   return (
-    <div className="space-y-6">
-      {/* KPI Row */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        {[
-          { label: '总消息数', value: (overview?.totalMessages || 0).toLocaleString(), color: 'text-blue-400', icon: MessageSquare },
-          { label: 'Token 消耗', value: `${((overview?.totalTokens || 0) / 1000).toFixed(1)}K`, color: 'text-cyan-400', icon: Zap },
-          { label: 'API 成本', value: `¥${(overview?.totalApiCost || 0).toFixed(4)}`, color: 'text-amber-400', icon: DollarSign },
-          { label: '平均每对话成本', value: `¥${(overview?.avgCostPerConversation || 0).toFixed(4)}`, color: 'text-purple-400', icon: BarChart2 },
-        ].map(card => (
-          <div key={card.label} className="bg-gray-900/80 border border-gray-800 rounded-xl p-4">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-xs text-gray-400">{card.label}</span>
-              <card.icon className={`w-4 h-4 ${card.color}`} />
-            </div>
-            <div className={`text-xl font-bold ${card.color === 'text-amber-400' ? 'text-amber-400' : 'text-white'}`}>{card.value}</div>
-          </div>
-        ))}
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* 每日成本趋势 */}
-        <div className="bg-gray-900/80 border border-gray-800 rounded-2xl p-6">
-          <h4 className="text-sm font-semibold text-white mb-4">每日消息趋势</h4>
-          <ResponsiveContainer width="100%" height={220}>
-            <AreaChart data={dailyTrend.map(d => ({ ...d, date: new Date(d.date).toLocaleDateString('zh-CN', { month: 'numeric', day: 'numeric' }) }))}>
-              <defs>
-                <linearGradient id="gc-msg" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor={CHART_COLORS.purple} stopOpacity={0.3} />
-                  <stop offset="95%" stopColor={CHART_COLORS.purple} stopOpacity={0} />
-                </linearGradient>
-              </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="#1f2937" />
-              <XAxis dataKey="date" stroke="#6b7280" fontSize={10} />
-              <YAxis stroke="#6b7280" fontSize={10} />
-              <Tooltip contentStyle={{ backgroundColor: '#111827', border: '1px solid #374151', borderRadius: '8px', fontSize: 11 }} />
-              <Area type="monotone" dataKey="messages" stroke={CHART_COLORS.purple} fillOpacity={1} fill="url(#gc-msg)" name="消息数" strokeWidth={2} dot={false} />
-            </AreaChart>
-          </ResponsiveContainer>
-        </div>
-
-        {/* 对话模式分布 */}
-        <div className="bg-gray-900/80 border border-gray-800 rounded-2xl p-6">
-          <h4 className="text-sm font-semibold text-white mb-4">对话模式分布</h4>
-          {modeChartData.length === 0 ? (
-            <div className="flex items-center justify-center h-48 text-gray-500 text-sm">暂无数据</div>
-          ) : (
-            <div className="flex items-center gap-4">
-              <ResponsiveContainer width="60%" height={200}>
-                <RePieChart>
-                  <Pie data={modeChartData} cx="50%" cy="50%" innerRadius={40} outerRadius={80} paddingAngle={3} dataKey="value">
-                    {modeChartData.map((_, index) => (
-                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                    ))}
-                  </Pie>
-                  <Tooltip contentStyle={{ backgroundColor: '#111827', border: '1px solid #374151', borderRadius: '8px', fontSize: 11 }} />
-                </RePieChart>
-              </ResponsiveContainer>
-              <div className="flex-1 space-y-1.5">
-                {modeChartData.map((d, i) => (
-                  <div key={d.name} className="flex items-center gap-2 text-xs">
-                    <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: COLORS[i % COLORS.length] }} />
-                    <span className="text-gray-400 truncate">{d.name}</span>
-                    <span className="text-gray-300 ml-auto">{(d.value || 0).toLocaleString()}</span>
-                  </div>
-                ))}
+    <div className="space-y-5">
+      <h4 className="text-sm font-semibold text-white">Token 成本分析 · 近 {days} 天</h4>
+      {isLoading ? (
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">{[1,2,3,4].map(i => <div key={i} className="h-20 bg-gray-800 rounded-xl animate-pulse" />)}</div>
+      ) : (
+        <>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            {[
+              { label: '总消息', value: (overview?.totalMessages || 0).toLocaleString(), color: 'text-white', icon: MessageSquare },
+              { label: 'Token 消耗', value: `${((overview?.totalTokens || 0) / 1000).toFixed(1)}K`, color: 'text-cyan-400', icon: Zap },
+              { label: 'API 成本', value: `¥${(overview?.totalApiCost || 0).toFixed(4)}`, color: 'text-amber-400', icon: DollarSign },
+              { label: '平均/对话', value: `¥${(overview?.avgCostPerConversation || 0).toFixed(4)}`, color: 'text-purple-400', icon: BarChart2 },
+            ].map(card => (
+              <div key={card.label} className="bg-gray-800/50 border border-gray-700/50 rounded-xl p-4">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-xs text-gray-400">{card.label}</span>
+                  <card.icon className={`w-4 h-4 ${card.color}`} />
+                </div>
+                <div className={`text-xl font-bold ${card.color}`}>{card.value}</div>
               </div>
+            ))}
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            {/* 每日趋势 */}
+            <div className="bg-gray-800/30 rounded-xl p-4 border border-gray-700/30">
+              <h5 className="text-xs font-medium text-gray-400 mb-3">每日消息趋势</h5>
+              <ResponsiveContainer width="100%" height={180}>
+                <AreaChart data={dailyTrend.map(d => ({ ...d, date: new Date(d.date).toLocaleDateString('zh-CN', { month: 'numeric', day: 'numeric' }) }))}>
+                  <defs>
+                    <linearGradient id="ac-msg" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.3} />
+                      <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0} />
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#1f2937" />
+                  <XAxis dataKey="date" stroke="#6b7280" fontSize={10} />
+                  <YAxis stroke="#6b7280" fontSize={10} />
+                  <Tooltip contentStyle={{ backgroundColor: '#111827', border: '1px solid #374151', borderRadius: '8px', fontSize: 11 }} />
+                  <Area type="monotone" dataKey="messages" stroke="#8b5cf6" fillOpacity={1} fill="url(#ac-msg)" name="消息数" strokeWidth={2} dot={false} />
+                </AreaChart>
+              </ResponsiveContainer>
             </div>
-          )}
-        </div>
-      </div>
 
-      {/* 人物成本排行 */}
-      <div className="bg-gray-900/80 border border-gray-800 rounded-2xl p-6">
-        <h4 className="text-sm font-semibold text-white mb-4">人物 Token & 成本排行（Top 10）</h4>
-        <ResponsiveContainer width="100%" height={280}>
-          <BarChart data={costChartData} layout="vertical">
-            <CartesianGrid strokeDasharray="3 3" stroke="#1f2937" />
-            <XAxis type="number" stroke="#6b7280" fontSize={10} tickFormatter={v => `¥${v.toFixed(4)}`} />
-            <YAxis dataKey="name" type="category" stroke="#6b7280" fontSize={10} width={80} />
-            <Tooltip contentStyle={{ backgroundColor: '#111827', border: '1px solid #374151', borderRadius: '8px', fontSize: 11 }}
-              formatter={(value) => <span>¥{Number(value).toFixed(4)}</span> as any} />
-            <Bar dataKey="cost" fill={CHART_COLORS.amber} name="API 成本" radius={[0, 4, 4, 0]} />
-          </BarChart>
-        </ResponsiveContainer>
-      </div>
-
-      {/* 高消耗用户 */}
-      <div className="bg-gray-900/80 border border-gray-800 rounded-2xl p-6">
-        <h4 className="text-sm font-semibold text-white mb-4">高消耗用户排行</h4>
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-gray-800">
-                <th className="text-left py-2.5 px-3 text-gray-400 font-medium text-xs">用户</th>
-                <th className="text-right py-2.5 px-3 text-gray-400 font-medium text-xs">消息数</th>
-                <th className="text-right py-2.5 px-3 text-gray-400 font-medium text-xs">Token 消耗</th>
-                <th className="text-right py-2.5 px-3 text-gray-400 font-medium text-xs">API 成本</th>
-              </tr>
-            </thead>
-            <tbody>
-              {topUsers.slice(0, 10).map((user, idx) => {
-                const uid = user.userId || `user-${idx}`;
-                const name = user.name || '未知用户';
-                const msgs = user.messageCount || 0;
-                const cost = user.totalCost || 0;
-                return (
-                <tr key={uid} className="border-b border-gray-800/40 hover:bg-gray-800/20 transition-colors">
-                  <td className="py-2.5 px-3">
-                    <div className="flex items-center gap-2">
-                      <div className="w-7 h-7 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white text-xs font-semibold">
-                        {name[0] || '?'}
-                      </div>
-                      <div>
-                        <p className="text-white font-medium text-sm">{name}</p>
-                        <p className="text-[10px] text-gray-600">{uid.slice(0, 12)}...</p>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="text-right py-2.5 px-3 text-gray-300">{msgs.toLocaleString()}</td>
-                  <td className="text-right py-2.5 px-3 text-cyan-400">{(cost / 0.14 * 1000).toFixed(0)}K</td>
-                  <td className="text-right py-2.5 px-3 text-amber-400 font-medium">¥{cost.toFixed(4)}</td>
-                </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      {isLoading && (
-        <div className="grid grid-cols-3 gap-4">
-          {[1,2,3].map(i => <div key={i} className="h-48 bg-gray-900 rounded-xl animate-pulse" />)}
-        </div>
+            {/* 人物成本排行 */}
+            <div className="bg-gray-800/30 rounded-xl p-4 border border-gray-700/30">
+              <h5 className="text-xs font-medium text-gray-400 mb-3">人物成本排行 Top 8</h5>
+              <ResponsiveContainer width="100%" height={180}>
+                <BarChart data={costChartData} layout="vertical">
+                  <CartesianGrid strokeDasharray="3 3" stroke="#1f2937" />
+                  <XAxis type="number" stroke="#6b7280" fontSize={10} tickFormatter={v => `¥${Number(v).toFixed(4)}`} />
+                  <YAxis dataKey="name" type="category" stroke="#6b7280" fontSize={9} width={80} />
+                  <Tooltip contentStyle={{ backgroundColor: '#111827', border: '1px solid #374151', borderRadius: '8px', fontSize: 11 }} />
+                  <Bar dataKey="cost" fill="#f59e0b" name="成本" radius={[0, 4, 4, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+        </>
       )}
     </div>
   );
 }
 
-// ─── Analysis: 话题聚类 ────────────────────────────────────────────────────────
+// ─── 分析维度: 话题聚类 ─────────────────────────────────────────────────────
 
-function TopicsAnalysis({ days }: { days: number }) {
+function AssetTopics({ days }: { days: number }) {
   const { data, isLoading } = useQuery({
     queryKey: ['admin', 'chats', 'topics', days],
     queryFn: () => fetch(`/api/admin/chats/topics?days=${days}`).then(r => r.json()),
@@ -1247,38 +1310,33 @@ function TopicsAnalysis({ days }: { days: number }) {
   const total = data?.totalConversations || 0;
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <div>
-          <h3 className="text-sm font-semibold text-white">话题聚类分析</h3>
-          <p className="text-xs text-gray-500 mt-0.5">共 {total} 条对话 · AI 话题归纳</p>
-        </div>
+        <h4 className="text-sm font-semibold text-white">话题聚类分析 · 近 {days} 天</h4>
+        <span className="text-xs text-gray-500">{total} 条对话归纳</span>
       </div>
-
       {isLoading ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">{[1,2,3,4].map(i => <div key={i} className="h-28 bg-gray-900 rounded-xl animate-pulse" />)}</div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">{[1,2,3,4].map(i => <div key={i} className="h-28 bg-gray-800 rounded-xl animate-pulse" />)}</div>
       ) : topics.length === 0 ? (
-        <div className="text-center py-16 text-gray-500">
-          <Layers className="w-12 h-12 mx-auto mb-3 opacity-30" />
+        <div className="text-center py-12 text-gray-500 text-sm">
+          <Layers className="w-10 h-10 mx-auto mb-2 opacity-30" />
           暂无话题数据（请确保 DEEPSEEK_API_KEY 已配置）
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           {topics.map((topic: any, i: number) => (
-            <div key={i} className="bg-gray-900/80 border border-gray-800 rounded-2xl p-5 hover:border-gray-700 transition-colors group">
-              <div className="flex items-start justify-between mb-3">
+            <div key={i} className="bg-gray-800/30 border border-gray-700/30 rounded-xl p-4">
+              <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-2">
-                  <div className="w-6 h-6 rounded-lg bg-purple-500/10 flex items-center justify-center text-xs font-bold text-purple-400">{i + 1}</div>
-                  <span className="text-sm font-semibold text-white">{topic.topic}</span>
+                  <div className="w-5 h-5 rounded bg-purple-500/20 flex items-center justify-center text-[10px] font-bold text-purple-400">{i + 1}</div>
+                  <span className="text-sm font-medium text-white">{topic.topic}</span>
                 </div>
-                <span className="text-xs text-gray-500 bg-gray-800 px-2 py-0.5 rounded-full">{topic.count} 条</span>
+                <span className="text-xs text-gray-500 bg-gray-700 px-2 py-0.5 rounded-full">{topic.count} 条</span>
               </div>
-              <p className="text-xs text-gray-400 leading-relaxed mb-3">{topic.description}</p>
-              <div className="flex flex-wrap gap-1.5">
+              <p className="text-xs text-gray-400 leading-relaxed mb-2">{topic.description}</p>
+              <div className="flex flex-wrap gap-1">
                 {(topic.examples || []).slice(0, 3).map((ex: string, j: number) => (
-                  <span key={j} className="text-[10px] px-2 py-1 bg-gray-800/80 text-gray-400 rounded-lg border border-gray-700/50 truncate max-w-44">
-                    {ex}
-                  </span>
+                  <span key={j} className="text-[10px] px-2 py-1 bg-gray-700/50 text-gray-400 rounded-lg border border-gray-600/30 truncate max-w-44">{ex}</span>
                 ))}
               </div>
             </div>
@@ -1289,9 +1347,9 @@ function TopicsAnalysis({ days }: { days: number }) {
   );
 }
 
-// ─── Analysis: 人物互动 ────────────────────────────────────────────────────────
+// ─── 分析维度: 人物互动 ─────────────────────────────────────────────────────
 
-function PersonasAnalysis({ days }: { days: number }) {
+function AssetPersonas({ days }: { days: number }) {
   const { data, isLoading } = useQuery({
     queryKey: ['admin', 'chats', 'personas', days],
     queryFn: () => fetch(`/api/admin/chats/personas?days=${days}`).then(r => r.json()),
@@ -1304,67 +1362,46 @@ function PersonasAnalysis({ days }: { days: number }) {
   const totalCost = usage.reduce((s: number, p: any) => s + (p.totalCost || 0), 0);
 
   return (
-    <div className="space-y-5">
-      <div className="flex items-center justify-between">
-        <div>
-          <h3 className="text-sm font-semibold text-white">人物互动分析</h3>
-          <p className="text-xs text-gray-500 mt-0.5">{usage.length} 个人物 · 详细互动数据</p>
-        </div>
-      </div>
-
-      {/* Summary KPI */}
+    <div className="space-y-4">
+      <h4 className="text-sm font-semibold text-white">人物互动分析 · 近 {days} 天</h4>
       <div className="grid grid-cols-3 gap-3">
-        <div className="bg-gray-900/80 border border-gray-800 rounded-xl p-4 text-center">
-          <p className="text-xs text-gray-400">总消息数</p>
-          <p className="text-xl font-bold text-cyan-400 mt-1">{totalMessages.toLocaleString()}</p>
+        <div className="bg-gray-800/50 border border-gray-700/50 rounded-xl p-4 text-center">
+          <p className="text-xs text-gray-400">总消息</p><p className="text-lg font-bold text-cyan-400 mt-1">{totalMessages.toLocaleString()}</p>
         </div>
-        <div className="bg-gray-900/80 border border-gray-800 rounded-xl p-4 text-center">
-          <p className="text-xs text-gray-400">总 Token</p>
-          <p className="text-xl font-bold text-purple-400 mt-1">{totalTokens.toLocaleString()}</p>
+        <div className="bg-gray-800/50 border border-gray-700/50 rounded-xl p-4 text-center">
+          <p className="text-xs text-gray-400">总 Token</p><p className="text-lg font-bold text-purple-400 mt-1">{totalTokens.toLocaleString()}</p>
         </div>
-        <div className="bg-gray-900/80 border border-gray-800 rounded-xl p-4 text-center">
-          <p className="text-xs text-gray-400">总成本</p>
-          <p className="text-xl font-bold text-amber-400 mt-1">¥{totalCost.toFixed(4)}</p>
+        <div className="bg-gray-800/50 border border-gray-700/50 rounded-xl p-4 text-center">
+          <p className="text-xs text-gray-400">总成本</p><p className="text-lg font-bold text-amber-400 mt-1">¥{totalCost.toFixed(4)}</p>
         </div>
       </div>
-
       {isLoading ? (
-        <div className="h-48 bg-gray-900 rounded-xl animate-pulse" />
+        <div className="h-40 bg-gray-800 rounded-xl animate-pulse" />
       ) : usage.length === 0 ? (
-        <div className="text-center py-16 text-gray-500">
-          <Bot className="w-12 h-12 mx-auto mb-3 opacity-30" />
+        <div className="text-center py-12 text-gray-500 text-sm">
+          <Bot className="w-10 h-10 mx-auto mb-2 opacity-30" />
           暂无人物互动数据
         </div>
       ) : (
-        <div className="bg-gray-900/80 border border-gray-800 rounded-2xl overflow-hidden">
+        <div className="bg-gray-800/30 border border-gray-700/30 rounded-xl overflow-hidden">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-gray-800 bg-gray-800/30">
-                <th className="text-left p-4 text-gray-400 font-medium text-xs">人物</th>
-                <th className="text-right p-4 text-gray-400 font-medium text-xs">消息数</th>
-                <th className="text-right p-4 text-gray-400 font-medium text-xs">占比</th>
-                <th className="text-right p-4 text-gray-400 font-medium text-xs">总 Token</th>
-                <th className="text-right p-4 text-gray-400 font-medium text-xs">成本</th>
+              <tr className="border-b border-gray-700/50 bg-gray-800/50">
+                <th className="text-left p-3 text-gray-400 font-medium text-xs">人物</th>
+                <th className="text-right p-3 text-gray-400 font-medium text-xs">消息数</th>
+                <th className="text-right p-3 text-gray-400 font-medium text-xs">占比</th>
+                <th className="text-right p-3 text-gray-400 font-medium text-xs">Token</th>
+                <th className="text-right p-3 text-gray-400 font-medium text-xs">成本</th>
               </tr>
             </thead>
             <tbody>
               {usage.map((p: any, i: number) => (
-                <tr key={p.personaId || i} className="border-b border-gray-800/40 hover:bg-gray-800/20 transition-colors">
-                  <td className="p-4">
-                    <div className="flex items-center gap-2">
-                      <div className={`w-5 h-5 rounded text-[10px] font-bold flex items-center justify-center ${
-                        i === 0 ? 'bg-amber-500/20 text-amber-400' :
-                        i === 1 ? 'bg-gray-400/20 text-gray-300' :
-                        i === 2 ? 'bg-orange-600/20 text-orange-400' :
-                        'bg-gray-800 text-gray-500'
-                      }`}>{i + 1}</div>
-                      <span className="text-white font-medium text-sm">{p.personaId || 'Unknown'}</span>
-                    </div>
-                  </td>
-                  <td className="text-right p-4 text-gray-300">{p.messageCount?.toLocaleString()}</td>
-                  <td className="text-right p-4 text-gray-500">{(totalMessages > 0 ? (p.messageCount / totalMessages * 100).toFixed(1) : 0)}%</td>
-                  <td className="text-right p-4 text-cyan-400">{(p.totalTokens || 0).toLocaleString()}</td>
-                  <td className="text-right p-4 text-amber-400 font-medium">¥{(p.totalCost || 0).toFixed(4)}</td>
+                <tr key={p.personaId || i} className="border-b border-gray-800/30 hover:bg-gray-800/20 transition-colors">
+                  <td className="p-3"><span className="text-white font-medium text-sm">{p.personaId || 'Unknown'}</span></td>
+                  <td className="text-right p-3 text-gray-300">{(p.messageCount || 0).toLocaleString()}</td>
+                  <td className="text-right p-3 text-gray-500">{(totalMessages > 0 ? (p.messageCount / totalMessages * 100).toFixed(1) : 0)}%</td>
+                  <td className="text-right p-3 text-cyan-400">{(p.totalTokens || 0).toLocaleString()}</td>
+                  <td className="text-right p-3 text-amber-400 font-medium">¥{(p.totalCost || 0).toFixed(4)}</td>
                 </tr>
               ))}
             </tbody>
@@ -1375,9 +1412,9 @@ function PersonasAnalysis({ days }: { days: number }) {
   );
 }
 
-// ─── Analysis: 用户分群 ────────────────────────────────────────────────────────
+// ─── 分析维度: 用户分群 ─────────────────────────────────────────────────────
 
-function BehaviorAnalysis({ days }: { days: number }) {
+function AssetBehavior({ days }: { days: number }) {
   const { data, isLoading } = useQuery({
     queryKey: ['admin', 'chats', 'behavior', days],
     queryFn: () => fetch(`/api/admin/chats/behavior?days=${days}`).then(r => r.json()),
@@ -1386,25 +1423,17 @@ function BehaviorAnalysis({ days }: { days: number }) {
 
   const clusters = data?.clusters;
   const totalUsers = data?.totalActiveUsers || 0;
-  const totalConversations = data?.totalConversations || 0;
 
   const CLUSTER_META: Record<string, { color: string; label: string; desc: string }> = {
-    power: { color: 'purple', label: '超级用户', desc: '日均 50+ 条消息，平台核心贡献者' },
-    active: { color: 'cyan', label: '活跃用户', desc: '日均 10-50 条消息，稳定使用' },
-    casual: { color: 'amber', label: '普通用户', desc: '日均 1-10 条消息，间歇使用' },
-    dormant: { color: 'gray', label: '沉默用户', desc: '30 天内无活跃行为' },
+    power: { color: 'purple', label: '超级用户', desc: '日均 50+ 条消息' },
+    active: { color: 'cyan', label: '活跃用户', desc: '日均 10-50 条消息' },
+    casual: { color: 'amber', label: '普通用户', desc: '日均 1-10 条消息' },
+    dormant: { color: 'gray', label: '沉默用户', desc: '30 天内无活跃' },
   };
 
   return (
-    <div className="space-y-5">
-      <div className="flex items-center justify-between">
-        <div>
-          <h3 className="text-sm font-semibold text-white">用户行为分群</h3>
-          <p className="text-xs text-gray-500 mt-0.5">{totalUsers} 位活跃用户 · 自动分群</p>
-        </div>
-      </div>
-
-      {/* Summary */}
+    <div className="space-y-4">
+      <h4 className="text-sm font-semibold text-white">用户行为分群 · 近 {days} 天</h4>
       {clusters && (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           {Object.entries(clusters).map(([key, cluster]: [string, any]) => {
@@ -1417,21 +1446,18 @@ function BehaviorAnalysis({ days }: { days: number }) {
               <div key={key} className={`border rounded-xl p-4 ${colorClass}`}>
                 <p className="text-xs opacity-60">{meta.label}</p>
                 <p className="text-2xl font-bold mt-1">{cluster.count}</p>
-                <p className="text-[10px] opacity-60 mt-1">
-                  {(totalUsers > 0 ? (cluster.count / totalUsers * 100).toFixed(0) : 0)}% 用户
-                </p>
+                <p className="text-[10px] opacity-60 mt-1">{(totalUsers > 0 ? (cluster.count / totalUsers * 100).toFixed(0) : 0)}% 用户</p>
               </div>
             );
           })}
         </div>
       )}
-
       {isLoading ? (
-        <div className="grid grid-cols-2 gap-4">{[1,2,3,4].map(i => <div key={i} className="h-40 bg-gray-900 rounded-xl animate-pulse" />)}</div>
+        <div className="grid grid-cols-2 gap-4">{[1,2,3,4].map(i => <div key={i} className="h-36 bg-gray-800 rounded-xl animate-pulse" />)}</div>
       ) : !clusters ? (
-        <div className="text-center py-16 text-gray-500">
-          <Target className="w-12 h-12 mx-auto mb-3 opacity-30" />
-          暂无用户分群数据
+        <div className="text-center py-12 text-gray-500 text-sm">
+          <Target className="w-10 h-10 mx-auto mb-2 opacity-30" />
+          暂无分群数据
         </div>
       ) : (
         <div className="grid grid-cols-2 gap-4">
@@ -1441,18 +1467,18 @@ function BehaviorAnalysis({ days }: { days: number }) {
               meta.color === 'cyan' ? 'border-cyan-800/40' :
               meta.color === 'amber' ? 'border-amber-800/40' : 'border-gray-800';
             return (
-              <div key={key} className={`bg-gray-900/80 border ${borderColor} rounded-2xl p-5`}>
-                <div className="flex items-center justify-between mb-4">
-                  <h4 className="text-sm font-semibold text-white">{meta.label}</h4>
+              <div key={key} className={`bg-gray-800/30 border ${borderColor} rounded-2xl p-4`}>
+                <div className="flex items-center justify-between mb-3">
+                  <h5 className="text-sm font-semibold text-white">{meta.label}</h5>
                   <span className="text-xs text-gray-500">{cluster.count} 人</span>
                 </div>
-                <p className="text-xs text-gray-400 mb-4">{meta.desc}</p>
-                <div className="space-y-2">
-                  {(cluster.users || []).slice(0, 8).map((u: any, i: number) => (
+                <p className="text-xs text-gray-400 mb-3">{meta.desc}</p>
+                <div className="space-y-1.5">
+                  {(cluster.users || []).slice(0, 6).map((u: any, i: number) => (
                     <div key={u.userId || i} className="flex items-center justify-between text-xs">
                       <div className="flex items-center gap-2 min-w-0">
-                        <div className="w-5 h-5 rounded-full bg-gray-800 flex items-center justify-center text-[10px] text-gray-400 flex-shrink-0">
-                          {u.name?.[0] || '?'}
+                        <div className="w-5 h-5 rounded-full bg-gray-700 flex items-center justify-center text-[10px] text-gray-400 flex-shrink-0">
+                          {(u.name || '?')[0]}
                         </div>
                         <span className="text-gray-300 truncate">{u.name || '未知'}</span>
                         {u.hasApiKey && <span className="text-[9px] px-1 py-0.5 bg-blue-900/30 text-blue-400 rounded">API</span>}
@@ -1460,12 +1486,8 @@ function BehaviorAnalysis({ days }: { days: number }) {
                       <span className="text-gray-500 whitespace-nowrap ml-2">{u.conversationCount} 对话</span>
                     </div>
                   ))}
-                  {cluster.count > 8 && (
-                    <p className="text-[10px] text-gray-600 text-center pt-1">+{cluster.count - 8} 位用户...</p>
-                  )}
-                  {cluster.count === 0 && (
-                    <p className="text-xs text-gray-600 text-center">暂无用户</p>
-                  )}
+                  {cluster.count > 6 && <p className="text-[10px] text-gray-600 text-center pt-1">+{cluster.count - 6} 位用户...</p>}
+                  {cluster.count === 0 && <p className="text-xs text-gray-600 text-center">暂无用户</p>}
                 </div>
               </div>
             );
