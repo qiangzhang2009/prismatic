@@ -361,6 +361,13 @@ export function createLLMProviderWithKey(
 
 // ─── Singleton export (for backward compatibility) ──────────────────────────
 
+function getLLMType(): 'deepseek' | 'openai' | 'anthropic' {
+  const p = process.env.LLM_PROVIDER;
+  if (p === 'openai') return 'openai';
+  if (p === 'anthropic') return 'anthropic';
+  return 'deepseek';
+}
+
 export function getLLMProvider(): LLMProvider {
   return createLLMProvider(getLLMType());
 }

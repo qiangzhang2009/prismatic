@@ -2,11 +2,11 @@
  * User credits + billing mode info
  * GET — returns current credits, plan, and active billing mode
  */
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { authenticateRequest } from '@/lib/user-management';
 import { prisma } from '@/lib/prisma';
 
-export async function GET(request: Request) {
+export async function GET(request: NextRequest) {
   const userId = await authenticateRequest(request);
   if (!userId) {
     return NextResponse.json({ error: '请先登录' }, { status: 401 });

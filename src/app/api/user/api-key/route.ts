@@ -4,7 +4,7 @@
  * GET    — get masked status
  * DELETE — remove API Key
  */
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { authenticateRequest } from '@/lib/user-management';
 import { encryptApiKey, maskApiKey, hashApiKey } from '@/lib/encryption';
 import { prisma } from '@/lib/prisma';
@@ -19,7 +19,7 @@ const VALIDATORS = {
 } as const;
 
 // POST — set or update API Key
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   const userId = await authenticateRequest(request);
   if (!userId) {
     return NextResponse.json({ error: '请先登录' }, { status: 401 });
@@ -73,7 +73,7 @@ export async function POST(request: Request) {
 }
 
 // GET — get masked API Key status
-export async function GET(request: Request) {
+export async function GET(request: NextRequest) {
   const userId = await authenticateRequest(request);
   if (!userId) {
     return NextResponse.json({ error: '请先登录' }, { status: 401 });
@@ -102,7 +102,7 @@ export async function GET(request: Request) {
 }
 
 // DELETE — remove API Key
-export async function DELETE(request: Request) {
+export async function DELETE(request: NextRequest) {
   const userId = await authenticateRequest(request);
   if (!userId) {
     return NextResponse.json({ error: '请先登录' }, { status: 401 });

@@ -14,6 +14,7 @@ import {
   type UseQueryOptions,
   type UseMutationOptions,
 } from '@tanstack/react-query';
+import type { CapacityReport } from '@/lib/admin/capacity-monitor';
 
 // ─── Types ─────────────────────────────────────────────────────────────────────
 
@@ -313,9 +314,9 @@ export function useAnalyticsPersonas(days: number = 30) {
 // ─── Capacity Monitor ─────────────────────────────────────────────────────────
 
 export function useCapacity() {
-  return useQuery({
+  return useQuery<CapacityReport>({
     queryKey: ['admin', 'capacity'],
-    queryFn: () => fetchAdminAPI('/api/admin/capacity'),
+    queryFn: () => fetchAdminAPI<CapacityReport>('/api/admin/capacity'),
     staleTime: 1000 * 60 * 30,
     retry: 1,
   });

@@ -65,7 +65,7 @@ export async function getStorageUsage(): Promise<StorageUsage> {
       WHERE n.nspname = 'public'
         AND c.relkind IN ('r', 't', 'm')
     `;
-    usedBytes = Number(result[0]?.total_bytes || 0n);
+    usedBytes = Number(result[0]?.total_bytes || BigInt(0));
   } catch (err) {
     console.warn('[Capacity] Cannot query storage size (may lack permissions):', err);
   }
@@ -129,7 +129,7 @@ export async function getComputeUsage(): Promise<ComputeUsage> {
     const result = await prisma.$queryRaw<[{ count: bigint }]>`
       SELECT COUNT(*) FROM pg_stat_activity WHERE state = 'active'
     `;
-    const activeConnections = Number(result[0]?.count || 0n);
+    const activeConnections = Number(result[0]?.count || BigInt(0));
     const maxConnections = NEON_LIMITS.maxConnections;
     const usedPercent = activeConnections / maxConnections;
     return {
