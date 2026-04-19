@@ -15,30 +15,31 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { nanoid } from 'nanoid';
-import { createLLMProvider } from '@/lib/llm';
+import { createLLMProviderWithKey, type LLMResponse } from '@/lib/llm';
 import { getPersonasByIds } from '@/lib/personas';
 import { PERSONA_CONFIDENCE } from '@/lib/confidence';
-import { authenticateRequest } from '@/lib/user-management';
+import { authenticateRequest, getUserById } from '@/lib/user-management';
 import { checkUserDailyLimit } from '@/lib/message-stats';
-import { getUserById } from '@/lib/user-management';
+import { resolveBillingMode, deductCreditsIfNeeded } from '@/lib/billing/engine';
 import { prisma } from '@/lib/prisma';
 import { trackEvent, trackEvents, incrementSessionMessages, trackChatStart, trackChatEnd } from '@/lib/analytics';
 import type { Mode } from '@/lib/types';
 
 export const runtime = 'nodejs';
 
-function getLLMType(): 'deepseek' | 'openai' | 'anthropic' {
-  const p = process.env.LLM_PROVIDER;
-  if (p === 'openai') return 'openai';
-  if (p === 'anthropic') return 'anthropic';
-  return 'deepseek';
+function getModelName(llmType: 'deepseek' | 'openai' | 'anthropic'): string {
+  switch (llmType) {
+    case 'openai': return 'gpt-4o';
+    case 'anthropic': return 'claude-sonnet-4-20250514';
+    default: return 'deepseek-chat';
+  }
 }
 
-function getModelName(): string {
-  const p = process.env.LLM_PROVIDER;
-  if (p === 'openai') return 'gpt-4o';
-  if (p === 'anthropic') return 'claude-sonnet-4-20250514';
-  return 'deepseek-chat';
+/**
+ * Creates LLM provider using user's API key (mode A) or platform key (mode B).
+ */
+function makeLLM(type: 'deepseek' | 'openai' | 'anthropic', key?: string) {
+  return createLLMProviderWithKey(type, key);
 }
 
 // ─── Persistence ────────────────────────────────────────────────────────────────
@@ -90,10 +91,12 @@ async function persistConversation(
       content: msg.content,
       personaId: msg.personaId || undefined,
       modelUsed: msg.modelUsed || undefined,
-      tokensInput: msg.tokensInput || undefined,
-      tokensOutput: msg.tokensOutput || undefined,
+      // Use real token usage from API response (_usage) when available
+      tokensInput: msg._usage?.promptTokens || msg.tokensInput || undefined,
+      tokensOutput: msg._usage?.completionTokens || msg.tokensOutput || undefined,
       apiCost: msg.apiCost ? parseFloat(String(msg.apiCost)) : undefined,
       metadata: msg.metadata ? JSON.stringify(msg.metadata) : undefined,
+      source: 'web',
       createdAt: new Date(msg.timestamp || Date.now()),
     }));
 
@@ -145,11 +148,11 @@ function estimateTokenCost(model: string, inputTokens: number, outputTokens: num
 }
 
 async function llmChat(
-  llm: ReturnType<typeof createLLMProvider>,
+  llm: { chat: (opts: any) => Promise<LLMResponse> },
+  model: string,
   messages: any[],
   options: { temperature?: number; maxTokens: number }
-) {
-  const model = getModelName();
+): Promise<LLMResponse> {
   return llm.chat({ model, messages, ...options });
 }
 
@@ -160,8 +163,12 @@ function getPersonaConfidence(personaId: string): number {
 
 // ─── Solo: Deep Dive ────────────────────────────────────────────────────────
 
-async function handleSolo(personas: any[], message: string, history: any[] = []) {
-  const llm = createLLMProvider(getLLMType());
+async function handleSolo(
+  { llm, modelName }: { llm: { chat: (opts: any) => Promise<LLMResponse> }; modelName: string },
+  personas: any[],
+  message: string,
+  history: any[] = []
+) {
   const persona = personas[0];
 
   const systemPrompt = `${persona.systemPromptTemplate}
@@ -178,7 +185,7 @@ Use "I" not "this persona would...".`;
 
   msgs.push({ role: 'user', content: message });
 
-  const result = await llmChat(llm, msgs, { temperature: 0.7, maxTokens: 500 });
+  const result = await llmChat(llm, modelName, msgs, { temperature: 0.7, maxTokens: 500 });
 
   return [{
     id: nanoid(),
@@ -187,6 +194,8 @@ Use "I" not "this persona would...".`;
     content: result.content,
     confidence: getPersonaConfidence(persona.id),
     timestamp: new Date().toISOString(),
+    // Real token usage from API
+    _usage: result.usage,
   }];
 }
 
@@ -194,8 +203,11 @@ Use "I" not "this persona would...".`;
 // Step 1: All personas answer in parallel
 // Step 2: Synthesis
 
-async function handlePrism(personas: any[], question: string) {
-  const llm = createLLMProvider(getLLMType());
+async function handlePrism(
+  { llm, modelName }: { llm: { chat: (opts: any) => Promise<LLMResponse> }; modelName: string },
+  personas: any[],
+  question: string
+) {
 
   // Step 1: Parallel perspective answers
   const perspectiveResults = await Promise.allSettled(
@@ -206,13 +218,14 @@ Identity: ${persona.identityPrompt}
 问题：「${question}」
 
 用你的视角和思维方式回答这个问题。150字以内，直接、有观点、像你在说话。`;
-      return llmChat(llm,
+      return llmChat(llm, modelName,
         [{ role: 'system', content: prompt }, { role: 'user', content: question }],
         { temperature: 0.7, maxTokens: 250 }
       ).then(r => ({
         personaId: persona.id,
         nameZh: persona.nameZh,
         response: r.content,
+        _usage: r.usage, // capture real token usage
       }));
     })
   );
@@ -228,7 +241,7 @@ Identity: ${persona.identityPrompt}
     .map(p => `[${p.nameZh}]: ${p.response}`)
     .join('\n\n');
 
-  const synthesisResult = await llmChat(llm, [
+  const synthesisResult = await llmChat(llm, modelName, [
     { role: 'system', content: '你是认知综合者。分析多个专家视角，给出共识、分歧和整合洞察，中文回复。' },
     { role: 'user', content: `问题：「${question}」\n\n各视角回答：\n${perspectiveTexts}\n\n请提取：1) 共识 2) 分歧 3) 整合洞察（各40字以内）` },
   ], { temperature: 0.4, maxTokens: 300 });
@@ -240,6 +253,7 @@ Identity: ${persona.identityPrompt}
     content: p.response,
     confidence: getPersonaConfidence(p.personaId),
     timestamp: new Date().toISOString(),
+    _usage: p._usage,
   }));
 
   return {
@@ -248,6 +262,7 @@ Identity: ${persona.identityPrompt}
       id: nanoid(),
       content: synthesisResult.content,
       timestamp: new Date().toISOString(),
+      _usage: synthesisResult.usage,
     },
   };
 }
@@ -256,8 +271,11 @@ Identity: ${persona.identityPrompt}
 // The LLM generates the complete dialogue (openings + reactions + convergence)
 // as a structured response in a single LLM call. Much faster and more reliable.
 
-async function handleRoundtable(personas: any[], topic: string) {
-  const llm = createLLMProvider(getLLMType());
+async function handleRoundtable(
+  { llm, modelName }: { llm: { chat: (opts: any) => Promise<LLMResponse> }; modelName: string },
+  personas: any[],
+  topic: string
+) {
 
   // Limit to 5 personas max for a clean dialogue
   const speakers = personas.slice(0, 5);
@@ -283,7 +301,7 @@ async function handleRoundtable(personas: any[], topic: string) {
 
 请生成${speakers.length}人×2轮的对话，最后总结。`;
 
-  const result = await llmChat(llm,
+  const result = await llmChat(llm, modelName,
     [{ role: 'system', content: systemPrompt }, { role: 'user', content: userPrompt }],
     { temperature: 0.7, maxTokens: 500 }
   );
@@ -372,8 +390,11 @@ async function handleRoundtable(personas: any[], topic: string) {
 // All three steps (decompose, execute, integrate) combined into a single prompt
 // for maximum speed and reliability.
 
-async function handleMission(personas: any[], mission: string) {
-  const llm = createLLMProvider(getLLMType());
+async function handleMission(
+  { llm, modelName }: { llm: { chat: (opts: any) => Promise<LLMResponse> }; modelName: string },
+  personas: any[],
+  mission: string
+) {
 
   // Limit to 4 personas
   const participants = personas.slice(0, 4);
@@ -404,12 +425,13 @@ ${personaList}
 
 请分解任务、让各专家完成分工、并整合出最终完整成果。`;
 
-  const result = await llmChat(llm,
+  const result = await llmChat(llm, modelName,
     [{ role: 'system', content: systemPrompt }, { role: 'user', content: userPrompt }],
     { temperature: 0.5, maxTokens: 800 }
   );
 
   const rawContent = result.content.trim();
+  const _missionUsage = result.usage;
 
   // Build persona name → id map for matching
   const personaNameMap: Record<string, string> = {};
@@ -497,14 +519,18 @@ ${personaList}
       content: output || rawContent,
       timestamp: new Date().toISOString(),
     },
+    _usage: _missionUsage,
   };
 }
 
 // ─── Epoch Clash: Two-Sided Adversarial Debate ──────────────────────────────
 // "关公战秦琼" — exactly 2 personas, PRO vs CON, structured debate
 
-async function handleEpoch(personas: any[], topic: string) {
-  const llm = createLLMProvider(getLLMType());
+async function handleEpoch(
+  { llm, modelName }: { llm: { chat: (opts: any) => Promise<LLMResponse> }; modelName: string },
+  personas: any[],
+  topic: string
+) {
 
   if (personas.length < 2) {
     return { turns: [], verdict: { winner: null, reasoning: '需要至少2位人物才能进行关公战秦琼', consensus: '' } };
@@ -539,12 +565,13 @@ async function handleEpoch(personas: any[], topic: string) {
 
 请主持完整辩论。`;
 
-  const result = await llmChat(llm,
+  const result = await llmChat(llm, modelName,
     [{ role: 'system', content: systemPrompt }, { role: 'user', content: userPrompt }],
     { temperature: 0.7, maxTokens: 700 }
   );
 
   const rawContent = result.content.trim();
+  const _epochUsage = result.usage;
 
   // Parse turns: "**【...】**: 内容" pattern
   const turnRegex = /^\*\*【(.+?)】(?:\s*(.+?))?\*\*[:：]\s*(.+)$/gm;
@@ -605,14 +632,18 @@ async function handleEpoch(personas: any[], topic: string) {
       reasoning: reasoning || '辩论已完成',
       consensus: winner ? `${winner}方在本轮辩论中更具说服力` : '本轮辩论以平局收场',
     },
+    _usage: _epochUsage,
   };
 }
 
 // ─── Council: Advisory Board ────────────────────────────────────────────────
 // 2-4 personas give expert advice, cross-evaluate, then reach consensus
 
-async function handleCouncil(personas: any[], question: string) {
-  const llm = createLLMProvider(getLLMType());
+async function handleCouncil(
+  { llm, modelName }: { llm: { chat: (opts: any) => Promise<LLMResponse> }; modelName: string },
+  personas: any[],
+  question: string
+) {
   const speakers = personas.slice(0, 4);
 
   const speakerList = speakers.map((p, i) =>
@@ -641,12 +672,13 @@ ${speakers.length > 2 ? `**${speakers[2].nameZh}点评**: 内容` : ''}
 
 请让各顾问给出专业建议，互相点评，并最终形成共识行动方案。`;
 
-  const result = await llmChat(llm,
+  const result = await llmChat(llm, modelName,
     [{ role: 'system', content: systemPrompt }, { role: 'user', content: userPrompt }],
     { temperature: 0.5, maxTokens: 700 }
   );
 
   const rawContent = result.content.trim();
+  const _councilUsage = result.usage;
   const personaNameMap: Record<string, string> = {};
   for (const p of speakers) personaNameMap[p.nameZh] = p.id;
 
@@ -696,8 +728,11 @@ ${speakers.length > 2 ? `**${speakers[2].nameZh}点评**: 内容` : ''}
 // ─── Oracle: Future Diagnosis ───────────────────────────────────────────────
 // 1-2 personas look at current situation and predict the future
 
-async function handleOracle(personas: any[], question: string) {
-  const llm = createLLMProvider(getLLMType());
+async function handleOracle(
+  { llm, modelName }: { llm: { chat: (opts: any) => Promise<LLMResponse> }; modelName: string },
+  personas: any[],
+  question: string
+) {
   const speaker = personas[0];
 
   const systemPrompt = `你是预言家，以${speaker.nameZh}的视角，用未来视角审视现在。
@@ -724,7 +759,7 @@ async function handleOracle(personas: any[], question: string) {
 `;
 
   const userPrompt = `请以预言家的视角，分析这个问题：${question}`;
-  const result = await llmChat(llm,
+  const result = await llmChat(llm, modelName,
     [{ role: 'system', content: systemPrompt }, { role: 'user', content: userPrompt }],
     { temperature: 0.8, maxTokens: 600 }
   );
@@ -740,8 +775,11 @@ async function handleOracle(personas: any[], question: string) {
 // ─── Fiction: Collaborative Storytelling ────────────────────────────────────
 // 2-3 personas co-create a story, each speaking in their own voice
 
-async function handleFiction(personas: any[], premise: string) {
-  const llm = createLLMProvider(getLLMType());
+async function handleFiction(
+  { llm, modelName }: { llm: { chat: (opts: any) => Promise<LLMResponse> }; modelName: string },
+  personas: any[],
+  premise: string
+) {
   const speakers = personas.slice(0, 3);
 
   const systemPrompt = `你是故事主持人，让${speakers.map(p => `${p.nameZh}（${p.identityPrompt}）`).join('、')}共同演绎一个故事。
@@ -759,7 +797,7 @@ async function handleFiction(personas: any[], premise: string) {
 `;
 
   const userPrompt = `故事背景/前提：${premise}`;
-  const result = await llmChat(llm,
+  const result = await llmChat(llm, modelName,
     [{ role: 'system', content: systemPrompt }, { role: 'user', content: userPrompt }],
     { temperature: 0.9, maxTokens: 800 }
   );
@@ -825,12 +863,30 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'No valid personas' }, { status: 400 });
     }
 
+    // ── Billing mode resolution ─────────────────────────────────────────────
+    // API Key (mode A) takes priority; falls back to platform (mode B)
+    const billing = await resolveBillingMode(userId);
+
+    if (!billing.allowed) {
+      if (billing.reason === 'INSUFFICIENT_CREDITS') {
+        return NextResponse.json({
+          error: '积分余额不足，请联系微信 3740977 充值',
+          code: 'INSUFFICIENT_CREDITS',
+        }, { status: 402 });
+      }
+      return NextResponse.json({ error: billing.reason }, { status: 401 });
+    }
+
+    // Create LLM provider with user's key (mode A) or platform key (mode B)
+    const llmApiKey = billing.apiKey || billing.platformApiKey;
+    const llm = makeLLM(billing.provider, llmApiKey);
+    const modelName = getModelName(billing.provider);
+    const llmContext = { llm, modelName };
+
     // ── Daily usage limit check ──────────────────────────────────────────────
-    // Fetch user to get their subscription plan (determines if they have daily limits)
     const user = await getUserById(userId);
     const userPlan = user?.plan ?? 'FREE';
-    const userCredits = user?.credits ?? 0;
-    const { allowed, current, limit } = await checkUserDailyLimit(userId, userPlan, userCredits);
+    const { allowed, current, limit } = await checkUserDailyLimit(userId, userPlan);
     if (!allowed) {
       return NextResponse.json({
         error: `今日对话次数已达上限（${limit}次/天），明天再来探索吧~`,
@@ -845,33 +901,41 @@ export async function POST(request: NextRequest) {
 
     switch (mode) {
       case 'solo':
-        data = { conversationId: convId, messages: await handleSolo(personas, message, history) };
+        data = { conversationId: convId, messages: await handleSolo(llmContext, personas, message, history) };
         break;
       case 'prism': {
-        const result = await handlePrism(personas, message);
+        const result = await handlePrism(llmContext, personas, message);
         data = { conversationId: convId, ...result };
         break;
       }
       case 'roundtable':
-        data = { conversationId: convId, debate: await handleRoundtable(personas, message) };
+        data = { conversationId: convId, debate: await handleRoundtable(llmContext, personas, message) };
         break;
       case 'mission':
-        data = { conversationId: convId, mission: await handleMission(personas, message) };
+        data = { conversationId: convId, mission: await handleMission(llmContext, personas, message) };
         break;
       case 'epoch':
-        data = { conversationId: convId, debate: await handleEpoch(personas, message) };
+        data = { conversationId: convId, debate: await handleEpoch(llmContext, personas, message) };
         break;
       case 'council':
-        data = { conversationId: convId, ...(await handleCouncil(personas, message)) };
+        data = { conversationId: convId, ...(await handleCouncil(llmContext, personas, message)) };
         break;
       case 'oracle':
-        data = { conversationId: convId, ...(await handleOracle(personas, message)) };
+        data = { conversationId: convId, ...(await handleOracle(llmContext, personas, message)) };
         break;
       case 'fiction':
-        data = { conversationId: convId, ...(await handleFiction(personas, message)) };
+        data = { conversationId: convId, ...(await handleFiction(llmContext, personas, message)) };
         break;
       default:
         return NextResponse.json({ error: 'Unknown mode' }, { status: 400 });
+    }
+
+    // ── Post-conversation: deduct credits if needed (mode B, FREE plan) ────
+    if (billing.mode === 'B' && billing.creditsToDeduct > 0) {
+      await deductCreditsIfNeeded(userId, billing.creditsToDeduct, {
+        conversationId: convId,
+        description: `对话消耗 (${mode} 模式)`,
+      });
     }
 
     // ── Persistence ────────────────────────────────────────────────────────────
@@ -887,18 +951,26 @@ export async function POST(request: NextRequest) {
       })) || []),
     ].filter(Boolean);
 
-    // Estimate token usage and cost
-    const totalInputTokens = allMessages.reduce((sum: number, msg: any) => {
-      // Rough estimate: 1 token ≈ 4 characters (simplified)
-      return sum + Math.ceil((msg.content?.length || 0) / 4);
-    }, 0);
-    const totalOutputTokens = allMessages.reduce((sum: number, msg: any) => {
-      if (msg.role === 'agent') {
-        return sum + Math.ceil((msg.content?.length || 0) / 4);
+    // Use real token counts from API responses where available
+    let totalInputTokens = 0;
+    let totalOutputTokens = 0;
+    let totalCost = 0;
+    for (const msg of allMessages) {
+      if (msg._usage) {
+        totalInputTokens += msg._usage.promptTokens ?? 0;
+        totalOutputTokens += msg._usage.completionTokens ?? 0;
+      } else {
+        const chars = msg.content?.length || 0;
+        const estimated = Math.ceil(chars / 4);
+        if (msg.role === 'user') {
+          totalInputTokens += estimated;
+        } else {
+          totalOutputTokens += estimated;
+        }
       }
-      return sum;
-    }, 0);
-    const { cost } = estimateTokenCost(getModelName(), totalInputTokens, totalOutputTokens);
+    }
+    const { cost } = estimateTokenCost(getModelName(billing.provider), totalInputTokens, totalOutputTokens);
+    totalCost = cost;
 
     // Persist conversation and messages
     await persistConversation(

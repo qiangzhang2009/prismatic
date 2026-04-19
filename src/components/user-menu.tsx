@@ -306,8 +306,7 @@ export function UserMenu() {
                     {user.role === 'ADMIN' && (
                       <>
                         <div className="h-px bg-border-subtle my-1" />
-                        <MenuItem icon={ShieldCheck} label="用户管理" href="/admin/users" onClick={() => setIsOpen(false)} />
-                        <MenuItem icon={Shield} label="系统概览" href="/admin" onClick={() => setIsOpen(false)} />
+                        <MenuItem icon={ShieldCheck} label="管理后台" href="/admin" onClick={() => setIsOpen(false)} />
                       </>
                     )}
 

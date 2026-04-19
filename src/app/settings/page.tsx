@@ -15,7 +15,8 @@ import {
   ArrowLeft, User, Mail, Lock, Shield, Bell, Trash2,
   Save, CheckCircle, AlertTriangle, RefreshCw,
   ChevronRight, Smartphone, Github, Crown,
-  Edit3, X, Check, Eye, EyeOff, Zap, CreditCard, DollarSign, ChevronDown
+  Edit3, X, Check, Eye, EyeOff, Zap, CreditCard, DollarSign, ChevronDown,
+  Key,
 } from 'lucide-react';
 import { useAuthMe, type AuthUserMe } from '@/lib/use-auth-me';
 
@@ -403,6 +404,63 @@ function AccountTab({ user, onSuccess, onError }: {
 /* ─── Subscription Tab ─── */
 function SubscriptionTab({ user }: { user: AuthUserMe }) {
   const { refetch } = useAuthMe();
+  const [apiKeyLoading, setApiKeyLoading] = useState(false);
+  const [apiKeyInput, setApiKeyInput] = useState('');
+  const [apiKeyProvider, setApiKeyProvider] = useState<'deepseek' | 'openai' | 'anthropic'>('deepseek');
+  const [apiKeyError, setApiKeyError] = useState('');
+  const [apiKeySuccess, setApiKeySuccess] = useState('');
+  const [showApiKeyInput, setShowApiKeyInput] = useState(false);
+
+  const [creditLogPage, setCreditLogPage] = useState(1);
+  const [creditLogs, setCreditLogs] = useState<any[]>([]);
+  const [creditLogsTotal, setCreditLogsTotal] = useState(0);
+  const [creditLogsLoading, setCreditLogsLoading] = useState(false);
+
+  // Fetch credit logs when tab is visible
+  useEffect(() => {
+    if (user?.plan === 'FREE') {
+      setCreditLogsLoading(true);
+      fetch(`/api/user/credit-logs?page=${creditLogPage}`)
+        .then(r => r.json())
+        .then(data => {
+          setCreditLogs(data.logs || []);
+          setCreditLogsTotal(data.total || 0);
+        })
+        .catch(() => {})
+        .finally(() => setCreditLogsLoading(false));
+    }
+  }, [user?.plan, creditLogPage]);
+
+  const handleSaveApiKey = async () => {
+    if (!apiKeyInput.trim()) { setApiKeyError('请输入有效的 API Key'); return; }
+    setApiKeyLoading(true);
+    setApiKeyError('');
+    try {
+      const res = await fetch('/api/user/api-key', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ key: apiKeyInput.trim(), provider: apiKeyProvider }),
+      });
+      const data = await res.json();
+      if (!res.ok) { setApiKeyError(data.error || '保存失败'); return; }
+      setApiKeySuccess(`已保存 ${data.provider?.toUpperCase()} Key`);
+      setShowApiKeyInput(false);
+      setApiKeyInput('');
+      setTimeout(() => setApiKeySuccess(''), 3000);
+      refetch();
+    } catch { setApiKeyError('网络错误，请重试'); }
+    finally { setApiKeyLoading(false); }
+  };
+
+  const handleDeleteApiKey = async () => {
+    if (!confirm('确定要删除 API Key 吗？删除后将使用平台代付模式。')) return;
+    setApiKeyLoading(true);
+    try {
+      await fetch('/api/user/api-key', { method: 'DELETE' });
+      refetch();
+    } finally { setApiKeyLoading(false); }
+  };
+
   const planLabels: Record<string, string> = {
     FREE: '免费版',
     MONTHLY: '月度会员',
@@ -455,6 +513,93 @@ function SubscriptionTab({ user }: { user: AuthUserMe }) {
         </div>
         {user.plan === 'FREE' && (
           <p className="text-xs text-text-muted mt-2">免费用户每日 10 条上限</p>
+        )}
+      </div>
+
+      {/* API Key 管理区块（User-Pays 模式） */}
+      <div className="rounded-xl border border-border-subtle bg-bg-elevated p-4 mb-6">
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center gap-2">
+            <Key className="w-4 h-4 text-blue-400" />
+            <span className="text-sm font-medium text-text-primary">API Key（User-Pays 模式）</span>
+            {user.apiKeyStatus === 'valid' && (
+              <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-green-400/15 text-green-400">已设置</span>
+            )}
+          </div>
+          {!showApiKeyInput && user.apiKeyStatus !== 'valid' && (
+            <button
+              onClick={() => setShowApiKeyInput(true)}
+              className="text-xs text-blue-400 hover:text-blue-300 transition-colors"
+            >
+              设置 Key
+            </button>
+          )}
+        </div>
+
+        {apiKeySuccess && (
+          <div className="mb-3 p-2 rounded-lg bg-green-400/10 text-green-400 text-xs">
+            {apiKeySuccess}
+          </div>
+        )}
+
+        {showApiKeyInput ? (
+          <div className="space-y-2">
+            <select
+              value={apiKeyProvider}
+              onChange={e => setApiKeyProvider(e.target.value as any)}
+              className="w-full px-3 py-2 rounded-lg bg-bg-surface border border-border-subtle text-sm text-text-primary"
+            >
+              <option value="deepseek">DeepSeek</option>
+              <option value="openai">OpenAI</option>
+              <option value="anthropic">Anthropic</option>
+            </select>
+            <input
+              type="password"
+              value={apiKeyInput}
+              onChange={e => setApiKeyInput(e.target.value)}
+              placeholder="粘贴你的 API Key..."
+              className="w-full px-3 py-2 rounded-lg bg-bg-surface border border-border-subtle text-sm text-text-primary placeholder-text-muted/50 font-mono"
+            />
+            {apiKeyError && <p className="text-xs text-red-400">{apiKeyError}</p>}
+            <div className="flex gap-2">
+              <button
+                onClick={handleSaveApiKey}
+                disabled={apiKeyLoading}
+                className="flex-1 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white text-sm font-medium transition-colors"
+              >
+                {apiKeyLoading ? '验证中...' : '保存并验证'}
+              </button>
+              <button
+                onClick={() => { setShowApiKeyInput(false); setApiKeyError(''); setApiKeyInput(''); }}
+                className="px-4 py-2 rounded-lg bg-bg-surface hover:bg-bg-overlay text-text-secondary text-sm transition-colors"
+              >
+                取消
+              </button>
+            </div>
+            <p className="text-[10px] text-text-muted/60">
+              你的 API Key 使用 AES-256-GCM 加密存储，仅用于调用你自己的 LLM 账户
+            </p>
+          </div>
+        ) : user.apiKeyStatus === 'valid' ? (
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-xs text-text-secondary">
+                {user.apiKeyProvider?.toUpperCase()} Key 已设置
+              </p>
+              <p className="text-[10px] text-text-muted/60 mt-0.5">对话费用直接从你的 LLM 账户扣除，平台零成本</p>
+            </div>
+            <button
+              onClick={handleDeleteApiKey}
+              disabled={apiKeyLoading}
+              className="text-xs text-red-400 hover:text-red-300 disabled:opacity-50 transition-colors"
+            >
+              删除
+            </button>
+          </div>
+        ) : (
+          <p className="text-xs text-text-muted">
+            使用你自己的 API Key 可以零平台成本无限对话，支持 DeepSeek / OpenAI / Anthropic
+          </p>
         )}
       </div>
 
@@ -528,6 +673,51 @@ function SubscriptionTab({ user }: { user: AuthUserMe }) {
         </div>
         <p className="text-xs text-text-muted mt-2 text-center">充值条数永久有效，不清零，不过期</p>
       </div>
+
+      {/* 积分流水（FREE 用户） */}
+      {user.plan === 'FREE' && (
+        <div>
+          <p className="text-sm font-medium text-text-primary mb-3">积分流水</p>
+          {creditLogsLoading ? (
+            <div className="space-y-2">
+              {[1,2,3].map(i => <div key={i} className="h-12 bg-bg-surface rounded-lg animate-pulse" />)}
+            </div>
+          ) : creditLogs.length === 0 ? (
+            <p className="text-xs text-text-muted text-center py-4">暂无积分变动记录</p>
+          ) : (
+            <div className="space-y-1">
+              {creditLogs.map((log: any) => (
+                <div key={log.id} className="flex items-center justify-between py-2 px-3 rounded-lg bg-bg-surface">
+                  <div>
+                    <p className="text-xs text-text-secondary">{log.description || log.type}</p>
+                    <p className="text-[10px] text-text-muted/60">
+                      {new Date(log.createdAt).toLocaleString('zh-CN')}
+                    </p>
+                  </div>
+                  <span className={`text-xs font-medium ${log.amount > 0 ? 'text-green-400' : 'text-red-400'}`}>
+                    {log.amount > 0 ? `+${log.amount}` : log.amount}
+                  </span>
+                </div>
+              ))}
+              {creditLogsTotal > 20 && (
+                <div className="flex items-center justify-center gap-2 pt-2">
+                  <button
+                    onClick={() => setCreditLogPage(p => Math.max(1, p - 1))}
+                    disabled={creditLogPage === 1}
+                    className="text-xs text-text-muted disabled:opacity-30"
+                  >上一页</button>
+                  <span className="text-xs text-text-muted">{creditLogPage} / {Math.ceil(creditLogsTotal / 20)}</span>
+                  <button
+                    onClick={() => setCreditLogPage(p => p + 1)}
+                    disabled={creditLogPage >= Math.ceil(creditLogsTotal / 20)}
+                    className="text-xs text-text-muted disabled:opacity-30"
+                  >下一页</button>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Contact */}
       <div className="rounded-xl border border-border-subtle bg-bg-elevated p-4 text-center">

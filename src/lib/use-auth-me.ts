@@ -26,6 +26,9 @@ export interface AuthUserMe {
   avatar: string | null;
   canUseProFeatures: boolean;
   isAdmin?: boolean;
+  // Billing
+  apiKeyStatus?: string | null;
+  apiKeyProvider?: string | null;
 }
 
 export function useAuthMe() {

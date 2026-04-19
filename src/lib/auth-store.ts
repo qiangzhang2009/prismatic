@@ -219,19 +219,11 @@ export function getFeatureLimit(plan: SubscriptionPlan): {
     case 'YEARLY':
     case 'LIFETIME':
       return {
-        dailyMessages: 999999,
-        personaCount: 999999,
+        dailyMessages: 99999,
+        personaCount: 99999,
         exportEnabled: true,
         priority: true,
         customPersona: true,
-      };
-    default:
-      return {
-        dailyMessages: 20,
-        personaCount: 3,
-        exportEnabled: false,
-        priority: false,
-        customPersona: false,
       };
   }
 }

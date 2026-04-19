@@ -139,42 +139,38 @@ export async function createDebate(
   participantIds: string[],
   topicSource: 'auto' | 'manual' | 'user_suggested' = 'auto'
 ): Promise<number> {
-  // Pre-check: require the table to exist so we get a clear error instead of silent 0
-  await requireTable('prismatic_forum_debates');
-
   const today = new Date().toISOString().slice(0, 10);
   const sql = getSql();
 
-  // Check if debate already exists for today — return existing ID instead of throwing
-  const existing = await sql`
+  // Use safeQuery to handle missing table gracefully
+  const existing = await safeQuery((s) => s`
     SELECT id FROM prismatic_forum_debates WHERE date = ${today} LIMIT 1
-  `;
-  if (existing.length > 0) {
+  `);
+  if (Array.isArray(existing) && existing.length > 0) {
     return (existing[0] as any).id;
   }
 
-  const rows = await sql`
+  const rows = await safeQuery((s) => s`
     INSERT INTO prismatic_forum_debates (date, topic, topic_source, status, participant_ids, round_count)
     VALUES (${today}, ${topic}, ${topicSource}, ${'scheduled'}, ${participantIds}, ${3})
     RETURNING id
-  `;
-  return (rows as any[])?.[0]?.id ?? 0;
+  `);
+  return (Array.isArray(rows) ? rows : [])[0]?.id ?? 0;
 }
 
 export async function updateDebateStatus(
   debateId: number,
   status: 'scheduled' | 'running' | 'completed'
 ): Promise<void> {
-  await requireTable('prismatic_forum_debates');
   const now = new Date().toISOString();
   const sql = getSql();
 
   if (status === 'running') {
-    await sql`UPDATE prismatic_forum_debates SET status = ${status}, started_at = ${now} WHERE id = ${debateId}`;
+    await safeQueryVoid((s) => s`UPDATE prismatic_forum_debates SET status = ${status}, started_at = ${now} WHERE id = ${debateId}`);
   } else if (status === 'completed') {
-    await sql`UPDATE prismatic_forum_debates SET status = ${status}, completed_at = ${now} WHERE id = ${debateId}`;
+    await safeQueryVoid((s) => s`UPDATE prismatic_forum_debates SET status = ${status}, completed_at = ${now} WHERE id = ${debateId}`);
   } else {
-    await sql`UPDATE prismatic_forum_debates SET status = ${status} WHERE id = ${debateId}`;
+    await safeQueryVoid((s) => s`UPDATE prismatic_forum_debates SET status = ${status} WHERE id = ${debateId}`);
   }
 }
 
@@ -186,14 +182,12 @@ export async function recordDebateTurn(
   tone: string,
   reactionToId?: number
 ): Promise<number> {
-  await requireTable('prismatic_forum_debate_turns');
-  const sql = getSql();
-  const rows = await sql`
+  const rows = await safeQuery((s) => s`
     INSERT INTO prismatic_forum_debate_turns (debate_id, round, speaker_id, content, tone, reaction_to_id)
     VALUES (${debateId}, ${round}, ${speakerId}, ${content}, ${tone}, ${reactionToId ?? null})
     RETURNING id
-  `;
-  return (rows as any[])?.[0]?.id ?? 0;
+  `);
+  return (Array.isArray(rows) ? rows : [])[0]?.id ?? 0;
 }
 
 export async function getDebateByDate(date?: string): Promise<DebateRecord | null> {
@@ -209,6 +203,11 @@ export async function getDebateByDate(date?: string): Promise<DebateRecord | nul
     if (!Array.isArray(rows) || rows.length === 0) return null;
 
   const row = rows[0] as any;
+
+  // Ensure all date fields are serialized as ISO strings (Neon returns Date objects)
+  const toStr = (v: unknown): string =>
+    v instanceof Date ? v.toISOString() : v != null ? String(v) : '';
+
   const turnRows = await safeQuery((sql) => sql`
     SELECT * FROM prismatic_forum_debate_turns
     WHERE debate_id = ${row.id}
@@ -223,7 +222,7 @@ export async function getDebateByDate(date?: string): Promise<DebateRecord | nul
     content: t.content,
     tone: t.tone,
     reactionToId: t.reaction_to_id ?? undefined,
-    createdAt: t.created_at instanceof Date ? t.created_at.toISOString() : String(t.created_at),
+    createdAt: toStr(t.created_at),
   }));
 
   // Resolve speakerName via persona lookup
@@ -234,9 +233,9 @@ export async function getDebateByDate(date?: string): Promise<DebateRecord | nul
     turn.speakerName = personaNameMap.get(turn.speakerId) ?? turn.speakerId;
   }
 
-  return {
+  return JSON.parse(JSON.stringify({
     id: row.id,
-    date: row.date,
+    date: toStr(row.date),
     topic: row.topic,
     topicSource: row.topic_source,
     status: row.status,
@@ -244,10 +243,10 @@ export async function getDebateByDate(date?: string): Promise<DebateRecord | nul
     roundCount: row.round_count,
     viewCount: row.view_count,
     liveViewers: row.live_viewers ?? 0,
-    startedAt: row.started_at ? (row.started_at instanceof Date ? row.started_at.toISOString() : String(row.started_at)) : null,
-    completedAt: row.completed_at ? (row.completed_at instanceof Date ? row.completed_at.toISOString() : String(row.completed_at)) : null,
+    startedAt: toStr(row.started_at) || null,
+    completedAt: toStr(row.completed_at) || null,
     turns,
-  };
+  }));
   } catch (err) {
     console.warn('[DebateArena] getDebateByDate failed:', err instanceof Error ? err.message : String(err));
     return null;
@@ -259,6 +258,9 @@ export async function getDebateById(debateId: number): Promise<DebateRecord | nu
   if (!Array.isArray(rows) || rows.length === 0) return null;
 
   const row = rows[0] as any;
+  const toStr = (v: unknown): string =>
+    v instanceof Date ? v.toISOString() : v != null ? String(v) : '';
+
   const turnRows = await safeQuery((sql) => sql`
     SELECT * FROM prismatic_forum_debate_turns
     WHERE debate_id = ${row.id}
@@ -276,12 +278,12 @@ export async function getDebateById(debateId: number): Promise<DebateRecord | nu
     content: t.content,
     tone: t.tone,
     reactionToId: t.reaction_to_id ?? undefined,
-    createdAt: t.created_at instanceof Date ? t.created_at.toISOString() : String(t.created_at),
+    createdAt: toStr(t.created_at),
   }));
 
-  return {
+  return JSON.parse(JSON.stringify({
     id: row.id,
-    date: row.date,
+    date: toStr(row.date),
     topic: row.topic,
     topicSource: row.topic_source,
     status: row.status,
@@ -289,10 +291,10 @@ export async function getDebateById(debateId: number): Promise<DebateRecord | nu
     roundCount: row.round_count,
     viewCount: row.view_count,
     liveViewers: row.live_viewers ?? 0,
-    startedAt: row.started_at ? (row.started_at instanceof Date ? row.started_at.toISOString() : String(row.started_at)) : null,
-    completedAt: row.completed_at ? (row.completed_at instanceof Date ? row.completed_at.toISOString() : String(row.completed_at)) : null,
+    startedAt: toStr(row.started_at) || null,
+    completedAt: toStr(row.completed_at) || null,
     turns,
-  };
+  }));
 }
 
 export async function getRecentDebates(limit: number = 7): Promise<DebateRecord[]> {
@@ -317,24 +319,19 @@ export async function incrementDebateView(
   ipHash?: string
 ): Promise<void> {
   const sql = getSql();
-  // Pre-check: ensure required tables exist
-  await requireTable('prismatic_forum_debate_views');
-  await requireTable('prismatic_forum_debates');
 
   // Record the view
-  await sql`
+  await safeQueryVoid((s) => s`
     INSERT INTO prismatic_forum_debate_views (debate_id, user_id, ip_hash)
     VALUES (${debateId}, ${userId ?? null}, ${ipHash ?? null})
-  `;
+  `);
 
   // Increment total view count
-  await sql`UPDATE prismatic_forum_debates SET view_count = view_count + 1 WHERE id = ${debateId}`;
+  await safeQueryVoid((s) => s`UPDATE prismatic_forum_debates SET view_count = view_count + 1 WHERE id = ${debateId}`);
 }
 
 export async function updateLiveViewers(debateId: number, count: number): Promise<void> {
-  await requireTable('prismatic_forum_debates');
-  const sql = getSql();
-  await sql`UPDATE prismatic_forum_debates SET live_viewers = ${count} WHERE id = ${debateId}`;
+  await safeQueryVoid((s) => s`UPDATE prismatic_forum_debates SET live_viewers = ${count} WHERE id = ${debateId}`);
 }
 
 export async function castVote(
@@ -343,7 +340,6 @@ export async function castVote(
   personaId: string
 ): Promise<{ success: boolean; error?: string }> {
   try {
-    await requireTable('prismatic_forum_debate_votes');
     const sql = getSql();
     await sql`
       INSERT INTO prismatic_forum_debate_votes (debate_id, user_id, persona_id)
@@ -379,13 +375,11 @@ export async function submitTopicSuggestion(
   if (!isTopicSafe(topic)) {
     return { success: false };
   }
-  await requireTable('prismatic_forum_topic_suggestions');
-  const sql = getSql();
-  const rows = await sql`
+  const rows = await safeQuery((s) => s`
     INSERT INTO prismatic_forum_topic_suggestions (topic, suggested_by)
     VALUES (${topic}, ${suggestedBy ?? null})
     RETURNING id
-  `;
+  `);
   const insertedId = Array.isArray(rows) && rows.length > 0 ? (rows[0] as any).id : undefined;
   return { success: true, id: insertedId };
 }

@@ -15,16 +15,17 @@ if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prismaStats;
 export const USER_DAILY_LIMIT = 10;
 
 // 检查用户是否达到今日对话配额上限
+// FREE 用户：每日限制 10 条，由 localStorage 计数
+// 付费用户（MONTHLY/YEARLY/LIFETIME）：无限制
 export async function checkUserDailyLimit(
   userId: string,
-  plan: SubscriptionPlan = 'FREE',
-  credits: number = 0
+  plan: SubscriptionPlan = 'FREE'
 ): Promise<{
   allowed: boolean;
   current: number;
   limit: number;
 }> {
-  if (plan !== 'FREE' || credits > 0) {
+  if (plan !== 'FREE') {
     return { allowed: true, current: 0, limit: 999999 };
   }
   const current = await getDailyMessageCount(userId);
@@ -114,16 +115,16 @@ export async function getTopUsersToday(limit: number = 10): Promise<Array<{ user
 
   const result = await prismaStats.$queryRaw<Array<{ userId: string; date: string; count: bigint; email: string | null; name: string | null }>>`
     SELECT
-      m.user_id as "userId",
-      DATE(m.created_at) as date,
+      m."userId" as "userId",
+      DATE(m."createdAt") as date,
       COUNT(*)::int as count,
       u.email,
       u.name
     FROM messages m
-    INNER JOIN users u ON u.id = m.user_id AND u.status = 'ACTIVE'
-    WHERE m.created_at >= ${today} AND m.created_at < ${nextDate}
+    INNER JOIN users u ON u.id = m."userId" AND u.status = 'ACTIVE'
+    WHERE m."createdAt" >= ${today} AND m."createdAt" < ${nextDate}
       AND m.content != '[message-counted]'
-    GROUP BY m.user_id, DATE(m.created_at), u.email, u.name
+    GROUP BY m."userId", DATE(m."createdAt"), u.email, u.name
     ORDER BY count DESC
     LIMIT ${limit}
   `;
@@ -169,12 +170,12 @@ export async function getGlobalUsageStats(days: number = 7): Promise<{
       },
     }),
     prismaStats.$queryRaw<Array<{ date: Date; total: BigInt }>>`
-      SELECT DATE(created_at) as date, COUNT(*)::int as total
+      SELECT DATE("createdAt") as date, COUNT(*)::int as total
       FROM messages
-      WHERE created_at >= ${weekStart}
+      WHERE "createdAt" >= ${weekStart}
         AND content != '[message-counted]'
-        AND user_id IN (SELECT id FROM users WHERE status = 'ACTIVE')
-      GROUP BY DATE(created_at)
+        AND "userId" IN (SELECT id FROM users WHERE status = 'ACTIVE')
+      GROUP BY DATE("createdAt")
       ORDER BY date ASC
     `,
   ]);

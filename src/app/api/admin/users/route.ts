@@ -26,6 +26,15 @@ export async function GET(req: NextRequest) {
     const sortOrder = searchParams.get('sortOrder') === 'asc' ? 'asc' : 'desc';
 
     const where: any = {};
+    const status = searchParams.get('status') || '';
+    // 默认排除已删除用户，除非明确筛选
+    if (status === 'DELETED') {
+      where.status = 'DELETED';
+    } else if (status) {
+      where.status = status;
+    } else {
+      where.status = { not: 'DELETED' };
+    }
     if (search) {
       where.OR = [
         { email: { contains: search, mode: 'insensitive' } },
@@ -146,7 +155,7 @@ export async function PUT(req: NextRequest) {
     return NextResponse.json({
       user: {
         ...user,
-        canUseProFeatures: canUseProFeatures(user.role, user.plan, user.credits),
+        canUseProFeatures: canUseProFeatures(user.role, user.plan),
         isAdmin: user.role === 'ADMIN',
       },
     });
@@ -190,7 +199,7 @@ export async function PATCH(req: NextRequest) {
 
     return NextResponse.json({
       ...user,
-      canUseProFeatures: canUseProFeatures(user.role, user.plan, user.credits),
+      canUseProFeatures: canUseProFeatures(user.role, user.plan),
       isAdmin: user.role === 'ADMIN',
     });
   } catch (error: any) {

@@ -29,8 +29,8 @@ function isDemoUserId(userId: string): boolean {
   return userId.startsWith('demo_');
 }
 
-function canUseProFeatures(role: string, plan: string, credits: number = 0): boolean {
-  return role === 'ADMIN' || plan !== 'FREE' || credits > 0;
+function canUseProFeatures(role: string, plan: string): boolean {
+  return role === 'ADMIN' || plan !== 'FREE';
 }
 
 function parsePrefs(prefs: any) {
@@ -50,14 +50,14 @@ export async function GET(req: NextRequest) {
   const { userId } = payload;
 
   if (isDemoUserId(userId)) {
-    return NextResponse.json({ user: { id: userId, email: payload.email || 'demo@prismatic.app', name: '演示账号', gender: null, province: null, emailVerified: true, role: 'PRO', plan: 'LIFETIME', credits: 999999, avatar: null, createdAt: new Date(), lastLoginAt: new Date(), canUseProFeatures: true, isAdmin: false } }, { headers: NO_CACHE_HEADERS });
+    return NextResponse.json({ user: { id: userId, email: payload.email || 'demo@prismatic.app', name: '演示账号', gender: null, province: null, emailVerified: true, role: 'PRO', plan: 'LIFETIME', credits: 0, avatar: null, createdAt: new Date(), lastLoginAt: new Date(), canUseProFeatures: true, isAdmin: false } }, { headers: NO_CACHE_HEADERS });
   }
 
   if (!DATABASE_URL) return NextResponse.json({ user: null }, { headers: NO_CACHE_HEADERS });
 
   const sql = neon(DATABASE_URL);
   try {
-    const rows = await sql`SELECT id, email, name, avatar, role, plan, credits, email_verified, created_at, updated_at, preferences FROM users WHERE id = ${userId} LIMIT 1`;
+    const rows = await sql`SELECT id, email, name, avatar, role, plan, credits, "emailVerified", "createdAt", "updatedAt", preferences FROM users WHERE id = ${userId} LIMIT 1`;
     if (rows.length === 0) return NextResponse.json({ user: null }, { headers: NO_CACHE_HEADERS });
 
     const u: any = rows[0];
@@ -65,7 +65,7 @@ export async function GET(req: NextRequest) {
     const role = u.role || 'FREE';
     const plan = u.plan || 'FREE';
 
-    return NextResponse.json({ user: { id: u.id, email: u.email || '', name: u.name, gender, province, emailVerified: !!u.email_verified, role, plan, credits: u.credits || 0, avatar: u.avatar, createdAt: u.created_at, lastLoginAt: u.updated_at, canUseProFeatures: canUseProFeatures(role, plan, u.credits), isAdmin: role === 'ADMIN' } }, { headers: NO_CACHE_HEADERS });
+    return NextResponse.json({ user: { id: u.id, email: u.email || '', name: u.name, gender, province, emailVerified: !!u.emailVerified, role, plan, credits: u.credits || 0, avatar: u.avatar, createdAt: u.createdAt, lastLoginAt: u.updatedAt, canUseProFeatures: canUseProFeatures(role, plan), isAdmin: role === 'ADMIN' } }, { headers: NO_CACHE_HEADERS });
   } catch (error) {
     console.error('[GET /api/auth/me] error:', error);
     return NextResponse.json({ user: null }, { headers: NO_CACHE_HEADERS });
@@ -82,7 +82,7 @@ export async function PUT(req: NextRequest) {
   const { userId } = payload;
 
   if (isDemoUserId(userId)) {
-    return NextResponse.json({ user: { id: userId, email: payload.email || 'demo@prismatic.app', name: '演示账号', role: 'PRO', plan: 'LIFETIME', credits: 999999, canUseProFeatures: true, isAdmin: false } }, { headers: NO_CACHE_HEADERS });
+    return NextResponse.json({ user: { id: userId, email: payload.email || 'demo@prismatic.app', name: '演示账号', role: 'PRO', plan: 'LIFETIME', credits: 0, canUseProFeatures: true, isAdmin: false } }, { headers: NO_CACHE_HEADERS });
   }
 
   if (!DATABASE_URL) return NextResponse.json({ error: 'Server error' }, { status: 500, headers: NO_CACHE_HEADERS });
@@ -105,7 +105,7 @@ export async function PUT(req: NextRequest) {
       }
     }
 
-    const rows = await sql`SELECT id, email, name, avatar, role, plan, credits, email_verified, created_at, updated_at, preferences FROM users WHERE id = ${userId} LIMIT 1`;
+    const rows = await sql`SELECT id, email, name, avatar, role, plan, credits, "emailVerified", "createdAt", "updatedAt", preferences FROM users WHERE id = ${userId} LIMIT 1`;
     if (rows.length === 0) return NextResponse.json({ error: 'User not found' }, { status: 404, headers: NO_CACHE_HEADERS });
 
     const u: any = rows[0];
@@ -113,7 +113,7 @@ export async function PUT(req: NextRequest) {
     const role = u.role || 'FREE';
     const plan = u.plan || 'FREE';
 
-    return NextResponse.json({ user: { id: u.id, email: u.email || '', name: u.name, gender: g, province: p, emailVerified: !!u.email_verified, role, plan, credits: u.credits || 0, avatar: u.avatar, createdAt: u.created_at, lastLoginAt: u.updated_at } }, { headers: NO_CACHE_HEADERS });
+    return NextResponse.json({ user: { id: u.id, email: u.email || '', name: u.name, gender: g, province: p, emailVerified: !!u.emailVerified, role, plan, credits: u.credits || 0, avatar: u.avatar, createdAt: u.createdAt, lastLoginAt: u.updatedAt } }, { headers: NO_CACHE_HEADERS });
   } catch (error) {
     console.error('[PUT /api/auth/me] error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500, headers: NO_CACHE_HEADERS });

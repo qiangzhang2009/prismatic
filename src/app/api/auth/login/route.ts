@@ -40,8 +40,8 @@ function isDemoAccount(email: string, password: string) {
   );
 }
 
-function canUseProFeatures(role: string, plan: string, credits: number = 0): boolean {
-  return role === 'ADMIN' || plan !== 'FREE' || credits > 0;
+function canUseProFeatures(role: string, plan: string): boolean {
+  return role === 'ADMIN' || plan !== 'FREE';
 }
 
 export async function POST(req: NextRequest) {
@@ -86,22 +86,30 @@ export async function POST(req: NextRequest) {
     // ── Regular user login ─────────────────────────────────────────────────────
     const sql = neon(DATABASE_URL);
     const rows = await sql`
-      SELECT id, email, name, avatar, "passwordHash", role, plan, credits
+      SELECT id, email, name, avatar, "passwordHash", role, plan, credits, status
       FROM users
       WHERE email = ${email.toLowerCase()}
-        AND status::text = 'ACTIVE'
       LIMIT 1
     `;
 
     if (rows.length === 0) {
+      console.log(`[login] email=${email} → not found in users table`);
       return NextResponse.json({ error: 'Invalid email or password' }, { status: 401, headers: NO_CACHE_HEADERS });
     }
 
     const user: any = rows[0];
+    console.log(`[login] email=${email} found: status=${user.status} hasHash=${!!user.passwordHash}`);
+    console.log(`[login] email=${email} login attempt with password length=${password.length}`);
+
     const pwHash = String(user.passwordHash || '');
 
-    // No password set — treat as invalid
     if (!pwHash) {
+      console.log(`[login] email=${email} → no password hash set`);
+      return NextResponse.json({ error: 'Invalid email or password' }, { status: 401, headers: NO_CACHE_HEADERS });
+    }
+
+    if (user.status !== 'ACTIVE') {
+      console.log(`[login] email=${email} status=${user.status} → not active`);
       return NextResponse.json({ error: 'Invalid email or password' }, { status: 401, headers: NO_CACHE_HEADERS });
     }
 
@@ -111,6 +119,7 @@ export async function POST(req: NextRequest) {
     } catch {
       valid = false;
     }
+    console.log(`[login] email=${email} bcrypt result=${valid}`);
 
     if (!valid) {
       return NextResponse.json({ error: 'Invalid email or password' }, { status: 401, headers: NO_CACHE_HEADERS });
@@ -126,7 +135,7 @@ export async function POST(req: NextRequest) {
           role: user.role,
           plan: user.plan,
           avatar: user.avatar,
-          canUseProFeatures: canUseProFeatures(user.role, user.plan, user.credits),
+          canUseProFeatures: canUseProFeatures(user.role, user.plan),
           isAdmin: user.role === 'ADMIN',
         },
         message: 'Login successful',

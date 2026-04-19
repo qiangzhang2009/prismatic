@@ -46,10 +46,10 @@ export default function UserDetailPage() {
       <div className="p-6 text-center">
         <p className="text-red-400">加载失败: {error?.message || '用户不存在'}</p>
         <button
-          onClick={() => router.push('/admin/users')}
+          onClick={() => router.push('/admin')}
           className="mt-4 px-4 py-2 bg-gray-800 hover:bg-gray-700 rounded-lg transition-colors"
         >
-          返回用户列表
+          返回管理后台
         </button>
       </div>
     );
@@ -69,7 +69,7 @@ export default function UserDetailPage() {
   const handleDelete = async () => {
     if (!confirm('确定要删除此用户吗？此操作不可撤销。')) return;
     await deleteUser.mutateAsync(userId);
-    router.push('/admin/users');
+    router.push('/admin');
   };
 
   // Prepare activity chart data
@@ -86,7 +86,7 @@ export default function UserDetailPage() {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           <button
-            onClick={() => router.push('/admin/users')}
+            onClick={() => router.push('/admin')}
             className="p-2 hover:bg-gray-800 rounded-lg transition-colors"
           >
             <ArrowLeft className="w-5 h-5 text-gray-400" />

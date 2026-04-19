@@ -12,16 +12,14 @@ import { ModeButtonBar } from '@/components/mode-button-bar';
 import { ModePickerOverlay } from '@/components/mode-picker-overlay';
 import { PERSONA_LIST, getPersonasByIds } from '@/lib/personas';
 import { useChatHistory } from '@/lib/use-chat-history';
-import { useAuthStore } from '@/lib/auth-store';
+import { useAuthStore, getFeatureLimit } from '@/lib/auth-store';
 import type { Mode, Persona, AgentMessage } from '@/lib/types';
 import { nanoid } from 'nanoid';
 import { trackChatStart, trackChatMessage } from '@/lib/use-tracking';
-import { LimitReachedModal } from '@/components/limit-reached-modal';
+import { LimitReachedModal, type LimitModalType } from '@/components/limit-reached-modal';
 import { exportChatAsImage, exportChatAsText } from '@/lib/export-chat';
 
 const STORAGE_KEY = 'prismatic-chat-state';
-
-const DAILY_LIMIT = 10;
 const DAILY_LIMIT_KEY = 'prismatic-daily-messages';
 const DAILY_DATE_KEY = 'prismatic-daily-date';
 
@@ -80,11 +78,12 @@ export function ChatInterface({ className, initialPersona, initialMode }: ChatIn
 
   const saved = loadSavedState();
   const { count: dailyCount } = getDailyCount();
-  // Paid users (plan != FREE) have unlimited → no limit indicator.
-  // FREE users use localStorage daily counter.
-  const isPaid = user?.plan !== 'FREE' || (user?.credits ?? 0) > 0;
-  const dailyRemaining = isPaid ? 999999 : Math.max(0, DAILY_LIMIT - dailyCount);
-  const limitReached = !isPaid && dailyCount >= DAILY_LIMIT;
+  const plan = user?.plan ?? 'FREE';
+  const limits = getFeatureLimit(plan);
+  const isPaid = limits.dailyMessages >= 9999;
+  const dailyLimit = limits.dailyMessages;
+  const dailyRemaining = isPaid ? '∞' : Math.max(0, dailyLimit - dailyCount);
+  const limitReached = !isPaid && dailyCount >= dailyLimit;
 
   // Priority: URL param > saved state > default (steve-jobs for backwards compat)
   const getInitialPersonaId = () => {
@@ -111,6 +110,7 @@ export function ChatInterface({ className, initialPersona, initialMode }: ChatIn
   const [showSettings, setShowSettings] = useState(false);
   const [isPickerOpen, setIsPickerOpen] = useState(false);
   const [showLimitModal, setShowLimitModal] = useState(false);
+  const [limitModalType, setLimitModalType] = useState<LimitModalType>('daily_limit');
   const [showModePicker, setShowModePicker] = useState(false);
   const pickerRef = useRef<HTMLDivElement>(null);
   const toggleRef = useRef<HTMLButtonElement>(null);
@@ -295,7 +295,8 @@ export function ChatInterface({ className, initialPersona, initialMode }: ChatIn
 
     // Daily limit check
     const { count } = getDailyCount();
-    if (count >= DAILY_LIMIT) {
+    if (!isPaid && count >= dailyLimit) {
+      setLimitModalType('daily_limit');
       setShowLimitModal(true);
       return;
     }
@@ -342,8 +343,12 @@ export function ChatInterface({ className, initialPersona, initialMode }: ChatIn
         let data: any = {};
         try { data = await response.json(); } catch {}
         const isLimitReached = response.status === 429 || (data?.code === 'DAILY_LIMIT_REACHED');
+        const isInsufficientCredits = data?.code === 'INSUFFICIENT_CREDITS';
         if (isLimitReached) {
-          // 今日额度已用完 → 显示订阅引导
+          setLimitModalType('daily_limit');
+          setShowLimitModal(true);
+        } else if (isInsufficientCredits) {
+          setLimitModalType('insufficient_credits');
           setShowLimitModal(true);
         } else if (response.status === 401) {
           router.push('/auth/signin');
@@ -635,7 +640,9 @@ export function ChatInterface({ className, initialPersona, initialMode }: ChatIn
           >
             额度已用完
           </Link>
-        ) : dailyRemaining <= 3 ? (
+        ) : dailyRemaining === '∞' ? (
+          <span className="text-xs text-green-400 font-medium">无限制</span>
+        ) : Number(dailyRemaining) <= 3 ? (
           <div className="flex items-center gap-1.5 bg-amber-500/10 px-2 py-1 rounded-full">
             <div className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
             <span className="text-xs text-amber-400 font-medium">
@@ -645,7 +652,7 @@ export function ChatInterface({ className, initialPersona, initialMode }: ChatIn
         ) : (
           <div className="flex items-center gap-1.5">
             <span className="text-xs text-green-400 font-medium">{dailyRemaining}</span>
-            <span className="text-xs text-text-muted">/ {DAILY_LIMIT} 条剩余</span>
+            <span className="text-xs text-text-muted">/ {dailyLimit} 条剩余</span>
           </div>
         )}
 
@@ -1079,7 +1086,12 @@ export function ChatInterface({ className, initialPersona, initialMode }: ChatIn
       />
 
       {/* ── Limit Reached Modal ─────────────────────────────── */}
-      <LimitReachedModal isOpen={showLimitModal} onClose={() => setShowLimitModal(false)} />
+      <LimitReachedModal
+        isOpen={showLimitModal}
+        type={limitModalType}
+        onClose={() => setShowLimitModal(false)}
+        onSetApiKey={() => { setShowLimitModal(false); router.push('/settings'); }}
+      />
     </div>
   );
 }

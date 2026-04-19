@@ -18,7 +18,7 @@ import {
 // ─── Types ─────────────────────────────────────────────────────────────────────
 
 export type UserStatus = 'ACTIVE' | 'SUSPENDED' | 'BANNED' | 'DELETED';
-export type SubscriptionPlan = 'FREE' | 'PRO' | 'TEAM' | 'ENTERPRISE';
+export type SubscriptionPlan = 'FREE' | 'MONTHLY' | 'YEARLY' | 'LIFETIME';
 
 export interface User {
   id: string;
@@ -65,6 +65,10 @@ export interface SystemOverview {
   totalApiCost: number;
   dau: number;
   mau: number;
+  paidUsers: number;
+  activeRate: number;
+  dauMauRatio: number;
+  totalMessagesWeek: number;
 }
 
 export interface AuditLog {
@@ -110,9 +114,9 @@ export interface UserActivity {
   }>;
 }
 
-// ─── API Functions ─────────────────────────────────────────────────────────────
+// ─── Shared API Fetcher ────────────────────────────────────────────────────────
 
-async function fetchAPI<T>(url: string, options?: RequestInit): Promise<T> {
+export async function fetchAdminAPI<T>(url: string, options?: RequestInit): Promise<T> {
   const res = await fetch(url, {
     ...options,
     credentials: 'include',
@@ -154,7 +158,7 @@ export function useUsers(filters: UserFilter = {}) {
 
   return useQuery({
     queryKey: usersKeys.list(filters),
-    queryFn: () => fetchAPI<PaginatedResponse<User>>(`/api/admin/users?${params}`),
+    queryFn: () => fetchAdminAPI<PaginatedResponse<User>>(`/api/admin/users?${params}`),
     staleTime: 1000 * 60 * 2, // 2 minutes
   });
 }
@@ -162,7 +166,7 @@ export function useUsers(filters: UserFilter = {}) {
 export function useUser(id: string) {
   return useQuery({
     queryKey: usersKeys.detail(id),
-    queryFn: () => fetchAPI<User>(`/api/admin/users/${id}`),
+    queryFn: () => fetchAdminAPI<User>(`/api/admin/users/${id}`),
     staleTime: 1000 * 60 * 2,
     enabled: !!id,
   });
@@ -171,7 +175,7 @@ export function useUser(id: string) {
 export function useUserActivity(id: string) {
   return useQuery({
     queryKey: usersKeys.activity(id),
-    queryFn: () => fetchAPI<UserActivity>(`/api/admin/users/${id}/activity`),
+    queryFn: () => fetchAdminAPI<UserActivity>(`/api/admin/users/${id}/activity`),
     staleTime: 1000 * 60 * 5,
     enabled: !!id,
   });
@@ -184,7 +188,7 @@ export function useUpdateUser() {
 
   return useMutation({
     mutationFn: async ({ id, data }: { id: string; data: Partial<User> }) => {
-      return fetchAPI<User>(`/api/admin/users/${id}`, {
+      return fetchAdminAPI<User>(`/api/admin/users/${id}`, {
         method: 'PATCH',
         body: JSON.stringify(data),
       });
@@ -203,13 +207,12 @@ export function useDeleteUser() {
 
   return useMutation({
     mutationFn: async (id: string) => {
-      return fetchAPI<void>(`/api/admin/users/${id}`, {
+      return fetchAdminAPI<void>(`/api/admin/users/${id}`, {
         method: 'DELETE',
       });
     },
-    onSuccess: (_, deletedId) => {
-      queryClient.invalidateQueries({ queryKey: usersKeys.list() });
-      queryClient.removeQueries({ queryKey: usersKeys.detail(deletedId) });
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['users'] });
     },
   });
 }
@@ -219,7 +222,7 @@ export function useAddCredits() {
 
   return useMutation({
     mutationFn: async ({ id, amount }: { id: string; amount: number }) => {
-      return fetchAPI<User>(`/api/admin/users/${id}/credits`, {
+      return fetchAdminAPI<User>(`/api/admin/users/${id}/credits`, {
         method: 'POST',
         body: JSON.stringify({ amount }),
       });
@@ -240,7 +243,7 @@ const overviewKeys = {
 export function useSystemOverview(days: number = 7) {
   return useQuery({
     queryKey: [...overviewKeys.all, days] as const,
-    queryFn: () => fetchAPI<SystemOverview>(`/api/admin/overview?days=${days}`),
+    queryFn: () => fetchAdminAPI<SystemOverview>(`/api/admin/overview?days=${days}`),
     staleTime: 1000 * 60 * 5, // 5 minutes
   });
 }
@@ -255,7 +258,7 @@ const auditKeys = {
 export function useAuditLogs(limit: number = 50, offset: number = 0) {
   return useQuery({
     queryKey: auditKeys.list(limit, offset),
-    queryFn: () => fetchAPI<{ logs: AuditLog[]; total: number }>(
+    queryFn: () => fetchAdminAPI<{ logs: AuditLog[]; total: number }>(
       `/api/admin/audit?limit=${limit}&offset=${offset}`
     ),
     staleTime: 1000 * 60 * 2,
@@ -273,7 +276,7 @@ const analyticsKeys = {
 export function useAnalyticsOverview(days: number = 7) {
   return useQuery({
     queryKey: analyticsKeys.overview(days),
-    queryFn: () => fetchAPI<SystemOverview>(`/api/analytics/overview?days=${days}`),
+    queryFn: () => fetchAdminAPI<SystemOverview>(`/api/analytics/overview?days=${days}`),
     staleTime: 1000 * 60 * 5,
   });
 }
@@ -281,7 +284,7 @@ export function useAnalyticsOverview(days: number = 7) {
 export function useAnalyticsTrend(days: number = 7) {
   return useQuery({
     queryKey: analyticsKeys.trend(days),
-    queryFn: () => fetchAPI<Array<{
+    queryFn: () => fetchAdminAPI<Array<{
       date: string;
       dau: number;
       sessions: number;
@@ -295,14 +298,26 @@ export function useAnalyticsTrend(days: number = 7) {
 export function useAnalyticsPersonas(days: number = 30) {
   return useQuery({
     queryKey: analyticsKeys.personas(days),
-    queryFn: () => fetchAPI<Array<{
+    queryFn: () => fetchAdminAPI<{ personas: Array<{
       personaId: string;
       personaName: string;
       views: number;
       conversations: number;
       avgTurns: number;
-    }>>(`/api/analytics/personas?days=${days}`),
+    }> }>(`/api/analytics/personas?days=${days}`),
+    select: (data) => data.personas,
     staleTime: 1000 * 60 * 10,
+  });
+}
+
+// ─── Capacity Monitor ─────────────────────────────────────────────────────────
+
+export function useCapacity() {
+  return useQuery({
+    queryKey: ['admin', 'capacity'],
+    queryFn: () => fetchAdminAPI('/api/admin/capacity'),
+    staleTime: 1000 * 60 * 30,
+    retry: 1,
   });
 }
 
@@ -315,14 +330,14 @@ export function usePrefetchUser() {
     prefetch: (id: string) => {
       queryClient.prefetchQuery({
         queryKey: usersKeys.detail(id),
-        queryFn: () => fetchAPI<User>(`/api/admin/users/${id}`),
+        queryFn: () => fetchAdminAPI<User>(`/api/admin/users/${id}`),
         staleTime: 1000 * 60 * 2,
       });
     },
     prefetchActivity: (id: string) => {
       queryClient.prefetchQuery({
         queryKey: usersKeys.activity(id),
-        queryFn: () => fetchAPI<UserActivity>(`/api/admin/users/${id}/activity`),
+        queryFn: () => fetchAdminAPI<UserActivity>(`/api/admin/users/${id}/activity`),
         staleTime: 1000 * 60 * 5,
       });
     },

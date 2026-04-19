@@ -8,11 +8,12 @@ import {
   MessageSquare, Send, ChevronDown, ChevronUp, Loader2, Sparkles,
   ThumbsUp, Heart, Smile, MoreHorizontal, Pin, Trash2, Edit3, Flag,
   Eye, Clock, TrendingUp, MessageCircle, Check, X, AlertTriangle,
-  Shield, ChevronLeft, CalendarDays
+  Shield, ChevronLeft, CalendarDays, AtSign
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuthStore } from '@/lib/auth-store';
 import { GuardianBanner } from '@/components/guardian-banner';
+import { parseMentions, type MentionSegment } from '@/lib/mentions';
 
 interface Reaction {
   emoji: string;
@@ -556,9 +557,7 @@ function CommentItem({
         </div>
         
         {/* Content */}
-        <p className="text-text-secondary text-sm leading-relaxed whitespace-pre-wrap mb-4">
-          {comment.content}
-        </p>
+        <MentionedContent content={comment.content} />
         
         {/* Actions */}
         <div className="flex items-center gap-1 flex-wrap">
@@ -694,7 +693,7 @@ function CommentItem({
                         )}
                         <span className="text-xs text-text-muted">{timeAgo(reply.created_at)}</span>
                       </div>
-                      <p className="text-sm text-text-secondary mt-1">{reply.content}</p>
+                      <MentionedContent content={reply.content} />
                     </div>
                   </div>
                 ))}
@@ -766,6 +765,45 @@ function CommentItem({
         isSubmitting={submitting}
       />
     </>
+  );
+}
+
+// Content renderer that parses @mentions and renders as links
+function MentionedContent({ content }: { content: string }) {
+  const segments = parseMentions(content);
+
+  return (
+    <p className="text-text-secondary text-sm leading-relaxed whitespace-pre-wrap">
+      {segments.map((segment, i) => {
+        if (segment.type === 'text') {
+          return <span key={i}>{segment.text}</span>;
+        }
+        if (segment.type === 'persona_mention') {
+          return (
+            <Link
+              key={i}
+              href={`/personas/${segment.slug}`}
+              className="inline-flex items-center gap-0.5 text-prism-blue hover:underline font-medium"
+              title={`查看人物档案：${segment.text.slice(1)}`}
+            >
+              <AtSign className="w-3 h-3" />
+              {segment.text.slice(1)}
+            </Link>
+          );
+        }
+        // user_mention — link to settings or show as plain
+        return (
+          <span
+            key={i}
+            className="inline-flex items-center gap-0.5 text-prism-cyan/80 hover:text-prism-cyan cursor-default"
+            title={`用户 ${segment.text.slice(1)}`}
+          >
+            <AtSign className="w-3 h-3" />
+            {segment.text.slice(1)}
+          </span>
+        );
+      })}
+    </p>
   );
 }
 
@@ -1120,8 +1158,8 @@ export function CommentsSection() {
                 onChange={(e) => setContent(e.target.value)}
                 placeholder={
                   debateTopic
-                    ? `围绕"${debateTopic}"发表你的看法，或分享任何想法... 守望者正在关注今天的讨论`
-                    : "分享你的想法... 守望者正在关注今天的讨论"
+                    ? `围绕"${debateTopic}"发表看法，可用@人物名引用蒸馏人物...`
+                    : "分享你的想法，可用@人物名引用蒸馏人物..."
                 }
                 maxLength={1000}
                 rows={3}

@@ -3,13 +3,11 @@
  * 使用 Prisma User 表进行用户管理
  */
 
-import { PrismaClient } from '@prisma/client';
-import { neon, NeonQueryFunction } from '@neondatabase/serverless';
+import { prisma } from '@/lib/prisma';
+import { neon } from '@neondatabase/serverless';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
-
-const prisma = new PrismaClient();
 
 export type UserRole = 'FREE' | 'PRO' | 'ADMIN';
 export type SubscriptionPlan = 'FREE' | 'MONTHLY' | 'YEARLY' | 'LIFETIME';
@@ -39,11 +37,10 @@ export interface CreateUserInput {
 
 // ─── Database Connection ────────────────────────────────────────────────────────
 
-function getSql(): NeonQueryFunction<false, false> {
+function getSql() {
   const connectionString = process.env.DATABASE_URL;
   if (!connectionString) throw new Error('DATABASE_URL environment variable is not set');
-  // eslint-disable-next-line
-  return neon(connectionString) as NeonQueryFunction<false, false>;
+  return neon(connectionString);
 }
 
 // ─── Helper Functions ────────────────────────────────────────────────────────────
@@ -70,29 +67,37 @@ export async function createUser(input: CreateUserInput & { emailVerified?: bool
   try {
     const sql = getSql();
     const existing = await sql`SELECT id FROM users WHERE email = ${input.email.toLowerCase()} LIMIT 1`;
-    if (existing.length > 0) return null;
+    if (existing.length > 0) {
+      console.log(`[createUser] email=${input.email} → already exists in users table`);
+      return null;
+    }
 
     const passwordHash = await bcrypt.hash(input.password, 12);
     const userId = crypto.randomUUID();
     const prefs = JSON.stringify({ gender: input.gender, province: input.province });
 
-    await sql`
-      INSERT INTO users (id, email, "passwordHash", name, preferences, status, role, plan, credits, "emailVerified", "createdAt", "updatedAt")
-      VALUES (
-        ${userId},
-        ${input.email.toLowerCase()},
-        ${passwordHash},
-        ${input.name ?? null},
-        ${prefs},
-        'ACTIVE'::user_status,
-        'FREE'::user_role,
-        'FREE'::subscription_plan,
-        0,
-        ${input.emailVerified ? new Date() : null},
-        NOW(),
-        NOW()
-      )
-    `;
+    try {
+      await sql`
+        INSERT INTO users (id, email, "passwordHash", name, preferences, status, role, plan, credits, "emailVerified", "createdAt", "updatedAt")
+        VALUES (
+          ${userId},
+          ${input.email.toLowerCase()},
+          ${passwordHash},
+          ${input.name ?? null},
+          ${prefs},
+          'ACTIVE',
+          'FREE',
+          'FREE',
+          0,
+          ${input.emailVerified ? new Date() : null},
+          NOW(),
+          NOW()
+        )
+      `;
+    } catch (err) {
+      console.error(`[createUser] INSERT failed for ${input.email}:`, err);
+      throw err;
+    }
 
     return {
       id: userId,
@@ -158,8 +163,8 @@ export async function getUserById(userId: string): Promise<PublicUser | null> {
     const sql = getSql();
     const rows = await sql`
       SELECT id, email, name, avatar,
-             "passwordHash", email_verified, role, plan, credits,
-             created_at, updated_at, preferences, status
+             "passwordHash", "emailVerified", role, plan, credits,
+             "createdAt", "updatedAt", preferences, status
       FROM users
       WHERE id = ${userId}
       LIMIT 1
@@ -239,10 +244,6 @@ export async function updateUserRole(userId: string, role: UserRole): Promise<bo
       where: { id: userId },
       data: { role },
     });
-
-    const sql = getSql();
-    await sql`UPDATE prismatic_users SET role = ${role}, updated_at = NOW() WHERE id = ${userId} AND is_active = TRUE`;
-
     return true;
   } catch (error) {
     console.error('[updateUserRole] Error:', error);
@@ -258,14 +259,6 @@ export async function updateUserPlan(userId: string, plan: SubscriptionPlan, rol
       where: { id: userId },
       data,
     });
-
-    const sql = getSql();
-    if (role) {
-      await sql`UPDATE prismatic_users SET plan = ${plan}, role = ${role}, updated_at = NOW() WHERE id = ${userId} AND is_active = TRUE`;
-    } else {
-      await sql`UPDATE prismatic_users SET plan = ${plan}, updated_at = NOW() WHERE id = ${userId} AND is_active = TRUE`;
-    }
-
     return true;
   } catch (error) {
     console.error('[updateUserPlan] Error:', error);
@@ -279,10 +272,6 @@ export async function updateUserCredits(userId: string, credits: number): Promis
       where: { id: userId },
       data: { credits },
     });
-
-    const sql = getSql();
-    await sql`UPDATE prismatic_users SET credits = ${credits}, updated_at = NOW() WHERE id = ${userId} AND is_active = TRUE`;
-
     return true;
   } catch (error) {
     console.error('[updateUserCredits] Error:', error);
@@ -311,29 +300,6 @@ export async function adminSetUser(userId: string, updates: {
       where: { id: userId },
       data,
     });
-
-    const sql = getSql();
-
-    // 使用多个独立的 UPDATE 语句，避免字符串拼接
-    if (updates.name !== undefined) {
-      await sql`UPDATE prismatic_users SET name = ${updates.name}, updated_at = NOW() WHERE id = ${userId}`;
-    }
-    if (updates.email !== undefined) {
-      await sql`UPDATE prismatic_users SET email = ${updates.email.toLowerCase()}, updated_at = NOW() WHERE id = ${userId}`;
-    }
-    if (updates.role !== undefined) {
-      await sql`UPDATE prismatic_users SET role = ${updates.role}, updated_at = NOW() WHERE id = ${userId}`;
-    }
-    if (updates.plan !== undefined) {
-      await sql`UPDATE prismatic_users SET plan = ${updates.plan}, updated_at = NOW() WHERE id = ${userId}`;
-    }
-    if (updates.credits !== undefined) {
-      await sql`UPDATE prismatic_users SET credits = ${updates.credits}, updated_at = NOW() WHERE id = ${userId}`;
-    }
-    if (updates.isActive !== undefined) {
-      await sql`UPDATE prismatic_users SET is_active = ${updates.isActive}, updated_at = NOW() WHERE id = ${userId}`;
-    }
-
     return true;
   } catch (error) {
     console.error('[adminSetUser] Error:', error);
@@ -351,10 +317,6 @@ export async function setUserBan(userId: string, banned: boolean, reason?: strin
         bannedAt: banned ? new Date() : null,
       },
     });
-
-    const sql = getSql();
-    await sql`UPDATE prismatic_users SET is_active = ${!banned}, updated_at = NOW() WHERE id = ${userId}`;
-
     return true;
   } catch (error) {
     console.error('[setUserBan] Error:', error);
@@ -364,15 +326,10 @@ export async function setUserBan(userId: string, banned: boolean, reason?: strin
 
 export async function verifyEmail(userId: string): Promise<boolean> {
   try {
-    const now = new Date();
     await prisma.user.update({
       where: { id: userId },
-      data: { emailVerified: now },
+      data: { emailVerified: new Date() },
     });
-
-    const sql = getSql();
-    await sql`UPDATE prismatic_users SET email_verified = true, updated_at = NOW() WHERE id = ${userId}`;
-
     return true;
   } catch (error) {
     console.error('[verifyEmail] Error:', error);
@@ -386,10 +343,6 @@ export async function updatePassword(userId: string, passwordHash: string): Prom
       where: { id: userId },
       data: { passwordHash },
     });
-
-    const sql = getSql();
-    await sql`UPDATE prismatic_users SET password_hash = ${passwordHash}, updated_at = NOW() WHERE id = ${userId} AND is_active = TRUE`;
-
     return true;
   } catch (error) {
     console.error('[updatePassword] Error:', error);
@@ -401,7 +354,6 @@ export async function isEmailTaken(email: string, excludeUserId?: string): Promi
   try {
     const where: any = { email: email.toLowerCase() };
     if (excludeUserId) where.id = { not: excludeUserId };
-
     const count = await prisma.user.count({ where });
     return count > 0;
   } catch (error) {
@@ -472,9 +424,19 @@ export function isAdmin(role: UserRole): boolean {
 }
 
 export async function authenticateRequest(
-  req: { cookies: { get: (name: string) => { value?: string } | undefined } }
+  req: {
+    cookies: { get: (name: string) => { value?: string } | undefined };
+    headers?: { get: (name: string) => string | null };
+  }
 ): Promise<string | null> {
-  const token = req.cookies.get('prismatic_token')?.value;
+  // Try cookie first, then Authorization header
+  let token = req.cookies.get('prismatic_token')?.value;
+  if (!token) {
+    const authHeader = req.headers?.get('authorization');
+    if (authHeader?.startsWith('Bearer ')) {
+      token = authHeader.slice(7);
+    }
+  }
   if (!token) return null;
   const payload = verifyJWTToken(token);
   if (!payload) return null;
@@ -488,20 +450,13 @@ export async function authenticateAdminRequest(
   if (!userId) return null;
   if (isDemoUserId(userId)) return null;
 
-  // Read from users table (authoritative) to match what login route uses.
-  // The admin management page writes via Prisma -> users table.
-  // Previously this read from prismatic_users (getUserById), causing the
-  // dual-table setup to go out of sync and 403 on admin pages.
-  const sql = getSql();
-  const rows = await sql`
-    SELECT id, role FROM users
-    WHERE id = ${userId}
-      AND status::text = 'ACTIVE'
-    LIMIT 1
-  `;
-  if (rows.length === 0) return null;
-  const role = (rows[0] as any).role;
-  if (!isAdmin(role as UserRole)) return null;
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { role: true, status: true },
+  });
+  if (!user) return null;
+  if (!isAdmin(user.role as UserRole)) return null;
+  if (user.status !== 'ACTIVE') return null;
   return userId;
 }
 
@@ -509,76 +464,86 @@ export async function authenticateAdminRequest(
 
 export async function createSession(userId: string): Promise<string> {
   const { randomBytes } = await import('crypto');
-  const sql = getSql();
   const token = randomBytes(32).toString('hex');
-  const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
-  await sql`
-    INSERT INTO prismatic_sessions (user_id, token, expires_at)
-    VALUES (${userId}, ${token}, ${expiresAt})
-  `;
+  const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+  // prismatic_sessions table does not exist — sessions are cookie/JWT-based
+  // This function is kept for API compatibility but is a no-op
+  void userId;
+  void expiresAt;
   return token;
 }
 
 export async function getSession(token: string): Promise<{ userId: string; expiresAt: Date } | null> {
-  const sql = getSql();
-  const rows = await sql`
-    SELECT user_id, expires_at FROM prismatic_sessions
-    WHERE token = ${token} AND expires_at > NOW()
-  `;
-  if (rows.length === 0) return null;
-  const row = rows[0] as any;
-  return { userId: row.user_id, expiresAt: row.expires_at };
+  void token;
+  return null;
 }
 
 export async function deleteSession(token: string): Promise<void> {
-  const sql = getSql();
-  await sql`DELETE FROM prismatic_sessions WHERE token = ${token}`;
+  void token;
 }
 
 export async function deleteAllUserSessions(userId: string): Promise<void> {
-  const sql = getSql();
-  await sql`DELETE FROM prismatic_sessions WHERE user_id = ${userId}`;
+  void userId;
 }
 
 // ─── Verification Codes ─────────────────────────────────────────────────────────
 
 export async function createVerificationCode(email: string, type: 'register' | 'reset'): Promise<string> {
   const { randomBytes } = await import('crypto');
-  const sql = getSql();
-
   const code = randomBytes(3).toString('hex').slice(0, 6);
   const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+  const typeEnum = type === 'register' ? 'REGISTER_EMAIL' : 'RESET_PASSWORD_EMAIL';
 
-  await sql`
-    INSERT INTO verification_codes (identifier, code, type, expires_at)
-    VALUES (${email.toLowerCase()}, ${code}, ${type}, ${expiresAt})
-    ON CONFLICT (identifier, type) DO UPDATE SET
-      code = ${code},
-      expires_at = ${expiresAt},
-      attempts = 0
-  `;
+  await prisma.verificationCode.upsert({
+    where: { identifier_type: { identifier: email.toLowerCase(), type: typeEnum } },
+    update: { code, expiresAt, attempts: 0 },
+    create: {
+      identifier: email.toLowerCase(),
+      code,
+      type: typeEnum,
+      expiresAt,
+    },
+  }).catch(() => {
+    return prisma.verificationCode.deleteMany({
+      where: { identifier: email.toLowerCase(), type: typeEnum },
+    }).then(() =>
+      prisma.verificationCode.create({
+        data: {
+          identifier: email.toLowerCase(),
+          code,
+          type: typeEnum,
+          expiresAt,
+        },
+      })
+    );
+  });
 
   return code;
 }
 
 export async function verifyCode(email: string, code: string, type: 'register' | 'reset'): Promise<boolean> {
-  const sql = getSql();
-  const rows = await sql`
-    SELECT code, attempts, max_attempts, expires_at FROM verification_codes
-    WHERE identifier = ${email.toLowerCase()} AND type = ${type}
-  `;
+  const typeEnum = type === 'register' ? 'REGISTER_EMAIL' : 'RESET_PASSWORD_EMAIL';
+  const records = await prisma.verificationCode.findMany({
+    where: { identifier: email.toLowerCase(), type: typeEnum },
+    orderBy: { createdAt: 'desc' },
+    take: 1,
+  });
 
-  if (rows.length === 0) return false;
-  const row = rows[0] as any;
+  if (records.length === 0) return false;
+  const record = records[0];
 
-  if (row.attempts >= row.max_attempts) return false;
-  if (new Date() > new Date(row.expires_at)) return false;
-  if (row.code !== code) {
-    await sql`UPDATE verification_codes SET attempts = attempts + 1 WHERE identifier = ${email.toLowerCase()} AND type = ${type}`;
+  if (record.attempts >= record.maxAttempts) return false;
+  if (new Date() > record.expiresAt) return false;
+
+  if (record.code !== code) {
+    await prisma.verificationCode.update({
+      where: { id: record.id },
+      data: { attempts: { increment: 1 } },
+    });
     return false;
   }
 
-  await sql`DELETE FROM verification_codes WHERE identifier = ${email.toLowerCase()} AND type = ${type}`;
+  await prisma.verificationCode.delete({ where: { id: record.id } });
   return true;
 }
 
@@ -593,11 +558,22 @@ export async function logAuthEvent(
   userAgent?: string,
   provider?: string
 ): Promise<void> {
-  const sql = getSql();
-  await sql`
-    INSERT INTO auth_events (user_id, event_type, provider, ip, user_agent, success, reason)
-    VALUES (${userId}, ${eventType}, ${provider ?? null}, ${ip ?? null}, ${userAgent ?? null}, ${success}, ${reason ?? null})
-  `;
+  try {
+    await prisma.authEvent.create({
+      data: {
+        userId,
+        eventType: eventType as any,
+        provider: provider as any || null,
+        ip,
+        userAgent,
+        success,
+        reason,
+      },
+    });
+  } catch (error) {
+    // Non-critical: don't fail requests if logging fails
+    console.error('[logAuthEvent] Error:', error);
+  }
 }
 
 // ─── Admin Stats ─────────────────────────────────────────────────────────────────
@@ -646,8 +622,8 @@ export async function getUserStats(): Promise<{
 
 // ─── Feature Access ──────────────────────────────────────────────────────────────
 
-export function canUseProFeatures(role: UserRole, plan: SubscriptionPlan, credits: number = 0): boolean {
-  return role === 'ADMIN' || plan !== 'FREE' || credits > 0;
+export function canUseProFeatures(role: UserRole, plan: SubscriptionPlan): boolean {
+  return role === 'ADMIN' || plan !== 'FREE';
 }
 
 // ─── Additional Admin Helper Functions ──────────────────────────────────────────
@@ -695,38 +671,46 @@ export async function updateUserProfile(userId: string, data: {
 }
 
 export async function verifyUserEmail(userId: string): Promise<boolean> {
-  const sql = getSql();
-  await sql`UPDATE prismatic_users SET email_verified = TRUE, updated_at = NOW() WHERE id = ${userId}`;
-  return true;
+  try {
+    await prisma.user.update({
+      where: { id: userId },
+      data: { emailVerified: new Date() },
+    });
+    return true;
+  } catch (error) {
+    console.error('[verifyUserEmail] Error:', error);
+    return false;
+  }
 }
 
 export async function updateUserEmail(userId: string, email: string): Promise<boolean> {
-  const sql = getSql();
   const normalized = email.toLowerCase();
-  const existing = await sql`
-    SELECT id FROM prismatic_users WHERE email = ${normalized} AND id != ${userId}
-  `;
-  if (existing.length > 0) {
-    throw new Error('邮箱已被其他账号使用');
-  }
-  await sql`UPDATE prismatic_users SET email = ${normalized}, updated_at = NOW() WHERE id = ${userId}`;
+  const existing = await prisma.user.findFirst({
+    where: { email: normalized, id: { not: userId } },
+  });
+  if (existing) throw new Error('邮箱已被其他账号使用');
+  await prisma.user.update({
+    where: { id: userId },
+    data: { email: normalized },
+  });
   return true;
 }
 
 export async function addUserCredits(userId: string, amount: number): Promise<number> {
-  const sql = getSql();
-  const rows = await sql`
-    UPDATE prismatic_users
-    SET credits = GREATEST(0, credits + ${amount}), updated_at = NOW()
-    WHERE id = ${userId}
-    RETURNING credits
-  `;
-  return rows.length > 0 ? Number(rows[0].credits) : 0;
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { credits: true },
+  });
+  if (!user) return 0;
+  const newCredits = Math.max(0, user.credits + amount);
+  await prisma.user.update({
+    where: { id: userId },
+    data: { credits: newCredits },
+  });
+  return newCredits;
 }
 
 export async function updateUserAvatar(userId: string, avatar: string): Promise<boolean> {
-  // avatar 字段只在新表 User 中存在，旧表 prismatic_users 没有该字段
-  // 仅更新新表即可
   try {
     await prisma.user.update({
       where: { id: userId },
@@ -740,19 +724,26 @@ export async function updateUserAvatar(userId: string, avatar: string): Promise<
 }
 
 export async function verifyPassword(userId: string, password: string): Promise<boolean> {
-  const sql = getSql();
-  const rows = await sql`
-    SELECT password_hash FROM prismatic_users WHERE id = ${userId} AND is_active = TRUE
-  `;
-  if (rows.length === 0) return false;
-  return bcrypt.compare(password, rows[0].password_hash);
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { passwordHash: true },
+  });
+  if (!user?.passwordHash) return false;
+  return bcrypt.compare(password, user.passwordHash);
 }
 
 export async function changePassword(userId: string, newPassword: string): Promise<boolean> {
-  const sql = getSql();
-  const hash = await bcrypt.hash(newPassword, 12);
-  await sql`UPDATE prismatic_users SET password_hash = ${hash}, updated_at = NOW() WHERE id = ${userId} AND is_active = TRUE`;
-  return true;
+  try {
+    const passwordHash = await bcrypt.hash(newPassword, 12);
+    await prisma.user.update({
+      where: { id: userId },
+      data: { passwordHash },
+    });
+    return true;
+  } catch (error) {
+    console.error('[changePassword] Error:', error);
+    return false;
+  }
 }
 
 // ─── Demo User Helpers ────────────────────────────────────────────────────────────
@@ -765,37 +756,31 @@ export function demoEmailToUUID(email: string): string {
 
 export async function ensureDemoUserInDB(userId: string, email: string, name: string): Promise<void> {
   const dbId = userId.replace('demo_', '');
-  const sql = getSql();
-
   try {
-    // Upsert demo user in users table using raw SQL
-    const existing = await sql`SELECT id FROM users WHERE id = ${dbId} LIMIT 1`;
-    if (existing.length > 0) {
-      await sql`
-        UPDATE users SET
-          email = ${email.toLowerCase()},
-          name = ${name},
-          status = 'ACTIVE'::user_status,
-          role = 'PRO'::user_role,
-          plan = 'LIFETIME'::subscription_plan,
-          "updatedAt" = NOW()
-        WHERE id = ${dbId}
-      `;
+    const existing = await prisma.user.findUnique({ where: { id: dbId } });
+    if (existing) {
+      await prisma.user.update({
+        where: { id: dbId },
+        data: {
+          email: email.toLowerCase(),
+          name,
+          status: 'ACTIVE',
+          role: 'PRO',
+          plan: 'LIFETIME',
+        },
+      });
     } else {
-      await sql`
-        INSERT INTO users (id, email, name, status, role, plan, credits, "createdAt", "updatedAt")
-        VALUES (
-          ${dbId},
-          ${email.toLowerCase()},
-          ${name},
-          'ACTIVE'::user_status,
-          'PRO'::user_role,
-          'LIFETIME'::subscription_plan,
-          999999,
-          NOW(),
-          NOW()
-        )
-      `;
+      await prisma.user.create({
+        data: {
+          id: dbId,
+          email: email.toLowerCase(),
+          name,
+          status: 'ACTIVE',
+          role: 'PRO',
+          plan: 'LIFETIME',
+          credits: 0,
+        },
+      });
     }
   } catch (error) {
     console.error('[ensureDemoUserInDB] error:', error);
@@ -817,13 +802,18 @@ export async function updateUserAdmin(
     status?: string;
   }
 ): Promise<PublicUser | null> {
+  console.log('[updateUserAdmin] Starting update for userId:', userId, 'updates:', JSON.stringify(updates));
   // 检查邮箱冲突 using Prisma
   if (updates.email !== undefined && updates.email !== null && updates.email !== '') {
     const normalized = updates.email.toLowerCase();
+    console.log('[updateUserAdmin] Checking email uniqueness for:', normalized);
     const conflict = await prisma.user.findFirst({
       where: { email: normalized, id: { not: userId } },
     });
-    if (conflict) throw new Error('邮箱已被其他账号使用');
+    if (conflict) {
+      console.log('[updateUserAdmin] Email conflict found!');
+      throw new Error('邮箱已被其他账号使用');
+    }
   }
 
   // 构建 Prisma 更新数据
@@ -832,6 +822,7 @@ export async function updateUserAdmin(
   if (updates.plan !== undefined) prismaData.plan = updates.plan;
   if (updates.credits !== undefined) prismaData.credits = updates.credits;
   if (updates.name !== undefined) prismaData.name = updates.name || null;
+  if (updates.email !== undefined) prismaData.email = updates.email;
   if (updates.status !== undefined) prismaData.status = updates.status;
   if (updates.gender !== undefined || updates.province !== undefined) {
     const existingUser = await prisma.user.findUnique({ where: { id: userId } });
@@ -841,11 +832,21 @@ export async function updateUserAdmin(
     prismaData.preferences = JSON.stringify(prefs);
   }
 
+  console.log('[updateUserAdmin] prismaData to update:', JSON.stringify(prismaData));
+
   if (Object.keys(prismaData).length > 0) {
-    await prisma.user.update({
-      where: { id: userId },
-      data: prismaData,
-    });
+    try {
+      await prisma.user.update({
+        where: { id: userId },
+        data: prismaData,
+      });
+      console.log('[updateUserAdmin] Update successful');
+    } catch (err) {
+      console.error('[updateUserAdmin] Prisma update error:', err);
+      throw err;
+    }
+  } else {
+    console.log('[updateUserAdmin] No fields to update, skipping update');
   }
 
   // 从 Prisma users 表返回更新后的数据

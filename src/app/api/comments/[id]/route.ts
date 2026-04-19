@@ -40,7 +40,7 @@ export async function PATCH(
     if (action === 'edit' && content !== undefined) {
       await prisma.comment.update({
         where: { id },
-        data: { content, updatedAt: new Date() },
+        data: { content },
       });
       return NextResponse.json({ success: true });
     }

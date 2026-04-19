@@ -9,6 +9,48 @@ import { processCommentInteractions } from '@/lib/guardian-engine';
 import { verifyJWTToken } from '@/lib/user-management';
 import { lookupIP, generateAvatarSeed, getAvatarUrl, COUNTRY_NAMES } from '@/lib/geo';
 
+/**
+ * Extract the real client IP from request headers.
+ * Handles various proxy headers and returns the best available IP.
+ */
+function getClientIP(req: NextRequest): string {
+  // Priority order: most reliable first
+  // 1. Cloudflare
+  const cfIP = req.headers.get('cf-connecting-ip');
+  if (cfIP && cfIP !== 'unknown') return cfIP;
+
+  // 2. Akamai / True-Client-IP
+  const trueClientIP = req.headers.get('true-client-ip');
+  if (trueClientIP && trueClientIP !== 'unknown') return trueClientIP;
+
+  // 3. X-Forwarded-For (may contain multiple IPs, first is original client)
+  const xForwardedFor = req.headers.get('x-forwarded-for');
+  if (xForwardedFor) {
+    // Take the first IP (original client), remove any port
+    const firstIP = xForwardedFor.split(',')[0].trim().split(':')[0];
+    if (firstIP && firstIP !== 'unknown' && firstIP !== '127.0.0.1') {
+      return firstIP;
+    }
+  }
+
+  // 4. X-Real-IP (Nginx)
+  const xRealIP = req.headers.get('x-real-ip');
+  if (xRealIP && xRealIP !== 'unknown') return xRealIP.split(':')[0];
+
+  // 5. X-Cluster-Client-IP (older proxies)
+  const clusterIP = req.headers.get('x-cluster-client-ip');
+  if (clusterIP && clusterIP !== 'unknown') return clusterIP.split(':')[0];
+
+  // 6. Forwarded header (newer standard)
+  const forwarded = req.headers.get('forwarded');
+  if (forwarded) {
+    const match = forwarded.match(/for=([^;]+)/);
+    if (match && match[1]) return match[1].replace(/[\[\]"]/g, '').split(':')[0];
+  }
+
+  return 'unknown';
+}
+
 const RATE_LIMIT = 10;
 const RATE_WINDOW = 60 * 1000;
 const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
@@ -156,9 +198,7 @@ export async function GET(req: NextRequest) {
 
 // POST - Create comment
 export async function POST(req: NextRequest) {
-  const ip = req.headers.get('x-forwarded-for')
-    || req.headers.get('x-real-ip')
-    || 'unknown';
+  const ip = getClientIP(req);
 
   if (!checkRateLimit(ip)) {
     return NextResponse.json(

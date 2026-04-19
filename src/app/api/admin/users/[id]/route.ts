@@ -1,11 +1,12 @@
 /**
  * GET /api/admin/users/[id] — Get single user detail (admin only)
+ * DELETE /api/admin/users/[id] — Deactivate/delete user (admin only)
  */
 export const runtime = 'nodejs';
 
 import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
-import { authenticateAdminRequest } from '@/lib/user-management';
+import { authenticateAdminRequest, deleteUser } from '@/lib/user-management';
 
 const prisma = new PrismaClient();
 
@@ -26,7 +27,6 @@ export async function GET(
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
-    // Get conversation count and message count
     const [conversationCount, messageCount] = await Promise.all([
       prisma.conversation.count({ where: { userId: id } }),
       prisma.message.count({ where: { userId: id } }),
@@ -66,5 +66,35 @@ export async function GET(
   } catch (error) {
     console.error('[Admin GET /users/[id]] Error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
+}
+
+export async function DELETE(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const adminId = await authenticateAdminRequest(req);
+  if (!adminId) {
+    return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
+  }
+
+  const { id } = await params;
+
+  if (id === adminId) {
+    return NextResponse.json({ error: 'Cannot delete yourself' }, { status: 400 });
+  }
+
+  console.log(`[Admin DELETE /users/${id}] admin=${adminId}`);
+
+  try {
+    const success = await deleteUser(id);
+    console.log(`[Admin DELETE /users/${id}] result=${success}`);
+    if (!success) {
+      return NextResponse.json({ error: 'Failed to delete user' }, { status: 500 });
+    }
+    return NextResponse.json({ message: 'User deactivated successfully' });
+  } catch (error) {
+    console.error(`[Admin DELETE /users/${id}] error:`, error);
+    return NextResponse.json({ error: String(error) }, { status: 500 });
   }
 }

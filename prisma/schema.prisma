@@ -82,6 +82,7 @@ model User {
   apiKeyHash      String?   // Key 的前 8 位 hash（用于显示脱敏格式 "sk-xxxx...xxxx"）
   apiKeySetAt     DateTime? // 设置时间
   apiKeyProvider  String?   @default("deepseek") // deepseek | openai | anthropic
+  apiKeyStatus    String?   // valid | expired | invalid | null
 
   // Analytics relations
   sessions      UserSession[]
@@ -89,6 +90,9 @@ model User {
   dailyMetrics  DailyMetric[]
   auditLogsAsAdmin    AdminAuditLog[] @relation("AdminAuditAsAdmin")
   auditLogsAsTarget   AdminAuditLog[] @relation("AdminAuditAsTarget")
+
+  // Credit logs
+  creditLogs    UserCreditLog[]
 
   @@map("users")
 }
@@ -190,6 +194,7 @@ model VerificationCode {
   createdAt DateTime @default(now())
   usedAt   DateTime?
 
+  @@unique([identifier, type])
   @@index([identifier, type, expiresAt])
   @@map("verification_codes")
 }
@@ -321,10 +326,16 @@ model Message {
   apiCost        Decimal? @default(0)
   metadata       Json?    @default("{}")  // {temperature, top_p, model_params...}
 
+  // Data source tracking
+  source          String?   @default("web")  // web | api | cron
+  parentMessageId String?   // multi-turn conversation parent
+
   createdAt      DateTime @default(now())
 
   @@index([conversationId, createdAt])
   @@index([userId, createdAt])
+  @@index([userId, createdAt, source])
+  @@index([personaId, createdAt])
   @@map("messages")
 }
 
@@ -560,4 +571,32 @@ model Persona {
   @@index([slug])
   @@index([domain])
   @@map("personas")
+}
+
+// ─── Billing: User Credit Log ──────────────────────────────────────────────────
+
+model UserCreditLog {
+  id              String   @id @default(cuid())
+  userId          String
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  type            String   // RECHARGE | CONSUME | EXPIRE | ADMIN_ADD | ADMIN_DEDUCT | REFUND
+
+  amount          Int       // 正数=增加，负数=减少
+  balance         Int       // 变动后即时余额
+
+  conversationId  String?
+  messageId       String?
+
+  description     String?
+
+  operatorId      String?
+  ipAddress       String?
+
+  createdAt       DateTime  @default(now())
+
+  @@index([userId, createdAt])
+  @@index([userId, type])
+  @@index([createdAt])
+  @@map("user_credit_logs")
 }

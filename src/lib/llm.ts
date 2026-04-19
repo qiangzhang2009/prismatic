@@ -337,29 +337,35 @@ export class DeepSeekProvider implements LLMProvider {
 // ─── Factory ──────────────────────────────────────────────────────────────
 
 export function createLLMProvider(type: 'openai' | 'anthropic' | 'deepseek' = 'deepseek'): LLMProvider {
+  return createLLMProviderWithKey(type, undefined);
+}
+
+/**
+ * Factory that creates an LLM provider with an optional user-provided API key.
+ * Falls back to server-side env var when apiKey is not provided.
+ */
+export function createLLMProviderWithKey(
+  type: 'openai' | 'anthropic' | 'deepseek',
+  apiKey?: string
+): LLMProvider {
   switch (type) {
     case 'deepseek':
-      return new DeepSeekProvider();
+      return new DeepSeekProvider(apiKey);
     case 'anthropic':
-      return new AnthropicProvider();
+      return new AnthropicProvider(apiKey);
     case 'openai':
     default:
-      return new OpenAIProvider();
+      return new OpenAIProvider(apiKey);
   }
 }
 
-// ─── Singleton export ────────────────────────────────────────────────────
-
-let _provider: LLMProvider | null = null;
+// ─── Singleton export (for backward compatibility) ──────────────────────────
 
 export function getLLMProvider(): LLMProvider {
-  if (!_provider) {
-    // Default to DeepSeek for cost efficiency
-    _provider = new DeepSeekProvider();
-  }
-  return _provider;
+  return createLLMProvider(getLLMType());
 }
 
-export function setLLMProvider(provider: LLMProvider) {
-  _provider = provider;
+export function setLLMProvider(_provider: LLMProvider) {
+  // No-op: we now use createLLMProviderWithKey per-request
+  void _provider;
 }
