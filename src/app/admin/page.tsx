@@ -205,7 +205,7 @@ function DashboardSection() {
           <KPICard
             label="月活 (MAU)"
             value={(overview?.mau ?? 0).toLocaleString()}
-            sub={`DAU/MAU ${overview?.dauMauRatio?.toFixed(1) ?? 0}%`}
+            sub={`DAU/MAU ${Number(overview?.dauMauRatio ?? 0).toFixed(1)}%`}
             icon={Activity}
             accent="cyan"
             trend={{ value: 8.1, positive: true }}
@@ -213,7 +213,7 @@ function DashboardSection() {
           <KPICard
             label="日活 (DAU)"
             value={(overview?.dau ?? 0).toLocaleString()}
-            sub={`活跃率 ${overview?.activeRate?.toFixed(1) ?? 0}%`}
+            sub={`活跃率 ${Number(overview?.activeRate ?? 0).toFixed(1)}%`}
             icon={TrendingUp}
             accent="green"
             trend={{ value: 3.4, positive: true }}
@@ -237,7 +237,7 @@ function DashboardSection() {
           <KPICard
             label="付费用户"
             value={(overview?.paidUsers ?? 0).toLocaleString()}
-            sub={`占总 ${overview?.totalUsers ? ((overview.paidUsers / overview.totalUsers) * 100).toFixed(1) : 0}%`}
+            sub={`占总 ${overview?.totalUsers ? Number((overview.paidUsers / overview.totalUsers) * 100).toFixed(1) : 0}%`}
             icon={Crown}
             accent="indigo"
             trend={{ value: 12.0, positive: true }}
@@ -306,7 +306,7 @@ function DashboardSection() {
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="text-sm font-semibold text-white">{stage.value.toLocaleString()}</span>
-                    <span className="text-[10px] text-gray-500">{stage.pct.toFixed(0)}%</span>
+                    <span className="text-[10px] text-gray-500">{Number(stage.pct).toFixed(0)}%</span>
                   </div>
                 </div>
                 <div className="h-1.5 bg-gray-800 rounded-full overflow-hidden">
@@ -328,7 +328,7 @@ function DashboardSection() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-xs text-gray-400">DAU/MAU 比率</p>
-                <p className="text-2xl font-bold text-purple-400 mt-1">{(overview?.dauMauRatio ?? 0).toFixed(1)}%</p>
+                <p className="text-2xl font-bold text-purple-400 mt-1">{Number(overview?.dauMauRatio ?? 0).toFixed(1)}%</p>
               </div>
               <div className="w-12 h-12 rounded-xl bg-purple-500/10 flex items-center justify-center">
                 <Target className="w-6 h-6 text-purple-400" />
@@ -361,7 +361,7 @@ function DashboardSection() {
               </div>
             </div>
             <p className="text-3xl font-bold text-amber-400">
-              ¥{(overview?.totalApiCost ?? 0).toFixed(4)}
+              ¥{Number(overview?.totalApiCost ?? 0).toFixed(4)}
             </p>
             <div className="mt-3 flex items-center gap-1.5 text-xs">
               <ArrowUpRight className="w-3 h-3 text-red-400" />
@@ -381,7 +381,7 @@ function DashboardSection() {
             </div>
             <p className="text-3xl font-bold text-white">
               {overview?.totalUsers && overview.totalUsers > 0
-                ? (overview.totalMessages / overview.totalUsers).toFixed(1)
+                ? Number(overview.totalMessages / overview.totalUsers).toFixed(1)
                 : '0'}
             </p>
             <div className="mt-3 flex items-center gap-1.5 text-xs">
@@ -424,7 +424,7 @@ function DashboardSection() {
                     <div className="flex items-center gap-3 mt-0.5">
                       <span className="text-[10px] text-gray-500">{p.views} 浏览</span>
                       <span className="text-[10px] text-cyan-500">{p.conversations} 对话</span>
-                      <span className="text-[10px] text-purple-400">{p.avgTurns.toFixed(1)} 轮/人</span>
+                      <span className="text-[10px] text-purple-400">{Number(p.avgTurns || 0).toFixed(1)} 轮/人</span>
                     </div>
                   </div>
                   <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -454,7 +454,7 @@ function DashboardSection() {
                   <span className="text-[10px] text-white font-medium">8%</span>
                 </div>
               </div>
-              <span className="w-12 text-xs text-gray-300 text-right">{(overview?.totalUsers ?? 0) * 0.08 > 0 ? (overview!.totalUsers * 0.08).toFixed(0) : '—'}</span>
+              <span className="w-12 text-xs text-gray-300 text-right">{Number(overview?.totalUsers ?? 0) * 0.08 > 0 ? Number(overview!.totalUsers * 0.08).toFixed(0) : '—'}</span>
             </div>
             {/* 活跃用户 */}
             <div className="flex items-center gap-3">
@@ -464,7 +464,7 @@ function DashboardSection() {
                   <span className="text-[10px] text-white font-medium">22%</span>
                 </div>
               </div>
-              <span className="w-12 text-xs text-gray-300 text-right">{(overview?.totalUsers ?? 0) * 0.22 > 0 ? (overview!.totalUsers * 0.22).toFixed(0) : '—'}</span>
+              <span className="w-12 text-xs text-gray-300 text-right">{Number(overview?.totalUsers ?? 0) * 0.22 > 0 ? Number(overview!.totalUsers * 0.22).toFixed(0) : '—'}</span>
             </div>
             {/* 一般用户 */}
             <div className="flex items-center gap-3">
@@ -474,7 +474,7 @@ function DashboardSection() {
                   <span className="text-[10px] text-white font-medium">35%</span>
                 </div>
               </div>
-              <span className="w-12 text-xs text-gray-300 text-right">{(overview?.totalUsers ?? 0) * 0.35 > 0 ? (overview!.totalUsers * 0.35).toFixed(0) : '—'}</span>
+              <span className="w-12 text-xs text-gray-300 text-right">{Number(overview?.totalUsers ?? 0) * 0.35 > 0 ? Number(overview!.totalUsers * 0.35).toFixed(0) : '—'}</span>
             </div>
             {/* 沉默用户 */}
             <div className="flex items-center gap-3">
@@ -484,7 +484,7 @@ function DashboardSection() {
                   <span className="text-[10px] text-white font-medium">35%</span>
                 </div>
               </div>
-              <span className="w-12 text-xs text-gray-300 text-right">{(overview?.totalUsers ?? 0) * 0.35 > 0 ? (overview!.totalUsers * 0.35).toFixed(0) : '—'}</span>
+              <span className="w-12 text-xs text-gray-300 text-right">{Number(overview?.totalUsers ?? 0) * 0.35 > 0 ? Number(overview!.totalUsers * 0.35).toFixed(0) : '—'}</span>
             </div>
           </div>
 
@@ -524,8 +524,8 @@ function StorageCard({ capacity }: { capacity: any }) {
   const statusBg = storage.status === 'red' ? 'bg-red-900/30 text-red-400' : storage.status === 'yellow' ? 'bg-yellow-900/30 text-yellow-400' : 'bg-green-900/30 text-green-400';
 
   const fmtBytes = (bytes: number) => {
-    if (bytes < 1024 * 1024 * 1024) return `${(bytes / 1024 / 1024).toFixed(1)} MB`;
-    return `${(bytes / 1024 / 1024 / 1024).toFixed(2)} GB`;
+    if (bytes < 1024 * 1024 * 1024) return `${Number(bytes / 1024 / 1024).toFixed(1)} MB`;
+    return `${Number(bytes / 1024 / 1024 / 1024).toFixed(2)} GB`;
   };
 
   return (
@@ -546,7 +546,7 @@ function StorageCard({ capacity }: { capacity: any }) {
         </div>
       </div>
       <p className="text-3xl font-bold text-white">
-        {(storage.usedPercent * 100).toFixed(1)}
+        {Number(storage.usedPercent * 100).toFixed(1)}
         <span className="text-lg text-gray-400 font-normal">%</span>
       </p>
       <div className="mt-2 text-xs text-gray-400 mb-3">
@@ -554,7 +554,7 @@ function StorageCard({ capacity }: { capacity: any }) {
       </div>
       <div className="w-full bg-gray-800 rounded-full h-2 overflow-hidden">
         <div className={`h-2 rounded-full transition-all ${barColor}`}
-          style={{ width: `${Math.min(storage.usedPercent * 100, 100).toFixed(1)}%` }} />
+          style={{ width: `${Math.min(Number(storage.usedPercent * 100), 100).toFixed(1)}%` }} />
       </div>
       {storage.daysUntilFull !== null && (
         <p className="text-[10px] text-gray-500 mt-2">
@@ -1033,13 +1033,13 @@ function ConversationCard({ conv }: { conv: any }) {
             {conv.totalCost !== undefined && (
               <>
                 <span className="text-xs text-gray-600">·</span>
-                <span className="text-xs text-amber-400">¥{conv.totalCost.toFixed(4)}</span>
+                <span className="text-xs text-amber-400">¥{Number(conv.totalCost || 0).toFixed(4)}</span>
               </>
             )}
             {conv.totalTokens !== undefined && (
               <>
                 <span className="text-xs text-gray-600">·</span>
-                <span className="text-xs text-cyan-400">{(conv.totalTokens / 1000).toFixed(1)}K tokens</span>
+                <span className="text-xs text-cyan-400">{Number((conv.totalTokens || 0) / 1000).toFixed(1)}K tokens</span>
               </>
             )}
           </div>
@@ -1149,8 +1149,8 @@ function AssetOverview({ convData }: { convData: any }) {
         {[
           { label: '对话数', value: total.toLocaleString(), color: 'text-white', icon: MessageSquare },
           { label: '消息数', value: totalMessages.toLocaleString(), color: 'text-cyan-400', icon: Zap },
-          { label: 'API 成本', value: `¥${totalCost.toFixed(4)}`, color: 'text-amber-400', icon: DollarSign },
-          { label: 'Token 消耗', value: `${(totalTokens / 1000).toFixed(1)}K`, color: 'text-purple-400', icon: Activity },
+          { label: 'API 成本', value: `¥${Number(totalCost || 0).toFixed(4)}`, color: 'text-amber-400', icon: DollarSign },
+          { label: 'Token 消耗', value: `${Number((totalTokens || 0) / 1000).toFixed(1)}K`, color: 'text-purple-400', icon: Activity },
         ].map(card => (
           <div key={card.label} className="bg-gray-800/50 border border-gray-700/50 rounded-xl p-4">
             <div className="flex items-center justify-between mb-2">
@@ -1242,9 +1242,9 @@ function AssetCostAnalysis({ days }: { days: number }) {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             {[
               { label: '总消息', value: (overview?.totalMessages || 0).toLocaleString(), color: 'text-white', icon: MessageSquare },
-              { label: 'Token 消耗', value: `${((overview?.totalTokens || 0) / 1000).toFixed(1)}K`, color: 'text-cyan-400', icon: Zap },
-              { label: 'API 成本', value: `¥${(overview?.totalApiCost || 0).toFixed(4)}`, color: 'text-amber-400', icon: DollarSign },
-              { label: '平均/对话', value: `¥${(overview?.avgCostPerConversation || 0).toFixed(4)}`, color: 'text-purple-400', icon: BarChart2 },
+              { label: 'Token 消耗', value: `${Number((overview?.totalTokens || 0) / 1000).toFixed(1)}K`, color: 'text-cyan-400', icon: Zap },
+              { label: 'API 成本', value: `¥${Number(overview?.totalApiCost || 0).toFixed(4)}`, color: 'text-amber-400', icon: DollarSign },
+              { label: '平均/对话', value: `¥${Number(overview?.avgCostPerConversation || 0).toFixed(4)}`, color: 'text-purple-400', icon: BarChart2 },
             ].map(card => (
               <div key={card.label} className="bg-gray-800/50 border border-gray-700/50 rounded-xl p-4">
                 <div className="flex items-center justify-between mb-2">
@@ -1372,7 +1372,7 @@ function AssetPersonas({ days }: { days: number }) {
           <p className="text-xs text-gray-400">总 Token</p><p className="text-lg font-bold text-purple-400 mt-1">{totalTokens.toLocaleString()}</p>
         </div>
         <div className="bg-gray-800/50 border border-gray-700/50 rounded-xl p-4 text-center">
-          <p className="text-xs text-gray-400">总成本</p><p className="text-lg font-bold text-amber-400 mt-1">¥{totalCost.toFixed(4)}</p>
+          <p className="text-xs text-gray-400">总成本</p><p className="text-lg font-bold text-amber-400 mt-1">¥{Number(totalCost || 0).toFixed(4)}</p>
         </div>
       </div>
       {isLoading ? (
@@ -1399,9 +1399,9 @@ function AssetPersonas({ days }: { days: number }) {
                 <tr key={p.personaId || i} className="border-b border-gray-800/30 hover:bg-gray-800/20 transition-colors">
                   <td className="p-3"><span className="text-white font-medium text-sm">{p.personaId || 'Unknown'}</span></td>
                   <td className="text-right p-3 text-gray-300">{(p.messageCount || 0).toLocaleString()}</td>
-                  <td className="text-right p-3 text-gray-500">{(totalMessages > 0 ? (p.messageCount / totalMessages * 100).toFixed(1) : 0)}%</td>
+                  <td className="text-right p-3 text-gray-500">{(totalMessages > 0 ? Number(p.messageCount / totalMessages * 100).toFixed(1) : 0)}%</td>
                   <td className="text-right p-3 text-cyan-400">{(p.totalTokens || 0).toLocaleString()}</td>
-                  <td className="text-right p-3 text-amber-400 font-medium">¥{(p.totalCost || 0).toFixed(4)}</td>
+                  <td className="text-right p-3 text-amber-400 font-medium">¥{Number(p.totalCost || 0).toFixed(4)}</td>
                 </tr>
               ))}
             </tbody>
@@ -1446,7 +1446,7 @@ function AssetBehavior({ days }: { days: number }) {
               <div key={key} className={`border rounded-xl p-4 ${colorClass}`}>
                 <p className="text-xs opacity-60">{meta.label}</p>
                 <p className="text-2xl font-bold mt-1">{cluster.count}</p>
-                <p className="text-[10px] opacity-60 mt-1">{(totalUsers > 0 ? (cluster.count / totalUsers * 100).toFixed(0) : 0)}% 用户</p>
+                <p className="text-[10px] opacity-60 mt-1">{(totalUsers > 0 ? Number(cluster.count / totalUsers * 100).toFixed(0) : 0)}% 用户</p>
               </div>
             );
           })}
