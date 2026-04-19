@@ -1353,34 +1353,95 @@ function AssetPersonas({ days }: { days: number }) {
   const { data, isLoading } = useQuery({
     queryKey: ['admin', 'chats', 'personas', days],
     queryFn: () => fetch(`/api/admin/chats/personas?days=${days}`).then(r => r.json()),
-    staleTime: 1000 * 60 * 30,
+    staleTime: 1000 * 60 * 5,
   });
 
-  const usage = data?.personaUsage || [];
-  const totalMessages = usage.reduce((s: number, p: any) => s + (p.messageCount || 0), 0);
-  const totalTokens = usage.reduce((s: number, p: any) => s + (p.totalTokens || 0), 0);
-  const totalCost = usage.reduce((s: number, p: any) => s + (p.totalCost || 0), 0);
+  const usage = (data?.personaUsage || []) as Array<{
+    personaId: string; name: string; nameZh: string; domain: string;
+    conversationCount: number; messageCount: number; totalTokens: number; totalCost: number;
+  }>;
+  const totalMessages = usage.reduce((s: number, p) => s + (p.messageCount || 0), 0);
+  const totalTokens = usage.reduce((s: number, p) => s + (p.totalTokens || 0), 0);
+  const totalCost = usage.reduce((s: number, p) => s + (Number(p.totalCost) || 0), 0);
+  const totalConvs = usage.reduce((s: number, p) => s + (p.conversationCount || 0), 0);
+
+  const DOMAIN_COLORS: Record<string, string> = {
+    product: 'bg-blue-900/30 text-blue-400',
+    strategy: 'bg-purple-900/30 text-purple-400',
+    thinking: 'bg-cyan-900/30 text-cyan-400',
+    investing: 'bg-amber-900/30 text-amber-400',
+    startup: 'bg-green-900/30 text-green-400',
+    philosophy: 'bg-orange-900/30 text-orange-400',
+    leadership: 'bg-pink-900/30 text-pink-400',
+    ai: 'bg-indigo-900/30 text-indigo-400',
+    marketing: 'bg-teal-900/30 text-teal-400',
+    unknown: 'bg-gray-800 text-gray-400',
+  };
+  const domainLabel: Record<string, string> = {
+    product: '产品', strategy: '战略', thinking: '思维', investing: '投资',
+    startup: '创业', philosophy: '哲学', leadership: '领导力', ai: 'AI', marketing: '营销', unknown: '其他',
+  };
 
   return (
     <div className="space-y-4">
-      <h4 className="text-sm font-semibold text-white">人物互动分析 · 近 {days} 天</h4>
-      <div className="grid grid-cols-3 gap-3">
+      <div>
+        <h4 className="text-sm font-semibold text-white">人物互动分析 · 近 {days} 天</h4>
+        <p className="text-xs text-gray-500 mt-0.5">
+          基于对话参与者统计（conversations.participants），统计每个角色参与了多少次对话、消息数及 Token 消耗。
+        </p>
+      </div>
+
+      {/* KPI Summary */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         <div className="bg-gray-800/50 border border-gray-700/50 rounded-xl p-4 text-center">
-          <p className="text-xs text-gray-400">总消息</p><p className="text-lg font-bold text-cyan-400 mt-1">{totalMessages.toLocaleString()}</p>
+          <p className="text-xs text-gray-400">活跃人物</p>
+          <p className="text-xl font-bold text-white mt-1">{usage.length}</p>
+          <p className="text-[10px] text-gray-600">个角色参与对话</p>
         </div>
         <div className="bg-gray-800/50 border border-gray-700/50 rounded-xl p-4 text-center">
-          <p className="text-xs text-gray-400">总 Token</p><p className="text-lg font-bold text-purple-400 mt-1">{totalTokens.toLocaleString()}</p>
+          <p className="text-xs text-gray-400">对话场次</p>
+          <p className="text-xl font-bold text-purple-400 mt-1">{totalConvs.toLocaleString()}</p>
+          <p className="text-[10px] text-gray-600">次对话涉及人物</p>
         </div>
         <div className="bg-gray-800/50 border border-gray-700/50 rounded-xl p-4 text-center">
-          <p className="text-xs text-gray-400">总成本</p><p className="text-lg font-bold text-amber-400 mt-1">¥{Number(totalCost || 0).toFixed(4)}</p>
+          <p className="text-xs text-gray-400">总 Token</p>
+          <p className="text-xl font-bold text-cyan-400 mt-1">{(totalTokens / 1000).toFixed(1)}K</p>
+          <p className="text-[10px] text-gray-600">输入+输出总计</p>
+        </div>
+        <div className="bg-gray-800/50 border border-gray-700/50 rounded-xl p-4 text-center">
+          <p className="text-xs text-gray-400">总成本</p>
+          <p className="text-xl font-bold text-amber-400 mt-1">¥{Number(totalCost).toFixed(4)}</p>
+          <p className="text-[10px] text-gray-600">API 调用成本</p>
         </div>
       </div>
+
+      {/* Insight card */}
+      {usage.length > 0 && (
+        <div className="bg-purple-900/10 border border-purple-800/20 rounded-xl p-4">
+          <div className="flex items-start gap-2">
+            <Sparkles className="w-4 h-4 text-purple-400 mt-0.5 flex-shrink-0" />
+            <div>
+              <p className="text-xs text-purple-300 font-medium">指标解读与优化建议</p>
+              <p className="text-xs text-gray-400 mt-1 leading-relaxed">
+                {usage.length >= 5
+                  ? `共有 ${usage.length} 个人物参与对话，覆盖 ${new Set(usage.map(u => u.domain)).size} 个领域。`
+                  : `人物覆盖度偏低，建议引导用户探索更多角色。对话集中度较高，建议增加跨领域对话场景。`}
+                {totalConvs > 0 && usage[0]
+                  ? ` 最活跃人物「${usage[0].nameZh || usage[0].name}」参与了 ${usage[0].conversationCount} 次对话（占 ${(usage[0].conversationCount / totalConvs * 100).toFixed(0)}%）。`
+                  : ' 建议增加多角色辩论等高互动功能。'}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Table */}
       {isLoading ? (
         <div className="h-40 bg-gray-800 rounded-xl animate-pulse" />
       ) : usage.length === 0 ? (
         <div className="text-center py-12 text-gray-500 text-sm">
           <Bot className="w-10 h-10 mx-auto mb-2 opacity-30" />
-          暂无人物互动数据
+          暂无人物互动数据（请检查 conversations 表中 participants 字段）
         </div>
       ) : (
         <div className="bg-gray-800/30 border border-gray-700/30 rounded-xl overflow-hidden">
@@ -1388,6 +1449,8 @@ function AssetPersonas({ days }: { days: number }) {
             <thead>
               <tr className="border-b border-gray-700/50 bg-gray-800/50">
                 <th className="text-left p-3 text-gray-400 font-medium text-xs">人物</th>
+                <th className="text-left p-3 text-gray-400 font-medium text-xs">领域</th>
+                <th className="text-right p-3 text-gray-400 font-medium text-xs">对话数</th>
                 <th className="text-right p-3 text-gray-400 font-medium text-xs">消息数</th>
                 <th className="text-right p-3 text-gray-400 font-medium text-xs">占比</th>
                 <th className="text-right p-3 text-gray-400 font-medium text-xs">Token</th>
@@ -1395,15 +1458,37 @@ function AssetPersonas({ days }: { days: number }) {
               </tr>
             </thead>
             <tbody>
-              {usage.map((p: any, i: number) => (
-                <tr key={p.personaId || i} className="border-b border-gray-800/30 hover:bg-gray-800/20 transition-colors">
-                  <td className="p-3"><span className="text-white font-medium text-sm">{p.personaId || 'Unknown'}</span></td>
-                  <td className="text-right p-3 text-gray-300">{(p.messageCount || 0).toLocaleString()}</td>
-                  <td className="text-right p-3 text-gray-500">{(totalMessages > 0 ? Number(p.messageCount / totalMessages * 100).toFixed(1) : 0)}%</td>
-                  <td className="text-right p-3 text-cyan-400">{(p.totalTokens || 0).toLocaleString()}</td>
-                  <td className="text-right p-3 text-amber-400 font-medium">¥{Number(p.totalCost || 0).toFixed(4)}</td>
-                </tr>
-              ))}
+              {usage.map((p, i) => {
+                const colorClass = DOMAIN_COLORS[p.domain] || DOMAIN_COLORS.unknown;
+                const label = domainLabel[p.domain] || p.domain;
+                const pct = totalConvs > 0 ? (p.conversationCount / totalConvs * 100) : 0;
+                return (
+                  <tr key={p.personaId || i} className="border-b border-gray-800/30 hover:bg-gray-800/20 transition-colors">
+                    <td className="p-3">
+                      <div className="flex items-center gap-2">
+                        <div className={`w-5 h-5 rounded text-[9px] font-bold flex items-center justify-center ${
+                          i === 0 ? 'bg-amber-500/20 text-amber-400' :
+                          i === 1 ? 'bg-gray-400/20 text-gray-300' :
+                          i === 2 ? 'bg-orange-600/20 text-orange-400' :
+                          'bg-gray-800 text-gray-500'
+                        }`}>{i + 1}</div>
+                        <div>
+                          <p className="text-white font-medium text-sm">{p.nameZh || p.name}</p>
+                          <p className="text-[10px] text-gray-500">{p.name}</p>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="p-3">
+                      <span className={`text-[10px] px-2 py-0.5 rounded-full ${colorClass}`}>{label}</span>
+                    </td>
+                    <td className="text-right p-3 text-purple-300 font-medium">{p.conversationCount}</td>
+                    <td className="text-right p-3 text-gray-300">{Number(p.messageCount).toLocaleString()}</td>
+                    <td className="text-right p-3 text-gray-500">{pct.toFixed(1)}%</td>
+                    <td className="text-right p-3 text-cyan-400">{Number(p.totalTokens).toLocaleString()}</td>
+                    <td className="text-right p-3 text-amber-400 font-medium">¥{Number(p.totalCost || 0).toFixed(4)}</td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>

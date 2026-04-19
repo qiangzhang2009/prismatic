@@ -299,15 +299,24 @@ export function useAnalyticsTrend(days: number = 7) {
 export function useAnalyticsPersonas(days: number = 30) {
   return useQuery({
     queryKey: analyticsKeys.personas(days),
-    queryFn: () => fetchAdminAPI<{ personas: Array<{
+    queryFn: () => fetchAdminAPI<{ personaUsage: Array<{
       personaId: string;
-      personaName: string;
-      views: number;
-      conversations: number;
-      avgTurns: number;
-    }> }>(`/api/analytics/personas?days=${days}`),
-    select: (data) => data.personas,
-    staleTime: 1000 * 60 * 10,
+      name: string;
+      nameZh: string;
+      domain: string;
+      conversationCount: number;
+      messageCount: number;
+      totalTokens: number;
+      totalCost: number;
+    }> }>(`/api/admin/chats/personas?days=${days}`),
+    select: (data) => data.personaUsage.map(p => ({
+      personaId: p.personaId,
+      personaName: p.nameZh || p.name,
+      views: 0,
+      conversations: p.conversationCount,
+      avgTurns: p.messageCount > 0 ? Number((p.messageCount / Math.max(p.conversationCount, 1)).toFixed(1)) : 0,
+    })),
+    staleTime: 1000 * 60 * 5,
   });
 }
 
