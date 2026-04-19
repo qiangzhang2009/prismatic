@@ -5,7 +5,7 @@
  * 三个核心 Tab: 数据驾驶舱 / 用户管理 / 对话资产
  */
 
-import { Suspense, useState, useMemo } from 'react';
+import { Suspense, useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Users, Search, Crown, UserCheck, UserX, Filter,
@@ -118,6 +118,9 @@ function TabPanel({ children }: { children: React.ReactNode }) {
 
 function DashboardSection() {
   const [days, setDays] = useState(7);
+  const [now, setNow] = useState<string | null>(null);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => { setNow(new Date().toLocaleTimeString('zh-CN')); }, []);
   const { data: overview, isLoading: ovLoading, refetch: refetchOv } = useAnalyticsOverview(days);
   const { data: trend, isLoading: trLoading } = useAnalyticsTrend(days);
   const { data: personas } = useAnalyticsPersonas(30);
@@ -168,7 +171,7 @@ function DashboardSection() {
         <div>
           <h2 className="text-xl font-bold text-white">数据驾驶舱</h2>
           <p className="text-gray-400 text-sm mt-0.5">
-            {days === 7 ? '近 7 天' : days === 14 ? '近 14 天' : days === 30 ? '近 30 天' : '近 90 天'} · 实时数据 · 最后更新: {new Date().toLocaleTimeString('zh-CN')}
+            {days === 7 ? '近 7 天' : days === 14 ? '近 14 天' : days === 30 ? '近 30 天' : '近 90 天'} · 实时数据 · {now ? <span suppressHydrationWarning>最后更新: {now}</span> : '加载中...'}
           </p>
         </div>
         <div className="flex items-center gap-3">
