@@ -19,6 +19,14 @@ export async function GET(req: NextRequest) {
   const days = Math.min(90, Math.max(1, parseInt(new URL(req.url).searchParams.get('days') || '7', 10)));
   const startDate = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
 
+  // Count total qualifying conversations (before take limit)
+  const totalConversations = await prisma.conversation.count({
+    where: {
+      createdAt: { gte: startDate },
+      messageCount: { gte: 2 },
+    },
+  });
+
   const conversations = await prisma.conversation.findMany({
     where: {
       createdAt: { gte: startDate },
@@ -45,7 +53,7 @@ export async function GET(req: NextRequest) {
   // Use DeepSeek for topic clustering
   const deepseekKey = process.env.DEEPSEEK_API_KEY;
   if (!deepseekKey) {
-    return NextResponse.json({ topics: [], totalConversations: conversations.length, period: { days }, error: 'No LLM configured' });
+    return NextResponse.json({ topics: [], totalConversations, sampledFrom: Math.min(500, totalConversations), period: { days }, error: 'No LLM configured' });
   }
 
   try {
@@ -84,9 +92,9 @@ export async function GET(req: NextRequest) {
       if (match) topics = JSON.parse(match[0]);
     } catch {}
 
-    return NextResponse.json({ topics, totalConversations: conversations.length, period: { days } });
+    return NextResponse.json({ topics, totalConversations, sampledFrom: Math.min(500, totalConversations), period: { days } });
   } catch (err) {
     console.error('[Admin/Chats/Topics] LLM error:', err);
-    return NextResponse.json({ topics: [], totalConversations: conversations.length, period: { days }, error: 'Topic clustering failed' });
+    return NextResponse.json({ topics: [], totalConversations, sampledFrom: Math.min(500, totalConversations), period: { days }, error: 'Topic clustering failed' });
   }
 }

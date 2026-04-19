@@ -18,8 +18,17 @@ export async function GET(request: NextRequest) {
     const monthStart = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
     monthStart.setHours(0, 0, 0, 0);
 
-    const [totalUsers, newUsersToday, totalMessages, totalConversations,
-            dauResult, mauResult, weekMessages, paidUsers] = await Promise.all([
+    const [
+      totalUsers,
+      newUsersToday,
+      totalMessages,
+      totalConversations,
+      dauResult,
+      mauResult,
+      weekMessages,
+      paidUsers,
+      periodApiCost,
+    ] = await Promise.all([
       // 总用户数（活跃）
       prisma.user.count({ where: { status: 'ACTIVE' } }),
       // 今日新增用户
@@ -49,10 +58,16 @@ export async function GET(request: NextRequest) {
       }),
       // 付费用户数（非 FREE 计划）
       prisma.user.count({ where: { status: 'ACTIVE', plan: { not: 'FREE' } } }),
+      // 近 N 天 API 总成本（从 messages.apiCost 聚合）
+      prisma.message.aggregate({
+        where: { createdAt: { gte: weekStart } },
+        _sum: { apiCost: true },
+      }),
     ]);
 
     const dau = dauResult.length;
     const mau = mauResult.length;
+    const totalApiCost = Number(periodApiCost._sum.apiCost || 0);
 
     // 活跃率 = 今日 DAU / 总用户
     const activeRate = totalUsers > 0 ? (dau / totalUsers) * 100 : 0;
@@ -65,15 +80,15 @@ export async function GET(request: NextRequest) {
       newUsers: newUsersToday,
       totalMessages,
       totalConversations,
-      totalApiCost: 0,
+      totalApiCost,
       dau,
       mau,
       paidUsers,
       weekMessages,
-      // 额外指标
       activeRate: Math.round(activeRate * 10) / 10,
       dauMauRatio: Math.round(dauMauRatio * 10) / 10,
       totalMessagesWeek: weekMessages,
+      period: { days },
     });
   } catch (error) {
     console.error('[Analytics/Overview]', error);

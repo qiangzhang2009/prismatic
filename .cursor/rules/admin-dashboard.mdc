@@ -1,0 +1,59 @@
+# 管理后台数据准确性规则
+
+## 上下文
+
+本规则适用于 Prismatic 项目中所有管理后台（`/admin`）相关的代码修改。
+
+## 核心准则
+
+### 铁律：真实 · 准确 · 及时
+
+管理后台展示的所有数据必须同时满足：
+
+1. **真实**：来自数据库实时查询，不允许伪造或 hardcode
+2. **准确**：计算逻辑与数据库 schema 一致，不假设默认值
+3. **及时**：反映当前数据库状态，缓存不超过 5 分钟
+
+### 数据源优先级（从高到低）
+
+```
+1. Prisma → messages 表         # 最准确，真实使用记录
+2. Prisma → conversations 表    # 对话元数据，含 participants/personaIds
+3. Prisma → users 表           # 用户信息
+4. Prisma → user_sessions / user_events 表  # 行为分析
+5. Tracking tables (prismatic_events/page_events)  # 仅作补充，不作主要来源
+```
+
+> ⚠️ **重要**：`prismatic_events` 表可能不存在，数据可能不完整。绝对不能将其作为人物数据的主要来源。
+
+## Persona 数据规则
+
+- **必须**从 `conversations.participants` 或 `conversations.personaIds` 读取
+- **禁止**依赖 `messages.personaId`（数据可能不完整）
+- **禁止**依赖 `prismatic_events` 表作为主要来源
+- 名称 fallback：使用 `src/lib/personas.ts` 中的常量，但需在 UI 标注来源
+
+## API 层规则
+
+- 所有 `/api/admin/*` 路由必须调用 `authenticateAdminRequest()`
+- **禁止** catch 后静默返回 `[]`，必须 `console.error` 并返回错误状态
+- 所有错误响应必须包含有意义的错误信息
+- 所有返回 JSON 必须包含 `period` 字段说明数据时间范围
+
+## 前端展示规则
+
+- **所有数字计算**：必须用 `Number()` 包装后再调用 `.toFixed()` / `.toLocaleString()`
+- **空数据状态**：区分"加载中"、"无数据"、"查询出错"三种
+- **指标说明**：每个分析维度必须有 1-2 句话说明数据来源和含义
+- **时间渲染**：禁止在 JSX 中直接用 `new Date().toLocaleTimeString()`，必须用 `useEffect`
+
+## 修改前自查清单
+
+每次修改 admin 相关代码前，必须确认：
+
+1. 数据来自哪个 Prisma 模型/表？
+2. schema 字段类型是否与代码中的使用匹配？
+3. 查询条件是否正确？
+4. 数据是实时的还是缓存的？
+5. 空结果是"真的没有"还是"查询失败"？
+6. 所有 `toFixed` / `toLocaleString` 是否被 `Number()` 保护？

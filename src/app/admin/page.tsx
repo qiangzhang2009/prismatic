@@ -36,6 +36,26 @@ import type { User, UserFilter } from '@/lib/use-admin-data';
 
 type Tab = 'dashboard' | 'users' | 'assets';
 
+// ─── Helpers ────────────────────────────────────────────────────────────────────
+
+function fmtDate(dateStr: string | Date | undefined | null): string {
+  if (!dateStr) return '—';
+  try {
+    return new Date(dateStr).toLocaleString('zh-CN', { year: '2-digit', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
+  } catch {
+    return '—';
+  }
+}
+
+function fmtDateShort(dateStr: string | Date | undefined | null): string {
+  if (!dateStr) return '—';
+  try {
+    return new Date(dateStr).toLocaleDateString('zh-CN', { month: '2-digit', day: '2-digit' });
+  } catch {
+    return '—';
+  }
+}
+
 const COLORS = ['#8b5cf6', '#06b6d4', '#f59e0b', '#10b981', '#ef4444', '#6366f1', '#ec4899', '#14b8a6'];
 const CHART_COLORS = {
   purple: '#8b5cf6', cyan: '#06b6d4', amber: '#f59e0b',
@@ -399,7 +419,7 @@ function DashboardSection() {
           <div className="flex items-center justify-between mb-4">
             <div>
               <h3 className="text-base font-semibold text-white">人物热度排行</h3>
-              <p className="text-xs text-gray-500 mt-0.5">浏览量 + 对话次数 · Top 8</p>
+              <p className="text-xs text-gray-500 mt-0.5">消息数 + 对话次数 · Top 8</p>
             </div>
             <Bot className="w-5 h-5 text-purple-400" />
           </div>
@@ -422,7 +442,7 @@ function DashboardSection() {
                       <span className="text-sm font-medium text-white truncate">{p.fullName}</span>
                     </div>
                     <div className="flex items-center gap-3 mt-0.5">
-                      <span className="text-[10px] text-gray-500">{p.views} 浏览</span>
+                      <span className="text-[10px] text-gray-500">{(p as any).messageCount ? `${(p as any).messageCount} 消息` : '—'}</span>
                       <span className="text-[10px] text-cyan-500">{p.conversations} 对话</span>
                       <span className="text-[10px] text-purple-400">{Number(p.avgTurns || 0).toFixed(1)} 轮/人</span>
                     </div>
@@ -446,52 +466,17 @@ function DashboardSection() {
             <Layers className="w-5 h-5 text-cyan-400" />
           </div>
           <div className="space-y-3">
-            {/* 超活跃用户 */}
-            <div className="flex items-center gap-3">
-              <span className="w-16 text-xs text-gray-400 text-right flex-shrink-0">超级活跃</span>
-              <div className="flex-1 h-6 bg-gray-800 rounded-lg overflow-hidden">
-                <div className="h-full bg-gradient-to-r from-purple-500 to-purple-600 rounded-lg flex items-center justify-end pr-2" style={{ width: '8%' }}>
-                  <span className="text-[10px] text-white font-medium">8%</span>
-                </div>
-              </div>
-              <span className="w-12 text-xs text-gray-300 text-right">{Number(overview?.totalUsers ?? 0) * 0.08 > 0 ? Number(overview!.totalUsers * 0.08).toFixed(0) : '—'}</span>
-            </div>
-            {/* 活跃用户 */}
-            <div className="flex items-center gap-3">
-              <span className="w-16 text-xs text-gray-400 text-right flex-shrink-0">活跃用户</span>
-              <div className="flex-1 h-6 bg-gray-800 rounded-lg overflow-hidden">
-                <div className="h-full bg-gradient-to-r from-cyan-500 to-cyan-600 rounded-lg flex items-center justify-end pr-2" style={{ width: '22%' }}>
-                  <span className="text-[10px] text-white font-medium">22%</span>
-                </div>
-              </div>
-              <span className="w-12 text-xs text-gray-300 text-right">{Number(overview?.totalUsers ?? 0) * 0.22 > 0 ? Number(overview!.totalUsers * 0.22).toFixed(0) : '—'}</span>
-            </div>
-            {/* 一般用户 */}
-            <div className="flex items-center gap-3">
-              <span className="w-16 text-xs text-gray-400 text-right flex-shrink-0">一般用户</span>
-              <div className="flex-1 h-6 bg-gray-800 rounded-lg overflow-hidden">
-                <div className="h-full bg-gradient-to-r from-amber-500 to-amber-600 rounded-lg flex items-center justify-end pr-2" style={{ width: '35%' }}>
-                  <span className="text-[10px] text-white font-medium">35%</span>
-                </div>
-              </div>
-              <span className="w-12 text-xs text-gray-300 text-right">{Number(overview?.totalUsers ?? 0) * 0.35 > 0 ? Number(overview!.totalUsers * 0.35).toFixed(0) : '—'}</span>
-            </div>
-            {/* 沉默用户 */}
-            <div className="flex items-center gap-3">
-              <span className="w-16 text-xs text-gray-400 text-right flex-shrink-0">沉默用户</span>
-              <div className="flex-1 h-6 bg-gray-800 rounded-lg overflow-hidden">
-                <div className="h-full bg-gradient-to-r from-gray-600 to-gray-700 rounded-lg flex items-center justify-end pr-2" style={{ width: '35%' }}>
-                  <span className="text-[10px] text-white font-medium">35%</span>
-                </div>
-              </div>
-              <span className="w-12 text-xs text-gray-300 text-right">{Number(overview?.totalUsers ?? 0) * 0.35 > 0 ? Number(overview!.totalUsers * 0.35).toFixed(0) : '—'}</span>
+            {/* 用户参与度数据来自行为分群 API，真实数据请到「对话资产 → 用户分群」查看 */}
+            <div className="flex items-center justify-center h-20 rounded-xl border border-dashed border-gray-700">
+              <p className="text-xs text-gray-600">
+                用户分布数据请至 <span className="text-gray-500">「对话资产 → 用户分群」</span> 查看
+              </p>
             </div>
           </div>
 
           <div className="mt-5 p-3 bg-gray-800/50 rounded-xl border border-gray-700/30">
             <p className="text-xs text-gray-400 leading-relaxed">
-              <span className="text-purple-400 font-medium">超级活跃用户</span>（日均 50+ 条消息）贡献了约
-              <span className="text-amber-400 font-medium"> 40%</span> 的总消息量。建议重点维护这一群体，提供专属权益。
+              用户参与度分布基于真实对话数据。详细分群请切换到<span className="text-purple-400 font-medium">「对话资产 → 用户分群」</span>查看各用户群体的真实规模和贡献。
             </p>
           </div>
         </div>
@@ -757,8 +742,8 @@ function UsersSection() {
                     <span className="font-semibold text-amber-400 text-sm">{user.credits}</span>
                     <button onClick={e => { e.stopPropagation(); handleAddCredits(user.id); }} className="text-xs text-gray-500 hover:text-blue-400 transition-colors" title="添加信用点">+充</button>
                   </div>
-                  <div className="col-span-2 text-sm text-gray-400">{user.createdAt ? new Date(user.createdAt).toLocaleDateString('zh-CN') : '-'}</div>
-                  <div className="col-span-2 text-sm text-gray-400">{user.lastActiveAt ? new Date(user.lastActiveAt).toLocaleDateString('zh-CN') : <span className="text-gray-600">从未</span>}</div>
+                  <div className="col-span-2 text-sm text-gray-400">{fmtDateShort(user.createdAt)}</div>
+                  <div className="col-span-2 text-sm text-gray-400">{user.lastActiveAt ? fmtDateShort(user.lastActiveAt) : <span className="text-gray-600">从未</span>}</div>
                   <div className="col-span-1 flex items-center justify-end gap-1" onClick={e => e.stopPropagation()}>
                     <button onClick={() => router.push(`/admin/users/${user.id}`)} className="p-1.5 hover:bg-gray-700 rounded-lg transition-colors" title="查看详情"><Eye className="w-4 h-4 text-gray-400 hover:text-blue-400" /></button>
                     <button onClick={() => handleDelete(user.id)} className="p-1.5 hover:bg-red-900/30 rounded-lg transition-colors" title="删除"><Trash2 className="w-4 h-4 text-gray-400 hover:text-red-400" /></button>
@@ -774,7 +759,7 @@ function UsersSection() {
                           <div className="space-y-1.5 text-sm">
                             <div className="flex justify-between"><span className="text-gray-500">用户ID</span><span className="text-gray-300 font-mono text-xs">{user.id.slice(0, 16)}...</span></div>
                             <div className="flex justify-between"><span className="text-gray-500">邮箱</span><span className="text-gray-300">{user.email || '-'}</span></div>
-                            <div className="flex justify-between"><span className="text-gray-500">注册时间</span><span className="text-gray-300">{user.createdAt ? new Date(user.createdAt).toLocaleString('zh-CN') : '-'}</span></div>
+                            <div className="flex justify-between"><span className="text-gray-500">注册时间</span><span className="text-gray-300">{user.createdAt ? fmtDate(user.createdAt) : '-'}</span></div>
                           </div>
                         </div>
                         <div className="col-span-3">
@@ -782,7 +767,7 @@ function UsersSection() {
                           <div className="space-y-1.5 text-sm">
                             <div className="flex justify-between"><span className="text-gray-500">对话数</span><span className="text-gray-300">{user.conversationCount?.toLocaleString() || 0}</span></div>
                             <div className="flex justify-between"><span className="text-gray-500">消息数</span><span className="text-gray-300">{user.messageCount?.toLocaleString() || 0}</span></div>
-                            <div className="flex justify-between"><span className="text-gray-500">最后活跃</span><span className="text-gray-300">{user.lastActiveAt ? new Date(user.lastActiveAt).toLocaleString('zh-CN') : '从未'}</span></div>
+                            <div className="flex justify-between"><span className="text-gray-500">最后活跃</span><span className="text-gray-300">{user.lastActiveAt ? fmtDate(user.lastActiveAt) : '从未'}</span></div>
                           </div>
                         </div>
                         <div className="col-span-3">
@@ -848,6 +833,17 @@ function AssetsSection() {
   const [dateTo, setDateTo] = useState('');
   const [page, setPage] = useState(1);
 
+  // Quick date buttons: set dateFrom to N days ago, dateTo to today
+  const applyQuickDate = (days: number) => {
+    const to = new Date();
+    to.setHours(23, 59, 59, 999);
+    const from = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
+    from.setHours(0, 0, 0, 0);
+    setDateFrom(from.toISOString().split('T')[0]);
+    setDateTo(to.toISOString().split('T')[0]);
+    setPage(1);
+  };
+
   const params = useMemo(() => new URLSearchParams({
     page: String(page), pageSize: '20',
     ...(search && { search }),
@@ -901,7 +897,7 @@ function AssetsSection() {
           <span className="text-xs text-gray-500">{total} 条对话</span>
           <div className="flex items-center gap-1 bg-gray-900/50 border border-gray-800 rounded-lg p-1">
             {[7, 14, 30, 90].map(d => (
-              <button key={d} onClick={() => setPage(1)}
+              <button key={d} onClick={() => applyQuickDate(d)}
                 className="px-2.5 py-1 rounded text-xs font-medium transition-colors bg-gray-800 text-gray-300 hover:bg-gray-700">
                 {d}天
               </button>
@@ -1018,7 +1014,7 @@ function ConversationCard({ conv }: { conv: any }) {
       >
         <div className="flex items-center gap-3 flex-wrap flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-shrink-0">
-            <span className="text-xs text-gray-500">{new Date(conv.createdAt).toLocaleString('zh-CN')}</span>
+            <span className="text-xs text-gray-500">{fmtDate(conv.createdAt)}</span>
             <span className="text-xs px-2 py-0.5 rounded-full bg-gray-800 text-gray-400">{conv.mode}</span>
             <span className={`text-xs px-2 py-0.5 rounded-full ${conv.billingMode === 'A' ? 'bg-blue-900/30 text-blue-400' : 'bg-green-900/30 text-green-400'}`}>
               {conv.billingMode === 'A' ? 'API Key' : '平台代付'}
@@ -1226,6 +1222,11 @@ function AssetCostAnalysis({ days }: { days: number }) {
   const dailyTrend = (data?.dailyTrend || []) as Array<{ date: string; messages?: number }>;
   const modeStats = (data?.modeStats || []) as Array<{ mode?: string; _count?: { id?: number } }>;
 
+  const dailyTrendData = useMemo(() =>
+    dailyTrend.map(d => ({ ...d, date: fmtDateShort(d.date) })),
+    [dailyTrend]
+  );
+
   const modeChartData = modeStats.map(m => ({ name: m.mode || 'Unknown', value: m._count?.id || 0 }));
   const costChartData = personas.slice(0, 8).map(p => {
     const name = p.personaName || '';
@@ -1261,7 +1262,7 @@ function AssetCostAnalysis({ days }: { days: number }) {
             <div className="bg-gray-800/30 rounded-xl p-4 border border-gray-700/30">
               <h5 className="text-xs font-medium text-gray-400 mb-3">每日消息趋势</h5>
               <ResponsiveContainer width="100%" height={180}>
-                <AreaChart data={dailyTrend.map(d => ({ ...d, date: new Date(d.date).toLocaleDateString('zh-CN', { month: 'numeric', day: 'numeric' }) }))}>
+                <AreaChart data={dailyTrendData}>
                   <defs>
                     <linearGradient id="ac-msg" x1="0" y1="0" x2="0" y2="1">
                       <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.3} />
@@ -1313,7 +1314,11 @@ function AssetTopics({ days }: { days: number }) {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h4 className="text-sm font-semibold text-white">话题聚类分析 · 近 {days} 天</h4>
-        <span className="text-xs text-gray-500">{total} 条对话归纳</span>
+        <span className="text-xs text-gray-500">
+          {data?.sampledFrom !== undefined
+            ? `${total} 条对话（采样 ${data.sampledFrom} 条归纳）`
+            : `${total} 条对话`}
+        </span>
       </div>
       {isLoading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">{[1,2,3,4].map(i => <div key={i} className="h-28 bg-gray-800 rounded-xl animate-pulse" />)}</div>
@@ -1509,11 +1514,13 @@ function AssetBehavior({ days }: { days: number }) {
   const clusters = data?.clusters;
   const totalUsers = data?.totalActiveUsers || 0;
 
-  const CLUSTER_META: Record<string, { color: string; label: string; desc: string }> = {
-    power: { color: 'purple', label: '超级用户', desc: '日均 50+ 条消息' },
-    active: { color: 'cyan', label: '活跃用户', desc: '日均 10-50 条消息' },
-    casual: { color: 'amber', label: '普通用户', desc: '日均 1-10 条消息' },
-    dormant: { color: 'gray', label: '沉默用户', desc: '30 天内无活跃' },
+  type ClusterMeta = { color: string; label: string; desc: string };
+  const CLUSTER_META: Record<string, ClusterMeta> = {
+    // NOTE: keys must match /api/admin/chats/behavior response keys exactly
+    heavy:    { color: 'purple', label: '重度用户', desc: '≥20 次对话 或 ≥100 条消息' },
+    explorer: { color: 'cyan',   label: '探索型',   desc: '10-19 次对话' },
+    casual:   { color: 'amber', label: '轻量用户', desc: '3-9 次对话' },
+    dormant:  { color: 'gray',  label: '沉默用户', desc: '1-2 次对话 或 近 30 天无活跃' },
   };
 
   return (
