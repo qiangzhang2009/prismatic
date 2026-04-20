@@ -17,6 +17,13 @@ export async function GET(req: NextRequest) {
     return NextResponse.json(report);
   } catch (err) {
     console.error('[Admin/Capacity] Error:', err);
-    return NextResponse.json({ error: 'Failed to generate capacity report' }, { status: 500 });
+    return NextResponse.json({
+      storage: null,
+      compute: null,
+      estimatedDaysBeforeLimit: null,
+      recommendedTier: 'free',
+      upgradeRecommendation: '容量报告暂时不可用，请稍后重试。',
+      generatedAt: new Date().toISOString(),
+    });
   }
 }

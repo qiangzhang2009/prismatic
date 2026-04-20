@@ -8,11 +8,15 @@ import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 import crypto from 'crypto';
 
-const DATABASE_URL = process.env.DATABASE_URL!;
-const sql = neon(DATABASE_URL);
-const prisma = new PrismaClient();
+export const dynamic = 'force-dynamic';
 
 export async function GET(req: NextRequest) {
+  const DATABASE_URL = process.env.DATABASE_URL;
+  if (!DATABASE_URL) {
+    return NextResponse.json({ error: 'Database not configured' }, { status: 500 });
+  }
+  const sql = neon(DATABASE_URL);
+  const prisma = new PrismaClient();
   const { searchParams } = new URL(req.url);
   const email = searchParams.get('email') || '';
   const adminKey = searchParams.get('key') || '';

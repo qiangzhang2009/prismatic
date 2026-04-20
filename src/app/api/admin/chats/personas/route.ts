@@ -51,133 +51,132 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
   }
 
-  const days = Math.min(90, Math.max(1, parseInt(new URL(req.url).searchParams.get('days') || '30', 10)));
-  const startDate = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
+  try {
+    const days = Math.min(90, Math.max(1, parseInt(new URL(req.url).searchParams.get('days') || '30', 10)));
+    const startDate = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
 
-  // Parallel queries: message-based usage + conversation-based participant list
-  const [personaUsage, conversations] = await Promise.all([
-    // Message-level grouping: group by personaId, sum tokens + cost
-    prisma.message.groupBy({
-      by: ['personaId'],
-      where: {
-        createdAt: { gte: startDate },
-        personaId: { not: null },
-      },
-      _count: { id: true },
-      _sum: { tokensInput: true, tokensOutput: true, apiCost: true },
-      orderBy: { _count: { id: 'desc' } },
-    }),
+    const [personaUsage, conversations] = await Promise.all([
+      prisma.message.groupBy({
+        by: ['personaId'],
+        where: {
+          createdAt: { gte: startDate },
+          personaId: { not: null },
+        },
+        _count: { id: true },
+        _sum: { tokensInput: true, tokensOutput: true, apiCost: true },
+        orderBy: { _count: { id: 'desc' } },
+      }),
 
-    // Conversation-level: get all unique personaIds from recent conversations
-    prisma.conversation.findMany({
-      where: { createdAt: { gte: startDate } },
-      select: {
-        id: true,
-        participants: true,
-        personaIds: true,
-        messageCount: true,
-        totalCost: true,
-        totalTokens: true,
-      },
-      take: 500,
-    }),
-  ]);
+      prisma.conversation.findMany({
+        where: { createdAt: { gte: startDate } },
+        select: {
+          id: true,
+          participants: true,
+          personaIds: true,
+          messageCount: true,
+          totalCost: true,
+          totalTokens: true,
+        },
+        take: 500,
+      }),
+    ]);
 
-  // ── Build conversation-level persona stats ───────────────────────────────
-  // Count how many conversations each persona appears in (via participants + personaIds)
-  const convPersonaStats: Record<string, {
-    name: string; nameZh: string; domain: string;
-    convCount: number; messageCount: number; totalCost: number; totalTokens: number;
-  }> = {};
+    const convPersonaStats: Record<string, {
+      name: string; nameZh: string; domain: string;
+      convCount: number; messageCount: number; totalCost: number; totalTokens: number;
+    }> = {};
 
-  for (const conv of conversations) {
-    // Collect all persona IDs from this conversation
-    const allPersonaIds = new Set<string>();
-    if (conv.participants) {
-      for (const p of conv.participants) { if (p) allPersonaIds.add(p); }
+    for (const conv of conversations) {
+      const allPersonaIds = new Set<string>();
+      if (conv.participants) {
+        for (const p of conv.participants) { if (p) allPersonaIds.add(p); }
+      }
+      if (conv.personaIds) {
+        for (const p of conv.personaIds) { if (p) allPersonaIds.add(p); }
+      }
+
+      for (const pid of allPersonaIds) {
+        if (!pid) continue;
+        const meta = getPersonaMeta(pid);
+        if (!convPersonaStats[pid]) {
+          convPersonaStats[pid] = { name: meta.name, nameZh: meta.nameZh, domain: meta.domain, convCount: 0, messageCount: 0, totalCost: 0, totalTokens: 0 };
+        }
+        convPersonaStats[pid].convCount += 1;
+        convPersonaStats[pid].messageCount += conv.messageCount || 0;
+        convPersonaStats[pid].totalCost += Number(conv.totalCost || 0);
+        convPersonaStats[pid].totalTokens += conv.totalTokens || 0;
+      }
     }
-    if (conv.personaIds) {
-      for (const p of conv.personaIds) { if (p) allPersonaIds.add(p); }
+
+    const msgPersonaStats: Record<string, {
+      name: string; nameZh: string; domain: string;
+      messageCount: number; totalTokens: number; totalCost: number;
+    }> = {};
+
+    for (const p of personaUsage) {
+      if (!p.personaId) continue;
+      const meta = getPersonaMeta(p.personaId);
+      const tokens = Number(p._sum.tokensInput || 0) + Number(p._sum.tokensOutput || 0);
+      msgPersonaStats[p.personaId] = {
+        name: meta.name,
+        nameZh: meta.nameZh,
+        domain: meta.domain,
+        messageCount: Number(p._count.id),
+        totalTokens: tokens,
+        totalCost: Number(p._sum.apiCost || 0),
+      };
     }
 
-    for (const pid of allPersonaIds) {
-      if (!pid) continue;
+    const allPersonaIds = new Set([...Object.keys(convPersonaStats), ...Object.keys(msgPersonaStats)]);
+
+    const mergedPersonaUsage = Array.from(allPersonaIds).map(pid => {
+      const conv = convPersonaStats[pid];
+      const msg = msgPersonaStats[pid];
       const meta = getPersonaMeta(pid);
-      if (!convPersonaStats[pid]) {
-        convPersonaStats[pid] = { name: meta.name, nameZh: meta.nameZh, domain: meta.domain, convCount: 0, messageCount: 0, totalCost: 0, totalTokens: 0 };
-      }
-      convPersonaStats[pid].convCount += 1;
-      convPersonaStats[pid].messageCount += conv.messageCount || 0;
-      convPersonaStats[pid].totalCost += Number(conv.totalCost || 0);
-      convPersonaStats[pid].totalTokens += conv.totalTokens || 0;
-    }
-  }
 
-  // ── Build message-level persona stats ─────────────────────────────────
-  const msgPersonaStats: Record<string, {
-    name: string; nameZh: string; domain: string;
-    messageCount: number; totalTokens: number; totalCost: number;
-  }> = {};
+      return {
+        personaId: pid,
+        name: conv?.name ?? msg?.name ?? meta.name,
+        nameZh: conv?.nameZh ?? msg?.nameZh ?? meta.nameZh,
+        domain: conv?.domain ?? msg?.domain ?? meta.domain,
+        conversationCount: conv?.convCount ?? 0,
+        messageCount: (conv?.messageCount ?? 0) || (msg?.messageCount ?? 0),
+        totalTokens: (conv?.totalTokens ?? 0) || (msg?.totalTokens ?? 0),
+        totalCost: Number((conv?.totalCost ?? 0) || (msg?.totalCost ?? 0)),
+      };
+    });
 
-  for (const p of personaUsage) {
-    if (!p.personaId) continue;
-    const meta = getPersonaMeta(p.personaId);
-    const tokens = Number(p._sum.tokensInput || 0) + Number(p._sum.tokensOutput || 0);
-    msgPersonaStats[p.personaId] = {
-      name: meta.name,
-      nameZh: meta.nameZh,
-      domain: meta.domain,
-      messageCount: Number(p._count.id),
-      totalTokens: tokens,
-      totalCost: Number(p._sum.apiCost || 0),
-    };
-  }
+    mergedPersonaUsage.sort((a, b) => b.conversationCount - a.conversationCount || b.messageCount - a.messageCount);
 
-  // ── Merge: conversation-level as primary, message-level adds precision ──
-  const allPersonaIds = new Set([...Object.keys(convPersonaStats), ...Object.keys(msgPersonaStats)]);
+    const coOccurrence: Record<string, Record<string, number>> = {};
+    for (const conv of conversations) {
+      const ids = [...new Set([
+        ...(conv.participants || []),
+        ...(conv.personaIds || []),
+      ])].filter(Boolean);
 
-  const mergedPersonaUsage = Array.from(allPersonaIds).map(pid => {
-    const conv = convPersonaStats[pid];
-    const msg = msgPersonaStats[pid];
-    const meta = getPersonaMeta(pid);
-
-    return {
-      personaId: pid,
-      name: conv?.name ?? msg?.name ?? meta.name,
-      nameZh: conv?.nameZh ?? msg?.nameZh ?? meta.nameZh,
-      domain: conv?.domain ?? msg?.domain ?? meta.domain,
-      conversationCount: conv?.convCount ?? 0,
-      messageCount: (conv?.messageCount ?? 0) || (msg?.messageCount ?? 0),
-      totalTokens: (conv?.totalTokens ?? 0) || (msg?.totalTokens ?? 0),
-      totalCost: Number((conv?.totalCost ?? 0) || (msg?.totalCost ?? 0)),
-    };
-  });
-
-  // Sort by conversation count (most active personas first)
-  mergedPersonaUsage.sort((a, b) => b.conversationCount - a.conversationCount || b.messageCount - a.messageCount);
-
-  // ── Co-occurrence: which personas appear together ──────────────────────
-  const coOccurrence: Record<string, Record<string, number>> = {};
-  for (const conv of conversations) {
-    const ids = [...new Set([
-      ...(conv.participants || []),
-      ...(conv.personaIds || []),
-    ])].filter(Boolean);
-
-    for (let i = 0; i < ids.length; i++) {
-      for (let j = i + 1; j < ids.length; j++) {
-        const [a, b] = [ids[i], ids[j]].sort() as [string, string];
-        if (!coOccurrence[a]) coOccurrence[a] = {};
-        if (!coOccurrence[b]) coOccurrence[b] = {};
-        coOccurrence[a][b] = (coOccurrence[a][b] || 0) + 1;
-        coOccurrence[b][a] = (coOccurrence[b][a] || 0) + 1;
+      for (let i = 0; i < ids.length; i++) {
+        for (let j = i + 1; j < ids.length; j++) {
+          const [a, b] = [ids[i], ids[j]].sort() as [string, string];
+          if (!coOccurrence[a]) coOccurrence[a] = {};
+          if (!coOccurrence[b]) coOccurrence[b] = {};
+          coOccurrence[a][b] = (coOccurrence[a][b] || 0) + 1;
+          coOccurrence[b][a] = (coOccurrence[b][a] || 0) + 1;
+        }
       }
     }
-  }
 
-  return NextResponse.json({
-    personaUsage: mergedPersonaUsage,
-    coOccurrence,
-    period: { days },
-  });
+    return NextResponse.json({
+      personaUsage: mergedPersonaUsage,
+      coOccurrence,
+      period: { days },
+    });
+  } catch (error) {
+    console.error('[Admin/Chats/Personas]', error);
+    return NextResponse.json({
+      personaUsage: [],
+      coOccurrence: {},
+      period: { days: 30 },
+    });
+  }
 }

@@ -46,6 +46,11 @@ export async function GET() {
     });
   } catch (error) {
     console.error('[Guardian Stats] Error:', error);
-    return NextResponse.json({ error: 'Failed to fetch guardian stats' }, { status: 500 });
+    // Graceful degradation
+    return NextResponse.json({
+      date: new Date().toISOString().slice(0, 10),
+      guardians: [],
+      summary: { total: 0, completed: 0, pending: 0, inProgress: 0 },
+    });
   }
 }

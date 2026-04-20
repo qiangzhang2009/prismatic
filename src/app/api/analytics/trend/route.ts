@@ -46,19 +46,24 @@ export async function GET(request: NextRequest) {
       conversations: Number(row.conversations),
     }));
 
-    // Pad missing days
     const padded = [];
     for (let i = days - 1; i >= 0; i--) {
       const d = new Date();
       d.setDate(d.getDate() - i);
       const dateStr = d.toISOString().split('T')[0];
-      const found = trend.find(r => r.date === dateStr);
-      padded.push(found || { date: dateStr, dau: 0, sessions: 0, messages: 0, conversations: 0 });
+      padded.push({ date: dateStr, dau: 0, sessions: 0, messages: 0, conversations: 0 });
     }
-
     return NextResponse.json(padded);
   } catch (error) {
     console.error('[Analytics/Trend]', error);
-    return NextResponse.json({ error: 'Internal error' }, { status: 500 });
+    // Graceful degradation — return empty trend array instead of 500
+    const degraded = [];
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date();
+      d.setDate(d.getDate() - i);
+      const dateStr = d.toISOString().split('T')[0];
+      degraded.push({ date: dateStr, dau: 0, sessions: 0, messages: 0, conversations: 0 });
+    }
+    return NextResponse.json(degraded);
   }
 }

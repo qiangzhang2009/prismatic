@@ -92,6 +92,22 @@ export async function GET(request: NextRequest) {
     });
   } catch (error) {
     console.error('[Analytics/Overview]', error);
-    return NextResponse.json({ error: 'Internal error' }, { status: 500 });
+    // Graceful degradation — return empty stats instead of 500
+    return NextResponse.json({
+      totalUsers: 0,
+      activeUsers: 0,
+      newUsers: 0,
+      totalMessages: 0,
+      totalConversations: 0,
+      totalApiCost: 0,
+      dau: 0,
+      mau: 0,
+      paidUsers: 0,
+      weekMessages: 0,
+      activeRate: 0,
+      dauMauRatio: 0,
+      totalMessagesWeek: 0,
+      period: { days: 7 },
+    });
   }
 }
