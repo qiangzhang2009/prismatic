@@ -3,34 +3,7 @@
  * 借鉴 JARVIS 的实时进度流架构
  */
 
-export type PipelineEventType =
-  | 'plan_created'
-  | 'stage_started'
-  | 'stage_completed'
-  | 'wave_started'
-  | 'wave_completed'
-  | 'task_queued'
-  | 'task_started'
-  | 'task_progress'
-  | 'task_completed'
-  | 'task_failed'
-  | 'task_retried'
-  | 'scraper_started'
-  | 'scraper_progress'
-  | 'scraper_completed'
-  | 'scraper_failed'
-  | 'llm_call_started'
-  | 'llm_call_completed'
-  | 'quality_gate_started'
-  | 'quality_gate_completed'
-  | 'playtest_started'
-  | 'playtest_completed'
-  | 'artifact_created'
-  | 'cost_updated'
-  | 'token_updated'
-  | 'pipeline_completed'
-  | 'pipeline_failed'
-  | 'pipeline_cancelled';
+export type PipelineEventType = string;
 
 export type EventSeverity = 'debug' | 'info' | 'warn' | 'error' | 'success';
 

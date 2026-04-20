@@ -1,0 +1,402 @@
+Die Allgemeinheit der Geometrie scheint immer wieder die zu sein, daß von einem Begriff die Rede ist und wir uns nicht um die Gegenstände kümmern || man sich nicht um die Gegenstände kümmert, die unter diesen Begriff fallen. Aber so kann es natürlich nicht sein, sondern wir folgen hier – wie so oft – einer falschen Analogie.
+
+ 
+      
+     Welcher Art ist eine allgemeine Anweisung zu einer gewissen euklidischen Konstruktion? Sie hat ihre Wirkung, erfüllt ihren Zweck, erst wenn man sie anwendet, und dann stellt sie sich einem gleichsam zur Verfügung, indem die Variablen in ihr nun Werte annehmen.
+
+ 
+      
+     Man könnte so fragen: Ist etwa ein allgemeiner geometrischer Satz unendlich komplex, da unendlich viele spezielle Anwendungen || Fälle aus ihm folgen? – Nun, er ist es offenbar nicht.
+     Ich möchte immer sagen: die Allgemeinheit der Geometrie ist nur dadurch möglich, daß sie nicht aus Sätzen besteht.
+
+ 
+      
+     Man kann ein Brotmesser nicht allgemein nennen, weil sich kleine und große Stücke damit schneiden lassen.
+
+ 
+      
+     “Wenn du eine Strecke halbieren willst, so nimm sie in den Zirkel, etc.” Und nun zeichnet man eine Figur, in der dies alles an einer Strecke wirklich vollzogen ist und nimmt an, daß der Andere es nun danach an jeder beliebigen Strecke wird vollziehen können. Die Regel setzt natürlich die unendliche Möglichkeit des Raumes voraus, aber nicht “eine unendliche Anzahl” von Möglichkeiten.
+
+ 
+      
+     Stellen wir uns einen Menschen vor, der so eine allgemeine Vorschrift
+
+benützt. Er schaut auf die Vorschrift, dann auf sein Papier: Ich soll die Strecke in den Zirkel nehmen, – jetzt einen Kreis schlagen, – etc., etc. Aber in der Vorschrift steht ja garnichts von dieser Strecke. Aber so faßt der sie auf, der sie anwendet.
+
+ 
+      
+     Der Vorschrift zur Halbierung entspricht eine Vorrichtung zur Halbierung und in dieser wäre ein Teil etwa ein verstellbarer Schlitten der sich der zu teilenden Strecke anpassen würde. Hier hätten wir das Analogon zur Allgemeinheit des Brotmessers.
+
+ 
+      
+     Kann man etwa die Zeichnung
+als eine Stellung eines beweglichen Mechanismus auffassen, der sozusagen die eigentliche Beweiskonstruktion wäre? (Man denkt es ist etwa in A eine Kurbel und AB und AC als elastische Schnüre.)
+     (Kann man von einem dehnbaren Beweis reden?)
+
+ 
+      
+     Könnte man sagen: die Figur kann durch bestimmte Arten von Zerrspiegeln betrachtet werden und behält, durch sie gesehen, ihre beweisende Kraft. Sie wird von vorn herein so verstanden, daß sie durch alle diese Zerrspiegel betrachtet werden kann. Nur das allen diesen Bildern Gemeinsame, welches sie verkörpert, ist das eigentliche Symbol.
+
+ 
+      
+     Man könnte nun freilich – fälschlich – die Figur als den Begriff und ihre verschiedenen Bilder als die unter ihn fallenden Gegenstände auffassen.
+
+ 
+      
+     Der Beweis kann nichts prophezeien. D.h. er kann nichts Wirkliches prophezeien.
+
+ 
+      
+     (Wir erkennen oft im verzerrtesten Schatten die Figur, die ihn wirft.)
+
+ 
+      
+Der allgemeine geometrische (zeichnerische) Beweis ist das Stück das alle speziellen Beweise miteinander gemein haben.
+Das Ende haben sie nicht miteinander gemein.
+
+     (Die fragliche Allgemeinheit tritt, natürlich, schon in die Definition des Kreises als Ort aller Punkte etc. ein.)
+
+ 
+      
+     Es muß sich da natürlich um die Definition einer Variablen handeln, für die ein gewisses Gebiet von Werten bestimmt wird, aber freilich nicht als Klasse von Werten. – Wenn ich also die vermeintliche Schlußkette mit dem Satz anfinge “alle Radien eines Kreises sind gleich lang”, so wäre das schon falsch, d.h. ein unsinniger Anfang.
+     Wenn ich den Kreis etwa durch die Gleichung r = konstant definiere, so muß die unendliche Möglichkeit der r nach der Lage des Radius natürlich in der Bedeutung dieser Definition beschlossen liegen; aber nicht in Form einer Klasse möglicher Werte, sondern, wenn es sich um eine zahlenmäßige Geometrie handelt, durch das Gesetz der Bildung rationaler Zahlen, und, soweit es sich um eine Gesichtsgeometrie handelt, durch die jedem Radius anhaftende unendliche sichtbare Möglichkeit.
+
+ 
+      
+     Ich sagte früher einmal, man könnte sich eine Euklidische Demonstration auch an einer bewegten Figur ausgeführt denken. Es ist aber nicht wesentlich, daß sie bewegt, sondern daß sie beweglich ist. (d.h. variabel).
+     D.h. ich muß in ihr den Repräsentanten der unendlichen räumlichen Möglichkeit sehen.
+
+ 
+      
+     Wenn ich einen mathematischen Satz und einen Beweis für ihn kenne, und später lerne ich noch einen weiteren Beweis dieses Satzes kennen, so habe ich damit ein neues System kennen gelernt.
+
+ 
+      
+     Angenommen, jemand untersuchte gerade Zahlen auf das Stimmen des Goldbach'schen Satzes hin. Er würde nun die Vermutung aussprechen – und die läßt sich aussprechen – daß, wenn er mit dieser Untersuchung fortfährt, er solange er lebt keinen widersprechenden Fall antreffen werde.
+
+     Es hat Sinn, von zwei Punkten zu sagen, daß sie durch eine Gerade verbunden seien. Aber heißt das , “es hat Sinn, von zwei Dingen, die Punkte sind, zu sagen etc.”? –
+
+ 
+      
+     Wie weiß ich dann, daß ein Zeichen “A” einen Punkt bezeichnet? Etwa indem ich sehe, daß “A” in bestimmter Weise mit anderen Zeichen verknüpft werden darf. Aber wie weiß ich, daß diese anderen Zeichen Gerade bezeichnen etc.? Dadurch, daß sie mit “A” verknüpft werden dürfen? Sie können doch nicht gegenseitig ihre Bedeutung bestimmen. Das grammatische System (Spiel) ist eben autonom und seine Anwendung ist in ihm nicht gegeben. || enthalten.
+
+ 
+      
+     Die Geometrie anders verstanden, als reine Grammatik, muß angewendet sein und dann muß es wirkliche Punkte und Geraden etc. geben; der Satz, daß eine Gerade zwei Punkte verbindet, muß dann eben einen wirklichen Sinn haben.
+
+ 
+      
+     Und es heißt der geometrische Satz dann auch nicht “alle Punktpaare sind durch eine Gerade verbunden,” sondern “können durch eine Gerade verbunden werden.” Und hier braucht man dann das Wort “je zwei Punkte || Punkte” und nicht “alle Punktpaare,” und deutet damit den Unterschied von einer anderen Art der Allgemeinheit an.
+
+ 
+      
+     Die Grammatik kann ihre Regeln nicht auf gut Glück allgemein aussprechen (d.h. sie offenlassen).
+
+     Sage ich jemandem “gehe drei Schritte” und er versteht den Befehl, so kann er ihn mir etwa durch eine Zeichnung erklären. Er sagt: Wenn hier der Weg ist und A der Anfang, so willst du, daß ich nach B dann nach C und D kommen soll; oder dergleichen. Und dabei ist es klar, daß er in gewissem Sinne nur einer Sache Ausdruck verliehen hat, die er schon früher – als er den Befehl hörte und verstand – wußte. Er könnte nun so fortfahren und den Befehl noch näher erklären, etwa durch ein ausgeführteres Diagramm und immer würde er doch nur hervorbringen, was ihm schon früher klar war. Er übersetzt nur aus einer Sprache in eine andere. Und wenn er nun endlich den Befehl ausführte, zum Zeichen, daß er ihn verstanden hat – würde er da nicht wieder bloß übersetzen?
+
+ 
+      
+     Zwischen dem Befehl und seiner Ausführung muß eine Kontinuität bestehen. Die Ausführung muß, sozusagen, nur die Endfläche des Befehls (Befehlskörpers) sein.
+
+ 
+      
+     Ich denke, um mir das Wesen des Verstehens klar zu machen, immer an eine Figur und eine Projektion, die man von ihr macht. Die Projektionsmethode kann nur durch den Vergleich des Bildes mit der Realität festgehalten sein, die eben da || vorhanden ist.
+
+ 
+      
+     Aber da scheint es ja, als müsse man den Satz mit der Realität in einem bestimmten Sinne vergleichen – also nicht nur vergleichen. Als müßte also die Realität in gewissen Fällen durch die Vergleichung quasi einen Vorwurf empfinden.
+     Wenn sich etwas einem Ziele nähert, so liegt in dem Wort “Ziel” hier das, was ich meine (die Intention.)
+
+¤
+     Ich meine, daß || Daß der Gedanke ganz Maß ist, wie der Maßstab; d.h. daß || wie alles am Maßstab unwesentlich ist außer dem Längenmaß.
+
+ 
+      
+     Der Gedanke ist ein Symbol.
+
+ 
+      
+     Der gegenwärtige Gedanke enthält alle Realität, die gegenwärtig vorhanden ist. (Und mehr kann er ja nicht haben.)
+
+ 
+      
+     Es ist sehr merkwürdig, daß in einem Buch über Differentialrechnung in den Erklärungen mengentheoretische Ausdrücke und Symbole vorkommen, die die im Kalkül gänzlich verschwinden. Das erinnert an die ersten Erklärungen in den Lehrbüchern der Physik, in denen vom Kausalitätsgesetz und Ähnlichem die Rede ist, was, wenn wir einmal zur Sache kommen, nicht mehr erwähnt wird.
+
+ 
+      
+     Das Symbol – ich meine das, was als Symbol gebraucht wird – mit der Wirklichkeit zu vergleichen, ist einfach. Die Schwierigkeit besteht darin, es, mit der symbolisierenden Beziehung zusammen, als Gedanke mit der Wirklichkeit zu vergleichen.
+
+ 
+      
+     “Ich bin froh darüber, daß du kommst” heißt nicht, ich bin froh, weil Du kommst. In diesem Falle wäre es eine Vermutung, daß ich deshalb so guter Stimmung bin.)
+
+Also ist eine hinreichende Bedingung dafür, daß
+
+n
++
+
+(n + 1)
++ … +
+
+(n + r)
+≧ 1, die, daß r ≧ 3n ‒ 1. Denke ich mir nun vom Anfang der Reihe 1 +
+
++
+
++ … solche Abschnitte aneinandergereiht, die gleich oder größer als 1 sind, so reicht der erste dieser Abschnitte von
+1 bis 3, der zweite von
+4 bis 15, der dritte von
+16 bis 63, der m-te bis 4m ‒ 1.
+
+     Die Summe 1 +
+
++
+
++ … bis zum 4mten Gliede ausgedehnt, überschreitet also gewiß m. Also ist
+1 +
+
++
+
++ …
+
+4m
+˃ (1 +
+
++
+
+2²
++ …) ∙ (1 +
+
++
+
+3²
++ …) … (1 +
+
+m
++
+
+m²
+m² + …)
+     Also muß unter den ersten 4m ganzen Zahlen mindestens eine sein, die durch keine der ersten m Zahlen teilbar ist.
+
+ 
+      
+     Ich kann einen Apparat beschreiben, in welchem ein Bolzen in einem Einschnitt eines Rades eingreift, wenn dieses sich in einer bestimmten Stellung befindet. Kann man sagen, der Satz ist so gebaut, daß, wenn die Realität so ist, so schnappt sie ein? Ich müßte also den Gedanken beschreiben können und dann die Realität, die so gebaut ist, daß sie mit ihm übereinstimmt. Aber das heißt doch garnichts.
+
+ 
+      
+     Man kann auch nicht sagen, “daß auch die lebhafteste Vorstellung doch nicht an die Wirklichkeit herankommt”, denn damit wäre es also doch denkbar, daß sie herankäme – wenn es auch nie einträte –.
+
+Aber ich sage ja selbst, daß der Schatten nicht etwas ist, was auf eine äußere Art mit der Tatsache zusammenhängt, und das heißt, daß in diesem Vergleich ein logischer Fehler ist.
+
+ 
+      
+     Wenn ich sage “b ist nicht so lang wie a”, so scheint das jenen Schatten vorauszusetzen, der Tatsache, daß b so lang wie a ist. Wenn ich aber sage “b ist kleiner als a”, so scheint das diesen Schatten nicht vorauszusetzen und doch sagt es auch, was der erste Satz sagt.
+
+ 
+      
+     Man könnte also sagen: “b ist so lang wie a” hat Sinn, weil b kürzer als a ist. (Oder: “dieses Buch ist blau” hat Sinn, weil es in Wirklichkeit rot ist.)
+
+ 
+      
+     (Es ist eine Methode der Philosophie, die in den Wissenschaften nicht erlaubt ist, den günstigsten Fall anzunehmen. Am ähnlichsten ist diese Methode noch der in der Mathematik, einen extremen Fall anzunehmen, in welchem das doch jedenfalls eintrifft. Argument a fortiori.)
+
+ 
+      
+     Man denke sich, man gebe jemandem den Befehl eine bestimmte Handlung auszuführen, etwa eine Linie mit dem Bleistift nachzuzeichnen. Die Sache wird deutlicher, wenn man sich den Befehl einem unserer Wortsprache Unkundigen mit Zeichen gegeben denkt. Man wird dann die Handlung vormachen und nun ihm den Bleistift geben, etwa seine Hand ein Stück führen (oder dergleichen). Das wird der Befehl sein. Nun wird man freilich sagen: das ist bloß der Ausdruck des Befehls und nicht, was wir eigentlich meinen; was wir meinen ist: … und nun werden wir andere Zeichen für das geben, “was gemeint ist”. – Aber, wenn man nun den Befehl ausführte und auf die Ausführung als nachträgliche Erklärung des Befehls wiese? Oder ist in dem Falle auch die Erfüllung nur ein Zeichen?
+
+ Die orthogonale Projektion von s auf b grenzt auf b schon das Stück s' ab. Damit ist freilich nicht gesagt, daß dieses Stück nun auf b eine besondere Farbe hat, also auch durch die Farbe begrenzt ist. Die Projektion des schwarzen Kreises in der oberen Ebene auf die untere begrenzt auf dieser schon einen Kreis; dadurch ist er aber noch kein Farbkreis. (In diesem Satz liegt Richtiges und Falsches.)
+
+ 
+      
+     Wenn ich nun erwarte, daß auf der unteren Ebene ein Kreis erscheinen wird von dem gesagt wird, daß er die orthogonale Projektion des oberen und von gleicher Farbe ist, so gäbe ich weiter nichts als eine Projektionsmethode. Die Projektionsmethode kann ich von anderen Gebilden kennen. Ich kenne sie aber doch nur so, daß eine Figur die orthogonale Projektion einer anderen ist; aber doch nicht so, daß keine Figur die Projektion einer Figur ist. Ich nehme mir vor, die Erscheinungen auf der unteren Ebene in bestimmter Weise zu beurteilen. Dann muß in diesem Vorsatz schon die Projektion stecken.
+
+ 
+      
+     Was heißt es, eine Strecke daraufhin untersuchen, ob sie die orthogonale Projektion einer anderen sei?
+
+⋎ Es kann nur heißen, eben die Striche zu ziehen, die man in einem solchen Fall zieht. – Wie ist es aber mit der Untersuchung, ob die untere Farbe die gleiche ist, wie die obere. Oder kann man sagen: auch da stelle ich mich in bestimmter Weise ein, so wie ich etwa Linien ziehe, um feststellen zu können, ob die untere Figur die Projektion der oberen ist. Ich glaube, so ist es.
+     Das ist alles ein Einstellen, aber mehr kann ich nun nicht tun.
+     Und dieses Einstellen ist nicht das Einstellen auf etwas anderes, d.h. nicht mit Beziehung auf etwas, was noch nicht da ist, sondern es
+
+ist autonom, sozusagen das Aufrichten eines Maßstabes, was immer geschehen mag.
+
+ 
+      
+     (Des Rätsels Lösung muß in der Art || Festsetzung über die Art und Weise liegen, wie die Erscheinung dann beschrieben wird, wenn sie kommt.)
+
+ 
+      
+     Es ist ungemein schwer, den eigentlichen Ort || Punkt der Schwierigkeit mit Worten zu erreichen.
+
+ 
+      
+Denken wir uns die Einstellung durch einen Zeiger, wie den gelben Zeiger am Aneroidbarometer, und etwa ein solches Barometer und eine Uhr. Auf beiden Zifferblättern stelle ich den freien Zeiger ein, und drücke dadurch die Erwartung aus, daß, wenn der Uhrzeiger bei a'
+anlangt, der andere auf a stehen wird. (Es ist kein Zweifel, daß das ein vollkommener Ausdruck der Erwartung, des Gedankens, ist.) Bleibt nun die Uhr etwa stehen, so daß ihr Zeiger a' nicht erreicht, dann gilt das Ganze nicht, ebenso, wenn etwa der Zeiger des Barometers plötzlich verschwände. Dann wäre eben kein Zeichen da. Ist es aber da, dann hat das Barometer sozusagen keine andre Wahl, als auf a zu stehen oder nicht auf a zu stehen, und dann ist der Gedanke verifiziert oder er ist falsifiziert worden.
+
+ 
+      
+     Wo haben wir aber in diesem Satzzeichen Worte, oder etwas, was den Worten entspricht? Es “bedeutet” offenbar a' den Uhrzeiger und a den Barometerzeiger.
+
+ 
+      
+     Ich bleibe in den Zeichen, bis ich in ihrer Anwendung || Verwendung aus ihnen heraustrete.
+
+ 
+      
+     Dann weist mein Benehmen, meine Handlung, die logische
+
+Verwandtschaft mit den Zeichen auf, die ein solches Zeichen mit seiner, Übersetzung aufweist.
+
+ 
+      
+     Was ich immer sagen will, ist, daß der Gedanke nichts Menschliches ist. Daß er auch nicht ein bestimmtes Gefühl ist, das man eben nur fühlen, aber nicht etwa auch ansehen kann. Man kann z.B. Zahnschmerzen nicht gleichsam herausstellen und ansehen. (Natürlich kann man nicht sagen, die Zahnschmerzen kenne man von innen, indem man sie fühlt und könne sie nicht von außen betrachten. Denn die Zahnschmerzen haben kein Innen und Außen.)
+
+ 
+      
+     Die heute gewöhnliche Auffassung ist die, daß das Denken – durch den Kopf oder die Seele besorgt – ein Privilegium eben des Kopfes oder der Seele ist (wie etwa die natürliche Verdauung, des Magens). Und das ist sie auch als naturgeschichtlicher Prozeß || Akt betrachtet, wie auch die Verdauung in diesem Sinn dem Magen eigentümlich ist, – aber vom Standpunkt des Chemikers betrachtet ist die Verdauung ein Prozeß, der dem tierischen Magen nicht eignet und ganz unabhängig davon ist, wo er tatsächlich stattfindet. – So hat es der Logiker nicht mit einem spezifisch menschlichen Prozeß zu tun.
+
+ 
+      
+     Die Logik ist eine Geometrie des Denkens.
+
+ 
+      
+     Man könnte freilich sagen, daß die Uhr und das Barometer mit den verstellbaren Zeigern nur der Ausdruck eines Gedankens, aber nicht der Gedanke selbst sind; aber dann sind sie doch Teile, Werkzeuge, eines Gedankens, und was immer der Gedanke selbst ist, so ist er ein anderer Vorgang als der, welcher ihn verifiziert und er hat mit diesem Vorgang nur soviel gemein, || kann mit diesem Vorgang nur soviel gemein haben, als jene Vorrichtungen der Uhr und des Barometers haben. – Darum kann – und muß – man ﹖in der Logik﹖ auch mit dem “Ausdruck” der Gedanken operieren und auf das Andere keine Rücksicht nehmen.
+
+     Das Denken macht Pläne. Es zeichnet Pläne einfacher oder sehr komplizierter Art.
+     Nun sagt man aber: das ist doch nicht alles, man will doch etwas mit diesen Plänen, sie bedeuten doch etwas, d.h. sie sind doch mit einer Absicht gezeichnet. Ja, aber hier gibt es zwei Möglichkeiten: entweder diese Absicht ist ein Gefühl oder dergleichen, dann interessiert sie uns nicht, oder aber sie ist Teil der Sache, dann gehört sie zum Bild.
+Die Logik ist immer sachlich.
+
+ 
+      
+     Wenn der Befehl z.B. darin besteht, einen gewissen Weg zu machen, so kann ich ihn mit Hilfe einer Karte (eines Planes) ausdrücken. Dabei kann der Befehl auch lauten, einen oder den anderen Weg zu gehen und etwa gewisse Wege nicht zu gehen. Das wird dann auch im Bild seinen Ausdruck finden, indem etwa die ausgeschlossenen Wege durchstrichen werden. Der Befehl || Das Bild könnte auch bedeuten, man dürfe überall zwischen den beiden Linien gehen, außer über das schraffierte Feld.
+
+ 
+      
+     Wenn nun tatsächlich ein Weg zwischen zwei Orten abgesperrt wird und etliche andere offen gelassen werden, ist in diesen Tatsachen schon eine Verneinung und eine Disjunktion enthalten?
+
+ 
+      
+     Wie ist es aber, wenn ich einen Befehl auf eine bestimmte Weise interpretiere und ihm zuwiderhandle. Worin liegt es, daß meine Handlung nicht meine Interpretation des Befehls ist, sondern ein Entgegenhandeln? Wird dadurch nicht meine frühere Auffassung über den Haufen geworfen?
+Ich kann sagen, wenn der Handelnde es nicht sagte || ausdrückte, so könnte man nie wissen, daß es ein Entgegenhandeln ist. Und wenn er es nun sagt, so verstehen wir es nur durch unsere Interpretation der Verneinung.
+
+     Man würde glauben, wenn ich dem Befehl so wie ich ihn verstehe, || auffasse, zuwiderhandeln kann, dann muß meine Handlung dem Ausdruck meiner Auffassung unmittelbar widerstreiten. – Oder ist es nur die Interpretation meiner Handlung, die der Interpretation des Befehls (sozusagen auf gleicher Ebene) widerspricht?
+
+ 
+      
+     Disjunktion, Negation etc. scheinen in der Einstellung zu einem Bild zu liegen. Sie entsprechen || scheint in der Einstellung zu einem Bild zu liegen. Sie entspricht der elektrischen Schaltung, durch die etwa eine Klingel mit Schaltern verbunden ist.
+
+ 
+      
+     Denken wir uns folgende Einstellungen: 
+1) Die Glocke läutet nur dann, wenn ich den Zeiger a dem Zeiger b gleichrichte; 2) die Glocke läutet nur dann nicht, wenn ich a dem b gleichrichte; 3) die Glocke läutet nur, wenn a entweder dem b oder auch dem c gleichgerichtet ist; 4) die Glocke läutet in allen anderen Zeigerstellungen von a, außer, wenn er mit b oder c gleichgerichtet ist; 5) die Glocke läutet nur dann, wenn sowohl b als c mit a gleichgerichtet sind; 6) die Glocke läutet nur, wenn b mit a gleichgerichtet, c mit a aber nicht gleichgerichtet ist; etc. Das Glockenzeichen bedeutet Zustimmung (oder auch das Umgekehrte). Man könnte so eine Schaltung auch an dem Modell der erlaubten oder verbotenen Wege anbringen. Dieses Modell wäre dann der Ausdruck eines Befehls. Könnte man es aber mit Recht ein Bild nennen?
+
+ 
+      
+     Eine Meinung (d.h. ein Sinn), die man nicht erklären kann, interessiert uns nicht, denn, ihr kann man auch nicht zuwiderhandeln.
+
+ 
+      
+     Wenn die Interpretation ein Bild ist, so sind zwei entgegengesetzte Interpretationen entgegengesetzte Bilder.
+
+ 
+      
+     In Wahrheit muß aber im Verbot immer das beschrieben werden, was verboten ist.
+
+Ich glaube es war nicht richtig zu sagen “der Satz muß zusammengesetzt sein”, sondern er kann tatsächlich auch unzusammengesetzt sein, wenigstens im wörtlichen Sinne; – seine “Zusammensetzung” besteht eigentlich darin, daß er ein besonderer Fall einer allgemeinen Regel der Bildung von Zeichen ist. Denn man kann zwar “ambulo” aus der Stammsilbe und der Endung zusammengesetzt ansehen, aber wie wäre es, wenn diese Form bloß durch die Stammsilbe allein gebildet würde?
+
+ 
+      
+     Wie man von dem Sinn eines Satzes in gewisser Weise nicht reden kann, so auch nicht von dem Ausdruck des Gedankens, Wunsches, Befehls, etc., denn auf die Frage: “Welcher || welcher Wunsch ist durch diesen Satz ausgedrückt”, muß nur﹖ ein Ausdruck des Wunsches zur Antwort kommen.
+     Dasselbe gilt auch von dem Ausdruck “dieser Satz teilt mir etwas (bestimmtes) mit”.
+
+ 
+      
+     Und hier muß man – glaube ich – sagen, daß die Verneinung, Disjunktion, etc., im Gedanken ebenso “primitiv” ist, wie in unserer Zeichensprache. Wie vermöchte man auch in ihr die Verneinung zu denken, wenn sie wie ein schlecht passendes Kleid der Verneinung wäre. Oder – würde man erwarten – man müßte doch fühlen, wie einen die Ausdrucksform überall drückt (quasi wie ein harter nicht wirklich passender Schuh.)
+
+ 
+      
+     Gibt es einen Existenzbeweis für Primzahlen, und einen der die Existenz unendlich vieler Primzahlen beweist? Und in welchem Verhältnis stehen diese zueinander?
+
+ 
+      
+     Durch die Methode des Multiplizierens (etwa im Dezimalsystem, aber gleichgültig in welchem System) ist die Existenz von Produkten, von teilbaren Zahlen bewiesen.
+
+ 
+      
+     Wenn n und m relativ prim sind und n die größere und
+
+n = a0m + r0, dann können die Fälle eintreten, daß
+
+m = a1r0 und r0 = 1
+oder daß m = a1r0 + r1
+und r0 = a2r1 und r1 = 1
+
+oder m = a1r0 + r1
+      r0 = a2r1 + r2
+      r1 = a3r2 und r2 = 1
+
+oder m = a1r0 + r1
+      r0 = a2r1 + r2
+      r1 = a3r2 + r3
+      r2 = a4r3 und r3 = 1
+
+oder m = a1r0 + r1
+      r0 = a2r1 + r2
+      r1 = a3r2 + r3
+      r2 = a4r3 + r4
+      r3 = a5r4
+ m(0) = a1 also
+m(1) = a1a2 + 1
+
+m(2) = a1a2a3 + a1 + a3
+
+m(3) = a1a2a3a4 + a1a2 + a1a4 + a3a4 + 1
+
+m(4) = a1a2a3a4a5 + a1a2a3 + a1a2a5 + a1a4a5 + a3a4a5 + a1 + a3 + a5
+
+      u.s.w.
+
+ 
+      
+     Fügt man nun n zusammen zu 1n, 2n, 3n etc. so sieht man, daß gegenüber einem Vielfachen von m solange ein Rest bleibt, bis man zu m ∙ n kommt, wo immer der Euklidische Algorithmus endet (d.h. welche der Formeln immer für m anwendbar ist).
+     Im ersten Fall z.B. wenn m = a1a2 + 1:
+1n = a0m + a2
+2n = 2a0m + 2a2
+…
+vn = va0m + va2 der Rest va2 bleibt jedenfalls solange kleiner als m, bis v = a1 wird¤.
+
+     Inwiefern kann man aber das Bild
+ den Beweis von 3 + 4 = 7 nennen? (da doch aus dem Bild die Formel in keinem Sinne hervorgeht.) Offenbar nur kraft einer allgemeinen Regel, die Gleichungen mit solchen Bildern verknüpft.
+     Denn wenn ich die Gleichung 2 + 5 = 9 aufstelle, so kann man sagen “wir werden gleich sehen, ob das so ist”, und nun stellt man den entsprechenden Kalkül an und sieht, ob die Gleichung stimmt (und genau dasselbe gilt natürlich von den Ungleichungen). Aber der entsprechende Kalkül entspricht eben nur auf Grund einer allgemeinen || durch eine allgemeine Regel.
+
+ 
+      
+     In dem oberen Additionsschema sind die Ziffern Ordnungsziffern. Sie bezeichnen also einfach eine bestimmte Stelle, die soundso vielte Stelle. Man könnte das deutlicher machen durch die Schreibung: .
+     Es ist klar, daß man mit diesem Algorithmus auch multiplizieren, subtrahieren und dividieren kann, und daß alles die volle Strenge hat.
+     (Übrigens ist ja diese Rechenmethode die des Rechenschiebers.)
+
+ 
+      
+     Das Wort “Gasthaus” über dem Tor eines Hauses zeigt an, daß dort ein Gasthaus ist. Es muß der besondere Fall einer allgemeinen Regel vorliegen, damit wir das Wort als Mitteilung, also als Satz, verstehen. Das zeigt uns wie weit “Zusammengesetztheit” ein Charakteristikum des Satzes ist.
+
+     Was geschieht, wenn ich mir einen Schachzug überlege? In diesem Falle kann ich die Züge im Vorhinein machen und also das direkteste Bild dessen entwerfen, was geschehen wird.
+
+ 
+      
+     “Wieviel Punkte muß man nach der Reihe setzen, um das ‘u.s.w.’ anzudeuten?” Tut es nicht einer?
+
+ 
+      
+     Kann man von der Zahlenreihe sagen, sie habe kein Ende? “Aber, wie wäre es, wenn es anders wäre?” Aber kann ich nicht vom Schachspiel sagen, die Reihe der Schachfiguren habe ein Ende, und in einem anderen || andern Spiel, sie habe kein Ende? wenn man die Erlaubnis hätte, beliebig viele Felder, einer Regel gemäß, mit Steinen zu besetzen.
+
+ 
+      
+     (Was ich mit den Zeichen tue, ist für den Mathematiker ein Herum … [und war es für Ramsey], und mit Recht, denn er will vorwärtskommen, während ich mich ungestört || unbeirrt bei einigen wenigen Zeichen und zwei Schritten des Kalküls aufhalte.)
+
+ 
+      
+     
+ 
+(2015–)

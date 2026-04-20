@@ -1,0 +1,653 @@
+Collapse
+Drag
+
+
+ 	 			 	
+
+
+
+
+
+
+
+
+Philosophische
+Bemerkungen
+XIII
+
+
+
+
+
+
+1
+
+
+
+		
+ 	 			 	
+11.9.37.
+
+
+     “Aber sind die Übergänge also durch die algebraische Formel nicht bestimmt?” – In der Frage liegt ein Fehler.1
+      Wir verwenden || Man verwendet den Ausdruck: “die Übergänge sind durch die Formel … bestimmt”. Wie verwenden wir || verwendet man ihn || Wie wird er verwendet?
+     Wir können etwa davon reden, daß Menschen durch Erziehung – || (Abrichtung– || ) dahin gebracht werden, diese || die & die Formeln || die Formel y = x² so zu verwenden, daß Alle || alle, wenn sie die gleiche Zahl für x einsetzen, immer die gleiche Zahl für y herausrechnen. Oder wir können sagen: “Diese Menschen sind so erzogen || abgerichtet, daß sie alle auf den Befehl ‘ + 3’ auf der gleichen Stufe den gleichen Übergang machen.” Wir könnten dies so ausdrücken: “Der Befehl ‘ + 3’ bestimmt für diese Menschen jeden Übergang von einer Zahl zur nächsten völlig.” (Im Gegensatz zu andern Menschen, die auf diesen Befehl nicht wissen, was sie zu tun haben, oder deren jeder zwar mit Sicherheit, aber anders || in anderer Weise, auf ihn reagiert. || die zwar mit Sicherheit, aber ein jeder in anderer Weise, auf ihn reagieren.)
+     Wir können anderseits verschiedene Arten von Formeln & zu ihnen gehörige verschiedene Arten der Verwendung (verschiedene Arten der Abrichtung) einander entgegensetzen. Wir nennen dann Formeln einer bestimmten Art (& der dazugehörigen
+2
+Verwendungsweise) “Formeln, welche eine Zahl y für ein gegebenes x bestimmen” & Formeln anderer Art solche, “die die Zahl y für ein gegebenes x nicht bestimmen”. (y = x² + 1 wäre etwa von der ersten Art, y ˃ x² + 1, y = x² ± 1, y = x² + z von der andern || zweiten.) Die Aussage || Der Satz: “Die Formel … bestimmt eine Zahl y” ist dann eine Aussage über die Form der Formel. Und es ist nun zu unterscheiden ein Satz wie: “Die || die Formel, die ich hingeschrieben habe, bestimmt y” oder “Hier || hier steht eine Formel, die y bestimmt”, von einem Satz wie: “die Formel y = x² bestimmt die Zahl y für ein gegebenes x”. Die Frage: “Steht dort eine Formel, die y bestimmt?” heißt dann einfach || dasselbe wie: “steht dort eine Formel dieser Art, oder jener Art?”, was wir aber mit der Frage anfangen sollen: “ist || Ist y = x² eine Formel die y für ein gegebenes x bestimmt?” ist nicht ohne weiteres klar. Diese Frage könnte man etwa an einen Schüler stellen, um zu prüfen, ob er die Verwendung des Ausdrucks “bestimmen” versteht; oder es könnte eine mathematische Aufgabe sein, zu finden || berechnen, ob auf der rechten Seite der Formel nur eine Variable steht, wie z.B. in dem || im Fall y = (x² + z)² ‒ z(2x² + z).
+3
+
+     Man kann nun sagen: “Wie die Formel gemeint wird, das bestimmt, welche Übergänge zu machen sind.” Was ist das Kriterium dafür, wie die Formel gemeint ist? Doch wohl die Art & Weise, wie wir sie ständig gebrauchen, wie uns gelehrt wurde, sie zu gebrauchen.
+      Wir sagen z.B. Einem, der ein uns unbekanntes Zeichen gebraucht: “Wenn Du mit “
+x
+~
+2
+” meinst: x², so erhältst Du diesen Wert für y, wenn Du damit √x meinst, jenen.” – Frag' Dich nun: Wie macht man es, || : mit “
+x
+~
+2
+” das eine, oder das andere, meinen?
+     So kann also das Meinen die Übergänge zum Voraus bestimmen.
+     “Worin liegt dann aber die eigentümliche Unerbittlichkeit der Mathematik?” – Ist || Wäre für sie nicht ein gutes Beispiel die Unerbittlichkeit, mit der auf 1 2 folgt, auf 2 3, auf 3 4, u.s.w.? – Das heißt doch wohl: in der Kardinalzahlenreihe folgt, – denn in einer andern Reihe folgt ja etwas anderes? Und ist denn diese Reihe nicht eben durch diese Folge definiert? – “Willst Du also sagen, || Soll das also heißen, daß es gleich richtig ist wie || wie immer man zählt & daß jeder zählen kann, wie er will?” – Wir
+4
+würden es wohl nicht “zählen” nennen, wenn Einer || Jeder irgendwie Ziffern nacheinander ausspricht; aber es ist freilich nicht einfach eine Frage der Benennung. Denn das, was wir “zählen” nennen, ist ja ein wichtiger Teil der Praxis || Tätigkeiten unseres Lebens. Das Zählen, & Rechnen, ist ja || doch, z.B., nicht einfach ein Zeitvertreib. Zählen (& das heißt: so zählen) ist eine Technik, die täglich zu || in den mannigfaltigsten || mannigfachsten Verrichtungen unseres Lebens verwendet wird. Und darum lernen wir zählen, so, wie wir es tun || lernen: mit der unendlichen Mühe || endlosem Üben, mit erbarmungsloser Genauigkeit, darum wird unerbittlich darauf gedrungen, daß wir Alle auf “eins” “zwei”, auf “zwei” “drei”, auf “drei” “vier” sagen, u.s.f..– “Aber ist dieses Zählen also nur ein Gebrauch; entspricht dieser Folge nicht auch eine Wahrheit?” – Die Wahrheit ist, daß das || dieses Zählen sich sehr gut bewährt hat. – “Willst Du also sagen, daß “wahr-sein” heißt: brauchbar (oder nützlich) sein?” – Nein; sondern, ich will sagen daß man von der natürlichen Zahlenreihe – ebenso wie von unserer Sprache – nicht sagen kann, sie sei wahr, sondern: sie sei brauchbar &, vor allem, gebraucht. || sie werde verwendet.
+     “Aber folgt es nicht mit logischer Notwendigkeit, daß Du 2 erhältst, wenn Du zu
+5
+1 1 zählst & 3, wenn Du zu 2 1 zählst, u.s.f.?” – || ; & ist diese Unerbittlichkeit nicht dieselbe, wie die des logischen Schlusses?” – Doch– sie || ! Sie ist dieselbe. – “Aber entspricht denn der logische Schluß nicht einer Wahrheit? Ist es nicht wahr, daß das aus diesem folgt?” – Der Satz: ‘es ist wahr, daß das aus diesem folgt’, heißt einfach: das folgt aus diesem und || . Und es handelt sich darum wie verwenden wir diesen Satz? – Was würde denn geschehen, wenn wir anders schlössen – wie würden wir mit der Wahrheit in Konflikt geraten?
+     Da muß man sich klar machen, worin denn das Schließen || Schließen denn eigentlich besteht. Man wird etwa sagen, es besteht im Übergang von einer Behauptung zu einer weiteren || andern. Aber was heißt das? Heißt es, daß Schließen etwas ist, was stattfindet beim Übergang von der einen zur andern Behauptung, also ehe die andere ausgesprochen ist – oder heißt es, daß schließen darin besteht die eine Behauptung auf die andere folgen zu lassen, d.h., nach ihr auszusprechen? Wir stellen uns, verleitet durch die eigentümliche || besondere Verwendung des Verbums “schließen”, gern vor, das Schließen sei eine eigentümliche Tätigkeit, ein Vorgang,
+6
+im Medium des Verstandes, gleichsam ein Brauen der Nebel, aus welchem dann der Schluß || die Folgerung auftaucht. Sehen wir aber doch zu, was dabei geschieht! Einerseits gibt es da einen Übergang von einem Satz zum andern auf dem Weg über andere Sätze also durch eine Schlußkette, aber von diesem Übergang brauchen wir nicht zu reden, da er ja eine andere Art von Übergang voraussetzt, nämlich von einem Glied der Kette zum nächsten. || , da er ja aus andern Übergängen zusammengesetzt ist, nämlich von einem Glied der Kette zum nächsten. Und auch hier gibt es einen Vorgang, den man Übergang zwischen Gliedern nennen kann. An diesem Vorgang ist nun nichts okkultes; es ist ein Ableiten des einen Satzzeichens aus dem andern nach einer Regel, ein Vergleichen der beiden mit irgend einem Paradigma das uns das Schema des Übergangs darstellt, oder dergleichen. Es kann auf dem Papier, mündlich, oder ‘im Kopf’ d.h. in der Vorstellung vor sich gehen. Der Schluß kann aber auch so gezogen werden, daß der eine Satz ohne einen Vorgang der Überleitung nach dem andern ausgesprochen wird; oder die Überleitung besteht nur aus || in dem Aussprechen der Worte || in den Worten || darin, daß wir sagen: “Also:”, oder “Daraus folgt:”
+7
+u. || oder dergl.. Man nennt es dann “schließen” || “Schluß”, wenn der gefolgerte Satz sich tatsächlich aus der Prämisse ableiten läßt.
+     Was heißt es nun, daß sich ein Satz aus einem andern, mittels || vermittels einer Regel, ableiten läßt? Läßt sich nicht alles aus allem vermittels irgend einer Regel ableiten? – Was heißt es, wenn ich z.B. sage: diese Zahl läßt sich durch die Multiplikation jener beiden erhalten? Dies ist offenbar eine Regel, die sagt, daß Du diese Zahl erhalten mußt wenn anders Du richtig multiplizierst; & diese Regel können wir dadurch erhalten, daß wir die beiden Zahlen multiplizieren, oder auch auf andere Weise. (Obwohl man auch jeden Vorgang, der zu diesem Ergebnis führt, eine ‘Multiplikation’ nennen kann.) || (obwohl man auch jeden Vorgang, der zu diesem Ergebnis führt, eine ‘Multiplikation’ nennen kann). Man sagt nun ich habe multipliziert wenn ich z.B. die Multiplikation 165 × 363 ausgeführt habe, aber auch, wenn ich sage: “4 mal 2 ist 8”, obwohl hier kein Rechnungsvorgang zum Resultat 8 || Produkt geführt hat (das ich aber auch hätte ausrechnen können). Und so sage ich || sagen wir auch es werde ein Schluß gezogen wo er nicht errechnet wird.
+8
+      Aber die Schlußregel muß doch so sein, daß wenn die Prämisse wahr ist, die Folgerung wahr sein muß || die Folgerung wahr sein muß, wenn die Prämisse wahr ist. Wenn ich also die Prämisse als wahr erkannt habe, so muß der Schluß ein solcher sein, daß seine || eine Nicht-Übereinstimmung des Geschlossenen || ein Nicht-Übereinstimmen der Folgerung mit der Realität ausgeschlossen ist. – Und das ist nur dadurch möglich daß ich die Regel aufstelle: nichts als eine Nicht-Übereinstimmung der Realität mit der Folgerung zu deuten || ein solches Nicht-Übereinstimmen der Folgerung mit der Realität || Nicht-Übereinstimmen gelten lasse || anerkenne, wenn sie || die Realität mit den Prämissen übereinstimmt.
+     “Ich darf aber doch nur folgern, was wirklich folgt!” – Soll das heißen: nur das, was den Schlußregeln gemäß folgt, – oder soll es heißen: nur das, was nach solchen Schlußregeln folgt, || was solchen Schlußregeln gemäß folgt, die mit irgend einer Realität || die irgendwie mit der || einer Realität übereinstimmen? || die mit der Wirklichkeit || Realität übereinstimmen? Hier schwebt uns in vager Weise vor, daß diese Realität etwas sehr Abstraktes, sehr Allgemeines & sehr Hartes ist. Die Logik ist eine Art von Ultraphysik, die Beschreibung des ‘logischen Bau's’ der Welt, den wir durch eine Art Ultraerfahrung wahrnehmen (mit dem Verstande, etwa). Es schweben uns hier vielleicht Schlüsse vor wie dieser: “Der Ofen raucht, also ist das
+9
+Ofenrohr wieder verlegt.” (Und so wird dieser Schluß gezogen! Nicht so: “Der Ofen raucht & wenn immer der Ofen raucht, ist das Rohr verlegt; also …”.)
+     Das, was wir ‘logischer Schluß’ nennen ist nichts als eine Transformation des Ausdrucks. Die Umrechnung von einem Maß auf ein anderes. Auf der einen Kante eines Maßstabes sind Zoll aufgetragen, auf der andern cm.. Ich messe den Tisch in Zoll & gehe dann auf dem Maßstab zu cm über. – Oder so: ich fülle ein Gefäß mit Wasser, dann leere ich das Wasser in ein Standglas || Meßglas (über) & endlich wäge ich dieses Wasser, um einen andern Ausdruck für den Inhalt des Gefäßes zu erhalten. Und freilich gibt es auch beim Übergang von einem Maß zum andern richtig & falsch; aber mit welcher Realität stimmt hier das Richtige überein? Wohl mit einer Abmachung, oder einem Gebrauch, & etwa mit den praktischen Bedürfnissen.
+     Wie würden wir mit der Wahrheit in Konflikt geraten, wenn unsere Zollstäbe aus weichem Gummi wären, statt aus Holz & Stahl? “Nun, wir würden nicht das richtige Maß des Tisches kennenlernen.” –
+10
+Du meinst wir würden nicht, oder nicht zuverlässig, das Maß || die Maßzahl erhalten, die wir mit unsern harten Maßstäben erhalten. Der wäre also im Unrecht, der den Tisch mit diesem weichen || dem dehnbaren Maßstab mißt || gemessen hätte & behauptet, er mäße nun 1 m 80 nach unsrer gewöhnlichen Meßart; sagt er aber bloß, der Tisch mißt 1 m 80 nach seiner Meßart, so stimmt das. – “Aber das ist dann doch überhaupt kein Messen!” – Gewiß, es ist nicht was wir ‘messen’ nennen; kann aber unter Umständen auch ‘praktische Zwecke’ erfüllen.
+     Einen Maßstab, der sich bei der Erwärmung außerordentlich stark ausdehnte, würden wir – unter gewöhnlichen Umständen – unbrauchbar || deshalb unbrauchbar nennen. Wir könnten uns aber Verhältnisse denken, in denen gerade dies das Erwünschte wäre. Ich stelle es mir so vor, daß wir die Ausdehnung mit freiem Auge wahrnehmen; & Körpern in Räumen von verschiedener || ungleicher Temperatur die gleiche Maßzahl der Länge beilegten || beilegen wenn sie auf dem Maßstab der für's Auge bald länger, bald kürzer ist, gleich weit reichen.
+11
+
+     Man kann dann sagen: Was hier “messen” & “Länge” & “längengleich” heißt ist etwas Anderes, als was wir gewöhnlich so nennen. Der Gebrauch dieser Wörter ist hier ein anderer als der unsere; aber er ist mit ihm verwandt & auch wir gebrauchen diese Wörter auf vielerlei Weise.
+     Plinius sagte, es sei eine Eigenschaft der Zahlen, daß nach je zehn eine höhere Art beginne. (Die logische Struktur der Welt. –)
+     “Aber muß denn nicht aus ‘(x).fx’ fa folgen, wenn (ξ) ∙ Φξ so gemeint ist, wie wir es meinen?” – Und wie äußert es sich: wie wir es meinen? Nicht durch die ständige Praxis seines Gebrauchs? & etwa noch durch gewisse Gesten – & was dem ähnlich ist. –– Es ist aber als hinge dem Wort “alle”, wenn wir es sagen, noch etwas an, womit ein anderer Gebrauch unvereinbar wäre; nämlich, die Bedeutung.
+     “‘Alle’ heißt doch: alle!” möchten wir sagen, wenn wir es || sie erklären sollen; & dabei machen wir eine gewisse Geste & Miene.
+     Hacke alle diese Bäume um! ‒ ‒ Ja, verstehst Du nicht was ‘alle’ heißt? (Er hatte einen stehen gelassen.) Wie hat er gelernt, was ‘alle’ heißt? Doch wohl durch Übung. –
+12
+
+     Und freilich diese Übung hat nun nicht bewirkt, daß er auf den Befehl das tut, sondern sie hat das Wort mit einer Menge von Bildern & Reaktionen (visuellen & andern) umgeben, deren dieses oder jenes || von denen das eine oder das andere auftaucht, wenn wir das Wort hören & || oder aussprechen. (Und wenn wir uns Rechenschaft darüber geben sollen || wollen, was die ‘Bedeutung’ des Wortes ist, greifen wir zuerst das eine oder andere || ein Bild aus dieser Masse heraus – & verwerfen es dann wieder als unwesentlich, wenn wir sehen, daß einmal dies, einmal jenes auftritt, & manchmal keines.)
+     Man könnte sagen: Man lernt die Bedeutung von “alle”, indem man lernt, daß aus (x).fx fa folgt. – D.h., die Übungen die den Gebrauch dieses Wortes einüben, lehren, laufen || gehen immer darauf hinaus, daß keine Ausnahme gemacht werden darf. || , die den Gebrauch dieses Wortes einüben, – seine Bedeutung lehren, || – zielen immer dahin, daß eine Ausnahme nicht gemacht werden darf.
+     “Aus ‘alle’, wenn es so gemeint ist muß doch das folgen.” – Wenn es wie gemeint ist? Überlege es Dir, wie meinst Du es? Da schwebt Dir etwa noch ein Bild vor – & mehr hast Du nicht. – Nein, es muß
+13
+nicht, – aber es folgt: Wir vollziehen diesen Übergang.
+     Und wir sagen: Wenn es || das nicht folgt, dann waren es eben nicht alle! – – und das zeigt nur, wie wir mit Worten in so einer Situation reagieren. –
+     Wir könnten es auch so sagen: Es kommt uns vor, daß, wenn aus (x). fx nicht mehr fa folgen soll, außer dem Gebrauch des Wortes “alle” noch etwas anderes sich geändert hat || haben muß, etwas, was dem Worte unmittelbar || selbst anhängt.
+     Ist das nicht ähnlich, wie wenn man sagt: “Wenn dieser Mensch anders handelte, da müßte auch sein Charakter ein andrer sein.” Nun das kann in manchen Fällen etwas heißen & in manchen nicht. Wir sagen: “aus dem Charakter fließt die Handlungsweise” & so fließt aus der Bedeutung der Gebrauch.
+     Das zeigt Dir – könnte man sagen – wie fest verbunden gewisse Gesten, Bilder, Reaktionen mit einem ständig geübten Gebrauch sein können. || sind.
+     ‘Es drängt sich uns das Bild auf …’ Es ist sehr interessant, daß sich uns Bilder aufdrängen können.
+     Wichtig ist, daß in unserer Sprache
+14
+– in unserer natürlichen Sprache – ‘alle’ ein Grundbegriff ist & ‘alle außer einem’ weniger fundamental; d.h., es gibt dafür nicht ein Wort auch nicht eine charakteristische Geste.
+     Der ganze Witz || Der Witz des Wortes “alle” ist ja, daß es keine Ausnahme zuläßt. – Ja, das ist der Witz seiner Verwendung in unserer Sprache; aber welche Verwendungsarten wir als ‘Witz’ empfinden, das hängt damit zusammen, welche Rolle diese Verwendung in unserm ganzen Leben spielt.
+     (Damit hängt diese Bemerkung zusammen: Wir möchten manchmal sagen: “Es muß doch einen Grund haben, warum auf dieses Thema – in einer Symphonie etwa – gerade das Thema folgt.” Als Grund würden wir eine gewisse Beziehung der beiden Themen, eine Verwandtschaft, einen Gegensatz oder dergleichen, anerkennen. – Aber wir können ja eine solche Beziehung konstruieren: sozusagen eine Operation, die das eine aus dem andern erzeugt; aber damit ist uns nur gedient, wenn diese Beziehung eine uns schon || wohl bekannte ist. Es ist also als müßte die Folge dieser Themen einem in uns
+15
+schon vorhandenen Paradigma entsprechen.
+     Von einem Gemälde, das zwei menschliche Figuren zeigt, könnte man ähnlich sagen: “Es muß einen Grund haben, warum gerade diese zwei Gesichter uns einen solchen Eindruck machen.” Wir möchten – heißt das – diesen Eindruck der beiden Gesichter wo anders wiederfinden– || , in einem andern Gebiet. – Aber ob er wiederzufinden ist?
+     Man könnte auch fragen: Welche Zusammenstellung von Themen hat eine Pointe, welche keine? Oder: Warum hat diese Zusammenstellung eine Pointe & die keine? – Das mag nicht leicht zu sagen sein! Oft können wir sagen: “Diese entspricht einer Geste, diese nicht.”) 
+⍈
+     [Zu Seite 22]
+     Man ist sich oft im Unklaren darüber, worin denn das Folgen & Folgern besteht; was für ein Sachverhalt, oder Vorgang || Prozeß es ist. Diese Unklarheit zeigt sich sehr || uns deutlich || lehrreich in Russell's Darstellung (in der ‘Principia Mathematica’ …) Daß ein Satz ⊢ q aus einem Satz ⊢ p ⊃ q ∙ p folgt, ist hier ein logisches Grundgesetz:
+⊢ p ⊃ q ∙ p . ⊃ . ⊢ q.
+Dieses berechtige uns nun, heißt es, ⊢ q aus ⊢ p ⊃ q ∙ p zu schließen. Aber worin besteht
+16
+[Zu Seite 22]
+denn ‘schließen’, diese Tätigkeit || Prozedur, zu der wir berechtigt werden? Doch darin, den einen Satz – in irgend einem Sprachspiel – nach dem andern als Behauptung auszusprechen, anzuschreiben & dergl., & wie kann mich jenes Grundgesetz dazu berechtigen?
+     Russell will doch sagen: “So werde ich schließen; & so ist es richtig.” Er will uns also einmal mitteilen, wie er schließen will: Das || das geschieht durch eine Regel des Schließens. Wie lautet sie? Daß dieser Satz jenen impliziert? Doch wohl, daß in den Beweisen dieses Buchs ein solcher Satz nach einem solchen geschrieben wird. || steht. || stehen soll. – Aber || : es soll ja ein logisches Grundgesetz sein, daß es richtig ist, so zu schließen! – Dann müßte das Grundgesetz lauten: “Es ist richtig von … auf … zu schließen”. Und || ; und dieses Grundgesetz sollte nun wohl einleuchten; || – – aber dann wird uns eben die Regel selbst als richtig, oder berechtigt, einleuchten. “Aber diese Regel handelt doch von Sätzen in einem Buch, oder dergleichen, & das gehört doch nicht in die Logik!” – Ganz richtig; die Regel ist wirklich nur
+17
+[Zu Seite 22]
+eine Mitteilung, daß in diesem Buche nur dieser Übergang von einem Satz zum nächsten || andern gebraucht wird, denn die Richtigkeit des Übergangs muß (eben) an Ort & Stelle einleuchten; & der Ausdruck des ‘logischen Grundgesetzes’ ist dann die Folge der Sätze selbst.      Russell scheint mit jenem Grundgesetz von einem Satz ⊢ q zu sagen: “Er folgt schon – ich brauche ihn nur noch zu folgern.” Ganz analog dem heißt es einmal bei Frege, die Gerade, welche je zwei Punkte verbindet, sei eigentlich schon da, ehe wir wirklich eine Gerade || sie zögen. Und so ist es auch, wenn wir sagen, die Übergänge der Reihe + 2 etwa wären eigentlich bereits gemacht, ehe wir sie, mündlich oder schriftlich || durch Sprechen oder Schreiben machen, – gleichsam nachzögen.
+     Einem, der dies sagt, könnte || kann man antworten: Du verwendest hier ein Bild: Man kann die Übergänge, die Einer in einer Reihe machen soll, dadurch bestimmen, daß man sie ihm vormacht. Indem man z.B. die Reihe, die er schreiben soll, in einer etwas anderen Notation vorschreibt || hinschreibt
+18
+[Zu Seite 22]
+daß er sie nur noch in seine Notation zu übertragen hat || übersetzen muß, oder indem man sie wirklich ganz dünn vorschreibt & er hat sie nachzuziehen. Im ersten Fall können wir auch sagen, wir schreiben nicht die Reihe an, die er zu schreiben hat, machen also die Übergänge dieser Reihe selbst nicht; im zweiten Falle aber werden wir gewiß sagen, die Reihe, die er schreiben soll, sei schon vorhanden. Wir würden dies auch sagen wenn wir ihm, was er hinzuschreiben hat, diktieren, obwohl wir dann eine Reihe von Lauten hervorbringen & er eine Reihe von Schriftzeichen. Es ist jedenfalls eine sichere Art die Übergänge, die Einer zu machen hat, zu bestimmen, sie ihm, in irgend einem Sinne, schon vorzumachen. – Wenn wir daher diese Übergänge in einer ganz andern Weise || einem ganz andern Sinne bestimmen, indem wir ihn nämlich || nämlich unsern Schüler || den Menschen einer Abrichtung unterziehen, wie z.B. unsere Kinder sie im Einmaleins & im Multiplizieren erhalten, so nämlich, daß Alle, die so abgerichtet sind, nun beliebige Multiplikationen, die sie nicht schon in ihrer Lehrzeit gemacht haben, auf die gleiche Weise & mit übereinstimmenden Resultaten
+19
+[Zu Seite 22]
+ausführen – wenn wir also die Übergänge, die Einer auf den Befehl + 2 zu machen hat durch Abrichtung so bestimmen || also die Übergänge, die Einer auf den Befehl + 2 zu machen hat durch Abrichtung so bestimmt sind, daß wir mit Sicherheit voraussagen können, wie er gehen wird, auch wenn er diesen Übergang bis jetzt noch nie gemacht hat, – dann kann es uns natürlich sein, als Bild dieses Sachverhalts den zu gebrauchen, || : die Übergänge seien bereits alle gemacht, wir schrieben || er schriebe sie nur noch hin.
+     “Wie weiß ich, daß ich im Verfolg der Reihe + 2 schreiben muß
+200004, 200006
+und nicht
+     200004, 200008?” – Die Frage ist ähnlich der: wie weiß ich, daß diese Farbe ‘rot’ ist?
+     “Aber Du weißt doch, daß Du immer die gleiche Zahlenfolge in den Einern schreiben mußt: 2, 4, 6, 8, 0, 2, 4, u.s.w.” – Ganz richtig! das Problem muß auch schon in dieser Zahlenfolge, also || ja auch schon in der
+2, 2, 2, 2 u.s.w. ad inf.
+auftreten. – Denn wie weiß ich, daß ich nach der 500sten 2 “2” schreiben soll? daß nämlich dann “2” ‘die gleiche Zahl’ ist!? Ja,
+20
+weiß ich es denn? Und wenn ich es zuvor weiß, was hilft mir dieses Wissen für später? Ich meine: wie weiß ich dann, wenn ich den Schritt wirklich zu machen habe || der Schritt wirklich zu machen ist, was ich mit diesem Wissen anzufangen habe?
+     Wenn für eine || zur Fortsetzung der Reihe + 1 eine Intuition nötig ist, dann auch zur Fortsetzung der Reihe + 0.
+
+
+		
+ 	 			 	
+     Auf die Frage, worin denn Schließen || das Schließen besteht, hören wir etwa die Antwort: “Wenn ich die Wahrheit der Sätze … erkannt habe, so bin ich nun berechtigt … hinzuschreiben.” – Inwiefern berechtigt? Hatte ich früher kein Recht, es hinzuschreiben? – – “Jene Sätze überzeugen mich von der Wahrheit dieses Satzes.” – Aber darum handelt sich's natürlich auch nicht. ‒ ‒ “Nach diesen Gesetzen vollzieht der Geist die Übergänge die || den Übergang den man “logischer Schluß” nennt.” || “Nach diesen Gesetzen vollführt der Geist die besondere Tätigkeit des logischen Schließens.” – Das ist gewiß interessant & wichtig; aber ist es denn auch wahr? schließt er immer nach diesen Gesetzen? und worin besteht die besondere Tätigkeit
+21
+(des Schließens)? – Darum ist es notwendig, zu schauen, wie wir denn in der Praxis der Sprache Schlüsse vollziehen – was denn das Schließen im Sprachspiel für eine Tätigkeit || für ein Vorgang ist. 
+¥
+Was nennen wir, z.B., ‘Schlüsse’ bei Russell, oder bei Euklid? Soll ich sagen: die Übergänge von einem Satz zum nächsten im Beweis? Aber wo steht der Übergang? – Ich sage, bei Russell folge dieser Satz (p) aus jenem (q), wenn p aus q gemäß ihrer || der Stellung der beiden in einem der ‘Beweise’, & den Sätzen || den ihnen beigefügten Zeichen, abzuleiten ist, wenn wir das Buch lesen. Denn, dieses Buch zu lesen, ist ein Spiel, welches gelernt sein will.
+
+
+		
+ 	 			 	
+⍈
+     Z.B.: In irgend einer Vorschrift steht: “Alle, die über 1 m 80 hoch sind, sind in die … Abteilung aufzunehmen.” Ein Kanzlist verliest die Namen der Leute, & dazu ihre Höhe; ein || . Ein anderer || andrer teilt sie den & den Abteilungen zu. – “N.N., 1˙90 m.” – “Also N.N. in die … Abteilung.” Das ist Schließen.
+
+
+		
+ 	 			 	
+     Man ist sich so oft im Unklaren, worin
+22
+das Folgen & Folgern eigentlich besteht; was für ein Sachverhalt oder Prozeß || Vorgang es ist. Und dies kommt von der eigentümlichen Verwendung dieser Verben. Es wird uns nahe gelegt, daß Folgen das Bestehen einer Verbindung zwischen Sätzen ist, der wir beim Folgern nachgehen. (Wie man etwa einer elektrischen Leitung nachgeht.) 
+¥
+[Seite 15-19]
+     Wird es nun experimentell festgestellt, ob sich ein Satz aus dem andern ableiten läßt? – Es scheint, ja! Denn ich schreibe gewisse Zeichenfolgen hin, richte mich dabei nach gewissen Paradigmen – dabei ist es allerdings wesentlich, daß ich kein Zeichen übersehe, oder daß es sonst wie abhanden kommt – & wenn bei diesem Vorgang das & das herauskommt || entsteht, so || was bei diesem Vorgang herauskommt || entsteht, davon sage ich, es folge. – Dagegen ist ein Argument dies: Wenn 2 und 2 Äpfel nur 3 Äpfel geben, d.h., wenn 3 Äpfel da liegen, nachdem ich 2 & wieder 2 hingelegt habe, sage ich nun nicht: “2 + 2 ist also doch nicht immer 4”; sondern: “Einer muß irgendwie weggekommen sein”.
+     Aber in wiefern mache ich ein Experiment, wenn ich dem schon hingeschriebenen Beweis nur folge? Man könnte
+23
+sagen: “Wenn Du diese Kette von Umformungen ansiehst, – kommt es Dir da nicht auch so vor, als stimmten sie mit den Paradigmen?”
+     Wenn das also ein Experiment genannt werden soll, dann wohl ein psychologisches. – Der Anschein des Stimmens kann ja auf einer Sinnestäuschung beruhen. Und so ist es ja auch manchmal, wenn wir uns verrechnen.
+     Man sagt auch: “Das kommt mir heraus.” Und es ist doch wohl ein Experiment, das zeigt, daß dies mir herauskommt.
+     Man könnte sagen: Das Resultat des Experiments ist dies, daß ich am Ende, beim Resultat des Beweises angelangt, mit Überzeugung sage: “Ja, es stimmt.”
+     Was ist die charakteristische Verwendung des Vorgangs der Ableitung als Rechnung – im Gegensatz zur Verwendung des Vorgangs als Experiment?
+     Wir betrachten die Berechnung als Demonstration einer internen Eigenschaft (einer Eigenschaft des Wesens) der Strukturen. Aber was heißt das?
+24
+
+     Als Urbild der ‘internen Eigenschaft’ könnte dieses dienen:
+10 = 3 × 3 + 1
+
+
+
+		
+ 	 			 	
+Wenn ich nun sage: 10 Striche bestehen notwendig aus 3 mal 3 Strichen & einem Strich – das heißt doch nicht: wenn zehn Striche dastehen, so stehen immer die Ziffern & Bogen rundherum! – Setze ich sie aber zu den Strichen hinzu, so sage ich, ich demonstrierte nur das Wesen jener Gruppe von Strichen. – Aber bist Du sicher, daß sich die Gruppe beim Dazuschreiben jener Zeichen nicht geändert || verändert hat? – “Ich weiß nicht; aber eine bestimmte Zahl von Strichen stand da; & wenn nicht 10 so eine andere || andre & dann hatte die eben andre Eigenschaften. –”
+     Man sagt: die Rechnung ‘entfaltet’ die Eigenschaft der Hundert. Was heißt es eigentlich: 100 bestehe aus 50 + 50? Man sagt, || : der Inhalt der Kiste besteht aus 50 Äpfeln & 50 Birnen. Aber wenn Einer sagte: “der Inhalt der Kiste besteht aus 50 Äpfeln & 50 Äpfeln” –, wir wüßten zunächst nicht, was er meint. –
+25
+
+     Wenn man sagt: “Der Inhalt der Kiste besteht aus 2 mal 50 Äpfeln”, || – so heißt das entweder, es seien da zwei Abteilungen zu 50 Äpfeln; oder es handelt sich etwa um eine Verteilung, in der Jeder 50 Äpfel erhalten || kriegen soll & ich höre nun, daß man aus dieser Kiste 2 Personen || Leute beteilen kann.
+     “Die 100 Äpfel in der Kiste bestehen aus 50 und 50” – hier ist wichtig der unzeitliche Charakter von ‘bestehen’. Denn es heißt nicht, sie bestünden jetzt, oder für einige Zeit aus 50 und 50.
+
+
+		
+ 	 			 	
+     Was ist denn das Charakteristikum der ‘internen Eigenschaften’? Daß sie immer, unveränderlich in dem Ganzen bestehen, das sie ausmachen || bilden; gleichsam unabhängig von allen äußeren Geschehnissen. Wie die Konstruktion einer Maschine auf dem Papier nicht bricht, wenn die Maschine selbst den äußern Kräften erliegt. – Oder ich möchte sagen: Daß sie nicht Wind & Wetter unterworfen sind, wie das Physikalische der Dinge; sondern unangreifbar wie Schemen.
+
+
+		
+ 	 			 	
+     Statt, “100 || hundert bestehen aus 50 und 50”,
+26
+könnte man sagen: “ich lasse 100 aus 50 und 50 bestehen”.
+
+
+		
+ 	 			 	
+     “Aber bin ich also in einer Schlußkette nicht gezwungen zu gehen, wie ich gehe?” – Gezwungen? Ich kann doch wohl gehen, wie ich will! – “Aber wenn Du im Einklang mit den Regeln bleiben willst, mußt Du so gehen.” – Durchaus nicht; ich nenne etwas anderes ‘Einklang’. – “Ja, aber dann veränderst Du eben den Sinn des Wortes ‘Einklang’, oder den Sinn der Regel.” – Nein, – wer sagt, was hier ‘verändern’ & was ‘gleichbleiben’ heißt?
+     Wieviele Regeln immer Du mir angibst, || – ich gebe Dir eine Regel, die meine Verwendung Deiner Regeln rechtfertigt.
+
+
+		
+ 	 			 	
+     “Du darfst doch das Gesetz jetzt nicht auf einmal anders anwenden!” – Wenn ich darauf antworte: “Ach ja, ich hatte es ja so angewandt!” oder: “Ach, so sollte ich es anwenden –!”, dann spiele ich mit. Sage || Antworte ich aber einfach: “Anders? – Das ist doch nicht anders!” , || – was willst Du tun?
+
+
+27
+
+
+
+		
+ 	 			 	
+     Inwiefern ist ein Argument || das logische Argument ein Zwang? – “Du gibst doch das zu, – & das zu; dann mußt Du auch das zugeben!” Das ist die Art jemanden zu zwingen. D.h., man kann so, tatsächlich, Menschen zwingen, etwas zuzugeben. – Nicht anders, als wie man Einen etwa dazu zwingen kann, dorthin zu gehen, indem man gebietend mit dem Finger dorthin zeigt.
+     Denke, ich zeige in diesem Fall || so mit zwei Fingern zugleich in zwei verschiedenen Richtungen & stelle es damit dem Andern frei, in welcher der beiden er gehen will, || – ein andermal (aber) zeige ich nur in einer Richtung; so kann man das auch so ausdrücken: mein erster Befehl habe ihn nicht gezwungen in einer Richtung zu gehen, wohl aber der zweite. Das ist aber eine Aussage, über die Art der Befehle, welche ich gegeben habe || die angeben soll welcher Art meine Befehle waren; aber nicht in welcher Art sie wirken, ob sie den & den tatsächlich zwingen, d.h., ob er ihnen gehorcht.
+
+
+		
+ 	 			 	
+     Ist eine Berechnung ein Experiment? – Ist es ein Experiment, wenn ich morgens aus dem Bett steige? Aber könnte dies nicht ein Experiment sein, –
+28
+welches zeigen soll, ob ich nach so & so viel Stunden Schlafes die Kraft habe mich zu erheben? Und was fehlt dieser Handlung dazu, dies Experiment zu sein? – Bloß, daß sie nicht zu diesem Zwecke, d.h., in der Verbindung mit einer solchen Untersuchung ausgeführt wird. Experiment ist etwas durch den Gebrauch, der davon gemacht wird.
+
+
+		
+ 	 			 	
+     Wäre es möglich, daß Leute heute unsre || eine unsrer Berechnungen durchgingen & von den Schlüssen befriedigt wären, morgen aber ganz andre Schlüsse ziehen wollen, einen andern Tag wieder andere?
+     Ja, kann man sich nicht denken, daß dies mit einer Gesetzmäßigkeit so geschähe? Daß || ; daß, wenn er einmal diesen Übergang macht, er ‘eben darum’ das nächste Mal einen andern macht, & darum (z.B. || etwa) das nächste Mal wieder den ersten? (Ähnlich, wie wenn in einer Sprache die Farbe, die einmal “rot” genannt wird, darum beim nächsten Male anders genannt würde & beim übernächsten wieder “rot”, u.s.f., dies könnte Menschen so natürlich sein. Man könnte es ein Bedürfnis nach Abwechslung nennen.)
+29
+
+
+
+		
+ 	 			 	
+     Ist es nicht so: Solange man denkt, es kann nicht anders sein, zieht man logische Schlüsse.
+     Das heißt wohl: solange das & das – gar nicht in Frage gezogen wird.
+     Die Schritte, welche man nicht in Frage zieht, sind logische Schlüsse. Aber man zieht sie nicht darum nicht in Frage, weil sie ‘sicher der Wahrheit entsprechen’ – oder dergl. – sondern, dies ist eben was man ‘Denken’, ‘Sprechen’, ‘Schließen’, ‘Argumentieren’, nennt. Es handelt sich hier gar nicht um irgend eine Entsprechung des Gesagten mit der Realität; vielmehr ist die Logik vor einer solchen Entsprechung; nämlich in dem Sinne, in welchem die Festlegung der Meßmethode vor der Richtigkeit oder Falschheit einer Längenangabe.
+
+
+		
+ 	 			 	
+     “Wenn wir nicht in Gewissem übereinstimmen, können wir nicht argumentieren.” – Vielmehr: ohne diese || die Übereinstimmung nennen wir es wohl nicht ‘argumentieren’.
+
+
+		
+ 	 			 	
+     “Nach Dir könnte also jeder die Reihe fortsetzen, wie er will; & also auch auf irgend
+30
+eine Weise schließen!” Wir werden es dann nicht “die Reihe fortsetzen” nennen & auch wohl nicht “schließen”.
+     Denn, daß ihn Schlußgesetze nicht zwingen, das & das zu reden, oder zu schreiben, darüber sind wir ja einig. Und wenn Du sagst, er könne es zwar reden, aber er kann es nicht denken, so sage ich nur, das heiße nicht: er könne es, quasi trotz aller Anstrengung, nicht denken, sondern es heißt: zum ‘Denken’ gehört für uns wesentlich, daß er – beim Reden, Schreiben, etc. – solche Übergänge macht. Und ferner sage ich, daß die Grenze zwischen dem, was wir noch ‘denken’ & dem, was wir nicht mehr ‘denken’ || so nennen so wenig scharf gezogen ist, wie die Grenze zwischen dem, was noch “Gesetzesmäßigkeit” genannt wird & dem was wir nicht mehr so nennen.
+     Nun muß ich dies aber qualifizieren: Denn man kann ja doch sagen, daß die Schlußgesetze uns zwingen, || : || ; in dem Sinne nämlich, wie andere Gesetze in der menschlichen Gesellschaft. Der Kanzlist, der so schließt, wie wir's in || in ( ), muß es so tun, er wäre bestraft worden, wenn er anders schlösse. Wer anders
+31
+schließt kommt allerdings in Konflikt: vor allem || z.B. mit der Gesellschaft; aber auch (noch) mit andern praktischen Folgen.
+
+     Und auch daran ist mehr, als ich oben sagte, wenn einer || man || Einer sagt: “Er kann es nicht denken.” Man will etwa sagen: Er kann es nicht mit persönlichem Inhalt erfüllen: er kann nicht wirklich mitgehen, || – mit seinem Verstand, mit seiner Person. Es ist ähnlich, wie man sagt: Diese Tonfolgen geben keinen Sinn, ich kann sie nicht mit Ausdruck singen. Ich kann nicht mitschwingen. Oder, was hier auf dasselbe hinauskommt: ich schwinge nicht mit.
+     “Wenn er es redet – könnte man sagen – kann er es nur gedankenlos reden.” Und hierzu muß nur bemerkt werden, daß das ‘gedankenlose’ Reden sich von einem andern wohl auch manchmal dadurch || durch das unterscheidet, was beim Reden im Redenden an Vorstellungen, Empfindungen etc. || und anderem vorsichgeht, daß aber diese begleitenden Vorgänge nicht das ‘Denken’ ausmachen & ihr Fehlen an sich noch nicht, was wir ‘Gedankenlosigkeit’ nennen. || und ihr
+32
+Mangel || Fehlen noch nicht die ‘Gedankenlosigkeit.’
+
+
+		
+ 	 			 	
+     Wenn man einen Rechnungsgang || Beweis als Experiment auffaßt, so ist das Resultat des Experiments jedenfalls nicht das, was man das Resultat des Beweises nennt. Das Resultat der Rechnung ist der Satz, mit welchem sie abschließt; das Resultat des Experiments ist: daß ich von diesen Sätzen durch diese Regeln zu diesem Satz geführt wurde.
+
+
+		
+ 	 			 	
+     Aber nicht daran haftet unser Interesse, daß die & die (oder alle) Menschen von diesen Regeln so geleitet worden sind (oder so gegangen sind); es gilt uns als selbstverständlich, daß die Menschen – ‘wenn sie richtig denken können’ – so gehen. Wir haben jetzt aber einen Weg erhalten, sozusagen durch die Fußstapfen derer, die so gegangen sind. Und auf diesem Weg geht nun der Verkehr vor sich – zu verschiedenen Zwecken.
+
+
+		
+ 	 			 	
+     Wenn wir sagen: “dieser Satz folgt aus jenem”, so ist hier “folgen” wieder unzeitlich
+33
+gebraucht. (Und das zeigt, daß dieser Satz nicht das Resultat eines Experiments ausspricht.)
+
+
+		
+ 	 			 	
+     Vergleiche damit: “Weiß ist heller als Schwarz”. Auch dieser Ausdruck ist zeitlos & auch er spricht das Bestehen einer internen Relation aus.
+
+
+		
+ 	 			 	
+     “Diese Relation besteht aber eben” – möchte man sagen. Aber die Frage ist: Hat dieser Satz einen Gebrauch – & welchen? Denn einstweilen weiß ich nur, daß mir dabei ein Bild vorschwebt – aber dies garantiert mir die Verwendung nicht – & daß die Worte einen deutschen Satz geben. Aber es fällt Dir auf, daß die Worte hier anders gebraucht werden, als im normalen || alltäglichen Fall einer nützlichen Aussage. – Wie etwa der Radmacher bemerken kann, daß die Aussagen, die er gewöhnlich über Kreisförmiges & Gerades macht, anderer Art sind, als die, die im Euklid stehen. – Denn wir sagen: dieser Gegenstand ist heller als jener, oder, die Farbe dieses Dings ist heller als die Farbe jenes, & dann ist etwas jetzt heller & kann später dunkler sein.
+34
+
+     Woher die Empfindung, “Weiß ist heller als Schwarz” sage etwas über das Wesen der beiden Farben aus? –
+     Aber ist die Frage überhaupt richtig gestellt? Was meinen wir denn mit dem ‘Wesen’ von Weiß oder Schwarz? Wir denken etwa an ‘das Innere’, ‘die Konstitution’, aber das ergibt hier doch keinen Sinn. Wir sagen etwa auch: “Es liegt im Weiß, daß es heller ist …”.
+     Ist es nicht so: das Bild
+eines schwarzen & eines weißen Flecks
+dient uns zugleich als Paradigma dessen was wir unter “heller” & “dunkler” verstehen & als Paradigma für “weiß” & für “schwarz”. In so fern ‘liegt’ nun die Dunkelheit ‘im’ Schwarz, als sie beide von diesem Fleck dargestellt werden. Er ist dunkel dadurch daß er schwarz ist, || – aber richtiger gesagt: er heißt “schwarz” & damit, in unserer Sprache, auch “dunkel”. Jene Verbindung, eine Verbindung der Paradigmen & Namen ist in unsrer Sprache hergestellt. Und unser Satz ist unzeitlich, weil er nur die Verbindung der Worte “weiß”, “schwarz” & “heller” mit einem
+35
+Paradigma ausspricht.
+     Man kann Mißverständnisse vermeiden, dadurch daß man erklärt, es sei Unsinn, zu sagen: “die Farbe dieses Körpers ist heller, als die Farbe jenes”, es müsse heißen: “dieser Körper ist heller als jener”. D.h., man schließt jene Ausdrucksform aus unsrer Sprache aus.
+
+
+		
+ 	 			 	
+     Wir könnten auch sagen: Wenn wir den Schlußgesetzen (Schlußregeln) folgen, so liegt darin immer auch ein Deuten dieser Regeln. || , so liegt in einem Folgen immer auch ein Deuten.
+
+
+		
+ 	 			 	
+     “Aber wir folgern doch diesen Satz aus jenem, weil er tatsächlich folgt! Wir überzeugen uns doch, daß er folgt.” Wir überzeugen uns, daß, was hier steht, aus dem folgt, was dort steht. Und dieser Satz ist zeitlich gebraucht.
+
+
+		
+ 	 			 	
+     Wie ist es aber wenn ich mich davon überzeuge daß das Schema dieser Striche
+
+
+| | | | |
+gleichzahlig ist dem Schema dieser
+36
+Eckpunkte
+
+(ich habe sie || die Schemata absichtlich einprägsam gemacht), indem ich zuordne
+
+
+
+
+
+		
+ 	 			 	
+     Nun, wovon überzeuge ich mich denn, wenn ich diese Figur ansehe? Ich sehe einen Stern mit fadenförmigen Fortsätzen. –
+
+
+		
+ 	 			 	
+     Aber ich kann von der Figur so Gebrauch machen: Fünf Leute stehen im Fünfeck aufgestellt; an der Wand stehen Stäbe wie die Striche in ( ); ich sehe auf die Figur ( ) & sage: “ich kann jedem der Leute einen Stab geben.”
+     Ich könnte die Figur ( ) als schematisches Bild davon auffassen, daß ich fünf Leuten je einen Stab gebe.
+
+
+		
+ 	 			 	
+     Wenn ich nämlich erst ein beliebiges Vieleck zeichne –
+
+
+37
+& dann eine beliebige Reihe von Strichen
+
+
+❘ ❘ ❘ ❘ ❘ ❘ ❘ ❘ ❘ ❘ ❘ ❘ ❘ ❘ ❘ ❘ ❘ ❘ ❘ ❘ ❘ ❘ ❘ ❘ ❘ ❘ ❘ ❘ ❘ ❘ ❘
+
+
+so kann ich nun durch Zuordnung herausfinden, ob ich oben so viele Ecken habe, wie unten Striche. (Ich weiß nicht, was herauskommen würde.) Und so kann ich auch sagen, ich habe mich durch das Ziehen der Projektionslinien davon überzeugt, daß am oberen Ende der Figur ( ) soviel Striche stehen, wie der Stern unten Ecken hat. (Zeitlich!) In dieser Auffassung gleicht die Figur nicht einem mathematischen Beweise (so|wenig || so wenig, wie es ein mathematischer Beweis ist, wenn ich einer Gruppe Kinder || von Leuten einen Sack Äpfel austeile & finde, daß jeder gerade einen Apfel kriegen kann).
+     Ich kann die Figur ( ) aber als mathematischen Beweis auffassen. Geben wir den Schemata ( ) & ( ) Namen! ( ) heiße “Hand” (H.), das ( ) “Drudenfuß” (D.) Ich habe bewiesen, daß die Hand soviel Striche hat, wie der Drudenfuß Ecken, || . Und
+38
+dieser Satz ist wieder unzeitlich.
+
+
+		
+ 	 			 	
+     Der Beweis – kann ich sagen – ist eine Figur, an deren einem Ende gewisse Sätze stehen & an deren anderm Ende ein Satz steht (den wir den ‘bewiesenen’ nennen).
+     Man kann als Beschreibung so einer Figur sagen: in ihr folge der Satz … aus … & …. Das ist eine Form der Beschreibung eines Musters, das z.B. auch ein Ornament sein könnte. Ich kann also z.B. sagen: “In dem Beweise, welcher auf jener Tafel steht, folgt der Satz p aus q & r” & dies || das ist einfach die || eine Beschreibung dessen, was dort geschrieben steht || geschrieben ist || zu sehen ist. Es ist aber nicht der mathematische Satz, daß p aus q & r folgt. Dieser hat eine ganz andere Anwendung. Er sagt – so könnte man es ausdrücken – daß es Sinn hat, von einem Beweise (Muster) zu reden, in welchem p aus q & r folgt. Wie man sagen kann, der Satz “Weiß ist heller als Schwarz” sage aus, es habe Sinn von zwei Gegenständen zu reden, von denen der hellere weiß, der andere schwarz sei, aber nicht von zwei Gegenständen, von denen der hellere schwarz, der andre weiß sei.
+39
+
+
+
+		
+ 	 			 	
+     Denken wir uns, wir hätten das Paradigma für “heller” & “dunkler” in Form eines weißen & schwarzen Flecks gegeben, & nun leiten wir mit seiner Hilfe – sozusagen – ab: daß rot dunkler ist als weiß.
+
+
+		
+ 	 			 	
+     Der durch ( ) bewiesene Satz dient nun als neue Vorschrift zum Konstatieren der Gleichzahligkeit: Hat man eine Menge von Gegenständen als || in Form einer || der Hand angeordnet & eine andre als die Ecken eines Drudenfußes, so sagen wir nun, die beiden Mengen seien gleichzahlig.
+
+
+		
+ 	 			 	
+     “Aber ist das nicht bloß, weil wir H. und D. schon einmal zugeordnet haben & gesehen, daß sie gleichzahlig sind?” – Ja, aber, wenn sie es in einem Fall waren, wie weiß ich, daß sie es jetzt wieder sein werden? – “Weil es eben im Wesen der H. & des D. liegt, daß sie gleichzahlig sind.” – Aber wie konntest Du das durch die Zuordnung herausbringen? (Ich dachte die Zählung, oder Zuordnung, ergibt nur, daß diese beiden Gruppen, die ich jetzt vor mir habe, gleichzahlig – oder ungleichzahlig – sind.)
+40
+
+     – “Aber wenn er nun eine H. Dinge hat & einen D. Dinge & er ordnet sie nun tatsächlich einander zu, so ist es doch nicht möglich, daß er etwas anderes erhält, als daß sie gleichzahlig sind. – Und daß es nicht möglich ist, das sehe ich doch aus dem Beweis.” – Aber ist es denn nicht möglich? Wenn er z.B. – wie ein Andrer sagen würde || könnte – eine der Zuordnungslinien zu ziehen übersieht. Aber ich gebe zu, daß er in der unendlichen || ungeheuern Mehrzahl der Fälle immer das gleiche Resultat erhalten wird, &, erhielte er es nicht, sich für irgendwie gestört halten würde. Und wäre es nicht so, so würde dem ganzen Beweis der Boden entzogen. Wir entscheiden uns nämlich, das Beweisbild statt einer Zuordnung der Gruppen zu gebrauchen; wir ordnen sie nicht zu, sondern vergleichen statt dessen die Gruppen mit denen des Beweises (in welchem allerdings zwei Gruppen einander zugeordnet sind).
+
+
+		
+ 	 			 	
+     Ich könnte als Resultat des Beweises auch sagen: “Eine H. & ein D. heißen ‘gleichzahlig’”. || heißen von nun an ‘gleichzahlig’”.
+     ◇Oder:2 Der Beweis erforscht nicht das Wesen der beiden Figuren, aber er spricht aus, was ich von nun an zum Wesen der Figuren
+41
+rechnen werde. –– Was zum Wesen gehört, lege ich unter den Paradigmen der Sprache nieder.
+
+
+		
+ 	 			 	
+     Wenn ich sage “Dieser Satz folgt aus jenem”, so ist das die Anerkennung einer Regel. Sie geschieht auf Grund des Beweises. D.h.: || , ich lasse mir diese Kette (diese Figur) als Beweis gefallen. –– “Aber könnte ich denn anders? Muß ich mir sie nicht gefallen lassen?” – Warum sagst Du, Du müssest? Doch darum, weil Du am Schluß || Schlusse des Beweises etwa sagst: “Ja – ich muß diesen Schluß anerkennen.” Aber || – aber das ist doch nur der Ausdruck Deiner unbedingten Anerkennung. –
+     Das heißt, glaube ich: die Worte “Das muß ich zugeben” werden in zweierlei Fällen || Fall gebraucht: wenn wir einen Beweis erhalten haben – aber auch, in Bezug auf den einzelnen Schritt selber des Beweises.
+
+
+		
+ 	 			 	
+     Und worin äußert es sich denn, daß der Beweis mich zwingt? Doch darin, daß ich so & so darauf vorgehe, daß ich mich weigere einen andern Weg zu gehen. Als letztes Argument, gegen Einen, der so nicht gehen wollte, würde ich nur noch sagen: “Ja siehst Du denn nicht …!” – &
+42
+das ist doch kein Argument.
+
+
+		
+ 	 			 	
+     “Aber, wenn Du recht hast, wie kommt es dann, daß sich alle Menschen (oder doch alle normalen Menschen) diese Figuren als Beweise dieser Sätze gefallen lassen?” – Ja, es besteht eine große – & interessante – Übereinstimmung.
+
+
+		
+ 	 			 	
+     Denk Dir Du hättest eine Reihe von 100 Kugeln vor Dir, sie seien mit römischen Ziffern numeriert; || Du numerierst sie nun erst || zuerst mit arabischen Ziffern & es geht von 1 bis 100; dann machst Du nach je zehn (die sich in dieser || der Numerierung nun deutlich hervorheben) einen größern Abstand; in jedem Reihenstück von je 10 machst Du einen, etwas kleinern, Abstand in der Mitte, also zwischen 5 + 5 – so werden die 10 übersichtlich; nun nimmst Du die Zehnerstücke & legst sie unter einander || eins unter das andere; & machst in der Mitte der Kolumne einen etwas größeren Abstand, also zwischen je 5 || 5 Reihen + 5 Reihen; nun numerierst Du die Reihen von 1 bis 10. Ich kann sagen, ich habe Eigenschaften der || dieser hundert Kugeln entfaltet. – Nun aber denke Dir, daß dieser ganze Vorgang, dies Experiment mit den
+43
+hundert Kugeln, gefilmt wurde. Ich sehe nun auf der Projektionsleinwand || Leinwand doch nicht ein Experiment, denn das Bild eines Experiments ist doch nicht selbst ein Experiment. – Aber das ‘mathematisch Wesentliche’ sehe ich nun auch in der Projektion! Denn es erscheinen da zuerst 100 Flecken, dann werden sie in Zehnerstücke eingeteilt, usw. usw..
+
+
+		
+ 	 			 	
+     Ich könnte also sagen: der Beweis dient mir nicht als Experiment, wohl aber als Bild eines Experiments.
+
+
+		
+ 	 			 	
+     Lege 2 Äpfel auf die leere Tischplatte, schau daß niemand in ihre Nähe kommt & der Tisch nicht erschüttert wird; nun lege noch 2 Äpfel auf die Tischplatte; nun zähle die Äpfel, die da liegen. Du hast ein Experiment gemacht; das Ergebnis der Zählung ist wahrscheinlich 4. (Wir würden das Ergebnis des Experiments so aussprechen || darstellen: wenn man unter den & den Umständen erst 2 & dann noch 2 Äpfel auf einen Tisch legt, verschwindet zumeist || meistens keiner, noch kommt einer dazu.) Und ganz ähnliche || analoge Experimente kann man, mit dem gleichen Ergebnis, mit allerlei festen
+44
+Körpern – Bohnen, Büchern, Stäben etc. – || (– Bohnen, Büchern, Stäben etc. –) ausführen. – So lernen ja die Kinder bei uns rechnen, denn man läßt sie drei Bohnen hinlegen & noch drei Bohnen & dann zählen, “was da liegt”. Käme dabei einmal 5 einmal 7 heraus (weil, wie wir jetzt sagen würden, einmal von selbst eine dazu, einmal eine weg käme), so würden wir zunächst Bohnen als zum || für den Rechenunterricht ungeeignet erklären. Geschähe das Gleiche aber mit Stäben, Fingern, Strichen & den meisten andern Dingen, so hätte das Rechnen damit ein Ende.
+“Aber wäre dann nicht doch noch 2 + 2 = 4?” – Dieses Sätzchen wäre damit unbrauchbar geworden. –
+
+
+		
+ 	 			 	
+     Wenn wir Geld in eine Lade legen & später finden wir es nicht mehr dort, so sagen wir: “Von selbst ist es || Geldstücke in eine Lade legen & später finden wir sie nicht mehr dort, so sagen wir: “Von selbst sind sie nicht verschwunden.” Dies ist ein wichtiger Satz der Physik.
+
+
+		
+ 	 			 	
+     “Du brauchst ja nur auf die Figur
+
+45
+zu sehen, um zu sehen, daß 2 + 2 = 4 ist.” – Dann brauche ich nur auf die Figur
+
+zu schauen, um zu sehen, daß 2 + 2 + 2 = 4 ist.
+
+
+		
+ 	 			 	
+     Addieren mit Tonreihen: Addiere die Tonreihe der ersten 4 Takte der Melodie || des Themas … zu der Tonreihe der ersten 8 Takte
+     Zählen mittels musikalischer Themen || Tonreihen. Vergleiche die Anzahlen dieser beiden Reihen von Strichen
+
+❘ ❘ ❘ ❘ ❘ ❘ ❘ ❘ ❘ ❘ ❘ ❘ ❘ ❘ ❘ ❘ ❘ ❘ ❘ ❘ ❘ ❘ ❘ ❘ ❘ ❘ ❘ ❘ ❘
+indem Du erst || einmal für jeden Strich der ersten, dann für jeden Strich der zweiten || in der ersten Reihe, einen Ton des Themas … pfeifst; dann für jeden Strich in der zweiten Reihe. (Addieren etc. mit Hilfe einer solchen Tonreihe || mittels musikalischer Themen.)
+
+
+		
+ 	 			 	
+     Wir lehren jemand eine Methode, Nüsse unter Leute zu verteilen; ein Teil dieser Methode ist das Multiplizieren zweier Zahlen im Dezimalsystem.
+     Wir lehren jemand ein Haus errichten; dabei auch, wie er sich die genügenden
+46
+Mengen von Material, etwa Brettern, anschaffen soll, hiezu eine Technik des Rechnens. Die Technik des Rechnens ist ein Teil der Technik des Hausbaues.
+     Leute verkaufen & kaufen Scheitholz; die Stöße werden mit einem Maßstab gemessen, die Maßzahlen der Länge, Breite, Höhe multipliziert; & was hiebei || dabei herauskommt ist die Zahl der Groschen, die sie zu fordern & zu geben haben. Sie wissen nicht, ‘warum’ dies so geschieht, sondern sie machen es einfach so, || : so wird es gemacht. – Rechnen diese Leute nicht?
+
+
+		
+ 	 			 	
+     Wer so rechnet, muß er einen ‘arithmetischen Satz’ aussprechen? Wir lehren freilich die Kinder das Einmaleins in Form von Sätzchen, aber ist das wesentlich? Warum sollten sie nicht einfach: rechnen lernen. Und wenn sie es können, haben sie nicht Arithmetik gelernt?
+
+
+		
+ 	 			 	
+     Aber in welchem Verhältnis steht denn || dann die Begründung eines Rechenvorgangs zu dem Rechenvorgang (selbst)? || zu der Rechnung selbst?
+
+
+47
+
+
+
+		
+ 	 			 	
+     “Ja, ich verstehe, daß dieser Satz aus diesem folgt.” – Verstehe ich warum er folgt, oder verstehe ich nur, daß er folgt?
+
+
+		
+ 	 			 	
+     Wie, wenn ich gesagt hätte: Jene Leute zahlen für's Holz auf Grund der Rechnung, sie lassen sich die Rechnung als Beweis dafür gefallen, daß sie so viel zu zahlen haben. – Nun, es ist einfach eine Beschreibung ihres Vorgehens (Benehmens).
+
+
+		
+ 	 			 	
+     Wer uns erinnert: “die Kette der Gründe hat ein Ende”, stellt den Ursprung der Kette mit ihrer Mitte zusammen, daß wir den Unterschied wahrnehmen. ‘Schau das an – & schau das an! Präg' Dir diese beiden Formen ein!’
+
+
+		
+ 	 			 	
+     Die Logik – kann man sagen – zeigt, was wir unter “Satz” & unter “Sprache” verstehen. –
+
+
+		
+ 	 			 	
+     Trenne die Gefühle (Gesten || Gebärden) der Übereinstimmung von dem, was Du mit dem Beweise machst!
+
+
+		
+ 	 			 	
+     Jene Leute – würden wir sagen – verkaufen das Holz nach dem Kubikmaß – – aber
+48
+haben sie darin recht? Wäre es nicht richtiger, es nach dem Gewicht zu verkaufen – oder nach der Arbeitszeit des Fällens – oder nach der Mühe des Fällens, gemessen am Alter & an der Stärke des Holzfällers? Und warum sollten sie es nicht für einen Preis hergeben, der von alle dem unabhängig ist: jeder Käufer zahlt ein und dasselbe, wieviel immer er nimmt (man hat gefunden, daß man so leben kann). Und ist etwas dagegen zu sagen, daß man das Holz einfach verschenkt?
+
+
+		
+ 	 			 	
+     Gut; aber wie wenn sie das Holz in Stöße von beliebigen, verschiedenen Höhen schlichteten, & es dann zu einem Preis proportional der Grundfläche der Stöße verkauften?
+     Und wie, wenn sie dies sogar mit den Worten begründeten: “Ja, wer mehr Holz kauft, muß auch mehr zahlen.”
+
+
+		
+ 	 			 	
+     Wie könnte ich ihnen nun zeigen, daß – wie ich sagen würde – der nicht wirklich mehr Holz kauft, der einen Stoß von größerer Grundfläche kauft? – Ich würde z.B. einen, nach ihren Begriffen, kleinen Stoß
+49
+nehmen & ihn durch Umlegen der Scheiter in einen ‘großen’ verwandeln. Das könnte sie überzeugen – vielleicht aber würden sie sagen: “Ja, jetzt ist es viel Holz & kostet mehr” – & damit wäre es Schluß. – Wir würden in diesem Falle (wohl) sagen: sie meinen mit “viel Holz” & “wenig Holz” einfach nicht das Gleiche, wie wir; & sie haben ein ganz anderes System der Bezahlung, als wir.
+
+
+		
+ 	 			 	
+     Frege sagt im Vorwort der Grundgesetze der Arithmetik: “… hier haben wir eine bisher unbekannte Art der Verrücktheit” – aber er hat nie angegeben, wie diese ‘Verrücktheit’ wirklich aussehen würde.
+
+
+		
+ 	 			 	
+     (Eine Gesellschaft, die so handelt, würde uns vielleicht an die “Klugen Leute” in den Märchen erinnern.)
+
+
+		
+ 	 			 	
+     Einfluß der Darstellungsform: Wer auf einer Straße spazierengeht & (nun) umkehrt, um nach Hause zu gehen, || den Rückweg anzutreten, der kehrt meist bei einem Baum, bei einem Haus, bei einer Brücke, || Beugung der Straße, um, nicht an beliebiger Stelle in offenem Gelände (sozusagen ohne
+50
+Grund). Tut er dies zu einem bestimmten Zweck? (Wörter, die wir dem Rhythmus zuliebe in den Satz einfügen.)
+
+
+		
+ 	 			 	
+     Worin besteht die Übereinstimmung der Menschen in || (bezüglich) der Anerkennung einer Struktur als eines Beweises? Darin, daß sie Worte als Sprache gebrauchen? Als das, was wir “Sprache” nennen.
+     Denke Dir Menschen, die Geld im Verkehr gebrauchten, nämlich Münzen, die ganz so aussehen wie unsre Münzen, aus Gold oder Silber sind & geprägt; & sie geben sie auch für Waren her – aber jeder gibt dem Kaufmann für seine Waren || für die Waren, was ihm gerade gefällt & dieser || der Kaufmann gibt dem Kunden nicht mehr, oder weniger, je nachdem er bezahlt; kurz, dies Geld, oder was so aussieht, spielt bei ihnen eine ganz andere Rolle, als bei uns. Wir würden uns diesen Leuten viel weniger verwandt fühlen, als solchen, die noch gar kein Geld kennen & eine primitive Art des Tauschhandels treiben. – “Aber die Münzen dieser Leute werden doch auch irgend einen Zweck haben!” – Hat denn alles, was man tut, einen Zweck? Etwa religiöse Handlungen –.
+51
+
+
+
+		
+ 	 			 	
+     Es ist schon möglich, daß wir geneigt wären, Menschen, die sich so benehmen, Verrückte zu nennen. Aber doch nennen wir nicht alle (die) Verrückte, die in den Formen unserer Kultur ähnlich handeln, Worte ‘zwecklos’ verwenden. (Denke an die Krönung eines Königs!)
+
+
+		
+ 	 			 	
+     Wir können es ‘die Gleichung
+      74202 + 25798 = 100000 beweisen’ nennen, wenn wir die Zahlen der linken Seite untereinander schreiben & addieren; aber heißt auch das ein Beweis: zähle 74202 Sandkörner ab, dann 25798, schütte sie zusammen & zähle sie.
+     Ich will sagen: zum Beweis gehört Übersichtlichkeit.
+     Wäre || Ist der Prozeß, durch den ich das Resultat erhalte, nicht überblickbar, || unübersehbar, so könnte ich zwar die Tatsache || das Ergebnis, daß diese Zahl herauskommt, vermerken, wie aber || aber wie soll ich es || dies zum Maß || es zur Bestätigung einer Tatsache gebrauchen || verwenden? Ich weiß nicht: ‘was herauskommen soll’ || vermerken – welche Tatsache aber soll es mir bestätigen? ich weiß nicht: ‘was herauskommen soll’. [Ursprünglich hieß es: “, aber ¤ ich wüßte nicht, zur Bestätigung
+52
+welcher Tatsache ich dies Resultat verwenden sollte, denn ich könnte nicht sagen: ‘was herauskommen soll’”.]
+
+
+		
+ 	 			 	
+     Habe ich die Zahlen addiert & 100000 erhalten, so sage ich nun: Wenn Du soviel & soviel Sandkörner zusammenschüttest & keines kommt weg, so mußt Du im ganzen so viele Körner haben.
+
+
+		
+ 	 			 	
+     Aber ist es denn unmöglich, daß ich mich in der Rechnung geirrt habe? Und wie, wenn mich ein Teufelchen irrt, so daß ich irgend etwas immer wieder übersehe, so oft ich auch, Schritt für Schritt, nachrechne. So daß, wenn ich aus der Verhexung erwachte, ich sagen müßte || würde: “Ja war ich denn blind!” – Aber welchen Unterschied macht es, wenn ich dies ‘annehme’? Ich könnte dann sagen: “Ja, ja, die Rechnung ist gewiß falsch – aber so rechne ich. Und das nenne ich nun addieren, & diese Zahl die Summe dieser beiden.”
+
+
+		
+ 	 			 	
+     Denke, jemand würde so behext, daß er rechnete:
+53
+ “also: 4 × 3 + 2 = 10”
+
+
+
+		
+ 	 			 	
+     Nun soll er seine Rechnung anwenden. Er nimmt viermal 3 Nüsse & noch 2, & verteilt sie unter 10 Leute; & jeder erhält eine Nuß: Er || . Denn er teilt sie nämlich, den Bögen seiner || der Rechnung entsprechend, aus & wenn || sooft er einem der Leute || Einem eine zweite Nuß gibt, ist sie verschwunden. || weg.
+
+
+		
+ 	 			 	
+     Man könnte auch sagen: Du schreitest || gehst in dem Beweis von Satz zu Satz: aber läßt Du Dir denn auch eine Kontrolle dafür gefallen, daß Du richtig gegangen bist? – Oder sagst Du bloß, “Es muß stimmen” & mißt (nur) alles andre mit dem Satz, den Du erhältst?
+
+
+		
+ 	 			 	
+     Denn, wenn es so ist, dann schreitest Du nur von Bild zu Bild.
+
+
+		
+ 	 			 	
+     Es könnte praktisch sein, mit einem Maßstab zu messen, der die Eigenschaft hat, sich um || auf etwa die Hälfte seiner Länge zusammen zu ziehen, wenn man ihn aus diesem Raum in jenen bringt. || er aus diesem Raum in jenen gebracht wird. Eine Eigenschaft die ihn unter andern
+54
+Verhältnissen zum Maßstab unbrauchbar || untauglich machen würde.
+     Es könnte praktisch sein, beim Abzählen (einer Menge), unter gewissen Umständen, Ziffern auszulassen, sie etwa abzuzählen: “1, 2, 4, 5, 7, 8, 10”.
+
+
+		
+ 	 			 	
+     Wovon überzeuge ich Einen, der jene Abbildung im Film des Versuchs mit den 100 Kugeln verfolgt?
+     Man könnte sagen: davon, daß sich dies so zugetragen hat. – Aber das wäre keine mathematische Überzeugung. ‒ ‒ Aber kann ich denn nicht sagen: ich präge ihm einen Vorgang ein || I make him familiar with a certain motion? Dieser Vorgang ist die Umgruppierung einer Reihe von 100 Dingen in 10 Reihen zu 10. Und dieser Vorgang ist tatsächlich immer wieder leicht durchzuführen. Und davon kann er mit Recht überzeugt sein.
+     Und so prägt (auch) der Beweis durch Ziehen der Projektionslinien
+
+
+einen Vorgang ein, den der 1 → 1 Zuordnung der
+55
+H. & des D.. – “Aber überzeugt er mich nicht auch davon, daß diese Zuordnung möglich ist?” – Wenn das heißen soll: daß Du sie immer ausführen kannst –, so muß das durchaus nicht wahr sein. Aber er || das Ziehen der Projektionslinien überzeugt uns davon, daß oben soviele Striche sind, wie unten Ecken; & es liefert eine Vorlage, (nur) dadurch solche Figuren einander zuzuordnen. – “Aber zeigt sie || die Vorlage dadurch nicht, daß es geht? In dem Sinne, in welchem es nicht ginge, wenn oben statt ❘ ❘ ❘ ❘ ❘ die Figur ❘ ❘ ❘ ❘ ❘ ❘ stünde?” – Wieso? geht es denn da nicht? So z.B.:
+
+
+
+      “So hab ich's ja nicht gemeint!” – Dann zeig mir, wie Du's meinst, & ich werde es machen.
+     Aber kann ich denn nicht sagen, die Figur zeige, wie eine solche Zuordnung möglich ist – & muß sie also || darum nicht auch zeigen, – daß sie möglich ist? –
+
+
+		
+ 	 			 	
+     Was war denn damals der Sinn davon, daß wir vorschlugen den Formen der
+56
+5 parallelen Striche & des Fünfecksterns Namen beizulegen? Was ist damit geschehen, daß man ihnen Namen gegeben hat. || sie Namen gekriegt || erhalten haben? Es wird dadurch (wohl) etwas über die Art des Gebrauchs dieser Figuren angedeutet. Und zwar || Nämlich –: daß man sie auf einen Blick als die & die erkennt; man denkt nicht daran || dran, ihre Striche oder Ecken zu zählen || abzuzählen, sondern erkennt sie als Gestalttypen || Gestalten, wie Messer und Gabel, die Buchstaben & Ziffern erkennt. || ; man zählt dazu nicht ihre Striche oder Ecken || denkt nicht dran ihre Striche oder Ecken abzuzählen , sondern || ; sie sind für uns Gestalttypen, wie Messer & Gabel, die Buchstaben & Ziffern.
+     Ich kann also auf den Befehl: “Zeichne eine H.!” (z.B.) diese Form unmittelbar reproduzieren || wiedergeben. – Nun lehrt mich der Beweis eine Zuordnung jener || der beiden Formen. (Ich möchte sagen, es seien in dem Beweis nicht bloß || einfach diese individuellen Figuren zugeordnet, sondern die Formen selbst. Aber das heißt doch nur, daß ich mir jene Formen gut einpräge; als Paradigmen einpräge.) Kann ich nun, wenn ich (die Formen) H. & D. einander so zuordnen will, nicht in Schwierigkeiten geraten – indem etwa eine Ecke unten zuviel, oder oben ein Strich zu viel ist? – “Aber doch nicht, wenn Du wirklich
+57
+wieder H. & D. gezeichnet hast! – Und das läßt sich ja beweisen; sieh diese Figur an!”
+
+
+
+
+
+		
+ 	 			 	
+     – Diese Figur lehrt mich eine neue Art der Kontrolle dafür, daß ich wirklich die gleichen Figuren hingezeichnet habe; aber kann ich, wenn ich mich nun nach dieser Vorlage richten will, nicht dennoch in Schwierigkeiten geraten? Ich sage aber, ich bin sicher, daß ich normalerweise in keine Schwierigkeiten kommen werde.
+
+
+		
+ 	 			 	
+     Was tut nun diese Überlegung? –
+
+
+		
+ 	 			 	
+¥
+[S. 59.]
+
+
+		
+ 	 			 	
+     Es gibt ein Geduldspiel, in dem || ¤ das darin besteht, eine bestimmte || gewisse Figur, z.B. die:
+
+aus gewissen || gegebenen Teilen (Plättchen) zusammenzusetzen.
+58
+Die Teilung der Figur ist so, || eine solche, daß es uns schwer ist || wird, die richtige Zusammenstellung der Teile zu finden. Sie sei etwa diese:
+
+
+
+
+		
+ 	 			 	
+     Was findet der, dem die Zusammensetzung gelingt? – Er findet: eine Lage – an welche er früher nicht gedacht hat. – Gut; aber kann man also nicht sagen: er überzeugt sich davon, daß man diese Teile || ein Dreieck & ein Sechseck so zusammenlegen || zusammensetzen kann? – Aber sag mir: – dieses Dreieck & das Sechseck, welche man so zusammenlegen kann: sollen sie schon so ineinander liegen, oder noch nicht, & erst so zusammengelegt werden? || : sollen es die sein, || sind es die, welche schon so ineinander liegen, oder die, welche erst so zusammengelegt werden sollen?
+|| er überzeugt sich davon, daß man diese Dreiecke so zusammensetzten kann? – Aber diese Dreiecke & das Sechseck, welche man so zusammenlegen kann: sind es die, welche oben das Rechteck bilden, oder Dreiecke, die erst so zusammengesetzt werd

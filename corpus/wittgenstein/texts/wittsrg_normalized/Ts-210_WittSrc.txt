@@ -1,0 +1,1130 @@
+Collapse
+Drag
+
+
+ 	 			 	
+1
+     Das, worauf sich die Reihe der Kardinalzahlen bezieht, sind nie Gegenstände, im Sinn von Elementen der Erkenntnis, || Erkenntnis, sondern Gebilde, räumliche und zeitliche, wie die Striche auf meinem Papier, die sie vertreten.
+
+
+	
+	
+ 	 			 	
+     Wenn man sagt, der Fleck A ist irgendwo zwischen den Grenzen B und C ist es denn nicht offenbar möglich, eine Anzahl von Stellungen des A zwischen B und C zu beschreiben oder abzubilden, sodaß ich die Sukzession aller dieser Stellungen als kontinuierlichen Übergang sehe? Und ist dann nicht die Disjunktion aller dieser N Stellungen eben der Satz, daß sich A irgendwo zwischen B und C befindet?
+     Aber wie verhält es sich mit diesen N Bildern? Es ist klar, daß ein Bild und das unmittelbar folgende visuell nicht unterscheidbar sein dürfen, sonst ist der Übergang visuell diskontinuierlich.
+
+
+	
+	
+ 	 			 	
+     In unserer Notation oder Ausdrucksweise drückt sich auch aus, welche Ähnlichkeiten – und welche Verschiedenheiten – wir besonders betont wissen wollen. So nennt man einmal alles ‘Räume’, was eine ähnliche Struktur hat wie der Raum und will immer darauf || auf diese Analogie hinweisen. Und dann wieder will man nur diese Analogie, weil sie zu Konfusionen führt, fliehen und die Verschiedenheit der ‘Räume’ betonen und nun bezeichnet man die frühere Ausdrucksweise als irreführend und gebraucht selbst eine andere ebenso irreführende – wenn man sie nämlich nicht ganz versteht.
+
+
+		
+ 	 			 	
+     Der kleinste sichtbare Unterschied wäre einer, der in sich selbst das Kriterium des Kleinsten trüge.
+     Denn im Fall des Flecks A zwischen B und C unterscheiden wir eben einige Lagen und andere unterscheiden wir nicht. Was wir aber brauchten
+2
+wäre sozusagen ein infinitesimaler Unterschied, also ein Unterschied, der es in sich selbst trüge, der Kleinste zu sein.
+
+
+		
+ 	 			 	
+     Der Raum besteht offenbar nicht aus diskreten Teilen.
+     Denn sonst müßte man unmittelbar sagen können, aus welchen.
+     Der Raum ist aber offenbar homogen.
+
+
+		
+ 	 			 	
+     “Gehe gerade aus, so wirst du, ehe du zur anderen Wand kommst, mit der Hand an etwas stoßen.” Dieser Art sind jene allgemeinen Sätze. “Schau dem Tisch entlang, so wirst du einen Strich sehen.” Man gibt quasi eine Methode die ich aber nicht “allgemein” nennen möchte weil sie in keinem Sinn sich auf eine Gesamtheit bezieht.
+     Ja, im Falle man eine Bewegung macht, ist es besonders klar. Wenn ich sage “wische den Tisch ab” so meine ich nicht “wische alle Punkte || jeden Punkt des Tisches ab”.
+
+
+		
+ 	 			 	
+     Es will einem vorkommen, als wäre es gar keine Allgemeinheit, sondern etwas, wie ein spezielles Symptom einer Allgemeinheit. Etwa wie wenn ich sage: “Wenn du mein Fenster erleuchtet siehst, so bin ich zu Hause.” Eine Allgemeinheit liegt dann darin, daß ich irgendwo in meinem Zimmer sein kann; das erleuchtete Fenster hat aber nicht die Multiplizität einer Allgemeinheit und bezieht sich daher auch nicht auf eine Gesamtheit, sondern auf das Substrat, welches als Substrat einer Gesamtheit dienen kann.
+
+
+		
+ 	 			 	
+     Die Möglichkeit, welcher Art immer sie ist, muß die Logik voraussehen (das heißt, es gibt keine logische Überraschung). Und im Raum besteht eben diese Möglichkeit, nicht aus einer Anzahl diskreten Möglichkeiten.
+
+
+3
+		
+ 	 			 	
+     Der Raum ist sozusagen eine Möglichkeit. Er besteht nicht aus mehreren Möglichkeiten.
+
+
+		
+ 	 			 	
+     Wenn ich also höre, das Buch liegt – irgendwo – auf dem Tisch, und finde es nun in einer bestimmten Stellung, so kann ich nicht überrascht sein und sagen “ah, ich habe nicht gewußt, daß es diese Stellung gibt” und doch hatte ich diese besondere Stellung nicht vorhergesehen, d.h., als besondere Möglichkeit vorher ins Auge gefaßt.
+
+
+		
+ 	 			 	
+     Was ist nun aber der Unterschied zwischen dem Fall “das Buch liegt irgendwo auf dem Tisch” und dem “das Ereignis wird irgendeinmal in Zukunft eintreten”? Offenbar der, daß wir im einen Fall eine sichere Methode kennen zu verifizieren, ob das Buch auf dem Tisch liegt, im anderen Fall eine analoge Methode nicht existiert. Wenn etwa ein bestimmtes Ereignis bei einer der unendlich vielen Bisektionen einer Strecke eintreten sollte, oder besser; wenn es eintreten sollte, wenn wir die Strecke in einem Punkt (ohne nähere Bestimmung) schneiden und an diesem Punkt eine Minute verweilen, so ist diese Angabe ebenso sinnlos, wie die über die unendliche Zukunft.
+
+
+		
+ 	 			 	
+     Wenn einer gegen eine Euklidische Demonstration mit Lineal und Zirkel einwenden würde “ja, das sehe ich schon, daß es in diesem Falle stimmt, aber die Frage ist, ob es in allen anderen Fällen stimmt”, so müßten wir ihm antworten: “es stimmt ja garnicht in diesem Fall.” – Und es wäre, wie schon gesagt, dasselbe, als wollte einer zu der Demonstration, daß p ⊃ q . & . p. ⊃ .q tautologisch ist, sagen “ja, für die Buchstaben p und q stimmt es allerdings, aber gilt es allgemein?”.
+
+
+4
+		
+ 	 			 	
+     Man möchte hier immer sagen, “es kommt nicht auf die Buchstaben, oder die genaue Form des Dreiecks, an”. Aber was bedeutet das?
+     Was heißt es “von allem Unwesentlichen absehen”?
+
+
+		
+ 	 			 	
+     In der Demonstration – z.B. – daß Scheitelwinkel gleich sind, könnte man sich die Figur in fortwährender Bewegung denken, indem die beiden Geraden scherenartig auf und zu gingen, und man könnte die Demonstration an dieser bewegten Figur gerade so gut ausführen, als an der ruhigen. Ich will damit übrigens nicht sagen, daß die so bewegte Figur das allgemeine Zeichen ist.
+
+
+		
+ 	 			 	
+     Wenn man jemandem, der es noch nicht versucht hat, sagt “versuche die Ohren zu bewegen”, so wird er zuerst etwas in der Nähe der Ohren bewegen, was er schon früher bewegt hat, und dann werden sich entweder auf einmal seine Ohren bewegen oder nicht. Man könnte nun von diesem Vorgang sagen: er versucht die Ohren zu bewegen. Aber wenn das ein Versuch genannt werden kann, so ist es einer in einem ganz anderen Sinn als der, die Ohren (oder die Hände) zu bewegen, wenn wir zwar wohl wissen, wie es zu machen ist, aber sie jemand hält, sodaß wir sie schwer oder nicht bewegen können. Der Versuch im ersten Sinne entspricht einem Versuch “ein mathematisches Problem zu lösen”, wozu es keine Methode gibt. Man kann sich immer um das scheinbare Problem bemühen. Wenn man mir sagt, “versuche durch den bloßen Willen den Krug dort am andern Ende des Zimmers zu bewegen” so werde ich ihn anschauen und irgendwelche seltsame Bewegungen mit meinen Gesichtsmuskeln machen; also selbst in diesem Falle scheint es ein Versuchen zu geben.
+
+
+		
+ 	 			 	
+     Angenommen es hätte einer den pythagoräischen Lehrsatz zwar nicht bewiesen, wäre aber durch Messungen der Katheten und Hypotenusen zur “Vermutung” dieses Satzes geführt worden. Und nun fände er den Beweis und sagt, er habe
+5
+nun bewiesen, was er früher vermutet hatte: so ist doch wenigstens das eine merkwürdige Frage: An welchem Punkt des Beweises kommt denn nun das heraus, was er früher durch die einzelnen Versuche bestätigt fand? denn der Beweis ist doch wesensverschieden von der früheren Methode. – Wo berühren sich diese Methoden, da sie angeblich in irgendeinem Sinne das Gleiche ergeben? D.h.: Wenn der Beweis und die Versuche nur verschiedene Ansichten Desselben (derselben Allgemeinheit) sind.
+     (Ich sagte “aus der gleichen Quelle fließt nur Eines” und man könnte sagen, es wäre doch zu verflucht sonderbar, wenn aus so verschiedenen Quellen dasselbe fließen sollte. Der Gedanke, daß aus verschiedenen Quellen dasselbe fließen kann, ist uns von der Physik d.h. von den Hypothesen her so geläufig. Dort schließen wir immer von Symptomen auf die Krankheiten und wissen, daß die verschiedensten Symptome, Symptome Desselben sein können.)
+
+
+		
+ 	 			 	
+     Wie konnte man nach der Statistik das vermuten, was dann der Beweis zeigte?
+
+
+		
+ 	 			 	
+     Der Beweis des Pythagoräischen Lehrsatzes ist ein allgemeiner Beweis und nicht ein Beweis der Allgemeinheit.
+
+
+		
+ 	 			 	
+     Gäbe es eine Vermutung, daß der Satz für alle Fälle wahr sein wird, so könnte das so Vermutete niemals bewiesen, sondern nur durch unendliche Erfahrung bestätigt werden.
+
+
+		
+ 	 			 	
+     Denken wir daran, was es heißt, etwas im Gedächtnis zu suchen.
+     Hier liegt gewiß etwas wie ein Suchen im eigentlichen Sinn vor.
+6
+
+     Versuchen, eine Erscheinung hervorzurufen, aber, heißt nicht, sie suchen.
+     Angenommen, ich taste meine Hand nach einer schmerzhaften Stelle ab, so suche ich wohl im Tastraum, aber nicht im Schmerzraum. D.h., was ich eventuell finde, ist eigentlich eine Stelle und nicht der Schmerz. D.h., wenn die Erfahrung auch ergeben hat, daß Drücken einen Schmerz hervorruft, so ist doch das Drücken kein Suchen nach einem Schmerz. So wenig wie das Drehen einer Elektrisiermaschine das Suchen nach einem Funken ist.
+
+
+		
+ 	 			 	
+     Wo soll aus dem Beweis dieselbe Allgemeinheit hervorspringen, die die früheren Versuche wahrscheinlich machten?
+
+
+		
+ 	 			 	
+     Ich hatte die Allgemeinheit vermutet, ohne den Beweis zu vermuten (nehme ich an) und nun beweist der Beweis gerade die Allgemeinheit die ich vermutete!?
+
+
+		
+ 	 			 	
+     Was heißt das: Jedes Dreieck hat eine Basis und eine Spitze, man kann also in jedem Dreieck durch die Spitze eine Parallele zur Basis ziehen u.s.w.? Hier ist die Allgemeinheit der Grammatik.
+
+
+		
+ 	 			 	
+     In irgend einem Sinn liegt die Allgemeinheit einer Regel erst in der Anwendung. Oder vielmehr, in ihrer Anwendbarkeit. In der Möglichkeit ihrer Anwendung, denn jede einzelne Anwendung ist nicht-allgemein.
+
+
+		
+ 	 			 	
+     Ja, wir sprechen vom Kreis, seinem Durchmesser, etc. etc. wie von einem Begriff, dessen Eigenschaften wir beschreiben, gleichgültig, welche Gegenstände unter diesen Begriff fallen. – Dabei ist aber ‘Kreis’ gar kein Prädikat im ursprünglichen Sinne. Und überhaupt ist die Geometrie der Ort, wo die Begriffe der verschiedensten Gebiete miteinander vermischt werden.
+7
+
+
+
+		
+ 	 			 	
+     Die Allgemeinheit der Geometrie scheint immer wieder die zu sein, daß von einem Begriff die Rede ist und wir uns nicht um die Gegenstände kümmern || man sich nicht um die Gegenstände kümmert, die unter diesen Begriff fallen. Aber so kann es natürlich nicht sein, sondern wir folgen hier – wie so oft – einer falschen Analogie.
+
+
+		
+ 	 			 	
+     Welcher Art ist eine allgemeine Anweisung zu einer gewissen euklidischen Konstruktion? Sie hat ihre Wirkung, erfüllt ihren Zweck, erst wenn man sie anwendet, und dann stellt sie sich einem gleichsam zur Verfügung, indem die Variablen in ihr nun Werte annehmen.
+
+
+		
+ 	 			 	
+     Man könnte so fragen: Ist etwa ein allgemeiner geometrischer Satz unendlich komplex, da unendlich viele spezielle Anwendungen || Fälle aus ihm folgen? – Nun, er ist es offenbar nicht.
+     Ich möchte immer sagen: die Allgemeinheit der Geometrie ist nur dadurch möglich, daß sie nicht aus Sätzen besteht.
+
+
+		
+ 	 			 	
+     Man kann ein Brotmesser nicht allgemein nennen, weil sich kleine und große Stücke damit schneiden lassen.
+
+
+		
+ 	 			 	
+     “Wenn du eine Strecke halbieren willst, so nimm sie in den Zirkel, etc.” Und nun zeichnet man eine Figur, in der dies alles an einer Strecke wirklich vollzogen ist und nimmt an, daß der Andere es nun danach an jeder beliebigen Strecke wird vollziehen können. Die Regel setzt natürlich die unendliche Möglichkeit des Raumes voraus, aber nicht “eine unendliche Anzahl” von Möglichkeiten.
+
+
+		
+ 	 			 	
+     Stellen wir uns einen Menschen vor, der so eine allgemeine Vorschrift
+8
+benützt. Er schaut auf die Vorschrift, dann auf sein Papier: Ich soll die Strecke in den Zirkel nehmen, – jetzt einen Kreis schlagen, – etc., etc. Aber in der Vorschrift steht ja garnichts von dieser Strecke. Aber so faßt der sie auf, der sie anwendet.
+
+
+		
+ 	 			 	
+     Der Vorschrift zur Halbierung entspricht eine Vorrichtung zur Halbierung und in dieser wäre ein Teil etwa ein verstellbarer Schlitten der sich der zu teilenden Strecke anpassen würde. Hier hätten wir das Analogon zur Allgemeinheit des Brotmessers.
+
+
+		
+ 	 			 	
+     Kann man etwa die Zeichnung  als eine Stellung eines beweglichen Mechanismus auffassen, der sozusagen die eigentliche Beweiskonstruktion wäre? (Man denkt es ist etwa in A eine Kurbel und AB und AC als elastische Schnüre.)
+     (Kann man von einem dehnbaren Beweis reden?)
+
+
+		
+ 	 			 	
+     Könnte man sagen: die Figur kann durch bestimmte Arten von Zerrspiegeln betrachtet werden und behält, durch sie gesehen, ihre beweisende Kraft. Sie wird von vorn herein so verstanden, daß sie durch alle diese Zerrspiegel betrachtet werden kann. Nur das allen diesen Bildern Gemeinsame, welches sie verkörpert, ist das eigentliche Symbol.
+
+
+		
+ 	 			 	
+     Man könnte nun freilich – fälschlich – die Figur als den Begriff und ihre verschiedenen Bilder als die unter ihn fallenden Gegenstände auffassen.
+
+
+		
+ 	 			 	
+     Der Beweis kann nichts prophezeien. D.h. er kann nichts Wirkliches prophezeien.
+
+
+		
+ 	 			 	
+     (Wir erkennen oft im verzerrtesten Schatten die Figur, die ihn wirft.)
+9
+
+
+
+		
+ 	 			 	
+     Die Figur ist ein Zeichen, und nicht das Bezeichnete oder ein ungenaues Bild des Bezeichneten.
+
+
+		
+ 	 			 	
+     (Es ist schwer, in der Philosophie nicht zu übertreiben.)
+
+
+		
+ 	 			 	
+     Wir könnten sehr wohl die Kardinalzahlen kennen, aber nicht die Null und hätten kein Mittel sie zu finden; ihr entspräche keine Lücke in unserem System, sondern wir hätten ein anderes System.
+
+
+		
+ 	 			 	
+     Worin besteht die Allgemeinheit eines geometrischen Beweises? Die Allgemeine Wirkung einer Figur? die in den Raum ausstrahlt. Dies Sehen, daß es garnicht die spezielle Figur ist, auf die es ankommt.
+
+
+		
+ 	 			 	
+     Man könnte glauben, daß sich die Allgemeingültigkeit der Figur durch Sätze rechtfertigen läßt, wie: Jedes solche Dreieck muß doch gleiche Seiten haben, weil es die Radien in einem Kreis sind und darum müssen bei jedem diese Winkel gleich sein etc., etc. Aber das ist wirklich keine Rechtfertigung. Denn was bedeuten hier Worte wie “jedes”, etc.? Wir haben es hier nur scheinbar mit logischen Schlüssen zu tun.
+     (Dann folgt immer wieder der Gedanke – den ich freilich nie für eine Lösung, sondern immer nur für einen Schein gehalten habe – daß der Beweis da garnicht von einem Zentriwinkel, einem Kreis, etc. handelt, sondern von Kreisförmigkeit, dem Begriff Zentriwinkel, etc.. Freilich ist auch an diesem Schein etwas Wahres.)
+
+
+		
+ 	 			 	
+     (Ich würde sagen, die Alchimisten haben nicht die Goldmacherkunst gesucht.)
+
+
+10
+		
+ 	 			 	
+     (Die fragliche Allgemeinheit tritt, natürlich, schon in die Definition des Kreises als Ort aller Punkte etc. ein.)
+
+
+		
+ 	 			 	
+     Es muß sich da natürlich um die Definition einer Variablen handeln, für die ein gewisses Gebiet von Werten bestimmt wird, aber freilich nicht als Klasse von Werten. – Wenn ich also die vermeintliche Schlußkette mit dem Satz anfinge “alle Radien eines Kreises sind gleich lang”, so wäre das schon falsch, d.h. ein unsinniger Anfang.
+     Wenn ich den Kreis etwa durch die Gleichung r = konstant definiere, so muß die unendliche Möglichkeit der r nach der Lage des Radius natürlich in der Bedeutung dieser Definition beschlossen liegen; aber nicht in Form einer Klasse möglicher Werte, sondern, wenn es sich um eine zahlenmäßige Geometrie handelt, durch das Gesetz der Bildung rationaler Zahlen, und, soweit es sich um eine Gesichtsgeometrie handelt, durch die jedem Radius anhaftende unendliche sichtbare Möglichkeit.
+
+
+		
+ 	 			 	
+     Ich sagte früher einmal, man könnte sich eine Euklidische Demonstration auch an einer bewegten Figur ausgeführt denken. Es ist aber nicht wesentlich, daß sie bewegt, sondern daß sie beweglich ist. (d.h. variabel).
+     D.h. ich muß in ihr den Repräsentanten der unendlichen räumlichen Möglichkeit sehen.
+
+
+		
+ 	 			 	
+     Wenn ich einen mathematischen Satz und einen Beweis für ihn kenne, und später lerne ich noch einen weiteren Beweis dieses Satzes kennen, so habe ich damit ein neues System kennen gelernt.
+
+
+		
+ 	 			 	
+     Angenommen, jemand untersuchte gerade Zahlen auf das Stimmen des Goldbach'schen Satzes hin. Er würde nun die Vermutung aussprechen – und die
+11
+läßt sich aussprechen – daß, wenn er mit dieser Untersuchung fortfährt, er solange er lebt keinen widersprechenden Fall antreffen werde. Angenommen, es werde nun ein Beweis des Satzes gefunden, – beweist der dann auch die Vermutung des Mannes? Wie ist das möglich?
+
+
+		
+ 	 			 	
+     Kann man antworten: Alles, was der Beweis des Goldbach'schen Satzes prophezeien wird, ist, daß dies Resultat richtig sein wird, nicht, daß es herauskommen || sich ergeben wird. (Aber das erste ‘wird’ ist hier unsinnig, denn die Verben in der Mathematik haben keine Zukunft.)
+
+
+		
+ 	 			 	
+     Es sagt mir jemand: “ich habe Ausdrücke von der Form (a + b) + c + || und a + (b + c) ausgerechnet und gefunden, daß sie dasselbe ergeben¤” und ich antworte: “das wirst du immer finden, wenn du nämlich richtig rechnest.” Dieser Nachsatz aber nimmt der Antwort jeden Charakter einer Vorhersage.
+
+
+		
+ 	 			 	
+     Kann jemand glauben, daß 25 × 25 = 625 ist? Was heißt es, das zu glauben¤?
+
+
+		
+ 	 			 	
+     Könnte man sagen, daß die arithmetischen oder geometrischen Probleme immer so ausschauen, oder fälschlich so aufgefaßt werden können, als bezögen sie sich auf Gegenstände im Raum, während sie sich auf den Raum selbst beziehen?
+
+
+		
+ 	 			 	
+     So glaubt man, das Problem der 3-Teilung des Winkels beziehe sich auf die tatsächliche 3-Teilung eines bestimmten Winkels, oder gar aller Winkel. Während es kein Problem ist, und das, was man als Lösung des Problems anspricht, eine Demonstration des Raumes ist.
+
+
+12
+		
+ 	 			 	
+     Ist es nicht so: Glauben, daß der Goldbach'sche Satz immer ad inf. – stimmen wird, ist unsinnig; glauben, daß er 10,000 mal stimmen wird ist auf der selben Stufe wie, glauben, daß er einmal stimmen wird, und das ist auf derselben Stufe, wie zu glauben, daß 25 × 25 625 ergeben wird.
+
+
+		
+ 	 			 	
+     So seltsam es klingt, so ist es möglich, die Primzahl bis – sagen wir – zur 7 zu kennen und daher ein endliches System von Primzahlen zu besitzen. Das was wir die Erkenntnis nennen, daß es unendlich viele Primzahlen gibt, ist in Wahrheit die Erkenntnis eines neuen, und mit dem anderen gleichberechtigten, Systems.
+
+
+	
+	
+ 	 			 	
+     (Was ich auch immer schreibe, es sind Fragmente, aber der Verstehende wird daraus ein geschlossenes Weltbild entnehmen || ersehen.)
+
+
+		
+ 	 			 	
+     Glauben, daß 25 × 25 = 625 ist, kann man nur insofern, als man auch glauben kann, daß 25 × 25 = 620 ist. Und es ist natürlich unmöglich, sich von diesem Sachverhalt – oder von jenem – ein Bild zu machen.
+
+
+		
+ 	 			 	
+     Wenn wilde Völker ein Zahlensystem haben, in dem auf 5 ein Ausdruck analog unserem “viele” folgt und sie beim Angeben einer Zahl zuerst auf Finger einer Hand, dann auf ihre Haare zeigen, so haben diese Leute ein ebenso komplettes Zahlensystem wie wir.
+
+
+		
+ 	 			 	
+     Zu fragen, ob es denkbar wäre, daß andere Leute einen Raum hätten, der mit den Wänden dieses Zimmers aufhört, ist darum Unsinn, weil diese und jede solche Frage schon eine bestimmte räumliche Auffassung der Wand enthält.
+
+
+		
+ 	 			 	
+     Ich kann diese Fragen in keiner Sprache stellen, weil jede schon
+13
+eine bestimmte räumliche Auffassung voraussetzt.
+
+
+		
+ 	 			 	
+     Der Bereich einer Variablen muß durch die Grammatik bestimmt sein. D.h., er muß völlig durch die Zeichen und Zeichenregeln bestimmt sein. Mag man auch noch so viel über die Anwendung des Zeichensystems offen lassen, es muß in sich abgeschlossen sein.
+
+
+		
+ 	 			 	
+     Man könnte sagen, der Bereich der Allgemeinheit muß insofern bestimmt sein, als man in jedem Einzelfalle muß entscheiden können, ob er ein solcher Fall ist oder nicht. Aber das heißt nicht, daß ich dann durch eine besondere Disposition meiner Seele oder besondere äußere Umstände im Stande sein muß, die Entscheidung zu treffen, sondern das Vermögen von dem wir hier reden, ist eine logische Möglichkeit.
+     Es muß jetzt, wenn ich den allgemeinen Satz ausspreche, klar sein, was als besonderer Fall dieser Allgemeinheit zu gelten hat, der Raum der Allgemeinheit muß gesehen werden.
+
+
+		
+ 	 			 	
+     Die Allgemeinheit, die man meint, ist oft eine, die der Unbestimmtheit der Art der Schachfiguren entspricht. Wenn man die Regeln des Schachspiels angibt, so ist garnicht gesagt mit welcher Art von Figuren das Spiel ausgeführt wird und die allerverschiedensten Arten sind hier denkbar, von den hölzernen Figuren auf einem Brett zu den geschriebenen Zeichen auf dem Papier. Und es ist wichtig einzusehen, daß keine von beiden die Primären sind. Denn das Schachspiel hätte ebensogut gleich in den geschriebenen Zeichen erfunden werden können.
+
+
+		
+ 	 			 	
+     Welcher Art ist die Entdeckung, daß non-p & non-p = non-p, daß non-p ein Sonderfall von non-p & non-q ist? Gibt es nicht in demselben Sinne eine
+14
+Entdeckung, daß non-non-p = p, etc. ist? Ich finde einen “Zusammenhang” heraus.
+
+
+		
+ 	 			 	
+     Scheffers Entdeckung ist natürlich nicht die der Definition non-p & non-q = p ∣ q. Diese Definition hätte Russell sehr wohl haben können, ohne doch damit das Scheffer'sche System zu besitzen, und andererseits hätte Scheffer auch ohne diese Definition sein System begründen können. Sein System ist ganz in dem Zeichen “non-p & non-p” für “non-p” und “non-(non-p & non-q) & non-(non-p & non-q) ” für “p ⌵ q” enthalten und “p ∣ q” gestattet natürlich nur eine Abkürzung. Ja, man kann sagen, daß einer sehr wohl hätte das Zeichen “non-(non-p & non-q) & non-(non-p & non-q) ” für “p ⌵ q” kennen können, ohne das System p ∣ q . ∣ . p ∣ q in ihm zu erkennen. Ja, es scheint daher, so absurd es klingt, daß man die Definition p ∣ q . ∣ . p ∣ q = p ⌵ q kennen könnte, ohne darauf zu kommen, daß man in dem “|” und “.|.” die gleiche Operation vor sich hat.
+
+
+		
+ 	 			 	
+     Raum nenne ich das, dessen man beim Suchen gewiß sein kann.
+
+
+		
+ 	 			 	
+     Machen wir die Sache noch klarer durch die Annahme der beiden Frege'schen Urzeichen “non” und “ & ”, so bleibt hier die Entdeckung bestehen, wenn auch die Definitionen geschrieben werden non-p & non-p = non-p und non-(non-p & non-p) & non(non-q & non-q) = p & q . Hier hat sich an den Urzeichen scheinbar garnichts geändert.
+
+
+		
+ 	 			 	
+     Man könnte sich jemand vorstellen, dem diese Definitionen gezeigt
+15
+würden und der fragte “was ist denn damit gewonnen”; weil er das neue System in ihnen nicht sähe.
+     Man könnte sich auch denken, daß jemand die ganze Frege'sche oder Russell'sche Logik schon in diesem System hingeschrieben hätte und doch, wie Frege, “non” und “ & ” seine Urzeichen nennte, weil er das andere System in seinen Sätzen nicht sähe.
+
+
+		
+ 	 			 	
+     Käme dann einer und gäbe die Definition non- p & non- q = p ∣ q, so hätte er freilich nur eine an sich unwesentliche Abkürzung eingeführt, aber sie wäre der Ausdruck einer Entdeckung in dem Sinne, daß sie einen bestimmten neuen Aspekt betont. (Russell hat richtig darauf hingewiesen, daß die Bedeutung von Definitionen oft auf diesem Betonen beruht.)
+
+
+		
+ 	 			 	
+     (Beinahe wie die Namengebung Mrs. John Robinson ein bestimmtes Verhältnis von Mann und Frau betont.)
+
+
+		
+ 	 			 	
+     Es ist ein Unterschied, ob man auf die Dampfmaschine als die Maschine katexochen schaut (wie man es einmal getan hat), oder als eine Maschine – unter vielen andern. – Und man sieht ein anderes System, wenn man 12 Striche nur als das System III III III III betrachten kann (also kennt) oder dieses System als eine von den vielen möglichen sieht.
+
+
+		
+ 	 			 	
+     Die Mathematik “abrunden” kann man so wenig, wie man sagen kann ¤ “runden wir die vier primären Farben auf fünf oder zehn ab”, oder “runden wir die acht Töne einer Oktave auf zehn ab”.
+16
+
+
+
+		
+ 	 			 	
+     Ich gebrauche das Wort “Raum” als Möglichkeit der Bewegung.
+
+
+		
+ 	 			 	
+     Ich habe einmal in der Diskussion gesagt, zwei Zeichensysteme seien derselbe Raum, wenn sie ineinander übersetzbar seien. Aber wie ist es etwa mit zwei Systemen von Tautologien, wovon das eine in der Fregeschen Art mit “non” und “ & ”, das andere im System non-x & non-y hingeschrieben ist. Diese beiden sind freilich in einander übersetzbar, aber erst, wenn man in dem ersten das zweite sieht.
+     Man könnte das vielleicht auf die Lösung jeder algebraischen Aufgabe anwenden. Z.B. die Art und Weise der Lösung einer Gleichung x² + ax + b = 0 ist in ihr schon zu sehen – man könnte sich alle Transformationen in sie hineinprojiziert denken. – Aber das heißt, die Lösung ist in ihr zu sehen; – wenn man sie in ihr sieht, dann sieht man aber etwas anderes, als wenn man die Lösung nicht in ihr sieht.
+
+
+		
+ 	 			 	
+     Man könnte meine Meinung auch in den Worten ausdrücken: Man kann keine Verbindung von Teilen der Mathematik oder Logik herausfinden, die schon vorhanden war, ohne daß man es wußte. Sondern, kannte man die Verbindung noch nicht, so war sie nicht vorhanden. Und das System, in dem sie vorhanden ist, ist ein neues System.
+
+
+		
+ 	 			 	
+     Man könnte so sagen: Wenn ich etwas suche – ich meine, den Nordpol, oder ein Haus in London – so kann ich das, was ich suche vollständig beschreiben, ehe ich es gefunden habe (oder gefunden habe, daß es nicht da ist) und diese Beschreibung wird in jedem Fall logisch einwandfrei sein. Während ich im Fall des “Suchens” in der Mathematik
+17
+wo es nicht in einem System geschieht, das was ich suche, nicht beschreiben kann, oder nur scheinbar; denn, könnte ich es in allen Einzelheiten beschreiben, so hätte ich es eben schon, und ehe es vollständig beschrieben ist, kann ich nicht sicher sein, ob das was ich suche logisch einwandfrei ist, sich also überhaupt beschreiben läßt; d.h. diese unvollkommene Beschreibung läßt gerade das aus, was notwendig wäre, damit etwas gesucht werden könnte. Sie ist also nur eine Scheinbeschreibung des “Gesuchten”.
+     Irregeführt wird man hier leicht durch die Rechtmäßigkeit einer unvollkommenen Beschreibung im Falle des Suchens eines wirklichen Gegenstandes, und hier spielt wieder eine Unklarheit über die Begriffe ‘Beschreibung’ und ‘Gegenstand’ hinein. Wenn man sagt, ich gehe auf den Nordpol und erwarte mir dort eine Flagge zu finden, so hieße das in der Russell'schen Auffassung: ich erwarte mir Etwas (ein X) zu finden, das eine Flagge – etwa von dieser und dieser Farbe und Größe – ist. Und es scheint dann, als bezöge sich die Erwartung (das Suchen) auch hier nur auf eine Beschreibung || indirekte Kenntnis und nicht auf den Gegenstand selbst, den ich erst dann direkt || eigentlich kenne (knowledge by acquaintance), wenn ich ihn vor mir habe (während ich früher || vorher nur indirekt mit ihm bekannt bin). Aber das ist Unsinn. Was immer ich dort wahrnehmen kann – soweit es eine Bestätigung meiner Erwartung ist – kann ich auch schon vorher beschreiben. Und “beschreiben” heißt hier nicht, etwas darüber aussagen, sondern es aussprechen, d.h. || . D.h.: Was ich suche, muß ich vollständig beschreiben können.
+
+
+		
+ 	 			 	
+     Die Frage ist: Kann man sagen, daß die Mathematik heute gleichsam ausgezackt – oder ausgefranst – ist und daß man sie deshalb wird abrunden können. Ich glaube, man kann das erstere nicht sagen, ebensowenig wie man sagen kann, die Realität sei struppig, weil es 4 Primäre
+18
+Farben, 7 Töne in einer Oktav, 3 Dimensionen im Sehraum etc. gäbe.
+
+
+		
+ 	 			 	
+     Die Lösung der Gleichung x² + ax + b = 0 wird entdeckt, indem man einen bestimmten Aspekt dieser Gleichung findet.
+
+
+		
+ 	 			 	
+     Wenn man die Lösbarkeit beweist, so muß in diesem Beweis irgendwie der Begriff ‘Lösung’ vorhanden sein. (In dem Mechanismus des Beweises muß irgend etwas diesem Begriff entsprechen.) Aber dieser Begriff ist nicht durch eine äußere Beschreibung zu repräsentieren, sondern nur wirklich darzustellen.
+
+
+		
+ 	 			 	
+     Wo der neue Zusammenhang gefunden wurde, dort sah man früher keine Lücke.
+     Und wo man doch eine zu sehen glaubte, war man im Irrtum.
+
+
+		
+ 	 			 	
+     (Ich kämpfe immer wieder – ob erfolgreich, das weiß ich nicht – gegen die Tendenz in meinem eigenen Geiste an, in der Philosophie Regeln aufzustellen, (zu konstruieren), Annahmen (Hypothesen) zu machen, statt nur zu sehen, was da﹖ ist.)
+
+
+		
+ 	 			 	
+     (Es ist äußerst anstrengend, den Blick anzuspannen und die Physiognomie eines Gedankens in die Ferne, durch einen Nebel, zu sehen.)
+
+
+		
+ 	 			 	
+     Philosophie könnte man auch das nennen, was vor allen neuen Entdeckungen und Erfindungen möglich || da ist.
+
+
+		
+ 	 			 	
+     Das muß sich auch darauf beziehen, daß ich keine Erklärungen der Variablen “Satz” geben kann. Es ist klar, daß dieser logische Begriff,
+19
+diese Variable, von der Ordnung des Begriffs “Realität” oder “Welt” sein muß.
+
+
+		
+ 	 			 	
+     Die Allgemeinheit der Variablen in der Logik ist die Allgemeinheit der Demonstration. Sie besteht darin, ¤ daß die Tatsache, daß p ⊃ p eine Tautologie ist, an einem beliebigen speziellen || speziellen Fall allgemeingültig demonstriert wird. D.h., aus der Demonstration des besonderen Falles ersehe ich tatsächlich, (wie immer sie gemeint war) alles, was ich in der Logik brauche. D.h., die Demonstration erhält nicht dadurch ihre Allgemeinheit, daß sie so gemeint ist, sondern indem sie tatsächlich allgemein (d.h. allgemein gültig) demonstriert. D.h., die Allgemeinheit besteht hier in der Allgemeinheit der Anwendung. Und diese ist da, sozusagen ob man es will oder nicht, einfach durch die innere Relation des Einzelfalles zum Paradigma. – Man könnte dann sagen, eine Demonstration demonstriert so allgemein, als sie anwendbar ist. D.h., sie demonstriert allgemein durch den Raum in dem sie ist.
+
+
+		
+ 	 			 	
+     Es ist klar, daß die Entdeckung des Scheffer'schen Systems in non-p & non-p = non-p und non (non-p & non-p) & non (non-q & non-q) = p & q der Entdeckung entspricht, daß x² + ax +
+a²
+4
+ein Spezialfall von a² + 2ab + b² ist.
+
+
+		
+ 	 			 	
+     Daß etwas so angesehen werden kann, sieht man erst, wenn es so angesehen ist.
+     Daß ein Aspekt möglich ist, sieht man erst, wenn er da ist.
+
+
+		
+ 	 			 	
+     Man könnte eine Trigonometrie aufbauen nach dem Modell der elementaren Trigonometrie, aber unabhängig von der Vorstellung der Dreiecke, – die aber nichts von den trigonometrischen Reihen wüßte, sondern nur die
+20
+Multiplizität der elementaren hätte.
+
+
+		
+ 	 			 	
+     Die Dirichlet'sche Auffassung der Funktion ist nur dort möglich, wo sie nicht ein unendliches Gesetz durch eine Liste ausdrücken will, denn eine unendliche Liste gibt es nicht.
+
+
+		
+ 	 			 	
+     Wenn die menschliche Kriegsführung dem Schachspiel ähnlicher wäre, als sie tatsächlich ist, so könnte man versuchen, eine Schlacht auf dem Schachbrett darzustellen und mathematische Probleme, die die Möglichkeiten der Schlacht betreffen, auf dem Schachbrett zu lösen. Freilich nur mathematische Probleme, denn, Experimente über den Vorgang der Schlacht könnte man mit den Schachfiguren nicht vornehmen, da sie sich anders verhalten als || wie die Menschen. Wenn also das Problem gelöst würde, etwa von einer bestimmten Position ausgehend den Anderen in N Zügen matt zu setzen, so wäre das die Lösung eines mathematischen Problems des Krieges. || der Strategie.
+
+
+		
+ 	 			 	
+     Es ist nichts Allgemeines in der Demonstration, sie ist durchaus besonders; aber ihre Anwendungsmöglichkeit ist allgemein. || ihre Anwendungsmöglichkeit ist allgemein.
+
+
+		
+ 	 			 	
+     Die Anwendungsmöglichkeit strahlt durch den Raum und trifft den Körper, den man in diesen Raum bringt. Man könnte die Lichtstrahlen allgemein nennen, weil sie jeden beliebigen Körper beleuchten, der sich ihnen in den Weg stellt. Aber die Lichtquelle allgemein zu nennen, wäre absurd.
+
+
+		
+ 	 			 	
+     Wenn der Grund, etwas zu glauben, nicht eine Verifikation sondern
+21
+eine äußere Beziehung wäre, so müßte man weiter fragen “und warum ist das ein Grund gerade für diesen Glauben”. Und so ginge es weiter. (Z.B. “warum nehmen wir das Gedächtnis als Grund für den Glauben, daß etwas in der Vergangenheit geschehen ist”.)
+
+
+		
+ 	 			 	
+     Die Allgemeinheit der Interpretation einer || der Demonstration besteht darin – und nur darin – daß wir uns für die internen Verhältnisse der Demonstration interessieren und nicht für den physikalischen Vorgang (das Experiment) in ihr.
+
+
+		
+ 	 			 	
+     Die Zahlenart, die man verwendet, wo man sinnvoll unendlich || endlos weiterzählen kann und die man verwendet, wo das nicht möglich ist, sind verschieden.
+
+
+		
+ 	 			 	
+     “Das sind 3 Kreise” kann ich nur sagen, wenn das “das” eine Bedeutung hat, die die 3 Kreise noch nicht präjudiziert.
+
+
+		
+ 	 			 	
+     Die Allgemeinheit einer Demonstration ist der Bereich ihrer Wirkung.
+
+
+		
+ 	 			 	
+     Eine Demonstration demonstriert alles, was sie demonstriert. Ihr Bereich hängt nicht davon ab, wie sie gemeint ist, sondern nur von ihr. Wie ein Scheinwerfer sein Licht so weit schickt, als er es schickt, wieweit immer wir es zu schicken meinen.
+     Das ist der Unterschied zwischen der Demonstration und einem Satz. In der Demonstration wird ja nichts gesagt, sondern etwas gezeigt. Und was der Bereich ihrer Anwendung ist, hängt also von ihr und ihrem Raum ab, aber nicht von uns.
+     Man könnte nämlich sagen: die Demonstration ist doch garnicht
+22
+allgemein, sondern durchaus besonders. Aber sie demonstriert ja eben etwas und das gilt so allgemein, als es gilt. (Das ist ja das Gute, daß, wo immer auch Anspielungen und Andeutungen etwas gelten mögen, in der Demonstration nur das zählt, was da ist. Sie ist in der Beziehung wie ein Experiment.)
+     Es gibt z.B. Euklid die Anweisung zur Halbierung einer Strecke, indem er die Methode (an einem Beispiel) demonstriert. Nun, diese Anweisung gilt, soweit man sie anwenden kann.
+     Und könnte man sie in einem Fall nicht anwenden, so nützte es ihr nichts, daß sie für diesen Fall gemeint war.
+
+
+		
+ 	 			 	
+     Die Allgemeinheit der Demonstration ist nur der Raum um diese Demonstration. Die Anwendung auf einen besonderen Fall ist ein neuer Körper in diesem Raum.
+
+
+		
+ 	 			 	
+     Es ist ein Unterschied, ob ein System auf ersten Prinzipien ruht, oder ob es bloß von ihnen ausgehend entwickelt wird. Es ist ein Unterschied, ob es, wie ein Haus, auf seinen untersten Mauern ruht oder ob es, wie etwa ein Himmelskörper, im Raum frei schwebt und wir bloß unten zu bauen angefangen haben, obwohl wir es auch irgendwo anders hätten tun können.
+
+
+		
+ 	 			 	
+     Die Logik und die Mathematik ruht nicht auf Axiomen; so wenig eine Gruppe auf den sie definierenden Elementen und Operationen beruht. Hierin liegt der Fehler, das Einleuchten, die Evidenz, der Grundgesetze als Kriterium der Richtigkeit in der Logik zu betrachten.
+     Ein Fundament, das auf nichts steht, ist ein schlechtes Fundament.
+23
+
+
+
+		
+ 	 			 	
+     Es hat Sinn, von zwei Punkten zu sagen, daß sie durch eine Gerade verbunden seien. Aber heißt das “es hat Sinn, von zwei Dingen, die Punkte sind, zu sagen etc.”? –
+
+
+		
+ 	 			 	
+     Wie weiß ich dann, daß ein Zeichen “A” einen Punkt bezeichnet? Etwa indem ich sehe, daß “A” in bestimmter Weise mit anderen Zeichen verknüpft werden darf. Aber wie weiß ich, daß diese anderen Zeichen Gerade bezeichnen etc.? Dadurch, daß sie mit “A” verknüpft werden dürfen? Sie können doch nicht gegenseitig ihre Bedeutung bestimmen. Das grammatische System (Spiel) ist eben autonom und seine Anwendung ist in ihm nicht gegeben. || enthalten.
+
+
+		
+ 	 			 	
+     Die Geometrie anders verstanden, als reine Grammatik, muß angewendet sein und dann muß es wirkliche Punkte und Geraden etc. geben; der Satz, daß eine Gerade zwei Punkte verbindet, muß dann eben einen wirklichen Sinn haben.
+
+
+		
+ 	 			 	
+     Und es heißt der geometrische Satz dann auch nicht “alle Punktpaare sind durch eine Gerade verbunden,” sondern “können durch eine Gerade verbunden werden.” Und hier braucht man dann das Wort “je zwei Punkte || Punkte” und nicht “alle Punktpaare,” und deutet damit den Unterschied von einer anderen Art der Allgemeinheit an.
+
+
+		
+ 	 			 	
+     Die Grammatik kann ihre Regeln nicht auf gut Glück allgemein
+24
+aussprechen (d.h. sie offenlassen).
+
+
+		
+ 	 			 	
+     Denken wir uns ein Damespiel, in dem es erlaubt wäre, ein beliebig großes Brett zu verwenden, ich meine ein Brett mit einer beliebig großen Anzahl von Feldern (also 64, 81, 100, etc.). D.h. natürlich nicht “es ist erlaubt ein Brett mit unendlich vielen Feldern zu verwenden”. Wir könnten dieses Spiel nicht gut ein unendliches nennen.
+
+
+		
+ 	 			 	
+     Die Möglichkeit entspricht immer einer Erlaubnis in den grammatischen Spielregeln.
+     Dem, was man unendliche Möglichkeit nennt, entspricht etwas, was man eine unendliche Erlaubnis nennen könnte. Und das ist natürlich nicht die Erlaubnis, etwas Unendliches zu tun.
+
+
+		
+ 	 			 	
+     Die unendliche Möglichkeit Namen zu bilden, liegt nicht nur in der unendlichen Möglichkeit von Zeichen der Form x', x'', x''' etc., sondern z.B. auch in der unendlichen Möglichkeit des Raumes, die Figur des Zeichens abzuändern.
+
+
+		
+ 	 			 	
+     Verschiedene Arten von Schachfiguren wie Läufer, Rössel, etc. entsprechen verschiedenen Wortarten.
+
+
+		
+ 	 			 	
+
+Ich komme hier auf jene Methode der Zeichenerklärung, über die sich Frege so lustig gemacht hat. Man könnte nämlich die Wörter “Rössel”, “Läufer”, etc. dadurch erklären, daß man die Regeln angibt,
+25
+die von diesen Figuren handeln.
+
+
+		
+ 	 			 	
+     Genau dasselbe gilt in jeder Geometrie von den Ausdrücken “Punkt” und “Gerade” etc. Was ein Punkte ist und was eine Gerade, sieht man nur daran, welche Plätze das eine und das andere in dem System von Regeln einnimmt. Denken wir uns etwa ein System von Buchstaben von solcher Art, daß alle erlaubten Zeichen Gruppen von 3 Buchstaben sind, und zwar derart, daß ein Buchstabe, der an einer Außenstelle stehen darf, nicht, in der Mittelstelle stehen darf und umgekehrt. Diese Regel würde zwischen zwei “Wortarten” unterscheiden und wir könnten das dadurch zum Ausdruck bringen, daß wir für die Außenglieder große, für die Innenglieder kleine Buchstaben verwenden. – Andrerseits aber hat die Unterscheidung zweier Wortarten keinerlei Sinn, wenn sie nicht auf die obige Art syntaktisch unterschieden sind, d.h. wenn sie nicht auch ohne die verschiedene Art der Bezeichnung, bloß durch die von ihnen geltenden Regeln, als verschieden zu erkennen wären. (Zwei Rössel könnten einander in keiner Hinsicht ähnlich sehen und wären, wenn man die für sie geltenden Spielregeln kennt, doch als solche gekennzeichnet.) Damit hängt es unmittelbar zusammen, daß das Einführen neuer Gattungsnamen in die Philosophie der Logik uns um kein Haar weiterbringt, solange nicht die syntaktischen Regeln gegeben sind, die den Unterschied machen.
+
+
+		
+ 	 			 	
+     Wenn ich eine Klasse wirklicher Dinge gezählt habe und nun die 1 zu 1-Zuordnung einer anderen Klasse zu ihr sehe, kann ich allerdings schließen, daß auch die andere die zuerst gezählte Anzahl haben wird; aber dies ist eine Hypothese, wie das Resultat der ersten Zählung.
+26
+
+
+
+		
+ 	 			 	
+     Ich kann in der Zuordnung die Zahlengleichheit sehen, aber sie nicht aus ihr schließen.
+
+
+		
+ 	 			 	
+     Es gibt nicht zwei Wortarten, die ich grammatisch (ganz) gleich behandeln kann, die aber doch zwei Wortarten sind. Sondern die Regeln, die von ihnen handeln, machen die Wortarten aus: Dieselben Regeln, dieselbe Wortart. Das hängt damit zusammen, daß, wenn sich ein Zeichen ganz so benimmt wie ein anderes, die beiden dasselbe Zeichen sind.
+
+
+		
+ 	 			 	
+     Die Dirichlet'sche Erklärung der Funktion ist der erste Schritt in der Mengenlehre. Aber die Wahrheit ist eben, daß eine Funktion, die man durch eine Tabelle definiert und eine, die man durch einen unendlichen Prozeß definiert, wesentlich verschiedene Dinge gibt, denn eine unendliche Tabelle, wie eine unendliche Liste, ist ein Unding.
+
+
+		
+ 	 			 	
+     “Ist es denkbar, daß 2 Dinge alle ihre Eigenschaften miteinander gemein haben?” Wenn es nicht denkbar ist, so ist auch das Gegenteil nicht denkbar.
+
+
+		
+ 	 			 	
+      ((1) + 1)
+I
+≝
+2, ((((1) + 1) + 1) + 1)
+II
+≝
+4
+a + (b + 1)
+III
+≝
+(a + b) + 1
+2 + 2
+I
+≝
+((1) + 1) + ((1) + 1)
+III
+≝
+(((1) + 1) + 1) + 1
+II
+≝
+4 :. 2 + 2 = 4
+Dasjenige, was 2 + 2 = 4 bedeutungsvoll macht, das also, was
+27
+macht, daß 2 + 2 = 4 richtig und 2 + 2 = 5 falsch ist und nicht zwei gleichbedeutende || gleichberechtigte Festsetzungen, ist die Beweisbarkeit von 2 + 2 = 4, und nur sie. Daß also ((1) + 1) + ((1) + 1) = (((1) + 1) + 1) + 1 zu dem allgemeinen System a + (b + 1) = (a + b) + 1 gehört.
+
+
+		
+ 	 			 	
+     Ohne diese Beweisbarkeit wäre 2 + 2 = 4 eine willkürliche Zeichenregel und von richtig oder falsch bei ihr nicht die Rede. Die Demonstrabilität macht die Gleichung zu etwas, was sich mit einem Satz vergleichen läßt.
+
+
+		
+ 	 			 	
+     “a + (b + 1) = (a + b) + 1” eine Definition zu nennen, ist eigentlich schon ein Fehler, denn es ist eine Zeichenregel ganz anderer Art als z.B. (1) + 1 = 2.
+
+
+		
+ 	 			 	
+     Man könnte nun fragen: Welche Bedeutung hat 2 + 2 = 4? Ist es nicht eine Zeichenregel? Wenn ja, so ist es willkürlich. Die Antwort ist, daß die Bedeutung von 2 + 2 = 4 nicht in ihm selbst, sondern in seiner Beweisbarkeit, das heißt in seiner Beziehung zu anderen Zeichenregeln liegt, also seiner || der Zugehörigkeit zu einem System. D.h. also, daß jener Beweis (ebenso) interne Beziehungen zwischen 2 und 4 aufzeigt, wie der Beweis, daß p ⊃ q & p . ⊃ . q eine Tautologie ist, interne Beziehungen zwischen p ⊃ q ∙ p und q zeigt.
+
+
+		
+ 	 			 	
+     Wenn “a + (b + 1) = (a + b) + 1” die allgemeine Regel ist, dann kann ich 2 + 2 durch 4 ersetzen; das liegt in der logischen Struktur der Welt.
+
+
+28
+		
+ 	 			 	
+     Das Wort “Zahl” ist || bedeutet nichts, wenn dahinter nicht die variable Zahlform (ausgedrückt in grammatischen Regeln) steht.
+
+
+		
+ 	 			 	
+     Eine Gleichung gewinnt erst in einem Kalkül mathematische Bedeutung.
+
+
+		
+ 	 			 	
+     So ist “
+lim
+n → ∞
+1
+n
+= 0” eine willkürliche Ersetzungsregel, solange der Ausdruck “lim etc.” nicht in einem Limes-Kalkül steht.
+     Die Verbindung dieses Kalküls mit den induktiven Eigenschaften von
+1
+n
+, z.B., besteht darin, daß der Kalkül die gleichen Übergänge von Gleichung zu Gleichung erlaubt, die von Induktionsprozeß zu Induktionsprozeß möglich sind.
+
+
+		
+ 	 			 	
+0,000
+0,100
+0,010
+0,110
+0,001
+0,101
+0,011
+0,111
+etc.
+Ich verstehe die Regel dieser Bildung; aber wie kann ich sie in exakte Form fassen. Da ich sie verstehe, so muß sie sich auch in exakte Form fassen lassen.
+     Dazu brauche ich die allgemeine Form eines Gliedes und diese Form muß mit der des ersten solchen Gliedes so zugeordnet werden, daß man sieht, wie das erste Glied ein Fall des allgemeinen Gliedes ist. Und es muß auch gezeigt werden, wie der Nachfolger des allgemeinen Gliedes ein allgemeines Glied ist.  Aber zu diesem Zeichen muß eine Beschreibung oder Gebrauchsanweisung kommen und die Schwierigkeit ist gerade, die in exakter, d.h. wohl, unzweideutiger Form zu geben.
+
+
+29
+		
+ 	 			 	
+     Würde ich alle jene Induktionsregeln nicht verstehen, so könnte ich nicht mit Dezimalen rechnen. Aber sie exakt auszusprechen ist sehr schwer. – Oder es setzt eine komplizierte Technik voraus. Welcher Art diese Technik sein soll, um strengen Anforderungen zu genügen, und ob es hier überhaupt ein “unstreng” gibt, weiß ich nicht. Ich vermute beinahe, daß, wenn man nur die interne Relation der Glieder der Formenreihe sieht, alles in Ordnung ist, und daß es gar keine Methode gibt, einen sozusagen zu zwingen, die interne Relation zu sehen. Vielleicht ist es auch so, daß man sie zuerst in bestimmten Fällen sehen muß und auf dieses Sehen dann die Ausdrücke für andere Formenreihen aufbauen kann.
+
+
+		
+ 	 			 	
+     Der Begriff “irrationale Zahl” ist ein gefährlicher Scheinbegriff.
+
+
+		
+ 	 			 	
+     Ein Schnitt ist ein Prinzip der Teilung in größer und kleiner.
+
+
+		
+ 	 			 	
+     Und zwar braucht die irrationale Zahl eine andere Definition von “größer” und “kleiner” als die rationale. Die ganzen Kunstgriffe bei der Einführung der irrationalen Zahlen sollen dieses Neue verhüllen. D.h. die Einführung der √2 ist die Einführung einer neuen mathematischen Welt und es soll immer so ausschauen, als wäre sie in der früheren doch schon irgendwie enthalten gewesen.
+
+
+		
+ 	 			 	
+     “non-p” schließt einfach p aus. Was dann statt p der Fall ist, folgt aus dem Wesen des Ausgeschlossenen.
+
+
+30
+		
+ 	 			 	
+     Zur Frage nach der Existenz der Sinnesdaten. Man sagt, wenn etwas rot scheint, so muß etwas rot gewesen sein; wenn etwas kurze Zeit zu dauern schien || schien, so muß etwas kurze Zeit gedauert haben; etc. Man könnte nämlich fragen: Wenn etwas rot schien, woher wissen wir denn, daß es gerade rot schien. Handelt es sich da um eine erfahrungsmäßige Zuordnung dieses Scheins mit || und dieser Wirklichkeit? Wenn etwas “die Eigenschaft φ zu haben schien”, woher wissen wir, daß es diese Eigenschaft zu haben schien ‒ ‒ ‒. Was für ein Zusammenhang besteht zwischen ‘es scheint so’ und ‘es ist so’.
+     Vor allem kann der Schein recht haben, oder unrecht. – Er ist auch in einem Sinne erfahrungsgemäß mit der Wirklichkeit verbunden. Man sagt “das scheint Typhus zu sein” und das heißt, diese Symptome sind erfahrungsgemäß mit jenen Erscheinungen verbunden. Wenn ich sage “das scheint rot zu sein” und dann “ja, es ist wirklich rot”, so habe ich für die zweite Entscheidung einen Test angewandt, der unabhängig von der ersten Erscheinung war.
+     Wenn etwas rot schien, so war dieser Schein. Und wenn in diesem Schein auch nichts in demselben Sinne rot ist, in dem jenes andere rot ist, wenn der Schein recht hätte, so gab es doch in dem Schein etwas dem Rot-Sein Entsprechendes. – Wenn es scheint, als wäre ein physikalischer Gegenstand braun und rund, so muß darum natürlich nicht etwas im physikalischen Sinne braun und rund sein, aber es ist etwas Entsprechendes der Fall. In wiefern kann man aber von etwas Entsprechendem reden? ‒ ‒ ‒
+
+
+		
+ 	 			 	
+     “Satz” ist so allgemein wie z.B. auch “Ereignis”. Wie kann man “ein Ereignis” von dem abgrenzen, was kein Ereignis ist?
+     Ebenso allgemein ist aber auch “Experiment”, das vielleicht auf den ersten Blick spezieller zu sein scheint.
+
+
+31
+		
+ 	 			 	
+     Man kann natürlich auch nicht sagen, ‘Satz’ sei dasjenige, wovon man ‘wahr’ und ‘falsch’ aussagen könne, denn das würde nur dann etwas bestimmen, wenn diese Worte in einer bestimmten Weise gemeint sind, das aber können sie nur im Zusammenhang sein. Und eben im Zusammenhang mit einem Satz. Alles, was man machen kann, ist hier, wie in allen diesen Fällen, das grammatische Spiel bestimmen¤, seine Regeln angeben und es dabei bewenden lassen.
+     Hier handelt es sich um die Regeln für “ ⌵ ”, “non”, etc.
+
+
+		
+ 	 			 	
+     “Da geschah ein Ereignis …”: d.h. || das heißt nicht “ein Ereignis” im Gegensatz zu etwas Anderem.
+
+
+		
+ 	 			 	
+     In der Mengenlehre müßte man das, was Kalkül ist, trennen von dem, was Lehre sein will (und natürlich nicht sein kann). Man muß also die Spielregeln von unwesentlichen Aussagen über die Schachfiguren trennen.
+
+
+		
+ 	 			 	
+     Es ist immer mit Recht höchst verdächtig, wenn Beweise in der Mathematik allgemeiner geführt werden, als es der bekannten Anwendung des Beweises entspricht. Es liegt hier immer der Fehler vor, der in der Mathematik allgemeine Begriffe und besondere Fälle sieht. In der Mengenlehre treffen wir auf Schritt und Tritt diese verdächtige Allgemeinheit.
+     Man möchte immer sagen: “Kommen wir zur Sache!”
+     Jene allgemeinen Betrachtungen haben stets nur Sinn, wenn man einen bestimmten Anwendungsbereich im Auge hat.
+     Es gibt eben in der Mathematik keine Allgemeinheit, deren Anwendung auf spezielle Fälle sich noch nicht voraussehen ließe.
+     Man empfindet darum die allgemeinen Betrachtungen der Mengenlehre
+32
+(wenn man sie nicht als Kalkül ansieht) immer als Geschwätz und ist ganz erstaunt, wenn einem eine Anwendung dieser Betrachtungen gezeigt wird. Man empfindet, es geht da etwas nicht ganz mit rechten Dinge zu.
+
+
+		
+ 	 			 	
+     Es mag nach dem Vielen, was ich schon darüber gesagt habe, trivial klingen, wenn ich jetzt sage, daß der Fehler in der mengentheoretischen Betrachtungsweise immer wieder darin liegt, Gesetze und Aufzählungen (Listen) als wesentlich Eins zu betrachten und sie aneinander zu reihen; da, wo das eine nicht ausreicht, das Andere seinen Platz ausfüllt. (So macht es die Dirichlet'sche Auffassung der Funktionen.)
+
+
+		
+ 	 			 	
+     Wendet man meine Betrachtung auf das Cantor'sche Diagonalverfahren an, so ergibt sich:
+Eine unendliche Menge von Dezimalbrüchen:
+0˙ a
+1
+1
+a
+2
+1
+a
+3
+1
+a
+4
+1
+…
+0˙ a
+1
+2
+a
+2
+2
+a
+3
+2
+a
+4
+2
+…
+0˙ a
+1
+3
+a
+2
+3
+a
+3
+3
+a
+4
+3
+…
+‒ ‒ ‒
+‒ ‒ ‒
+kann nur ein Gesetz bedeuten, nach dem Gesetze gebildet werden und das heißt eigentlich, eine Funktion von zwei Veränderlichen. F(x,y) ist die allgemeine Form dieser Dezimalbrüche. F(x,n) ist der n-te von ihnen und F(m,n) seine m-te Stelle. Der Dezimalbruch nach der Diagonale genommen ist F(x,x) und verändert lautet er etwa F(x,x) + 1. Und nun zeigt ein Induktionsbeweis, daß F(x,x) + 1 eine andere Entwicklung hat als jedes beliebige F(x,y). Wo aber ist hier das höhere Unendliche? (Oder gar das “eigentlich Unendliche”.)
+
+
+		
+ 	 			 	
+     Die Schwierigkeit liegt auch hier wieder in der Bildung mathematischer Scheinbegriffe. Wenn man z.B. sagt: man kann die Kardinalzahlen ihrer Größe nach in eine Folge ordnen, aber nicht die rationalen Zahlen, so ist darin unbewußt die Voraussetzung enthalten, als hätte
+33
+der Begriff des Ordnens der Größe nach für die rationalen Zahlen doch einen Sinn, und als erwiese sich dieses Ordnen nun beim Versuch als unmöglich (was voraussetzt, daß der Versuch denkbar ist). – So denkt man, ist es möglich zu versuchen die reellen Zahlen (als wäre es ein Begriff wie etwa ‘Äpfel auf diesem Tisch’) in eine Reihe zu ordnen, und es erwiese sich nun als undurchführbar.
+
+
+		
+ 	 			 	
+     Wenn der Mengenkalkül sich in seiner Ausdrucksweise soviel als möglich an die Ausdrucksweise des Kalküls der Kardinalzahlen anlehnt, so ist das wohl in mancher Hinsicht belehrend, weil es auf gewisse formale Ähnlichkeiten hinweist, aber auch irreführend, wenn er gleichsam noch etwas ein Messer nennt, das weder Griff noch Klinge mehr hat. (Lichtenberg).
+
+
+		
+ 	 			 	
+     Dem periodischen Dezimalbruch, der ja ein Gesetz ist, kann man nur nicht-periodische Gesetze entgegenstellen und nicht nicht-periodische Extensionen.
+
+
+		
+ 	 			 	
+     Wie beweist man, daß 2 × 2 nicht 5 ist? ist es ein anderer Beweis als der, daß 2 × 2 = 4 ist? Denn, da der Sinn des mathematischen Satzes in seiner Beweisbarkeit liegt und der Art, wie er zu beweisen ist, so muß sich auch der Sinn des negativen Satzes so finden.
+
+
+		
+ 	 			 	
+     ((Ich sehe undeutlich eine Verbindung zwischen dem Problem des Solipsismus oder Idealismus und dem, der Bezeichnungsweise eines Satzes. Wird etwa das Ich in diesen Fällen durch den Satz ersetzt und das Verhältnis des Ich zur Wirklichkeit durch das Verhältnis von Satz und Wirklichkeit?))
+
+
+34
+		
+ 	 			 	
+     Sage ich jemandem “gehe drei Schritte” und er versteht den Befehl, so kann er ihn mir etwa durch eine Zeichnung erklären. Er sagt: Wenn hier der Weg ist und A der Anfang, so willst du, daß ich nach B dann nach C und D kommen soll; oder dergleichen. Und dabei ist es klar, daß er in gewissem Sinne nur einer Sache Ausdruck verliehen hat, die er schon früher – als er den Befehl hörte und verstand – wußte. Er könnte nun so fortfahren und den Befehl noch näher erklären, etwa durch ein ausgeführteres Diagramm und immer würde er doch nur hervorbringen, was ihm schon früher klar war. Er übersetzt nur aus einer Sprache in eine andere. Und wenn er nun endlich den Befehl ausführte, zum Zeichen, daß er ihn verstanden hat – würde er da nicht wieder bloß übersetzen?
+
+
+		
+ 	 			 	
+     Zwischen dem Befehl und seiner Ausführung muß eine Kontinuität bestehen. Die Ausführung muß, sozusagen, nur die Endfläche des Befehls (Befehlskörpers) sein.
+
+
+		
+ 	 			 	
+     Ich denke, um mir das Wesen des Verstehens klar zu machen, immer an eine Figur und eine Projektion, die man von ihr macht. Die Projektionsmethode kann nur durch den Vergleich des Bildes mit der Realität festgehalten sein, die eben da || vorhanden ist.
+
+
+		
+ 	 			 	
+     Aber da scheint es ja, als müsse man den Satz mit der Realität in einem bestimmten Sinne vergleichen – also nicht nur vergleichen. Als müßte also die Realität in gewissen Fällen durch die Vergleichung quasi einen Vorwurf empfinden.
+     Wenn sich etwas einem Ziele nähert, so liegt in dem Wort “Ziel” hier das, was ich meine (die Intention.)
+
+
+35
+		
+ 	 			 	
+     
+Jeder Mensch sieht, daß die obere Strecke größer ist und die untere kleiner; aber er sieht nicht darin, daß die untere Strecke so groß sein oder werden sollte, wie die obere. Und wie kann ein Bild, welcher Art immer, das ausdrücken?
+
+
+		
+ 	 			 	
+     D.h., der Satz (Befehl) wird nicht einfach mit der Wirklichkeit zusammengestellt, sondern er wird in einer bestimmten Tendenz mit ihr verglichen. Aber worin liegt diese Tendenz?
+
+
+		
+ 	 			 	
+     Der Satz, der Befehl, setzt die Wirklichkeit quasi fort, indem er an die Realität anknüpft und eine Veränderung ﹖ darstellt. Es ist, als hätte man eine Puppe, die meinen Körper in seiner gegenwärtigen Lage vorstellt und mit der nun die Veränderungen vorgenommen werden – in effigie – die meinem Körper zugedacht sind.
+
+
+		
+ 	 			 	
+     Somit wäre das Problem wieder das, welcher Natur die stellvertretende Beziehung ist, wenn man etwa sagt “diese Figur sollst du sein etc. etc.”.
+
+
+		
+ 	 			 	
+     Was heißt es: Ich kann mir vorstellen, daß der Fleck A sich an den Ort B bewegt? Die seltsame Täuschung, der man unterliegt, daß im Satze die Gegenstände das tun, was der Satz sagt, muß sich aufhellen.
+
+
+		
+ 	 			 	
+     Es ist, als ob im Befehl bereits ein Schatten der Ausführung läge. Aber ein Schatten eben dieser Ausführung. Du gehst im Befehl dort und dort hin. – Sonst wäre es aber eben ein
+36
+anderer Befehl.
+
+
+		
+ 	 			 	
+     (Ich weiß, daß ich logisches Gift in mich hineintrinken muß, um es überwinden zu können.
+     So sage ich mir jetzt eigentlich immer, daß doch die Tatsache im Befehl, im Satz, schon liegen muß, obwohl ich weiß, daß sie nicht in ihm liegt; aber dieser Schein muß angegangen werden.)
+
+
+		
+ 	 			 	
+     Zu Grunde liegt allen meinen Betrachtungen die Einsicht, daß der Gedanke einen inneren Zusammenhang mit der Welt hat und keinen äußeren. Daß man also das meint, was man sagt. Heißt das aber nicht nur, daß man sich in der Sprache nicht aus der Sprache, oder in den Gedanken, nicht aus den Gedanken, herausbewegen kann?
+
+
+		
+ 	 			 	
+     In der Sprache wird alles ausgetragen.
+
+
+		
+ 	 			 	
+     Wenn man sagt “ich dachte du würdest heute kommen und habe schon Vorbereitungen getroffen”, so stehen diese Vorbereitungen mit dem Gedanken in irgend einer Kontinuität.
+     Wenn ich jemanden einen Stuhl hinschiebe, damit er sich setzt, so bilden hier auch der Gedanke und die Handlung eine Kette.
+
+
+		
+ 	 			 	
+     Der Gedanke “daß es sich so verhält” (p) wird durch die Tatsache, daß es sich so verhält (p) wahrgemacht. Daß sich der Zusammenhang zwischen Gedanken und Welt so nicht darstellen läßt (denn diese Darstellung sagt garnichts) muß die Antwort auf meine Probleme sein.
+37
+		
+ 	 			 	
+     Es ist, natürlich, auch nicht so, daß das, was den Gedanken “daß p der Fall ist” verifiziert – befriedigt – eben p genannt wird.
+     Wie, wenn man sagen würde: ich habe Lust auf einen Apfel und was immer diese Lust befriedigt, werde ich eben einen Apfel nennen.
+
+
+		
+ 	 			 	
+     Denn ich rede ja jetzt von der Befriedigung des Gedankens (der Erwartung) noch ehe der Gedanke befriedigt ist.
+
+
+		
+ 	 			 	
+     Man könnte nämlich denken, || : wie ist es; der Gedanke und die Tatsache sind verschieden; aber wir nennen den Gedanken: den, daß die Tatsache der Fall ist; oder die Tatsache: die, welche den Gedanken wahr macht. Ist da das eine eine Beschreibung mit Hilfe des Anderen? Wird der Gedanke mittels der Tatsache, die ihn wahr macht beschrieben, also einer äußeren Eigenschaft nach beschrieben, wie wenn ich von jemandem sage, er ist mein Onkel? Oder die Tatsache eben so durch den Gedanken?
+
+
+		
+ 	 			 	
+     Wenn man den Ausdruck “der Gedanke, daß … der Fall ist” als Beschreibung erklärt, so ist damit wieder nichts erklärt, weil es sich fragt: wie ist eine solche Beschreibung möglich, sie setzt selber wieder das Wesen des Gedankens voraus, denn sie enthält den Hinweis auf eine Tatsache, die nicht geschehen ist, also gerade das, was problematisch war.
+
+
+		
+ 	 			 	
+     Meine Ansicht ist, daß der Gedanke wesentlich das ist, was durch den Satz ausgedrückt ist, wobei ‘ausgedrückt’ nicht heißt ‘hervorgerufen’. Ein Schnupfen wird durch ein kaltes Bad hervorgerufen, aber nicht
+38
+durch das kalte Bad ausgedrückt.
+     Ich meine, daß || Daß der Gedanke ganz Maß ist, wie der Maßstab; d.h. daß || wie alles am Maßstab unwesentlich ist außer dem Längenmaß.
+
+
+		
+ 	 			 	
+     Der Gedanke ist ein Symbol.
+
+
+		
+ 	 			 	
+     Der gegenwärtige Gedanke enthält alle Realität, die gegenwärtig vorhanden ist. (Und mehr kann er ja nicht haben.)
+
+
+		
+ 	 			 	
+     Es ist sehr merkwürdig, daß in einem Buch über Differentialrechnung in den Erklärungen mengentheoretische Ausdrücke und Symbole vorkommen, die die im Kalkül gänzlich verschwinden. Das erinnert an die ersten Erklärungen in den Lehrbüchern der Physik, in denen vom Kausalitätsgesetz und Ähnlichem die Rede ist, was, wenn wir einmal zur Sache kommen, nicht mehr erwähnt wird.
+
+
+		
+ 	 			 	
+     Das Symbol – ich meine das, was als Symbol gebraucht wird – mit der Wirklichkeit zu vergleichen, ist einfach. Die Schwierigkeit besteht darin, es, mit der symbolisierenden Beziehung zusammen, als Gedanke mit der Wirklichkeit zu vergleichen.
+
+
+		
+ 	 			 	
+     “Ich bin froh darüber, daß du kommst” heißt nicht, ich bin froh, weil Du kommst. In diesem Falle wäre es eine Vermutung, daß ich deshalb so guter Stimmung bin.)
+
+
+39
+		
+ 	 			 	
+     Wenn ich sage: die Worte ‘bedeuten’ garnichts, ich will damit nur eine bestimmte Wirkung hervorbringen, so ist aber die Frage: was heißt es eine bestimmte Wirkung hervorbringen; das ist ja eben die Anwendung der Sprache, welche ich nicht verstehe.
+
+
+		
+ 	 			 	
+     Es ist nämlich die Intention, die man erklären will und die kann man nicht mit sich selbst erklären.
+
+
+		
+ 	 			 	
+     “Ein Satz bedeutet, sagt, garnichts; er bewirkt nur etwas; wie z.B. ein Eisenbahnsignal, das man auch durch eine automatische Vorrichtung ersetzen könnte.”
+
+
+		
+ 	 			 	
+     Man kann sich vorstellen, es sei etwas der Fall, was nicht ist: sehr merkwürdig! Denn, daß die Vorstellung nicht mit der Wirklichkeit übereinstimmt, ist nicht merkwürdig, daß sie sie aber dann repräsentiert, ist merkwürdig.
+
+
+		
+ 	 			 	
+     Der Gedanke ist ein Stück Wirklichkeit. Und wie kann ein Stück Wirklichkeit in einer wesentlichen Ausnahmsstellung sein. Außer in einer Beziehung zu sich selbst. Ebenso, daß man über alles denken könnte, aber über das Denken nicht.
+
+
+		
+ 	 			 	
+     Warum kommt mir mein Gedanken ein so exzeptionelles Stück Wirklichkeit vor? Doch nicht, weil ich ihn “von innen” kenne, das heißt nichts; sondern offenbar, weil ich alles in Gedanken ausmache, und über das Denken auch nur wieder denken könnte.
+
+
+40
+		
+ 	 			 	
+     Wenn einer die Lösung des ‘Problems des Lebens’ gefunden zu haben glaubt, und sich sagen wollte, jetzt ist alles ganz leicht, so brauchte er sich zu seiner Widerlegung nur erinnern, daß es eine Zeit gegeben hat, wo diese ‘Lösung’ nicht gefunden war; aber auch zu der Zeit mußte man leben können und im Hinblick auf sie erscheint die gefundene Lösung wie || als ein Zufall. Und so geht es uns in der Logik. Wenn es eine ‘Lösung’ der logischen (philosophischen) Probleme gäbe, so müßten wir uns nur vorhalten, daß sie ja einmal nicht gelöst waren (und auch da mußte man leben und denken können) ‒ ‒ ‒
+
+
+		
+ 	 			 	
+     Es ist ein wesentlicher Unterschied zwischen Sätzen wie “das ist ein Löwe”, “die Sonne ist größer als die Erde”, die alle ein “dieses”, “jetzt”, “hier” enthalten und also an die Realität unmittelbar anknüpfen, und Sätzen wie “Menschen haben zwei Hände” etc. Denn, wenn zufällig keine Menschen in meiner Umgebung wären, wie wollte ich diesen Satz kontrollieren?
+
+
+		
+ 	 			 	
+     Das Wesentliche am Gedanken ist, daß er nicht als Mittel zum Zweck, als ein Instrument, wirkt, das man durch ein anderes ersetzen könnte, sondern als Unvergleichliches, Autonomes. Darum ist eine Gedankenprothese nicht denkbar.
+     Aber heißt das etwas? Ich kann ja zwar den Magen durch eine Prothese ersetzen, aber nicht die Magenschmerzen. Und kann man nicht vom Magenschmerz dasselbe sagen, wie vom Gedanken?
+
+
+		
+ 	 			 	
+     Auch die Verneinung enthält eine Art Allgemeinheit.
+     Aber freilich muß auch die Bejahung sie enthalten und nur einen anderen Gebrauch von ihr machen.
+
+
+41
+		
+ 	 			 	
+     Wenn mir jemand einen komplizierten Befehl durch eine Zeichensprache gibt, – ich verstehe ihn erst nicht, dann plötzlich verstehe ich: “aha || ah, das will er”, was habe ich da erfaßt (got hold of). Etwa die Vorstellung von einer Handlung; aber sie wäre ja auch nur Zeichen, wenn ich sie nicht benützen könnte. Oder, ich habe keine Vorstellung, sondern Zeichen eines Systems, die ich bereits benützen kann.
+
+
+		
+ 	 			 	
+     Man hat nicht den Gedanken, und daneben die Sprache. – Es ist also nicht so, daß man für den Andern die Zeichen, für sich selbst aber einen stummen Gedanken hat.
+
+
+		
+ 	 			 	
+     Der Gedanke ist immer eine Konstruktion.
+
+
+		
+ 	 			 	
+     Die Verneinung muß mit zu der Konstruktion gehören.
+Und zwar muß z.B. in jedem Symbolismus non-non-p = p¤ sein.
+
+
+		
+ 	 			 	
+     Man könnte so sagen, am Gedanken ist nichts privat. – Es kann jeder in ihn Einsicht nehmen.
+
+
+		
+ 	 			 	
+     Man hat nicht den Zeichenausdruck und daneben, für sich selbst, den (gleichsam dunkeln) Gedanken. Dann wäre es doch auch zu merkwürdig, daß man den Gedanken durch die Worte sollte wiedergeben können.
+
+
+		
+ 	 			 	
+     D.h.: wenn der Gedanke nicht schon artikuliert wäre, wie könnte der Ausdruck durch die Sprache ihn artikuliere

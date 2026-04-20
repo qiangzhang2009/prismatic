@@ -29,7 +29,6 @@
 import { prisma } from '@/lib/prisma';
 import { nanoid } from 'nanoid';
 import crypto from 'crypto';
-import { Prisma } from '@prisma/client';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -143,7 +142,7 @@ export async function runSync(
   request: SyncRequest
 ): Promise<SyncResult> {
   const startMs = Date.now();
-  const { deviceId, localSnapshots, deviceInfo, syncToken } = request;
+  const { deviceId, localSnapshots, deviceInfo } = request;
 
   // ── Step 1: Register or update the device ──────────────────────────────
   // deviceId IS the Device.id (browser fingerprint → used as primary key)
@@ -531,7 +530,7 @@ async function createServerConversation(
     id: msg.id || nanoid(),
     conversationId,
     userId: device.userId,
-    role: msg.role === 'agent' ? 'assistant' : msg.role,
+    role: (msg.role as string) === 'agent' ? 'assistant' : msg.role,
     content: msg.content,
     personaId: msg.personaId || null,
     source: 'web',
@@ -558,7 +557,7 @@ async function updateServerConversation(
     id: msg.id || nanoid(),
     conversationId,
     userId: '', // filled by conversation lookup
-    role: msg.role === 'agent' ? 'assistant' : msg.role,
+    role: (msg.role as string) === 'agent' ? 'assistant' : msg.role,
     content: msg.content,
     personaId: msg.personaId || null,
     source: 'web',
@@ -585,8 +584,8 @@ async function updateServerConversation(
 
 async function getServerMessages(
   conversationId: string | null,
-  conversationKey: string,
-  personaIds: string[]
+  _conversationKey: string,
+  _personaIds: string[]
 ): Promise<SyncMessage[]> {
   if (!conversationId) return [];
 
@@ -748,7 +747,7 @@ export async function migrateVisitorConversations(
             id: msg.id || nanoid(),
             conversationId: existing.id,
             userId,
-            role: msg.role === 'agent' ? 'assistant' : msg.role,
+            role: (msg.role as string) === 'agent' ? 'assistant' : msg.role,
             content: msg.content,
             personaId: msg.personaId || null,
             source: 'web',
@@ -771,7 +770,7 @@ export async function migrateVisitorConversations(
     } else {
       // No conflict → create new conversation
       if (snapshot.messages && snapshot.messages.length > 0) {
-        const conversationId = await createServerConversation(
+        await createServerConversation(
           snapshot.conversationKey,
           snapshot.personaIds,
           snapshot.title,

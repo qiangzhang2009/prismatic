@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-require-imports */
+
 /**
  * Prisma Client Instance
  *
@@ -12,7 +14,6 @@
  */
 
 import { PrismaClient } from '@prisma/client';
-import { createDatabaseFirewall } from './database-firewall';
 
 const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;
@@ -21,14 +22,15 @@ const globalForPrisma = globalThis as unknown as {
 function createPrismaClient(): PrismaClient {
   const isProduction = process.env.NODE_ENV === 'production' || process.env.VERCEL === '1';
   const client = new PrismaClient({
-    // In production, attach the database firewall
-    ...(isProduction && {
-      middlewares: [createDatabaseFirewall()],
-    }) as Partial<PrismaClient>,
-    log: isProduction
-      ? ['error']
-      : ['warn', 'error'],
+    log: isProduction ? ['error'] : ['warn', 'error'],
   });
+
+  if (isProduction) {
+    const { createDatabaseFirewall } = require('./database-firewall');
+    const firewall = createDatabaseFirewall();
+    client.$use(firewall as any);
+  }
+
   return client;
 }
 

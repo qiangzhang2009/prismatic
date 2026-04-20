@@ -1,0 +1,885 @@
+{
+  "generated": "2026-04-20T17:01:58Z",
+  "totalPersonas": 53,
+  "totalWords": 7985705,
+  "totalBytes": 73118946,
+  "personas": [
+    {
+      "personaId": "alan-turing",
+      "files": 1,
+      "totalWords": 20955,
+      "totalBytes": 720691,
+      "sources": [
+        {
+          "filename": "computing-machinery-intelligence.txt",
+          "words": 20955,
+          "bytes": 720691
+        }
+      ]
+    },
+    {
+      "personaId": "alan-watts",
+      "files": 0,
+      "totalWords": 0,
+      "totalBytes": 0,
+      "sources": []
+    },
+    {
+      "personaId": "aleister-crowley",
+      "files": 1,
+      "totalWords": 6940,
+      "totalBytes": 41273,
+      "sources": [
+        {
+          "filename": "book-of-the-law.txt",
+          "words": 6940,
+          "bytes": 41273
+        }
+      ]
+    },
+    {
+      "personaId": "cao-cao",
+      "files": 1,
+      "totalWords": 20619,
+      "totalBytes": 1863585,
+      "sources": [
+        {
+          "filename": "three-kingdoms-source.txt",
+          "words": 20619,
+          "bytes": 1863585
+        }
+      ]
+    },
+    {
+      "personaId": "carl-jung",
+      "files": 1,
+      "totalWords": 187235,
+      "totalBytes": 1350168,
+      "sources": [
+        {
+          "filename": "jung-symbols-of-transformation.html",
+          "words": 187235,
+          "bytes": 1350168
+        }
+      ]
+    },
+    {
+      "personaId": "confucius",
+      "files": 3,
+      "totalWords": 123339,
+      "totalBytes": 760131,
+      "sources": [
+        {
+          "filename": "analects-legge.txt",
+          "words": 57159,
+          "bytes": 317689
+        },
+        {
+          "filename": "great-learning.txt",
+          "words": 59704,
+          "bytes": 353340
+        },
+        {
+          "filename": "lunyu-ctext.html",
+          "words": 6476,
+          "bytes": 89102
+        }
+      ]
+    },
+    {
+      "personaId": "donald-trump",
+      "files": 0,
+      "totalWords": 0,
+      "totalBytes": 0,
+      "sources": []
+    },
+    {
+      "personaId": "einstein",
+      "files": 1,
+      "totalWords": 150484,
+      "totalBytes": 849566,
+      "sources": [
+        {
+          "filename": "relativity.txt",
+          "words": 150484,
+          "bytes": 849566
+        }
+      ]
+    },
+    {
+      "personaId": "epictetus",
+      "files": 1,
+      "totalWords": 15273,
+      "totalBytes": 106166,
+      "sources": [
+        {
+          "filename": "enchiridion.html",
+          "words": 15273,
+          "bytes": 106166
+        }
+      ]
+    },
+    {
+      "personaId": "han-fei-zi",
+      "files": 1,
+      "totalWords": 6896,
+      "totalBytes": 94091,
+      "sources": [
+        {
+          "filename": "hanfeizi-ctext.html",
+          "words": 6896,
+          "bytes": 94091
+        }
+      ]
+    },
+    {
+      "personaId": "huangdi-neijing",
+      "files": 2,
+      "totalWords": 12630,
+      "totalBytes": 163272,
+      "sources": [
+        {
+          "filename": "huangdi-neijing-lingshu.html",
+          "words": 6315,
+          "bytes": 81636
+        },
+        {
+          "filename": "huangdi-neijing-suwen.html",
+          "words": 6315,
+          "bytes": 81636
+        }
+      ]
+    },
+    {
+      "personaId": "hui-neng",
+      "files": 2,
+      "totalWords": 44884,
+      "totalBytes": 420432,
+      "sources": [
+        {
+          "filename": "liuzu-tanjing-ctext.html",
+          "words": 6315,
+          "bytes": 81636
+        },
+        {
+          "filename": "platform-sutra.html",
+          "words": 38569,
+          "bytes": 338796
+        }
+      ]
+    },
+    {
+      "personaId": "jack-ma",
+      "files": 1,
+      "totalWords": 5107,
+      "totalBytes": 110184,
+      "sources": [
+        {
+          "filename": "jack-ma-placeholder.txt",
+          "words": 5107,
+          "bytes": 110184
+        }
+      ]
+    },
+    {
+      "personaId": "jeff-bezos",
+      "files": 1,
+      "totalWords": 2332,
+      "totalBytes": 46793,
+      "sources": [
+        {
+          "filename": "amazon-ir-placeholder.txt",
+          "words": 2332,
+          "bytes": 46793
+        }
+      ]
+    },
+    {
+      "personaId": "jiqun",
+      "files": 0,
+      "totalWords": 0,
+      "totalBytes": 0,
+      "sources": []
+    },
+    {
+      "personaId": "john-dee",
+      "files": 0,
+      "totalWords": 0,
+      "totalBytes": 0,
+      "sources": []
+    },
+    {
+      "personaId": "john-maynard-keynes",
+      "files": 1,
+      "totalWords": 73030,
+      "totalBytes": 452867,
+      "sources": [
+        {
+          "filename": "economic-consequences-peace.txt",
+          "words": 73030,
+          "bytes": 452867
+        }
+      ]
+    },
+    {
+      "personaId": "journey-west",
+      "files": 2,
+      "totalWords": 36016,
+      "totalBytes": 2386031,
+      "sources": [
+        {
+          "filename": "journey-west-arthur-waley.txt",
+          "words": 26794,
+          "bytes": 2264068
+        },
+        {
+          "filename": "xiyouji-ctext.html",
+          "words": 9222,
+          "bytes": 121963
+        }
+      ]
+    },
+    {
+      "personaId": "kant",
+      "files": 0,
+      "totalWords": 0,
+      "totalBytes": 0,
+      "sources": []
+    },
+    {
+      "personaId": "lao-zi",
+      "files": 1,
+      "totalWords": 6315,
+      "totalBytes": 81636,
+      "sources": [
+        {
+          "filename": "daodejing-ctext.html",
+          "words": 6315,
+          "bytes": 81636
+        }
+      ]
+    },
+    {
+      "personaId": "li-chunfeng",
+      "files": 1,
+      "totalWords": 6315,
+      "totalBytes": 81636,
+      "sources": [
+        {
+          "filename": "li-chunfeng-placeholder.txt",
+          "words": 6315,
+          "bytes": 81636
+        }
+      ]
+    },
+    {
+      "personaId": "lin-yutang",
+      "files": 0,
+      "totalWords": 0,
+      "totalBytes": 0,
+      "sources": []
+    },
+    {
+      "personaId": "liu-bei",
+      "files": 1,
+      "totalWords": 20619,
+      "totalBytes": 1863585,
+      "sources": [
+        {
+          "filename": "three-kingdoms-source.txt",
+          "words": 20619,
+          "bytes": 1863585
+        }
+      ]
+    },
+    {
+      "personaId": "marcus-aurelius",
+      "files": 2,
+      "totalWords": 126067,
+      "totalBytes": 787837,
+      "sources": [
+        {
+          "filename": "meditations-hays-gutenberg.html",
+          "words": 84638,
+          "bytes": 555680
+        },
+        {
+          "filename": "meditations-hays.txt",
+          "words": 41429,
+          "bytes": 232157
+        }
+      ]
+    },
+    {
+      "personaId": "marcus-aurelius-stoic",
+      "files": 0,
+      "totalWords": 0,
+      "totalBytes": 0,
+      "sources": []
+    },
+    {
+      "personaId": "mencius",
+      "files": 1,
+      "totalWords": 6323,
+      "totalBytes": 87204,
+      "sources": [
+        {
+          "filename": "mengzi-ctext.html",
+          "words": 6323,
+          "bytes": 87204
+        }
+      ]
+    },
+    {
+      "personaId": "menocius",
+      "files": 0,
+      "totalWords": 0,
+      "totalBytes": 0,
+      "sources": []
+    },
+    {
+      "personaId": "mo-zi",
+      "files": 1,
+      "totalWords": 6315,
+      "totalBytes": 81636,
+      "sources": [
+        {
+          "filename": "mozi-ctext.html",
+          "words": 6315,
+          "bytes": 81636
+        }
+      ]
+    },
+    {
+      "personaId": "mrbeast",
+      "files": 0,
+      "totalWords": 0,
+      "totalBytes": 0,
+      "sources": []
+    },
+    {
+      "personaId": "naval-ravikant",
+      "files": 1,
+      "totalWords": 3297,
+      "totalBytes": 103772,
+      "sources": [
+        {
+          "filename": "naval-almanack.html",
+          "words": 3297,
+          "bytes": 103772
+        }
+      ]
+    },
+    {
+      "personaId": "ni-haixia",
+      "files": 0,
+      "totalWords": 0,
+      "totalBytes": 0,
+      "sources": []
+    },
+    {
+      "personaId": "nikola-tesla",
+      "files": 1,
+      "totalWords": 97636,
+      "totalBytes": 544470,
+      "sources": [
+        {
+          "filename": "inventions-researches.txt",
+          "words": 97636,
+          "bytes": 544470
+        }
+      ]
+    },
+    {
+      "personaId": "osamu-dazai",
+      "files": 0,
+      "totalWords": 0,
+      "totalBytes": 0,
+      "sources": []
+    },
+    {
+      "personaId": "peter-thiel",
+      "files": 1,
+      "totalWords": 59921,
+      "totalBytes": 980795,
+      "sources": [
+        {
+          "filename": "tim-ferriss-interview.html",
+          "words": 59921,
+          "bytes": 980795
+        }
+      ]
+    },
+    {
+      "personaId": "qian-xuesen",
+      "files": 1,
+      "totalWords": 9495,
+      "totalBytes": 211033,
+      "sources": [
+        {
+          "filename": "engineering-cybernetics.html",
+          "words": 9495,
+          "bytes": 211033
+        }
+      ]
+    },
+    {
+      "personaId": "qu-yuan",
+      "files": 1,
+      "totalWords": 6315,
+      "totalBytes": 81636,
+      "sources": [
+        {
+          "filename": "chuci-ctext.html",
+          "words": 6315,
+          "bytes": 81636
+        }
+      ]
+    },
+    {
+      "personaId": "ray-dalio",
+      "files": 1,
+      "totalWords": 2604,
+      "totalBytes": 700954,
+      "sources": [
+        {
+          "filename": "principles-ted-placeholder.txt",
+          "words": 2604,
+          "bytes": 700954
+        }
+      ]
+    },
+    {
+      "personaId": "records-grand-historian",
+      "files": 1,
+      "totalWords": 36755,
+      "totalBytes": 2123857,
+      "sources": [
+        {
+          "filename": "shiji-gutenberg.html",
+          "words": 36755,
+          "bytes": 2123857
+        }
+      ]
+    },
+    {
+      "personaId": "sam-altman",
+      "files": 1,
+      "totalWords": 9554,
+      "totalBytes": 75855,
+      "sources": [
+        {
+          "filename": "sam-altman-blog.html",
+          "words": 9554,
+          "bytes": 75855
+        }
+      ]
+    },
+    {
+      "personaId": "seneca",
+      "files": 2,
+      "totalWords": 106897,
+      "totalBytes": 647229,
+      "sources": [
+        {
+          "filename": "seneca-moral-letters.html",
+          "words": 48747,
+          "bytes": 298911
+        },
+        {
+          "filename": "seneca-shortness-of-life.html",
+          "words": 58150,
+          "bytes": 348318
+        }
+      ]
+    },
+    {
+      "personaId": "shao-yong",
+      "files": 1,
+      "totalWords": 6315,
+      "totalBytes": 81636,
+      "sources": [
+        {
+          "filename": "shao-yong-placeholder.txt",
+          "words": 6315,
+          "bytes": 81636
+        }
+      ]
+    },
+    {
+      "personaId": "sima-qian",
+      "files": 2,
+      "totalWords": 45717,
+      "totalBytes": 2250055,
+      "sources": [
+        {
+          "filename": "shiji-ctext.html",
+          "words": 8962,
+          "bytes": 126198
+        },
+        {
+          "filename": "shiji-gutenberg.html",
+          "words": 36755,
+          "bytes": 2123857
+        }
+      ]
+    },
+    {
+      "personaId": "socrates",
+      "files": 1,
+      "totalWords": 132606,
+      "totalBytes": 717660,
+      "sources": [
+        {
+          "filename": "plato-complete.txt",
+          "words": 132606,
+          "bytes": 717660
+        }
+      ]
+    },
+    {
+      "personaId": "sun-tzu",
+      "files": 2,
+      "totalWords": 20197,
+      "totalBytes": 166877,
+      "sources": [
+        {
+          "filename": "art-of-war.txt",
+          "words": 14070,
+          "bytes": 83462
+        },
+        {
+          "filename": "sunjia-ctext.html",
+          "words": 6127,
+          "bytes": 83415
+        }
+      ]
+    },
+    {
+      "personaId": "sun-wukong",
+      "files": 1,
+      "totalWords": 26794,
+      "totalBytes": 2264068,
+      "sources": [
+        {
+          "filename": "journey-west-source.txt",
+          "words": 26794,
+          "bytes": 2264068
+        }
+      ]
+    },
+    {
+      "personaId": "three-kingdoms",
+      "files": 2,
+      "totalWords": 26934,
+      "totalBytes": 1945221,
+      "sources": [
+        {
+          "filename": "sanguoyanyi-ctext.html",
+          "words": 6315,
+          "bytes": 81636
+        },
+        {
+          "filename": "three-kingdoms-brett.txt",
+          "words": 20619,
+          "bytes": 1863585
+        }
+      ]
+    },
+    {
+      "personaId": "tripitaka",
+      "files": 1,
+      "totalWords": 26794,
+      "totalBytes": 2264068,
+      "sources": [
+        {
+          "filename": "journey-west-source.txt",
+          "words": 26794,
+          "bytes": 2264068
+        }
+      ]
+    },
+    {
+      "personaId": "wittgenstein",
+      "files": 41,
+      "totalWords": 6322078,
+      "totalBytes": 40646793,
+      "sources": [
+        {
+          "filename": "Ms-114_Clarino-CC.txt",
+          "words": 496482,
+          "bytes": 3403049
+        },
+        {
+          "filename": "Ms-115_Clarino-CC.txt",
+          "words": 707610,
+          "bytes": 4696250
+        },
+        {
+          "filename": "Ms-139a_Clarino-CC.txt",
+          "words": 37502,
+          "bytes": 214269
+        },
+        {
+          "filename": "Ms-141_Clarino-CC.txt",
+          "words": 19428,
+          "bytes": 134560
+        },
+        {
+          "filename": "Ms-148_Clarino-CC.txt",
+          "words": 99379,
+          "bytes": 565311
+        },
+        {
+          "filename": "Ms-149_Clarino-CC.txt",
+          "words": 133586,
+          "bytes": 750261
+        },
+        {
+          "filename": "Ms-150_Clarino-CC.txt",
+          "words": 91859,
+          "bytes": 559097
+        },
+        {
+          "filename": "Ms-152_Clarino-CC.txt",
+          "words": 133066,
+          "bytes": 866486
+        },
+        {
+          "filename": "Ms-153a_Clarino-CC.txt",
+          "words": 134791,
+          "bytes": 892193
+        },
+        {
+          "filename": "Ms-153b_Clarino-CC.txt",
+          "words": 67001,
+          "bytes": 429283
+        },
+        {
+          "filename": "Ms-154_Clarino-CC.txt",
+          "words": 102728,
+          "bytes": 650664
+        },
+        {
+          "filename": "Ms-155_Clarino-CC.txt",
+          "words": 88010,
+          "bytes": 536440
+        },
+        {
+          "filename": "Ms-156a_Clarino-CC.txt",
+          "words": 44272,
+          "bytes": 293024
+        },
+        {
+          "filename": "Ts-201a1_Clarino-CC.txt",
+          "words": 46259,
+          "bytes": 285761
+        },
+        {
+          "filename": "Ts-201a2_Clarino-CC.txt",
+          "words": 43609,
+          "bytes": 262706
+        },
+        {
+          "filename": "Ts-207_Clarino-CC.txt",
+          "words": 25925,
+          "bytes": 143691
+        },
+        {
+          "filename": "Ts-212_Clarino-CC.txt",
+          "words": 1286375,
+          "bytes": 8447078
+        },
+        {
+          "filename": "Ts-213_Clarino-CC.txt",
+          "words": 1272981,
+          "bytes": 8380428
+        },
+        {
+          "filename": "Ts-310_Clarino-CC.txt",
+          "words": 317371,
+          "bytes": 1820263
+        },
+        {
+          "filename": "iep-wittgenstein.txt",
+          "words": 3189,
+          "bytes": 20004
+        },
+        {
+          "filename": "sep-rule-following.txt",
+          "words": 12952,
+          "bytes": 80543
+        },
+        {
+          "filename": "sep-wittgenstein-atomism.txt",
+          "words": 10355,
+          "bytes": 61646
+        },
+        {
+          "filename": "sep-wittgenstein-main.txt",
+          "words": 10568,
+          "bytes": 67193
+        },
+        {
+          "filename": "sep-wittgenstein-philosophical-investigations.txt",
+          "words": 57,
+          "bytes": 401
+        },
+        {
+          "filename": "wittgenstain-correspondance.txt",
+          "words": 21705,
+          "bytes": 238608
+        },
+        {
+          "filename": "wittgenstain-lectures-conversations.txt",
+          "words": 58417,
+          "bytes": 330478
+        },
+        {
+          "filename": "wittgenstain-notebooks-ia-1916.txt",
+          "words": 74520,
+          "bytes": 509868
+        },
+        {
+          "filename": "wittgenstain-philosophical-investigations.txt",
+          "words": 113429,
+          "bytes": 756530
+        },
+        {
+          "filename": "wittgenstain-tractatus-klement.txt",
+          "words": 1396,
+          "bytes": 7525
+        },
+        {
+          "filename": "wittgenstein-aesthetics-lectures.txt",
+          "words": 76567,
+          "bytes": 456124
+        },
+        {
+          "filename": "wittgenstein-bluebook.txt",
+          "words": 10793,
+          "bytes": 65878
+        },
+        {
+          "filename": "wittgenstein-brownbook.txt",
+          "words": 71812,
+          "bytes": 443518
+        },
+        {
+          "filename": "wittgenstein-culture-value.txt",
+          "words": 49457,
+          "bytes": 291747
+        },
+        {
+          "filename": "wittgenstein-lectures-30-33.txt",
+          "words": 14600,
+          "bytes": 87740
+        },
+        {
+          "filename": "wittgenstein-letters-ogden.txt",
+          "words": 47738,
+          "bytes": 281788
+        },
+        {
+          "filename": "wittgenstein-notebooks-1914.txt",
+          "words": 209513,
+          "bytes": 1214657
+        },
+        {
+          "filename": "wittgenstein-philosophical-grammar.txt",
+          "words": 30493,
+          "bytes": 162186
+        },
+        {
+          "filename": "wittgenstein-philosophical-remarks.txt",
+          "words": 142344,
+          "bytes": 837732
+        },
+        {
+          "filename": "wittgenstein-remarks-foundations.txt",
+          "words": 199601,
+          "bytes": 1115123
+        },
+        {
+          "filename": "wittgenstein-tractatus.txt",
+          "words": 4565,
+          "bytes": 230524
+        },
+        {
+          "filename": "wittgenstein-zettel.txt",
+          "words": 9773,
+          "bytes": 56166
+        }
+      ]
+    },
+    {
+      "personaId": "xiang-yu",
+      "files": 1,
+      "totalWords": 6315,
+      "totalBytes": 81636,
+      "sources": [
+        {
+          "filename": "xiangyu-shiji-ctext.html",
+          "words": 6315,
+          "bytes": 81636
+        }
+      ]
+    },
+    {
+      "personaId": "yuan-tiangang",
+      "files": 0,
+      "totalWords": 0,
+      "totalBytes": 0,
+      "sources": []
+    },
+    {
+      "personaId": "zhu-bajie",
+      "files": 1,
+      "totalWords": 26794,
+      "totalBytes": 2264068,
+      "sources": [
+        {
+          "filename": "journey-west-source.txt",
+          "words": 26794,
+          "bytes": 2264068
+        }
+      ]
+    },
+    {
+      "personaId": "zhuang-zi",
+      "files": 2,
+      "totalWords": 108059,
+      "totalBytes": 673258,
+      "sources": [
+        {
+          "filename": "zhuangzi-ctext.html",
+          "words": 7048,
+          "bytes": 97082
+        },
+        {
+          "filename": "zhuangzi-watson.html",
+          "words": 101011,
+          "bytes": 576176
+        }
+      ]
+    },
+    {
+      "personaId": "zhuge-liang",
+      "files": 2,
+      "totalWords": 26934,
+      "totalBytes": 1945221,
+      "sources": [
+        {
+          "filename": "chu-ci-ctext.html",
+          "words": 6315,
+          "bytes": 81636
+        },
+        {
+          "filename": "three-kingdoms-source.txt",
+          "words": 20619,
+          "bytes": 1863585
+        }
+      ]
+    }
+  ]
+}

@@ -169,7 +169,7 @@ export async function getGlobalUsageStats(days: number = 7): Promise<{
         user: { status: 'ACTIVE' },
       },
     }),
-    prismaStats.$queryRaw<Array<{ date: Date; total: BigInt }>>`
+    prismaStats.$queryRaw<Array<{ date: Date; total: bigint }>>`
       SELECT DATE("createdAt") as date, COUNT(*)::int as total
       FROM messages
       WHERE "createdAt" >= ${weekStart}

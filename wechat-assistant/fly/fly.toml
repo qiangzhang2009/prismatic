@@ -1,0 +1,37 @@
+# Fly.io Volume 用于持久化 Hermes 数据
+app = "prismatic-wechat"
+primary_region = "hkg"
+
+[build]
+
+[deploy]
+  release_command = "echo 'Ready'"
+
+[run]
+  auto_rollback = true
+
+# 持久化卷：存储微信凭证、SQLite 数据库等
+[[mounts]]
+  source = "hermes_data"
+  destination = "/opt/data"
+
+[env]
+  PORT = "8642"
+
+# 健康检查
+[http_service]
+  internal_port = 8642
+  force_https = false
+  auto_stop_machines = false
+  auto_start_machines = true
+  min_machines_running = 1
+  processes = ["app"]
+
+  [http_service.concurrency]
+    type = "connections"
+    hard_limit = 25
+    soft_limit = 20
+
+# SSH 用于调试和首次配置
+[ ssh ]
+  enable = true

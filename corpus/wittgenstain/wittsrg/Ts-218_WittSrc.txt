@@ -1,0 +1,50 @@
+Wie kann uns ein allgemeiner Beweis den besondern Beweis schenken?
+
+  
+      
+   Weil es sich in dem einen Fall so verhält – wie kann ich wissen, dass es sich in dem andern so verhält? Und ein ‘Sich so verhalten müssen’ gibt es nicht. Ist es nicht so, so kann man auch nichts machen. Nur was ˇv[l|o]n uns abhängt, können wir im Voraus bestimmen.
+   Man möchte wohl sagen: Die selbe Konstruktion ist ein Beweis des geometrischen Satzes für das bestimmte Dreieck; wir können sie aber auch allgemein meinen // auffassen // ; oder: wir können an ihr auch einsehen, dass das, was für dieses Dreieck gilt, für jedes andre auch gelten muss. – Aber worin besteht dieses “meinen” // “auffassen” // und das﹖ “einsehen”? Die psychologischen Prozesse kümmern uns ja nicht. “Das Dreieck steht eben hir für irgend ein Dreieck”. Aber worin besteht dieses “für etwas stehen”? Es handelt sich für uns eben wieder nur um den Ausdruck jener ‘Auffassung’, d.h. den Ausdruck dessen, was wir auffassen oder einsehen und den Ausdruck dafür, dass das Dreieck nur für sich selbst oder für alle Dreiecke steht. Der Kalkül muss (wieder﹖) fest-
+
+gestellt werden.
+   Nicht seelische Vorgänge interessieren uns, sondern symbolische.
+
+  
+      
+   Der Beweis kann also nichts prophezeien.
+
+  
+      
+   Ist der Beweis, für A ausgeführt, auch der Beweis für B? so dass es ganz gleichgültig ist, im welchem Dreieck er gezeichnet ist. Und, wenn er also in beiden Dreiecken gezeichnet wäre, nur derselbe Beweis wiederholt wäre. Dass also das Zeichen des Beweises – der Beweis als Zeichen // Symbol // – ebensogut aus der Konstruktion in AA und dem Dreieck B bestehen könnte, wie aus diesem Dreieck und einer Konstruktion in ihm.
+
+  
+      
+   Wie macht mich der allgemeine Induktionsbeweis // Beweis // sicher // gewiss // , dass der besondere das ergeben wird?
+
+  
+      
+   (Verachte nur nicht die simplen Kalküle, wie sie jedes Kind und jede Kaufmannsfrau benützt.)
+
+  
+      
+   
+Dies muss auch ein vollkommen strenger Beweis des assoziativen Gesetzes sein.
+
+  
+      
+   Und hier kann man die beiden Fälle deutlich unterscheiden, von denen wir im geometrischen Beweis sprachen.
+   Denn die Figur kann allgemeiner Beweis gelten, und auch nur als Beweis von 6 + (4 + 3) = (6 + 4) + 3, und ich kann den beweis von 3 + (7 + 2) = (3 + 7) + 2 so hinschreiben:
+Ich habe den Beweis nur oben ausgeführt (die Konstruktion gezeichnet).
+
+   Ein Kalkül ist nicht strenger, als ein anderer! Man muss nur die Grenzen eines jeden kennen.
+   Nur insofern kann man einen Kalkül unstreng nennen, als seine Regeln nicht klar formuliert sind.
+
+  
+      
+   
+Ich könnte oben die gleiche Konstruktion zeichnen // machen // wie unten.    Genügt aber das als Beweis?! Ja, denn der Beweis besteht nun in der Beschreibung dessen, was ich zeichnen könnte. Und die Beschreibung eines Beweises ist ja (auch﹖) der Beweis. – Und nun muss ich ja das Zeichen “” Schritt für Schritt // Stufe für Stufe // durchgehen, um mich h zu vergewissern, dass es nach diesem Plan gebaut ist. Dem Plan, für welchen // den // der allgemeine Beweils gilt.
+
+  
+      
+   “Wie kommt es, dass ich diesen Satz (der Geometrie oder Arithmetik) nicht eigens beweisen muss, sondern, dass er durch den allgemeinen Beweis schon bewiesen ist?” Aber Du musst ihn ja beweisen, – indem Du nämlich den besondern Satz hinschreibst, denn das Uebrige ist nur, was allen Beweisen solcher Sätze gemeinsam ist. Du [,|m]usst diesen euklidischen Satz für jedes Dreieck von neuem beweisen; nur besteht allerdings das Besondere dieses Beweises nur in der Zeichnung dieses Dreiecks, da das Uebrige durch die allgemeine Form (den euklidischen Beweis) schon vorgesehen ist.)
+  
+(2015–)

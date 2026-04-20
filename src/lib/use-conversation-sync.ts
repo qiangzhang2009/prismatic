@@ -182,13 +182,17 @@ function getAllLocalSnapshots(messagesMap: Map<string, { messages: AgentMessage[
     // Extract persona IDs from conversationKey (e.g. "confucius-wittgenstein" → ["confucius", "wittgenstein"])
     const personaIds = conversationKey.split('-');
 
+    // Quick content hash for localStorage (use last message id + count as proxy)
+    const lastMsg = messages[messages.length - 1];
+    const contentHash = `${lastMsg?.id ?? ''}:${messages.length}`;
+
     snapshots.push({
       conversationKey,
       personaIds,
       title,
       tags,
       messageCount: messages.length,
-      contentHash: computeContentHash(messages),
+      contentHash,
       lastMessageAt: messages.length > 0
         ? (messages[messages.length - 1] as any).timestamp || new Date().toISOString()
         : new Date().toISOString(),
@@ -207,7 +211,7 @@ async function sha256(message: string): Promise<string> {
   return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
 }
 
-async function computeContentHash(messages: AgentMessage[]): Promise<string> {
+function computeContentHash(messages: AgentMessage[]): string {
   // Use the last 20 messages + count for quick hash (avoids hashing huge content)
   const recentMessages = messages.slice(-20).map(m => ({
     id: m.id,
@@ -216,7 +220,14 @@ async function computeContentHash(messages: AgentMessage[]): Promise<string> {
     timestamp: (m as any).timestamp,
   }));
   const payload = JSON.stringify({ count: messages.length, recent: recentMessages });
-  return sha256(payload).then(h => h.slice(0, 32));
+  // Simple non-cryptographic hash for change detection — fast and sync
+  let hash = 0;
+  for (let i = 0; i < payload.length; i++) {
+    const char = payload.charCodeAt(i);
+    hash = ((hash << 5) - hash) + char;
+    hash = hash & hash;
+  }
+  return Math.abs(hash).toString(16).padStart(8, '0');
 }
 
 // ─── Offline Queue ────────────────────────────────────────────────────────────
@@ -351,7 +362,7 @@ export function useConversationSync() {
   /** Call this after every message to push a snapshot to the server */
   const pushSnapshot = useCallback(async (personaIds: string[], messages: AgentMessage[], title?: string, tags?: string[]) => {
     const conversationKey = buildConversationKey(personaIds);
-    const contentHash = await computeContentHash(messages);
+    const contentHash = computeContentHash(messages);
 
     const snapshot: LocalConversationSnapshot = {
       conversationKey,
@@ -429,7 +440,7 @@ export function useConversationSync() {
 
           if (newMessages.length > 0) {
             // Sort by timestamp and append
-            const merged = [...conv.messages, ...newMessages].sort((a, b) => {
+            const merged = ([...conv.messages, ...newMessages] as AgentMessage[]).sort((a, b) => {
               const aTime = new Date((a as any).timestamp || 0).getTime();
               const bTime = new Date((b as any).timestamp || 0).getTime();
               return aTime - bTime;
@@ -622,7 +633,7 @@ export async function migrateVisitorConversationsToServer(
       title: data.title,
       tags: data.tags,
       messageCount: data.messages.length,
-      contentHash: await computeContentHash(data.messages),
+      contentHash: computeContentHash(data.messages),
       lastMessageAt: data.messages.length > 0
         ? ((data.messages[data.messages.length - 1] as any).timestamp as string || new Date().toISOString())
         : new Date().toISOString(),
@@ -662,7 +673,7 @@ export function useSyncedChatHistory(personaIds: string[]) {
   const conv = registry.conversations[conversationKey];
   const [messages, setMessages] = useState<AgentMessage[]>(conv?.messages || []);
 
-  const { pushSnapshot, runFullSync } = useConversationSync();
+  const { pushSnapshot } = useConversationSync();
 
   const setMessagesAndSync = useCallback(async (updater: (prev: AgentMessage[]) => AgentMessage[]) => {
     setMessages(prev => {
@@ -677,7 +688,6 @@ export function useSyncedChatHistory(personaIds: string[]) {
         lastUpdated: Date.now(),
       };
       saveRegistry(reg);
-      registryRef.current = reg;
 
       // Push to server
       pushSnapshot(personaIds, next, reg.conversations[conversationKey]?.title);
@@ -690,7 +700,6 @@ export function useSyncedChatHistory(personaIds: string[]) {
     const reg = loadRegistry();
     delete reg.conversations[conversationKey];
     saveRegistry(reg);
-    registryRef.current = reg;
     setMessages([]);
   }, [conversationKey]);
 

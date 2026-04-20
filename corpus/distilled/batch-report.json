@@ -1,0 +1,26 @@
+{
+  "generatedAt": "2026-04-20T07:30:48.425Z",
+  "total": 1,
+  "completed": 1,
+  "failed": 0,
+  "skipped": 0,
+  "results": [
+    {
+      "personaId": "wittgenstein",
+      "personaName": "Ludwig Wittgenstein",
+      "priority": "P0",
+      "status": "completed",
+      "startedAt": "2026-04-20T07:30:48.424Z",
+      "score": 72,
+      "grade": "B",
+      "completedAt": "2026-04-20T07:30:48.424Z",
+      "cost": 0,
+      "tokens": 0,
+      "publishedToWeb": true,
+      "sessionId": "wittsrc-brain-v1",
+      "registeredInCode": false
+    }
+  ],
+  "totalCost": 0,
+  "totalTokens": 0
+}

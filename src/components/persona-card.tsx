@@ -12,6 +12,10 @@ interface PersonaCardProps {
   selected?: boolean;
   onClick?: () => void;
   showGradient?: boolean;
+  confidence?: number;
+  showDistillBadge?: boolean;
+  distillGrade?: string;
+  distillScore?: number;
 }
 
 export function PersonaCard({
@@ -20,6 +24,10 @@ export function PersonaCard({
   selected = false,
   onClick,
   showGradient = true,
+  confidence,
+  showDistillBadge,
+  distillGrade,
+  distillScore,
 }: PersonaCardProps) {
   const gradient = showGradient
     ? `linear-gradient(135deg, ${persona.gradientFrom}22, ${persona.gradientTo}22)`

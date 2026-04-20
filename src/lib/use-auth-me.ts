@@ -41,6 +41,7 @@ export function useAuthMe() {
   const fetchCountRef = useRef(0);
 
   function doFetch() {
+    // eslint-disable-next-line prefer-const -- cancellation flag reserved for future abort controller
     let cancelled = false;
     const currentCount = ++fetchCountRef.current;
 

@@ -1,0 +1,79 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+SC:wght@400;500;700&display=swap');
+
+:root {
+  --bg-base: #0a0a0f;
+  --bg-surface: #12121a;
+  --bg-elevated: #1a1a25;
+  --bg-overlay: #22222e;
+  --text-primary: #f1f5f9;
+  --text-secondary: #94a3b8;
+  --text-muted: #475569;
+  --prism-1: #ff6b6b;
+  --prism-2: #ffd93d;
+  --prism-3: #6bcb77;
+  --prism-4: #4d96ff;
+  --prism-5: #c77dff;
+  --prism-6: #ff9f43;
+}
+
+body {
+  background-color: var(--bg-base);
+  color: var(--text-primary);
+  font-family: 'Inter', 'Noto Sans SC', sans-serif;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-surface);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--bg-overlay);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #333;
+}
+
+/* Card */
+.card {
+  @apply bg-bg-surface rounded-lg border border-white/5;
+}
+
+/* Button */
+.btn {
+  @apply px-4 py-2 rounded-lg font-medium transition-all duration-200;
+}
+.btn-primary {
+  @apply bg-prism-4 text-white hover:brightness-110;
+}
+.btn-secondary {
+  @apply bg-bg-elevated text-text-primary hover:bg-bg-overlay;
+}
+.btn-danger {
+  @apply bg-prism-1/20 text-prism-1 hover:bg-prism-1/30;
+}
+
+/* Badge */
+.badge {
+  @apply inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium;
+}
+.badge-success {
+  @apply bg-prism-3/20 text-prism-3;
+}
+.badge-warning {
+  @apply bg-prism-6/20 text-prism-6;
+}
+.badge-danger {
+  @apply bg-prism-1/20 text-prism-1;
+}
+.badge-info {
+  @apply bg-prism-4/20 text-prism-4;
+}

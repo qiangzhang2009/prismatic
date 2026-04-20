@@ -11,8 +11,6 @@ import {
   useQuery,
   useMutation,
   useQueryClient,
-  type UseQueryOptions,
-  type UseMutationOptions,
 } from '@tanstack/react-query';
 import type { CapacityReport } from '@/lib/admin/capacity-monitor';
 

@@ -1,0 +1,512 @@
+Collapse
+Drag
+
+
+ 	 			 	
+
+Was meint man damit: die Entwicklung A ist von der Entwicklung B verschieden?
+Wie verwendet man die Worte: “die Entwicklung A ist von der Entw. B verschieden?”
+     Da gibt es den Fall A ist an der n-ten Stelle von B verschieden, oder den A ist …
+
+
+		
+ 	 			 	
+     Wie verwendet man den Ausdruck: “die Entwicklung A stimmt mit der Entw. B überein” – oder “nicht überein”?
+
+     Erstens: A stimmt mit B an der n-ten Stelle überein. Oder: A stimmt mit B von der nten zur mten Stelle überein – und dergleichen.
+     “A” & “B” stehen für Ausdrücke von Regeln.
+     Ferner || Weiter aber: A stimmt mit B an jeder zweiten Stelle überein. A stimmt mit B an jeder n²-ten Stelle n² überein. Dies & ähnliches könnte man eine “durchlaufende Übereinstimmung” nennen.
+     Oder aber: A stimmt mit B an allen Stellen überein ‒ ‒ ‒ oder: an keiner
+2
+Stelle überein.
+
+
+		
+ 	 			 	
+Es liegt || läge nahe zu sagen: Wenn A & B an allen äußeren Stellen übereinstimmen, dann stimmt A mit B überein, die Nicht-Übereinstimmung ist vernachlässigbar.
+
+
+		
+ 	 			 	
+     Nun weiter: Wir können sagen: A stimmt mit keiner der Entw. des Systems S überein.
+     Z.B. || Da gibt es diesen Fall: A ist 101010101 …
+S ist: 101001000100001 …      110110011000110000 …      111011100111 …
+      ‒ ‒ ‒
+oder aber diesen:
+
+
+
+		
+ 	 			 	
+Woran erkennt man die Übereinstimmung von A & B?
+     Nun die Übereinstimmung von n bis m indem man diese Stellen ausrechnet.
+     Die Übereinstimmung an jeder fn-ten Stelle – indem aus dem Ausdruck für die Entw. diese Übereinstimmung bewiesen wurde || ist oder aber indem
+3
+diese Übereinstimmung festgelegt wurde. Durch eine arithmetische oder eine extensive Regel.
+
+
+		
+ 	 			 	
+     Der Gebrauch des Wortes “Entwicklung”
+a) die Entw. von N1 bis Nn. b) die Entw. oder die “ganze” Entw.
+
+
+		
+ 	 			 	
+     Man kann die Analogie zweier verschieden verwendeter Ausdrücke so weit treiben als man will – auf dem Papier. Man hat damit in ihrer Relation
+zur Anwendung nichts geändert.
+
+
+		
+ 	 			 	
+     ‘Die grammatischen Regeln sind willkürlich’ heißt: ihr Zweck ist nicht (z.B.) dem Wesen der Farbe oder der Negation || der Negation, oder der Farbe, zu entsprechen, – sondern der Zweck der Negation & des Farbbegriffes. Wie die Regeln des Schachspiels || der Zweck der Schach-Regeln nicht ist dem Wesen des Schach zu entsprechen aber dem Zweck des Schachspiels.
+4
+
+
+
+		
+ 	 			 	
+Die altbekannte || allbekannte Wahrheit simpel & ohne Entstellung zu sagen || konstatieren kann von großen Folgen sein.
+
+
+		
+ 	 			 	
+     Wenn dieses Buch geschrieben ist, wie es geschrieben sein sollte, so muß alles was ich sage || was ich sage alles leicht verständlich, ja trivial sein, schwer verständlich aber, warum ich es sage.
+
+
+		
+ 	 			 	
+“Du gibst ja mit einer Hand & nimmst
+mit der andern!” Freilich; denn ich will Dir ja nichts geben, sondern Dir nur Geben & Nehmen zeigen.
+
+
+
+		
+ 	 			 	
+Oder: – Die Schachregeln sollen nicht dem Wesen || der Natur des Schachkönigs entsprechen denn sie geben ihm dieses Wesen. Wohl aber sollen die Regeln des Kochens & Bratens der Natur des Fleisches entsprechen. – Dies ist natürlich eine
+5
+grammatische Bemerkung.
+
+
+
+		
+ 	 			 	
+“Was ist eine Regel?” ‒ ‒ ‒ Was ist sie also?
+
+
+		
+ 	 			 	
+Kaufe Dir in einer || der Spielwarenhandlung ein Spiel; Du erhältst eine Schachtel, darin die Implemente des Spiels, & ein Regelverzeichnis. Was sind das für Regeln, diese Sätze || Sätze, diese Regeln? Wird Dir in ihnen etwas befohlen, – etwas angeraten,
+mitgeteilt, daß Leute so gehandelt haben? Nun, willst Du Dir nicht ansehen wie die Sätze tatsächlich || wirklich verwendet werden? Die meisten Leute die so ein Spiel kaufen, lesen die Regeln & spielen nach ihnen.
+     Diese selben Regeln aber könnten Teile von Befehlen, Bitten, Berichten bilden.
+
+
+		
+ 	 			 	
+     Eine solche Regel aber könnte Teil eines Befehls sein (nach ihr zu handeln)
+6
+oder Teil eines Berichts (es werde nach ihr gehandelt) usw. Und die Regel könnte auch selbst als Befehl, Bericht etc. verwendet werden.
+
+
+		
+ 	 			 	
+You know what I mean by ‘sense-datum’: this! –
+
+
+		
+ 	 			 	
+     And how do you know that you mean it; how do you know that you hit it with the meaning?
+
+
+
+		
+ 	 			 	
+     Eine Lokomotive durch die Sinneseindrücke die wir von ihr erhalten, definieren. – Tun wir das nicht ohnehin, wenn wir jemandem eine Lokomotive zeigen & sagen: dies ist eine Lokomotive?
+     Statt zu sagen: “Das ist eine Lokomotive” – könnte ich Dir nicht sagen: “Was diese Sinneseindrücke erzeugt ist eine Lokomotive.”
+
+
+		
+ 	 			 	
+     Die Schwierigkeit ist bloß daß er sich die
+7
+Sinneseindrücke nicht merkt. Aber das hindert ihn nicht die Definition zu verwenden.
+
+
+		
+ 	 			 	
+     Die Sprache wird verwendet, – ob sie sich der Wörter für physikalische Gegenstände bedient, oder für Sinneseindrücke.
+
+
+		
+ 	 			 	
+Aber sind nicht die Sinneseindrücke das unmittelbar Wahrgenommene? Die unmittelbaren Gegenstände, auf die sich alles was wir sagen am Schluß beziehen muß?
+
+     Das Bild von den Bausteinen. Alles was wir bauen besteht endlich aus diesen Bausteinen. Aber das Bild ist falsch, da wir ‘diese’ Bausteine nicht andern entgegensetzen.
+
+
+		
+ 	 			 	
+     Wie weißt Du, welchem Gegenstand Du den Namen gegeben hast?
+     Ja, wie weißt Du, daß Du überhaupt irgend etwas diesen Namen gegeben hast?
+
+
+
+8
+
+
+
+		
+ 	 			 	
+     Aber kann ich nicht dem unmittelbar Wahrgenommenen einen Namen geben? – Freilich! Aber || aber das kann ja ein Name in verschiedenem Sinne || verschiedenerlei Sinn sein; d.h. er kann (ja) || noch auf mannigfache Art || diese oder jene Weise funktionieren, || : & der Name des physikalischen Gegenstands, z.B. dem dieser Sinneseindruck eventuell entspricht, ist ja auch ein solcher Name.
+
+
+		
+ 	 			 	
+     Was wir also nennen || damit meinen: “¤dem unmittelbar Wahrgenommenen einen Namen geben” ist eine Abart || Art || besondere Art, Zeichen zu geben die sich auf das Wahrgenommene || unsre Wahrnehmung beziehen. Ein ‘direkt’ & ‘indirekt’ gibt es aber || aber gibt es in dieser Sache nicht. Es sei denn, daß wir eine überflüssig umständliche Bezeichnungsweise, ‘indirekt’ nennen.
+
+
+
+9
+
+
+
+		
+ 	 			 	
+Es ist hier gar keine Frage darüber, daß der || einer Name des physikalischen Gegenstands den einen & der Name des Eindrucks einen andern Gegenstand bezeichnet, wie wenn man nacheinander auf zwei verschiedene Gegenstände zeigt & sagt “ich meine diesen Gegenstand, nicht diesen”. Das Bild von den verschiedenen Gegenständen ist hier ganz falsch gebraucht.
+     Nicht, das eine ist der Name für
+den unmittelbaren Gegenstand, das andere für etwas andres; sondern die zwei Wörter werden einfach verschieden verwendet. Wir zeigen bei der Namenerklärung nicht einmal auf den unmittelbaren Gegenstand & einmal auf den physikalischen.
+
+
+		
+ 	 			 	
+Wenn wir von einem unmittelbaren Gegenstand reden wollen, so können wir sagen daß sich der Name des Sinneseindrucks wie der Name des physikalischen Gegenstands
+10
+auf den unmittelbaren Gegenstand beziehen.
+
+
+		
+ 	 			 	
+     Muß sich aller Wert des Geldes durch den Wert von Kommoditäten definieren lassen? Kann man dann sagen: das Geld habe nicht eigentlich einen Wert, sondern Wert haben nur die Kommoditäten? Das Geld ist doch ein Gebrauchsgegenstand, ein Instrument einer Technik des Handels. Wenn diese
+Technik nützlich ist & einer andern || der des Tauschhandels vorzuziehen ist, inwiefern kann man dann vom Geld wie von einem leeren Schema reden. Ist es nicht als nennte man den Hobel etwas was nur indirekt Wert hat weil er kein Möbelstück ist? Es ist wahr, Geld essen wir nicht.
+     Ist denn der Geldhandel nur eine umständlichere
+11
+Art des Tauschhandels, kann man nicht eben mit jenem tun, was mit diesem nicht möglich wäre?
+
+
+		
+ 	 			 	
+     Von einer indirekteren Bezeichnungsweise kann nicht die Rede sein, denn über was für || welche Zwischenglieder sollte denn der Name eines physikalischen Gegenstands || Objekts bezeichnen?
+
+
+		
+ 	 			 	
+     Der Name des Eindrucks wie der Name des physikalischen Gegenstands
+sind Namen nur durch die Regeln ihrer || für ihre Verwendung. Wenn man den einen für eine direktere Bezeichnungsweise hält als den andern, so ist es nur, durch gewisse Beziehungen der Verwendungsweisen die ein solches Bild des Direkten & Indirekten nahelegen.
+
+
+		
+ 	 			 	
+     Eine Definition des materiellen Gegenstands durch Sinnesbilder wäre denkbar wenn man dann durch
+12
+entsprechende Regeln dafür vorsorgt daß das Definierte alles das leistet was jetzt der Name eines physikalischen Gegenstands leistet. Wir erhielten damit eine sehr umständliche & uninteressante Bezeichnungsweise.
+     Interessant dagegen ist es zu sehen wie die Verwendungsweise eines Namens für einen physikalischen Gegenstand von allem abweicht was man obenhin für eine Definition eines
+solchen Namens halten könnte.
+
+
+		
+ 	 			 	
+     Die Beziehung zwischen der Verwendung eines Namens || der Namen für physikalische Gegenstände & der Namen für Eindrücke ist höchst interessant. Eine Definition der ersteren durch die letzteren wäre höchst künstlich & nicht interessant.
+
+
+
+		
+ 	 			 	
+     Aber kann ich nicht sagen, daß ich in einem Fall bloß den
+13
+Vordergrund [also doch 2 Gegenstände] des wahrgenommenen benenne während im andern Fall ihm & dahinterliegendes || ich im andern Fall auch etwas hinter ihm liegendes benenne? – Aber das ist ja nur ein Bild: in Wirklichkeit will ich ja nicht sagen, das unmittelbar Wahrgenommene habe einen Vordergrund & einen Körper hinter ihm || diesem.
+Es ist allerdings wahr, daß wir uns unter einem Sinnesdatum manchmal eine Art Theaterdekoration vorstellen
+etwas was aussieht z.B. wie ein Bett & nur Vordergrund ist bemaltes Papier das uns ein Bett vortäuscht.
+
+
+		
+ 	 			 	
+     Ich weiß: || –, man reißt || sperrt die Augen auf & macht eine Geste des Bezeichnens. Aber || ; aber hat man damit einen Namen gegeben. Aber warum || wozu macht man diese Zeremonie? Nun, dies ist ja was wir tun wenn wir uns die Bedeutung eines Namens einprägen wollen. Es
+14
+ist also eine nützliche Handlung; & Zeremonie ist es nur, wenn wir philosophieren.
+
+
+
+		
+ 	 			 	
+“Wenn wir von einem Ding sprechen (Tisch, Sessel, etc., etc.), sprechen wir wirklich von Sinneseindrücken; gegenwärtiges, vergangenes, künftiges.” Nun gut, das kann man sagen. ‒ ‒ ‒ Aber wenn man also so von Sinneseindrücken redet – was will man mehr? “Muß es aber dann nicht eine direktere
+Art || Weise geben von Sinneseindrücken zu reden, da man ja hier scheinbar von andern Gegenständen spricht || redet andere Gegenstände als die Sinneseindrücke benennt?” Aber wer sagt denn, daß das nicht eben die Art ist ‘von Sinneseindrücken zu reden’? (Wie heiratet man denn Geld? Nicht (so), indem man eine reiche Frau heiratet?) “Aber es gibt doch jedenfalls noch eine andere Art & Weise von Sinneseindrücken zu reden!” – Gewiß, – & freilich kannst
+15
+Du diese Art & Weise || Sprechweise nennen: “von Sinneseindrücken direkt reden”; aber bedenke jetzt mit wieviel Recht man hier von direkter & indirekter Ausdrucksweise redet. Nur eine oberflächliche Betrachtung || Betrachtungsweise spiegelt uns hier (so) etwas wie eine mittelbare & eine unmittelbare || von mittelbar & unmittelbar vor.
+In einem Sinne rede ich von dem & dem Ding || den (& den) Dingen, – in einem andern eben dadurch von Sinneseindrücken. || in einem andern (kann ich sagen) eben dadurch
+von Sinneseindrücken. ‘Ding’ & ‘Sinneseindruck’ stehen nicht so hintereinander, wie (ebenes) || ein Bild & ein Körper daß von dem einen reden ungefähr so vorsichgeht, wie von dem andern reden (& man sagen kann: “Du hast jetzt von Dingen geredet – jetzt rede einmal von dem, was man || einer (eigentlich) sieht & hört!”)
+
+
+		
+ 	 			 	
+     “Du tust ja, als ob Du von dem redetest & redest von etwas andrem.” || “Du tust, als ob Du von einem
+16
+Ding redetest, & redest in Wirklichkeit von Sinneseindrücken.” Aber so redet man von Sinneseindrücken.
+
+
+
+		
+ 	 			 	
+     “Du redest vom Gegenstand || Ding, willst aber eigentlich von Sinneseindrücken reden.” – Ich will reden, wie ich rede & Du kannst sagen, ich rede von Sinneseindrücken. Nur sieht, von Sinneseindrücken reden, nicht so aus, wie Du es Dir vorstellst.
+
+
+¤
+
+
+		
+ 	 			 	
+     Wir sind hier immer in der stärksten Versuchung mehr sagen zu wollen als was wir wissen. Was wir über die Technik des Gebrauchs || den Gebrauch unserer || unsrer Wörter || Worte nicht wissen, ist ebenso || so interessant als was wir wissen. Ich meine: Daß wir die & die Fragen über || betreffs den Gebrauch der Worte nicht, oder nicht klar beantworten können ist für uns so wichtig & interessant || sollte für uns so wichtig sein, wie die Antworten, die wir geben
+17
+können.
+     Eine Definition geben ist nicht wichtiger als feststellen, daß wir keine Definition zu geben wissen.
+
+
+		
+ 	 			 	
+     Wenn wir den Gebrauch unsrer Sprache, wie er ist, verstehen wollen, so ¤ muß uns auch interessieren, auf welche Fragen wir keine Antwort geben können || zu geben wissen.
+
+
+
+		
+ 	 			 	
+Die Technik des
+Gebrauchs der Worte beschreiben wir mit || in Worten.
+
+
+
+		
+ 	 			 	
+Wäre es nicht denkbar, daß wir den Gebrauch der Wörter “Mann”, “Haus”, “Glas”, etc. etc. dadurch lernten, daß uns von jedem solchen Gegenstand – sagen wir – drei Bilder gezeigt würden; & daß wir daraufhin diese Wörter so verwendeten wie wir es tatsächlich tun?
+
+
+18
+
+
+
+		
+ 	 			 	
+Es gibt ja immer noch eine Technik der Anwendung unserer || einer Erklärung.
+     Und wenn ich die beschreibe, so gibt es eine Technik der Anwendung dieser Beschreibung.
+
+
+		
+ 	 			 	
+     Der Dreher bekommt || erhält die Werkzeichnung, ein sehr einfaches Bild des Körpers den er zu drehen hat. Könnte er sie nicht anders deuten, nicht etwas ganz anderes nach ihr erzeugen? Auch gegeben seine Abrichtung das
+Herkommen, etc., etc..
+
+
+		
+ 	 			 	
+     Wenn Du etwas von einem Gegenstand || Ding aussagst, redest Du natürlich eigentlich von Erscheinungen. || willst Du natürlich etwas von Erscheinungen aussagen. Also kannst Du, statt von dem Ding zu reden geradezu von den Erscheinungen reden. Aber wie soll ich von den Erscheinungen reden?
+     Ich erwarte z.B. jemand & weiß natürlich nicht, genau welche
+19
+Erscheinungen er mir bieten wird. Angenommen nun, ich hätte eine ungeheure Menge von Bildern, – entspricht es nun wirklich dem was ich beim Erwarten tue, wenn ich alle diese Bilder durchsähe & mir sagte, daß eines davon zutreffen wird? Wäre es da nicht besser ich benützte ein Bild des Menschen & sagte dazu, daß er ungefähr so aussehen werde? Ich will sagen: warum soll ich den
+Namen des Dings durch alle seine Erscheinungen ersetzen, & nicht durch eine, & das übrige der Verwendung dieses Bildes überlassen.
+		
+ 	 			 	
+14.9.38.
+“Wenn Du von einem Ding sprichst, willst Du natürlich von Erscheinungen sprechen.” – Also könntest Du auch unmittelbar von Erscheinungen sprechen, statt von dem Ding. Aber wie spricht man unmittelbar von Erscheinungen?
+20
+‒ ‒ ‒ Was nennt man “unmittelbar von Erscheinungen sprechen”? Ist es: von Bildern sprechen – statt von Dingen? Und von allen Bildern der Dinge?
+
+
+
+		
+ 	 			 	
+     Wenn ich sage: Ich werde mich unter den große Nußbaum im Garten || in den Garten gehen & mich unter den großen Nußbaum setzen – welches Bild entspricht dem || welche Bilder entsprechen diesem Satz? Nun ich könnte diesen || den Satz allerdings || wohl durch ein Bild illustrieren;
+aber was wäre die Beziehung dieses Bildes zu meinen Eindrücken von dem || vom Baum?
+     Die Sprache wird hier wieder nicht so verwendet, wie die schematisierende Tendenz annehmen will. || , wie man zufolge der schematisierenden Tendenz annehmen will. Und nichts schwerer, als hier die Augen offen halten für das Tatsächliche || für was tatsächlich geschieht & ohne das Gerüst eines Systems sozusagen
+21
+frei im Raum schwebend anzuerkennen man wisse noch nicht, wie es sich verhalte || verhält aber so verhalte es sich nicht.
+		
+ 	 			 	
+15.9.38.
+     “Wenn ich von diesem Baum rede, will ich natürlich, so oder so, von Erscheinungen reden. So laß mich also direkt von Erscheinungen reden & nicht über den Umweg des Baumes.” Aber das ist so, als hätte man eine Menge
+Erscheinungen (‘des Baumes’) vor sich von denen man reden will & bediente sich des Wortes “Baum” als || zu || in einer Art abgekürzter Redeweise.
+
+
+
+		
+ 	 			 	
+     “Wenn ich von dem Baum rede, so will ich natürlich von Erscheinungen reden”. Nun, dann laß uns gleich von Erscheinungen reden, & nicht erst von dem Baum! || .
+     – Aber wie soll ich von Erscheinungen
+22
+reden? Es ist nicht so einfach, als ich zuerst dachte || es zuerst schien. Es ist schon recht: ich rede von Erscheinungen, aber nicht in so primitiver Weise wie ich zuerst dachte || nicht in der primitiven Weise die mir zuerst vorschwebte. Und so, wie ich von den Erscheinungen reden will, – geschieht es vielleicht am aller besten mit Hilfe des Wortes || durch das Wort “Baum”.
+
+
+		
+ 	 			 	
+     Wie ich mich zuerst ausdrückte, schien es als täte die gewöhnliche Ausdrucksweise
+nicht eigentlich was wir von ihr wollen. Als sei sie eine Art || ein altes historisches Gerümpel. (Eine Art altmodisches Möbel.) Etwas altmodisches, umständliches, das durch etwas direktes modernes zu ersetzen wäre.
+
+
+		
+ 	 			 	
+     Definition von
+
+
+
+durch:
+23
+
+
+
+
+		
+ 	 			 	
+Ich vermute, daß das Wort “Wert” in der Nationalökonomie eine ähnliche, verheerende, Rolle spielt || gespielt hat, wie “Bedeutung” in der Philosophie.
+     Ein Wort mag in unsrer Sprache von größtem Nutzen sein als ‘Mädchen für alles’ so lange man beim Gebrauch ein engbegrenztes Gebiet || Spiel im Auge hat. Es ist dann wie ein runder Spielstein,
+der sich auf mannigfache Weise verwenden läßt.
+
+
+		
+ 	 			 	
+     “Wenn ich von einem Ding spreche, so will ich natürlich || offenbar von Erscheinungen reden. Warum also nicht gleich von Erscheinungen reden. –” Ja; aber wie von Erscheinungen? Von welchen Erscheinungen. Es ist nicht so einfach als || wie es zuerst ausschaut || aussah!
+
+
+		
+ 	 			 	
+     Aber es ist doch gewiß, daß man
+24
+einen Körper || ein Ding irgendwie durch seine Erscheinungen definieren kann! Exakter aber als einfach so: “Wenn etwas so ausschaut, sich so anfühlt, etc., so ist es eine Lampe”.
+
+
+		
+ 	 			 	
+     “Aber was mich interessiert, wenn ich von physikalischen Gegenständen spreche, ist doch was ich sehe & höre, rieche, schmecke & fühle. Also sind es Sinneseindrücke was mich interessiert; also kann ich doch
+gleich von diesen reden.” – Wenn es so ist, so rede ich also ‘von Sinneseindrücken’, indem ich von || über die physikalischen Gegenstände rede || spreche.
+
+
+		
+ 	 			 	
+     “Von etwas reden” kann eben so manches heißen. (Reden wir von zukünftigem oder gegenwärtigem, wenn wir auf den Himmel zeigen & sagen “es wird bald regnen”?)
+
+
+		
+ 	 			 	
+     Woran erkennt man einen Gesichtseindruck als solchen? || daß etwas ein Gesichtseindruck ist? Kann
+25
+ich Dir beschreiben || Woran erkennt man einen Gesichtseindruck? Woran erkennt man, daß das ein Gesichtseindruck ist? Kann ich Dir beschreiben, wie ein Gesichtseindruck ausschaut im Gegensatz zu einem Gehörseindruck?
+
+
+		
+ 	 			 	
+     Wie kontrolliert man, ob Einer das Wort “Gesichtseindruck” richtig gebraucht?
+
+
+
+		
+ 	 			 	
+
+
+
+		
+ 	 			 	
+     (Math.) Und bei einer Erfindung ist die Frage erlaubt: Wozu taugt sie?
+
+
+
+		
+ 	 			 	
+      Jede Zahl – könnten wir sagen – schafft eine neue Situation & jede solche Situation könnten wir uns als Anlaß || Rechtfertigung || könnte man zum Anlaß genommen denken || nehmen von der gewohnten Anwendung der Regel abzuweichen.
+
+
+
+26
+
+
+
+		
+ 	 			 	
+     Wie ist die Anwendung einer Regel fixiert? – Meinst Du ‘logisch’ fixiert? Entweder durch eine weitere Regel || weitere Regeln oder (gar) nicht. – Oder meinst Du: wie kommt es, daß wir || Alle sie Tatsächlich || übereinstimmend so & nicht anders anwenden? Durch Abrichtung, Drill, & die Formen unsres Lebens.
+
+
+		
+ 	 			 	
+     Es handelt sich nicht um einen Konsens der Meinungen sondern der
+Lebensformen.
+
+
+		
+ 	 			 	
+     
+
+
+		
+ 	 			 	
+     Ich sage also nicht: “Glaub nicht daß die logischen Gesetze überall gelten müssen; es kann sehr wohl einen Fall geben in dem der Satz des ausgeschlossenen Dritten nicht gilt” – als sei dies ein Erfahrungssatz & man müsse
+27
+sich hüten || davor warnen blindlings anzunehmen daß er stimme! – Sondern ich sage: Gewöhne Dich daran verschiedene || eine Mannigfaltigkeit von Techniken der Zeichenverwendung (also des Denkens) zu sehen. Ich will nicht Vorurteile || ein Vorurteil der Meinung sondern der Technik beseitigen. Erschrick z.B. nicht prinzipiell vor einem Widerspruch.
+
+
+		
+ 	 			 	
+     Und dies hängt wieder damit
+zusammen: Werde Dir klar über die Unbrauchbarkeit der gewöhnlichen Auffassung von Bedeutung, Sinn & Wahrheit. (Später mehr davon.)
+     Denke nicht so sehr an die Bilder die ein Wort, einen Satz begleiten sondern an seine Verwendung im Sprachspiel.
+     Frag nicht ob dieser Satz sich ‘denken läßt’ & versuch es durch Introspektion zu entscheiden; sondern
+28
+frag, wie er sich verwenden läßt, und seine Verwendung wird Dir die Bilder & Gefühle liefern.
+
+
+		
+ 	 			 	
+     Bist Du nicht in einem Vorurteil begriffen; könntest Du wirklich hier nicht anders gehen? Mußt Du z.B. sagen, die Diagonalzahl in sei verschieden von allen denen mittels derer sie gebildet wurde? Gibt es da nicht andere Wege die wir als gleichberechtigt
+anerkennen können? Oder auch: Bist Du Dir der Ungewöhnlichkeit dieser mathematischen Situation auch ganz bewußt? Bist Du Dir bewußt wie weit Du Dich von den ursprünglichen Bedingungen der gewohnten Technik entfernt hast? – Hast Du nichts in der Umgebung der einen Rechnung übersehen? Kann ich Dich nicht bewegen, unter den veränderten Umständen z.B. einen Widerspruch
+29
+nicht als Zeichen einer tödlichen logischen Krankheit des Kalküls anzusehen?
+
+
+
+		
+ 	 			 	
+Wie wenn Einer sagte: “Ich kann offenbar in irgend einem Sinne versuchen die rechte Hand mit der linken zur Deckung zu bringen & es vergebens versuchen: also lehrt Erfahrung mich daß dies nicht möglich sei; & es
+handelt sich hier also nicht um logische sondern erfahrungsmäßige, physikalische Unmöglichkeit.” Meine || Die Antwort ist: Der Satz: “es ist unmöglich die rechte & die linke Hand zur Deckung zu bringen” kann sowohl als geometrischer, als || als geometrischer, aber auch als physikalischer Satz verwendet werden. (Oder, wie man auch sagen kann – obwohl dies leicht irreführende
+30
+Ideen gibt: der Satz kann geometrisch oder auch physikalisch ‘gemeint’ sein.) Wenn das erstere, so ist damit festgesetzt, daß jedes scheinbare || anscheinende Gelingen des ‘Versuchs’ als Sinnestäuschung zu bezeichnen ist, ob dieser nun auf die Spur kommt oder nicht; ja daß der Vorgang von dem ich sagte er sei ‘in irgendeinem Sinne’ ein Versuch nicht als physikalischer Versuch zu gelten habe, d.h.
+sein Resultat nicht als das eines physikalischen Versuchs weiter zu behandeln ist.
+     Im zweiten Falle wird man dem Versuchenden nicht sagen “aber siehst Du denn nicht, daß es unmöglich ist!” – sondern wird vielleicht der Hoffnung Ausdruck geben, daß es einmal doch gelingen werde. (Die klugen Leute)
+
+
+		
+ 	 			 	
+     “Er kann es nicht nur nicht tun,
+31
+er kann es auch nicht versuchen” heißt: Ich werde keinen Sachverhalt || Vorgang als das Gelingen des Versuchs anerkennen || bezeichnen & daher auch keinen als einen solchen Versuch.
+
+
+
+		
+ 	 			 	
+     “Aber es ist doch ein Unterschied zwischen diesen ‘Versuchen’ || den Vorgängen || dem was man hier ‘Versuche’ nennt!” – Natürlich || Ja freilich ist einer; eben der, den die Beschreibung der beiden Versuche || Vorgänge zeigt. ⌇ Und der Unterschied
+kann uns bestimmen den beiden verschiedene Stellungen einzuräumen.
+
+
+
+32
+		
+ 	 			 	
+My intention was that some day all this should be one book. || ¤ to make a book (out) of them.
+My intention was some day to make a book out of all these thoughts || this || ¤ to make a book out of them all || ¤ to make out of all of them a book.
+		
+(2015–) Wittgenstein Source Bergen Nachlass Edition (WS-BNE). Edited by the Wittgenstein Archives at the University of Bergen under the direction of Alois Pichler. In: Wittgenstein Source, curated by Alois Pichler (2009–) and Joseph Wang-Kathrein (2020–). (N) Bergen: WAB.
+
+
+
+
+
+To cite this element you can use the following URL:
+
+
+
+
+BOXVIEW: http://www.wittgensteinsource.org/BTE/Ms-160_n

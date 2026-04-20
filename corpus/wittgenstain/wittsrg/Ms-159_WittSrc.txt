@@ -1,0 +1,255 @@
+1 Ich entfalte doch die geometrischen Eigenschaften dieser Kette auch indem ich die Umformungen einer andern gleich gebauten Kette vorführe. Aber dadurch zeige ich doch nicht was ich tatsächlich mit der ersten tun kann, wenn diese sich nämlich tatsächlich als unbiegbar oder sonst wie physikalisch ungeeignet erweist. Also kann ich doch nicht 2. sagen: ich entfalte die Eigenschaften jener dieser Kette .
+
+Wie kann man den Eigenschaften der Kette entfalten, die sie gar nicht hat?
+
+‘Wir entfalten die Eigenheiten des hier gezeichneten || gezogenen Vielecks.’ Nehmen wir an das Vieleck wäre aus Draht gebogen, statt gezeichnet; wären wir noch ( ebenso ) geneigt zu sagen: wir entfalteten 3. die Eigenschaften des gebogenen Drahtes? Wir entfalten sie soll hier doch heißen, wir führen sie vor Augen, machen sichtbar || deutlich , was früher nicht deutlich || zu sehen war.
+
+Ich messe einen Tisch & er || eine Tischplatte & sie ist 1 m lang. – Nun lege ich meinen Meterstab an einen andern Meterstab. Messe ich ihn dadurch? Finde ich daß jener zweite Meterstab 1 m lang 4 ist? Mache ich das gleiche Experiment der Messung nur mit dem Unterschied daß ich des Ausgangs sicher bin?
+
+Ja wenn ich den Maßstab an den Tisch anlege, messe ich immer den Tisch, kontrolliere ich nicht manchmal den Maßstab? Und worin liegt der Unterschied des Vorgehens? || des einen & des andern Vorgehens || Vorgehens & des andern ? || zwischen 5 dem einen Vorgehen & dem andern?
+
+Ich entfalte die Eigenschaften dieses Vielecks, heißt hier, ich zeige, z.B., daß es 15 Ecken hat. Ä hnlich als sagte ich , || : ich entfalte die Länge & Breite dieses Papiers indem ich das Papier auseinanderfalte.
+
+Das Entfalten ist hier eine Art Zählen. 6
+
+Das Experiment des Entfaltens einer Reihe kann uns, unter anderem, zeigen wieviele Kugeln die Reihe enthält || aus wie vielen Kugeln die Reihe besteht , oder aber, daß wir diese (sagen wir) 100 Kugeln so & so bewegen können. Die Rechnung aber des Entfaltens zeigt uns was wir eine Umformung durch bloßes Entfalten nennen.
+
+“ I ch entfalte die Eigenschaften dieser Kette, ich zeige, 7 was man alles aus ihr machen kann.” – Was man alles durch bloßes Biegen in den || ihren Gelenken aus ihr machen kann. Nun ich könnte sagen: || möchte vielleicht sagen, ich zeige nicht nur physikalische, sondern auch geometrische Eigenschaften der Kette. Könnte man sagen: Die Glieder dieser Kette sind zwar so zusammengeschweißt || zusammengenietet , daß man sie sie || daß man die Kette nicht biegen kann || in diese Stellung bringen kann , aber es ist 8 doch eine geometrische Eigenschaft dieser Kette daß man sie in diese Stellung bringen kann.
+
+Höchstens , || : daß man sie … bringen könnte, wenn die Glieder nicht ….
+
+Die Eigenschaft ist etwa die, daß die Kette aus 10 Gliedern besteht.
+
+“Ich zeige Dir was man alles aus dieser Kette machen kann.” Dabei 9 nehme ich als selbstverständlich an, daß die Glieder sich bewegen lassen nicht brechen, sich nicht vermehren etc. etc. – Zeige ich Dir nun nicht eine Eigenschaft || Eigenschaften der Kette? Aber welche von den vielen Eigenschaften der Kette zeige ich? Ist es denn noch eine Kette, wenn sie – aus irgend einem Grunde – steif ist, wie ein Stab || Stock ? 10
+
+Stimmt die Logik mit 2 × 2 = 4 überein? Man kann 2 × 2 = 4 mit ihr in Übereinstimmung bringen, aber auch 2 × 2 = 5.
+
+Stimmt 2 × 2 = 4 mit der Logik überein? Man kann 2 × 2 = 4, aber auch 2 × 2 = 5, mit ihr || dem logischen Kalkül überein? Man kann 2 × 2 = 4, aber auch 2 × 2 = 5, mit ihm in Übereinstimmung bringen. (Und ich meine: 2 × 2 = 5 kann unter Umständen ein brauchbares arithmetisches Sätzchen sein. )
+
+Aber es kann doch 11 nicht 2 × 2 = 4 & 2 × 2 = 5 wahr sein, es sei denn, daß “2” oder ‘ × ’ oder ‘ = ’ in den beiden Systemen verschiedenes bedeuten! Soll das heißen: daß in einem Fall || System 2 × 2 = 4 im andern 2 × 2 = 5 ist sei das Kriterium dafür || der Grund warum wir sagen , daß in den beiden jene Zeichen verschiedene Bedeutung hätten. Oder lehrt die Erfahrung, daß unter solchen Umständen die Zeichen immer verschiedene Bedeutung haben? Davon später mehr. 12
+
+Was nennen wir Eigenschaften einer Zahl, Eigenschaften eines Satzes?
+
+Damit daß wir ein Begriffswort bilden z.B. “mathematischer Satz” & für das Wort auch eine Verwendung haben, die uns geläufig ist, sind wir noch nicht im Stande zu sagen, wie wir, gegeben die rechten || beliebigen Umstände, geneigt sein werden es anzuwenden. D.h. wenn ich eine 13 neue Situation an Dich heranbringe wirst Du eine neue Entscheidung über seinen Gebrauch treffen müssen, oder auch erkennen, daß Du ‘nicht umhin kannst’ es hier so zu gebrauchen, hier diesen Weg einzuschlagen. (Etwa zu sagen “es gibt keine Konstruktion der Dreiteilung des ∢ mit Lineal & Zirkel”.)
+
+Und so bringt auch Cantors Beweis eine neue Situation an uns hervor & die 14 Frage ist: “ W as sollen wir nun sagen?”
+
+[Auch K ontradi k tionen könnten unter Umständen richtig, oder wahr, genannt werden.]
+
+[Zu zeigen, daß die internen Beziehungen von Sätzen, die ‘Operationen’ die einen Satz aus einem andern erzeugen, nicht ‘abzählbar’ sind. Dadurch fällt ein Licht auf den Begriff ‘Operation’.] 15
+
+[“Bist Du Dir auch des Unterschiedes bewußt … ” ]
+
+Ist ein Kalkül allgemeiner als ein andrer? Worin besteht die ‘ Allgemeinheit ’ des Mengenkalküls? Nicht darin, daß er ein einfaches Bild einer Klasse andrer (‘spezieller’) Kalküle ist? Ist er ohne B eziehung auf diese auch allgemein? 16
+
+Worin besteht die ‘enlightened simple-mindedness’ von der Littlewood spricht? Besteht sie nicht darin zu glauben, daß die sogenannte allgemeine mathematische Untersuchung Wahrheiten ans Licht bringt, die von den spezielleren Untersuchungen nur noch ins Kleine ausgeführt werden. Während der allgemeine Kalkül nur dadurch ‘allgemein’ 17 ist daß er sich auf spezielle Kalküle bezieht. Weil in der Mathematik nichts im Wort liegt sondern alles im Kalkül. D.h. weil das Zeichen in die reine Mathematik keine andre Bedeutung mitbringt, als der Kalkül selbst sie ihm gibt.
+
+Die Mathematik besteht nicht aus Betrachtungen. Und ‘abstrakt’ kann man einen Teil der Mathe matik 18 nur nennen, insofern seine Anwendung zwar angedeutet aber im unklaren || vag gelassen ist.
+
+[Was fehlt der Mendels s ohnschen Musik? Eine ‘mutige’ Melodie?]
+
+Wenn Du sagst: “aber Mathematik muß doch eine Art der Physik sein!”, so sage ich || sagen wir : dann ist sie eine Physik ihrer Symbole, d.h., sie hat ihre physika lische 19 Bedeutung (Pascal) für die Symbole die Bilder, die sie empfie h lt.
+
+‘Diese Überlegung zeigt, …’ Wie kann eine Überlegung etwas zeigen?
+
+D.h. ich wünsche, daß Du Dir die Mathematik in jedem Stadium als komplett (Referrent), & jeden neuen Kalkül nicht als eine Entdeckung sondern als neue Erfindung denkst. 20
+
+‘Ich will Dir in dieser Menge von Operationen ein Loch zeigen.’
+
+6.1.39. Zu welchem alltäglichen Zwecke ließe sich die Cantorsche Rechnungsart || Rechnungsweise gebrauchen? Es ist leicht verständlich im Fall einer endlichen Anzahl von Zahlen. 21
+
+Wir wollen uns die Cantorsche Bildungsweise von D' eingeführt denken zu einem praktischen Zweck. (Dies natürlich aus Gründen der Klärung unsrer Grammatik, & es darf daher gleich diese praktische Anwendung eine noch so phantastische sein.) || & die praktische Anwendung darf daher so phantastisch sein, wie sie will.)
+
+Als erstes fällt mir ein d as Cantor sche 22 Verfahren als Lösung eines Scherzrätsels. Ich sage: “ich habe alle Kombinationen von Stellen in unendlichen Reihen angeschrieben – zeige mir eine Kombination die ich nicht angeschrieben habe.”
+
+Eins ist klar: Wenn jemand sagte , || : “Wer weiß , || – vielleicht kann man gar keine reellen Zahlen außer diesen mehr bilden, weil schon || einfach alle K ombinationen 23 von Stellen erschöpft sind” – so kann man ihm, nach Cantor, antworten: Nein, denn wenn Du ein Gesetz angibst, das D' erzeugt so wirst , Du zugeben || sagen , daß es eine von allen diesen Gesetzen verschiedene Zahl erzeugt.
+
+Das heißt: die Cantorsche Demonstration ist eine richtige Antwort auf jenen unsinnigen || falschen Einwand. Aber nicht, weil sie eine neue K ombination 24 zeigt, die man früher nicht gesehen hatte, sondern weil sie zeigt, was man in so einem Fall, eine von allen diesen verschiedene Zahl nennt & was hier also ‘ B ildung einer neuen K ombination’ zu nennen wäre.
+
+Es kann z.B. einen Beweis geben, daß π von den algebraischen Zahlen ‘diagonal verschieden’ ist. 25
+
+Unser Ausdruck ist nur dort von besonderer || einer besonderen Exaktheit || muß nur dort von einer besonderen Exaktheit sein , wo sie den psychologischen Punkt genau treffen muß. || strebt nur dort eine besondere Exaktheit an || muß nur dort von ausnehmender || einer besonderen Exaktheit sein ; || , nur dort kommt es (uns) auf eine haargenaue Einstellung des Ausdrucks an, wo sie den psychologischen Punkt genau treffen muß. || strebt nur dort besondere || eine peinliche Exa k theit an, nur dort kommt es (uns) auf die kleinste Abweichung nach rechts oder links an, wo der psychologische Punkt zu treffen ist. || es sich drum handelt, den psychologische Punkt zu treffen. 26 || Unser Ausdruck muß nur dort von einer ganz besonderen || ganz besonderer || von einer ungewöhnlichen Exa k theit sein, nur dort || da kommt es uns auf die Schattierung des Ausdrucks an, wo es gilt, den psychologischen Punkt zu treffen. (Gegensatz hiezu Moore.) Wir verfassen kein || nicht ein gerichtliches || juridisches Dokument, in || mit dem wir der Gegenpartei jeden Einwand verstopfen wollen || das jeden Einwand voraussehen & verstopfen soll || muß . Denn wer sich nicht gutwillig überzeugen läßt, den wollen wir gar nicht überzeugen . || Wir verfassen kein 27 juridischen Dokument , das der Gegenpartei jeden Einwand verstopfen soll. || , das jeden Einwand des Gegners verstopfen soll. … Denn wer sich nicht gutwillig überzeugen läßt, den wollen wir gar nicht überzeugen.
+
+[Hierher gehört auch der Satz von den ‘Fahrgeleisen’ . ]
+
+Nun geht aber Cantor ja noch weiter: er sagt nicht nur, man könne keinen Grund haben zu sagen: dies seien nun alle reelle Zahlen; sondern, er zeigt 28 uns auch eine reelle Zahl die von allen diesen verschieden sei ; || : nämlich die Zahl “ d iagonal verschieden von …”. 29
+
+Warum verwendet z.B. Hardy nicht die logische Demonstration, wenn er zeigen will, daß es außer den rationalen Zahlen noch andere Zahlen geben muß || es gäbe außer den rationalen noch andere Zahlen ? – Etwa weil das Argument auf dieser Stufe zu schwierig ist? Nicht darum, weil, das Geschöpf, was dabei herauskäme || herauskommt , nicht eigentlich wie eine neue || weitere Zahl aussieht? (Er hätte auch die Zahl 0˙01001000100001 … anführen können von der es klar ist daß sie || die offenbar kein periodischer Dezimalbruch ist.) Er wollte etwas 30 haben || vorzeigen , womit man offenbar messen kann. || mißt.
+
+Der allgemeine Satz mag sagen, was alle speziellen sagen, aber die allgemeine Technik tut || lehrt nicht was alle besonderen Techniken tun || lehren .
+
+Indem ich Dich lehre einen Ziegelstein auf einen andern zu legen, lehre ich Dich nicht ein Haus bauen, – da ich Dich 31 doch die allgemeine Form des Häuserbauens gelehrt habe.
+
+Wir sagen: Wenn man von einer Technik des Entwickelns zeigen kann, daß ihre Resultate mit denen eines Systems von Entwicklungen diagonal nicht übereinstimm en , so sagen wir: die || diese Technik habe ein von den || allen Entwicklungen des Systems verschiedenes Resultat . 32
+
+Kann man also zeigen, daß die Entwicklung von √2 mit den Entwicklungen der Brüche diagonal nicht übereinstimmt, so sagt man: √2 erzeuge eine von ¤ jenen andern verschiedene Entwicklung.
+
+Wie ist es nun mit der Technik || Regel des Entwickelns: ‘Addiere 1 zu jeder Stufe der Diagonale des Systems.’ Das ist doch eine Technik des Entwickelns. Und ist es nicht 33 wahr, daß ihre Resultate diagonal mit den Entwicklungen des Systems || mit den Entwicklungen des Systems diagonal nicht übereinstimmen? – Die Umstände sind hier ganz anders || andere , ( i ch habe eine ganz neue Art der Regel eingeführt) also muß || müßte ich hier nicht dasselbe sagen. Aber ich kann dasselbe sagen & also D'S eine von allen Zahlen des Systems verschiedene Zahl nennen.
+
+Woher aber das eigentümliche Gefühl, daß zwar √2 eine Zahl ist || sei , weil sie – wie ich zu sagen versucht bin – ihre 34 ganze unendliche Entwicklung schon voraussieht, dagegen D'S eigentlich keine || nicht eine Zahl sei, weil hier immer nur das Stück vorhanden ist , was ich gerade bilde? – || weil es hier immer nur die Stücke gebe, die ich gerade bilde? Aber worin liegt es denn, daß die √2 (z.B.) ‘ihre ganze Entwicklung voraussieht’? || ihre Entwicklung schon in sich hat? Oder , || : daß die √2 – sozusagen – schon fertig ist, schon fertig da ist, wenn auch || schon ihre Entwicklung nur 35 im Gang ist?
+
+Oder: Wie kommt es, daß wir nicht versucht sind zu sagen : || , die Zahl π kennen wir nur beiläufig || nicht genau , da wir ihr Zahlzeichen nie || nicht ganz anschreiben können. Warum erscheint uns hier die Entwicklung gleichsam als ein Nebenprodukt des Kalküls mit dieser || der Zahl; während die Entwicklung || sie im Fall D'S das ein & alles der Zahl zu sein scheint? Doch offenbar, weil im Fall von π die Entwicklung || das B ilden der 36 Entwicklung wirklich nur ein kleiner Teil des Kalküls mit π ist, weil also das Zeichen π in einem ausgedehnten Kalkül eingebettet ist (der ihm seine Bedeutung gibt), während D'S nichts weiter ist als eine Technik zur fortgesetzten Bildung eines Dezimalbruchs || von Dezimalstellen .
+
+“Der Kalkül gibt dem Zeichen seine Bedeutung” , heißt : Der Kalkül zeigt, wozu ein Zeichen 37 dient – nicht || wozu das Zeichen … nütze ist – nicht … sein Aussehen || seine Schreibweise bloß , nicht ein Bild das sich mit ihm verbindet, nicht ein Teil bloß || irgend ein Ausschnitt des Kalküls. || ¤ : Der Kalkül zeigt Dir, wozu das Zeichen dient – || ; wozu man es überhaupt braucht – nicht sein Aussehen || seine Schreibweise bloß , nicht ein Bild das sich mit ihm verbindet, nicht ein Teil bloß || irgend ein Ausschnitt des Kalküls. || Der Kalkül offenbart Dir den Zweck des Zeichens; wozu man es denn überhaupt gebraucht || es denn überhaupt dient – nicht seine Schreibweise bloß || allein , nicht ein Bild, das sich mit ihm verbindet, nicht ein || irgend ein Ausschnitt bloß des Kalküls. (So wie man sagen 38 kann: wenn Du die Konstruktion || den inneren Bau eines Hauses verstehen willst schau nicht nur auf die Fassade – obwohl diese manchmal über den Bau A ufschluß geben kann. )
+
+Angenommen, wir hätten nur mit periodischen Dezimalbrüchen gerechnet; & nun wäre auf diese Grundlage die Cantorsche Erfindung gefolgt || gesetzt worden – ist es klar, daß wir uns entschlossen hätten, die neuen Regeln zur Bildung von Ziffernreihen ‘Zahlen’ 39 zu nennen? Hätte man sie etwa neue ‘ Brüche ’ genannt?
+
+Es ist die große Diversität dessen, was wir reelle Zahlen nennen, was uns die Zahlen D'S schlu ck en läßt.
+
+“… also müßte ich hier nicht dasselbe sagen” – d.h.: hier ist der Weg durchaus nicht klar vorgezeichnet.
+
+Wenn ich nun aber erkläre auch die 40 Regel D'S habe als Zahl zu gelten – – aber eh ' ich mich darauf einlasse || darauf eingehe : Muß nicht die Regel D'S jedenfalls als neue Regel gelten? Ja, aber das is t DS auch. Es muß heißen: I st nicht das Resultat der neuen Regel jedenfalls ein neues Resultat? D.h.: ich brauche es nicht Zahl zu nennen, muß aber doch zugeben, daß ich eine neue Extension vor mir habe. Aber eine Extension 41 ist die Extension nur von einer Regel; & ich machte die Übereinkunft, etwas eine von den Extensionen von S verschiedene Extension einer Regel zu nennen, wenn es sich zeigen ließe || läßt , daß die E xtension ein D'S sei (D'S ist Prädikat). Und da kommt es drauf an was ich “Regel” & “zeigen lassen” nennen will. Ich könnte ohne weiteres sagen: ich wolle nicht sagen es ‘ ließe sich zeigen’, daß D + 1 ein D' sei. Aber ich kann wieder D + 1 ein D' nennen & 42 also sagen, ich habe vermittels der Cantorschen M ethode eine neue Extension || Regel mit neuer Extension abgeleitet. Und dann habe ich also einen Begriff der Regel gebildet , den man nicht in ein System ordnen kann. || , der das System durch seine Bestimmung ausschließt || aufhebt || nicht zuläßt .
+
+Und das ist nun nichts so besonderes . 43
+
+(Sandhaufen, nächst größere Länge etc.)
+
+8.1. 126 → , 13 → , 27 → , 16 → , 233 → , 18
+
+Wie zeigt man, daß … alle Permutationen von a b c d sind? Wie zeigt man daß man … so in eine Reihe ordnen kann?
+
+Es müßte heißen: Nun führen wir 44 einen Begriff ein, von dem es keinen Sinn hat zu sagen, er werde in ein System gebracht. (Nicht eine Entdeckung – eine Erfindung.)
+
+Jede ‘Eigenschaft einer Zahl’ entspricht einer endlosen Technik ¤ des Erzeugens einer Zahl aus andern. Wenn 1 man nun solche Techniken in eine Reihe ordnet, so zeigt uns die Reihe neue Techniken an. 45 Editorial notes 1) See facsimile; arrow pointing right, probably indicating that the indentation shall be decreased.
+
+Eine Eigenschaft einer Zahl, (das) ist – möchte ich sagen – ihre Beziehung zu einer andern Zahl oder andern Zahlen.
+
+9.1.39. Wir behandeln die Grammatik des Wortes “Technik”.
+
+Wenn wir sagen || man sagt : “ Die || die Differentialrechnung handelt || spricht gar nicht von unendlich Kleinem”, so müßte es vor allem heißen, daß eine Rechnung noch nicht von etwas handelt || spricht ; dann aber da ß die charakteristische Anwendung der Rechnung sich allerdings nicht, – wie der Ausdruck “unendlich klein” 46 erwarten läßt , || – von winzig kleinem || auf winzig kleines gemacht wird || auf winzig K leines richtet . Aber ebenso richtet sich die Anwendung der unendlichen Mengenlehre nicht auf ungeheure Mengen!
+
+Kann ich sagen: “Wenn ich die horizontale Techniken gelernt habe & die Technik der Bildung neuer in vertikaler Richtung, so habe ich damit die Technik der 48 Bildung von DS oder D'S gelernt ” ? – Nun, habe ich sie denn damit schon gelernt? Nein. – Aber Cantor lehrt sie mich durch sein Schema, ( das ja neu ist. ) D.h.: dieses Schema bringt auf neue Möglichkeiten von Operationen z.B. auf die von DS, & auch auf eine neue Möglichkeit der Begriffsbildung ‘Operation’.
+
+“Technik, die ein von den S verschiedenes Resultat liefert” nenne ich eine, die ein D'S hervorbringt. Nach dieser Definition nun kann ich nicht sagen D'S stehe für eine Technik die ein von 48 den S verschiedenes Resultat hervorbringt.
+
+Es ist etwa || ganz ähnlich , wie wenn Einer geneigt ist zu glauben || glaubt , jede unendliche Dezimalzahl mü ss e sich einmal wiederholen (& dies ist man als Anfänger manchma l geneigt zu glauben) & wir zeigen ihm 49 nun die Reihe 0˙1011011101111 … & er verläßt seine frühere Auffassung.
+
+Aber es || E s scheint Cantor lehrt || lehre mich keine neue Technik; er braucht mir nur das Bild zu zeigen, & ich kann sie schon; er nennt || nenne mir nur eine die ich schon kannte. Aber das Schema || Bild ist neu & bringt etwas neues in Vorschlag wenn wir den Vorschlag allerdings auch gleich verstehen.
+
+Wie man umgekehrt 50 eine Technik D'S kennen könnte ohne die S zu kennen.
+
+Wie, wenn man von allen existierenden hergebrachten reellen Zahlen absieht || absähe || Sehen wir doch einmal von allen hergebrachten reellen Zahlen ab ¤ , & mit beginnend, Reihen D'S erzeugt (wobei immer 0 in 1 & 1 in 0 verwandelt || verändert wird). Ich sage nun: 51 wenn ich das D'S immer wieder dem System hinzufüge & ein neues D'S bilde, so lassen sich die so entstehenden D'S nicht in eine Reihe ordnen. Aber die so entstehenden D'S lassen sich doch in eine Reihe ordnen.
+
+Man kann ‘sie’ nicht in eine Reihe ordnen, – wer sind die sie , die man nicht ordnen kann? Ich habe eine Begriffsbestimmung gemacht, in der ich die Ordnung ausgeschlossen habe, indem ich 52 bestimme, jede Ordnung sei immer nur als Teilordnung anzusehen; nun darin ‘ kann ’ man diesen Begriff nicht ordnen. Der Schein der Unmöglichkeit (des Nicht-Könnens) entsteht hier durch die Art wie wir den Begriff einführen. Indem die Bestimmung || eine Bestimmung , die das Ordnen ausschließt, nachträglich wie eine Entdeckung über den schon fertigen Begriff eingeführt wird. 53
+
+Wenn ich also jemand die Technik lehre Brüche anzuschreiben || zu bilden so habe ich ihn gelehrt so viele Zeichen anzuschreiben wie wenn ich ihn lehre, Kardinalzahlen im Dezimalsystem zu bilden || gelehrt so viele zu bilden || so viele zu bilden gelehrt wie Kardinalzahlen im Dezimalsystem ! Lehre ich ihn aber die || jene Technik, die D'S zu bilden, so lehre ich ihn mehr Zeichen bilden, als im ersten Fall! || Kardinalzahlen!
+
+Wenn die C'sche Schema || Demonstration etwas sonder bares 54 || seltsames zum Vorschein bringt, dann eine seltsame Begriffsbestimmung. Wenn hier eine Entdeckung vorliegt, so eine psychologische.
+
+Es ist klar, welchen Zweck es haben kann, zu beweisen daß (z.B.) π ein D'S der algebraischen Zahlen ist || eine Zahl z.B. π als von den algebraischen Zahlen verschieden zu erweisen : aber welchem Zweck kann es dienen || welchen Zweck kann es haben eine von den S verschiedene Regel wegen ihrer D'-Verschie denheit 55 wegen einzuführen? || : aber welchem Zweck kann es dienen, ein D'S bilden bloß seiner Verschiedenheit wegen? D.h.: wie kann man in den Fall kommen, eine von den Re g eln S || eines Systems verschiedene Regel, bloß ihrer V erschiedenheit wegen, zu benötigen || brauchen || bedürfen ?
+
+Nun, ich könnte mir den Fall denken: jeder einer Klasse von Leuten schreibt zu irgend einem Zweck su kz essive die 56 Stellen von π, π 2 , π 3 etc. hin; ¤ ¤ ¤ 57 ich soll nun eine Reihe hinschreiben die einerseits auf eine andre Art als die Reihen π n gewonnen wird, anderseits soll ich mit S icherheit versprechen können daß binnen so & so viel Stellen meine Reihe mit irgendeiner beliebig gewählten Reihe π n nicht übereinstimmen wird. Könnte man die Reihe D'S hier ein neues System der Numerierung nennen. Und zwar nicht allein ihrer Extension wegen, denn das geht nicht, 58 aber zusammen mit ihrem Titel ‘D'S’? Man würde dann sagen: zu einer neuen || verschiedenen Numerierung gehört erstens eine andere Technik des Erzeugens & zweitens die Nichtübereinstimmung mit den Entwicklungen des Systems binnen einer angebbaren Zahl von Stellen. 59
+
+D'S kann man nicht ein anderes ‘ Muster ’ nennen als die Entwicklungen von S. Z.B. in ist D'S = 0˙0000 … aber 0˙0000 … ist nicht ein and r es Muster als 0˙0000 … wenn einmal lauter 0 folgen einmal irgendwo eine 1.
+
+Wozu dient mir eine Technik der Entwicklung, die mit allen den S diagonal 60 nicht übereinstimmt .
+
+In der Mathematik werden Gerüste konstruiert. ‒ ‒ ‒ || Sprachgerüste konstruiert || Begriffs- , d.h. , Sprachgerüste konstruiert. Wozu || Ob & wozu sie dann zu gebrauchen sind, ist eine andere || nun eine weitere Frage.
+
+So untersucht die Mathematik auch nicht ein K ontinuum (nämlich etwa das ‘mathematische K ontinuum’) sondern konstruiert einen Begriff des 61 K ontinuums : d.h.: sie stellt gewisse Regeln für den Gebrauch des Wortes || der Worte ‘ K ontinuum’ ‘ k ontinuierlich’, etc. || u.a. , auf; & es fragt sich nun, ob & inwiefern, das so gebildete Spiel mit Worten nützlich ist bei der Beschreibung eines kontinuierlichen Tatbestandes.
+
+Wieviele Zahlen || Kardinal z ahlen ¤ hat der anschreiben gelernt der (wie wir alle) gelernt hat das Dezimalsystem zu beherrschen, oder wieviele Multiplikationen 62 hat er auszuführen gelernt? Das könnte man in zwei Weisen beantworten. Entweder indem man die Zahl der Multiplikationen nennt, die er beim Unterricht ausgeführt hat. Oder die Antwort ist: “Er kann beliebig viele Multipli k ationen ausführen”. (Und nun entschließt man sich etwa dazu “beliebig viele” ein Zahlwort zu nennen.) Kann der nun mehr Rechnungen oder gleichviele Rechnungen als 63 ich, der nicht, wie ich nur beliebige Multipli k ationen, sondern auch beliebige Divisionen ausführen kann? Es scheint, er kann mehr, aber anderseits kann er doch auch nur beliebig viele Rechnungen ausführen ; || , also ebensoviele wie ich. Was zeigt dies nun? Zeigt es irgend etwas anderes, als daß es dumm ist hier nach der Analogie mit den Zahlwörtern zu suchen || fragen , wo es offenbar || ist, hier zu fragen, welches der, den natür lichen 64 Zahlen || Zahlwörtern analoge Gebrauch des Wortes “beliebig viele” ist; da es hier offenbar verschiedene Wege gibt, die man ‘die Fortsetzung des alten Weges’ nennen kann. Und sagt man nun: man habe || wir haben gleichviele || ebensoviele || die Beiden || wir beide hätten gleichviele Rechnungen ausführen gelernt, so ist das nicht der Ausdruck einer Entdeckung über das Wesen der Unbegrenztheit, sondern eine Bestimmung über den Gebrauch 65 des Wortes || Ausdrucks “gleich viel” in der Verbindung mit dem Ausdruck “beliebig viele”. Eine Bestimmung die, wahrscheinlich, zw e ckmäßiger hätte anders getroffen werden sollen || anders getroffen worden wäre .
+
+Aber was soll man auf die Frage antworten: “ W ieviel Kardinalzahlen gibt es?” – Warum sollte man nicht die Antwort vorschreiben: “Diese Frage heißt nichts”? – Aber hat denn die Frage keinen Sinn? Nicht, wenn 66 Du ihr keinen Sinn gibst . Un d angenommen, Du setztest die || als Antwort fest: “ z ahllose”, || “Unbegrenzt viele”, so ist damit noch nicht bestimmt wie Du diesen Ausdruck nun noch weiter gebrauchst. || gibst. Und wenn Du ihr einen gibst, so kannst Du ihr nun den einen oder den andern geben.
+
+In der Mathematik werden Begriffsbestimmungen gemacht, nicht die Eigenschaften von Gegenständen || Begriffen gefunden. ⇒ 67 Es sei denn, Eigenschaften, wie die Zweckmäßigkeit .
+
+Eine Technik ‘ handelt ’ von nichts. Man mag sie aber mit H inblick auf die & die Anwendung lehren. Es wäre seltsam, die || eine Technik des Springens || Schleuderns , z.B., eine allgemeine Technik zu nennen, weil sie allerlei verschiedene Verwendungen hat.
+
+“Viele Äpfel + 2 Äpfel = Viele Äpfel”. – Angenommen Einer 68 sagte: “Viele Äpfel + 2 Äpfel ˃ Viele Äpfel”! – “Aber es ist doch offenbar daß V iele & 2 wieder viele sind & daß es mehr als viele nicht gibt.” – Mache eine andere Begriffsbestimmung.
+
+‘ Eigenschaft einer Zahl’ 0'a = b Man zeigt, daß die Operationen mit Kardinalzahlen nicht a bz ä h l bar sind, indem man zeigt daß jedem System S solcher Ope rationen 69 eine neue Operation D'S entspricht. Dann sind aber auch die Sätze der Arithmetik nicht abzählbar. Dagegen sind aber Russells Sätze || die in Russells System beweisbaren Sätze abzählbar.
+
+Wenn wir die Zeichen Russells als Ziffern auffassen, so wird jeder seiner Sätze ein Zahlzeichen & jeder seiner Beweise eine bestimmte Konstruktionsart einer Zahl (aus den Zahlen der primitive propositions ). Wir könnten jeden solchen Satz schreiben: 70 “die Zahl N || n ist aus M,O,P,Q || r, s, t, u, beweisbar” wo B eweisbarkeit eben eine Eigenschaft von Zahlen ist.
+
+12.1. Multiplikation & Division . Division hat größere Mannigfaltigkeit; sie zeigt auch, wenn || daß a × b nicht c ist.
+
+Beweise in meinem W-F System, daß etwas keine Taut. & keine Cont. ist.
+
+Was heißt es einen R'schen Beweis einmal als Beweis des R'schen 71 Satzes, einmal als Beweis seiner Beweisbarkeit aufzufassen?
+
+Wie operiert man mit dem Russellschen Satz , wie mit dem Satz, er sei beweisbar? Oder analog: Wie operiert man mit der Taut . ( p ) & anderseits mit einem Satz p = taut.? Sagen sie || diese nicht verschiedenes? Nun ja; es sagt ja jeder sich selbst, d.h., was man liest, wenn man ihn liest. Aber nun fragt es sich, welchen Gebrauch man von den beiden macht. 72
+
+Aber jedenfalls ist doch die Verneinung des einen nicht die Verneinung des andern ! Denn wenn ⊢p ⊃ p . = . p ⊃ p = taut . , dann kann man fragen: was ist nun das Negativ des Satzes “⊢p ⊃ p”? Besagt es, daß der Satz nicht beweisbar ist, oder da ß sein Gegenteil beweisbar ist? 73
+
+Endlose Melodie
+
+Unendliche Erlaubnis Unendlicher Wunsch
+
+Welcher Teil der Mathematik wäre insbesondere auf eine unendliche Baumreihe anzuwenden? Hat der Satz Sinn: “Diese Baumreihe hat kein Ende || läuft ohne Ende weiter ”? (Warum sollte man nicht, z.B., eine kreisförmige Baumreihe so nennen?) Kann man etwas mit ihm anfangen, so hat er S inn.
+
+Kann man sich unend lich 74 viel Geld wünschen? Wie weiß man es, wenn der Wunsch erfüllt ist?
+
+Wie, wenn jemand sagte: “Russell behauptet durchaus nicht daß der Satz beweisbar ist || die Sätze beweisbar sind ; sondern er behauptet einfach die Sätze, ihre Wahrheit . ”?
+
+“Russell behauptet nur : ‘Es regnet, oder es regnet nicht’ || , daß es regnet oder nicht regnet . ”
+
+‘Es ist wohl wahr , || : Russell behauptet nur Tautologien; aber er behauptet nicht daß es Tautologien 75 sind. Angenommen R. macht einen Rechenfehler, so behauptet er am Ende || dann also etwas, was keine Tautologie ist.’ ‘Russell behauptet nur ﹖ am Ende eines Beweises; aber er behauptet nicht daß dies bewiesen wurde.’
+
+Wie aber wenn ich sagte: ‘Russell interessieren nur Tautologien; er gibt uns also eine Liste von Tautologien, oder auch die Behauptung, daß dies alles Tautologien seien’?
+
+Wenn Du R. wider sprechen 76 wolltest, wie würdest Du es tun: indem Du behauptest, daß einer seiner Sätze || sein Satz || ein Satz der Principia Mathematica nicht beweisbar sei, oder, daß sein Gegenteil beweisbar sei. Oder: Hätte R. unrecht nur wenn das Gegenteil seines Satzes ¤ bewiesen || beweisbar wäre, oder auch, wenn sich der Satz als nicht beweisbar herausstellte.
+
+Welches ist also das Gegenteil einer R'schen B ehauptung? 77
+
+Wie wäre es nun mit einem Satz, als dessen Beweis nicht der Beweis seiner Beweisbarkeit, sondern der Beweis seiner Unbeweisbarkeit in einem gewissen System wäre? || gälte? Nun wir hätten hier eine etwas seltsame Ausdrucksweise || Ausdrucksform vor uns. Ein solcher Satz wäre z.B. “⊢p ⊃ q”. Warum soll ich nicht festsetzen, daß als Beweis von || des Satzes ⊢p ⊃ q der (einfache) Beweis dafür gelten solle, der || welcher zeigt, || der Beweis des Satzes ⊢p ⊃ q die Demonstration sein solle, daß “ ⊢ p ⊃ q” kein Russellschen Satz (weil keine Taut.) ist? || keine Tautologie ist? Wir haben dann der m athem. Logik einen Satz hinzugefügt, der a) sich beweisen läßt, b) mit keiner Tautologie äquivalent sein kann || nicht einer der Tautologien || keiner Taut . entsprechen kann ; denn sagten wir von irgend einer, sie wäre eigentlich der gleiche mathematische Satz so ließe er || ⊢p ⊃ q so aufgefaßt, sei eine || entspreche einer Tautologie so ließe sie sich also dadurch beweisen, daß man zeigt, er sei eine Taut . , & auch er sei keine 79 Taut. 1 Editorial notes 1) See facsimile; arrow pointing to the graphic.
+
+Frage: Ist der Satz “⊢p ⊃ q”, welcher || der aussagt, daß der selbst keine Taut . ist, ein neuer Satz der Mathematik, oder ist er derselbe, wie der: “Der Satz p ⊃ q ist keine Tautologie”? Man kann den Satz “⊢p ⊃ q” als einen 80 neuen Satz der Math. auffassen, ä hnlich vielleicht wie einen Kreis & einen Punkt als neue Kurve. 81
+
+Was wir lehren, ist die Verschiedenartigkeit || Vielart der Begriffe, wie sie weder in der O berflächengrammatik unserer Sprache, noch in den Bildern, zum Ausdruck kommt, die wir mit unser Ausdrücken verbinden, sondern in der Struktur des Gebrauchs, den wir von ihnen machen. Diese Struktur zeigt uns, gleichsam, neue Dimensionen des Begriffs. Während von oben angesehen, alles in einer Fläche zu liegen scheint. Die 82 K onne k tivität des Begriffs ist eine andere als sie, vom gewöhnlichen Standpunkt aus gesehen || angeschaut , scheint. Was von einem Punkt wie Fransen aussieht sieht man von einem andern || da || hier gesehen wie Fransen || ausgefranst aussieht || erscheint sieht || erkennt man von dort als die Meridiane einer Kugel. || Was von hier wie Fransen aussieht, erkennt || sieht man von dort als Meridiane einer Kugel. 83
+
+Denn vom Satz “⊢p ⊃ q ≠ taut . möchte man etwa sagen: Gib uns nur Zeit & wir werden auch ihn als Tautologie erweisen. Wir werden ihn etwa arithmetisieren & dann in R'sche Logik umwandeln. || umsetzen. Mache ich aber den Schritt , ihn ⊢p ⊃ q zu schreiben, so || so zu schreiben: ⊢p ⊃ q, so erkenne ich damit eine neue Beweisart für Sätze || einen Satz dieser Form || diese Satzform an || diesen Satz an || an für Sätze || einen Satz dieser Form || diese Satzform . Ich fasse dies nun eben als Schritt auf; obwohl es ein degenerierter Schritt ist. Es ist doch dieser Satz (könnte man sagen) ein neues ¤ 84 mathem. Instrument || ¤ so erkenne ich damit eine neue Beweisart || Art von Beweis für diesen Satz || den Satz ⊢p ⊃ q an; mache ihn damit zu einem neuen math. Instrument. Denn ⊢p ⊃ q ist ( nun ) ein Satz, der wahr ist, wenn er unbeweisbar || R-unbeweisbar ist, & das war “⊢p ⊃ q ≠ taut . ” nicht. Ich will diesen Satz als ein neues Instrument aufgefaßt wissen. Und er ist doch offenbar keine Tautologie; & er ist doch offenbar ein Satz (& einer nach den Konstruktionsregeln R's). 85
+
+Ehe man die 5-Ecks - K onstruktion kannte, & wußte, daß es keine 7-Ecks - Konstruktion gibt; war || standen nicht das Wort || die Ausdrücke “5 - Ecks - Konstruktion ” & “7-Ecks - Konstruktion ” auf gleicher Stufe? Aber vom letzteren kann man sagen, daß e r s innlos ist – wenn man aber das nicht wußte so wußte || kannte man ebensowenig den Sinn des Wortes || Ausdrucks 5 - Eckskonstruktion. 86
+
+‘Die letzten Bestandteile der Materie sind Kugeln von ungefähr dieser Größe.’ So einem Satz könnte man ganz leicht Sinn geben. Aber stell Dir die Wirkungen so eines Satzes || dieses Satzes auf einen Jeans & Ed d ington & auf die Leser populär-wissenschaftlicher Schriften vor. 87
+
+Nur von einem gewissen Punkt, vom Zuschauerraum, sieht man das Zauberstück . Von || ; von den andern Seiten sieht es ganz anders & durchaus || absolut nicht wie ein Zauberstück aus.
+
+Verschiedenerlei || Verschiedene Pointen eines Beweises: zu zeigen daß man das sagen muß, oder mit praktischen Bedürfnissen in Konflikt kommt – oder, zu zeigen, daß || aber, daß man das sagen kann , versucht sein kann es zu sagen. Ich 88 meine: Der Beweis legt eine Ausdrucksweise nahe & kann dies tun weil diese Ausdrucksweise am besten den Tatsachen angepaßt ist, oder aber, weil sie eine besonders paradoxe ist & es schön ist, zu finden, daß ein paradoxer Satz wahr ist. || Paradox wahr ist. 89
+
+Da die Tautologien, z.B. ⊢p ⌵ ~p, ja doch nicht die Funktion gewöhnlicher Sätze haben so ist nicht einzusehen, warum wir nicht Sätze mit noch ganz andern Funktionen verwenden sollen. || mit noch weit verschiedenen Funktionen verwenden sollen.
+
+Worauf läuft es denn im Ernst hinaus? Daß, wenn ich den Beweis der S-Unbeweisbarkeit von p als Beweis des Satzes p anerkenne, ich damit ein math. System anerkenne, 90 in welchem p wahr ist & nicht zu S gehört; daß es also leicht ist, die Dinge so zu drehen, daß … 91
+
+Man könnte auf zwei Arten zur ‘Kurve’ kommen. Einmal durch eine Gleichung … ten G rades & indem man zeigt daß ein Kreis & ein Punkt ein besonderer Fall solcher Kurven ist – aber auch auf einem ganz andern Weg , || : indem man einfach sagt sei auch eine Kurve da durch sie auch A bszissen Ordinaten zugeordnet werden. Dies wäre auch ein Schritt der Math., aber ganz anderer Art, als der frühere . 92
+
+Ich könnte mir einen Zauberer || Zauberkünstler denken, der seine Kunststücke vor einem Spiegel ausführt, der ihm sie zeigt, wie das Publikum sie sieht, & der nun selbst darüber staunt, daß er dies hat ausführen können. (So betrügt der Satz den Mathematiker . ) Übrigens – nur ein sehr gewandter Zauberkünstler würde || könnte durch so einen Spiegel betrogen werden, 93 einer dem die Griffe seiner Kunststücke so geläufig geworden wären, daß er sich ihrer gar nicht mehr bewußt ist.
+
+‘Du kannst eine n Menschen im Finstern nicht sehen; ich werde Dir zeigen, wie ein Mensch, im Finstern ausschaut.’ (Ich mache dann etwa eine Photographie von ihm mit infraroten Strahlen.) Was heißt es nun zu sagen: ‘Ehe ich den Proze ß nicht verstehe – verstehe ich 94 auch das Resultat nicht . ’?
+
+Er zeigt mir ein Bild & sagt: “ S o schaust Du im Dunkeln aus.” Versteh ich ihn nun , || ; weil er mir doch ein Bild zeigt?
+
+Gab es immer die Probleme || das Problem der Grundlagen der Mathematik? –
+
+Das Problem entsteht || erwächst dort am leichtesten, wo starke Tendenzen der Assimilation der || von Ausdrucksweisen mit 95 ganz verschiedener Grammatik || Anwendung sind. || vorhanden sind.
+
+Kommen diese Tendenzen plötzlich einem Wunsch entgegen & werden nun || die Ähnlichkeit des Ausdrucks wird aufgegriffen um zu zeigen, daß eigentlich || im Wesentlichen kein Unterschied bestehe, dann entstehen philosophische Probleme || Beunruhigungen durch den Zwiespalt || Widerstreit der Ausdrucksweisen, der sich in dieser || der alten Sphäre nicht austragen läßt.
+
+“Er hat den Ostpol der 96 Erde entdeckt.” – Hat er vielleicht einen Grund entdeckt, irgend etwas ganz T riviales ( “die ) Entdeckung des Ostpols” zu nennen?
+
+“Er hat ein Mittel gegen die Arbeitslosigkeit gefunden.” “Er macht Vorschläge zur Beseitigung der Arbeitslosigkeit.” Verstehen wir diese Sätze?
+
+“Er hat gefunden, wieviel Uhr es auf der Sonne ist.” 97
+
+Ich vergleiche diesen Satz nicht mit etwas Rätselhaftem, sondern mit etwas Unverstandenem.
+
+Ich zeige Dir eine neue || andere Art diesen Satz zu betrachten: nicht im Lichte des Rätselhaften sondern im Lichte des Unverstandenen.
+
+Du siehst diese Figur noch immer als M odifikation || Variation e iner Figur A 98 an (so weit sie sich auch schon von ihr entfernt hat); ich sage: sieh doch auf B hin! || vergleich sie doch mit B! ist sie denn nicht eine Variation von B ? Und so hattest Du sie bisher noch nicht angeschaut, & das || ‒ ‒ ‒ & das ändert Deine Einstellung zur Figur. (Vielleicht aber ändert es Deine Einstellung nicht!)
+
+Aber “p ⊃ q ≠ taut . ” ist doch ein Satz der Geometrie der Sätze einer gewissen Art. Und es ist nun 99 entweder ein geometrisches Fa k tum, daß dieser Satz selbst eine Tautologie ist, oder, daß er keine ist. Angenommen das Fa k tum, er sei eine so kann doch, daß ich ih n nun einfach ⊢p ⊃ q schreiben will, daran || hieran nichts ändern ! || . Denn ⊢p ⊃ q sagt doch nun genau dasselbe aus, wie jener || der längere Satz . Aber wenn ich annehme, er sei eine Tautologie, so nehme ich || ich nehme doch also an, daß gewisse Transformationen, die ich zulasse, ihn zu einer Tautologie 100 machen. Und die Frage ist ob ich solche Transformationen des Satzes zulassen soll, wenn ich die Schreibweise ⊢p ⊃ q zulasse & den Beweis daß p ⊃ q keine Tautologie ist.
+
+Aber kommt das also nicht darauf hinaus, daß ich sehr wohl für einen Satz einen andern als nicht - R.schen Beweis anerkennen kann & einen R . schen nicht? 101
+
+Wieviele Multipli k ationen habe ich auszuführen gelernt? – Wieviele Multiplikationen kann ich ausführen? –
+
+‘Du kannst nicht alle Kisten der Welt, in eine Kiste legen.’ Warum? Weil ihrer zu viele sind? – Ich werde Dir beweisen, daß es eine unendliche Anzahl || Zahl von Kisten gibt; denn keine Kiste, wie groß Du sie auch machst kann alle Kisten enthalten || beherbergen . 102
+
+Man kann nicht alle Systeme auf die Kardinalzahlen aufteilen, weil, sie aufteilen, ein System bilden heißt.
+
+Numeriere die Systeme einfach || eben mit allen || den Brüchen zwischen 1 & 2 & behalte || halte die Brüche zwischen 2 & 3, 3 & 4, u.s.w. für weitere Fälle , in Vorrat . Dann kannst Du die Systeme der Systeme nach Herzenslust numerieren, wenn auch nicht in eine Reihe ordnen .
+
+103 “Du kannst nicht alle Systeme in ein System bringen; daher kannst Du nicht allen Systemen Namen geben; denn Du kannst alle N amen in ein System bringen.” – Du kannst allen Systemen Namen geben, solange || wenn Du nur die Namen nicht (dadurch) verschwendest, daß || indem Du mit dem System aller Namen anfängst || das System aller Namen verwendest .
+
+Wenn d ie Brüche die Namen sind so kann man sie den || allen Systemen zuordnen, indem man … 1 Editorial notes 1) Continuation in Ms-162b,1r.

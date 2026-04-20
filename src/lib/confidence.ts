@@ -1060,3 +1060,22 @@ export function getConfidenceLevel(score: number): { label: string; color: strin
   return { label: '需要完善', color: '#6b7280', bgColor: 'rgba(107,114,128,0.1)', borderColor: 'rgba(107,114,128,0.3)' };
 }
 
+/**
+ * Get confidence score for a persona. Falls back to a default if not found.
+ */
+export function getPersonaConfidence(personaId: string, _persona?: any): ConfidenceScore {
+  return PERSONA_CONFIDENCE[personaId] ?? {
+    overall: 0,
+    dataCoverage: 0,
+    rawMaterial: 0,
+    timeSpan: 0,
+    contentDiversity: 0,
+    sourceVerifiability: 0,
+    starRating: 1,
+    version: 'unknown',
+    mainGaps: [],
+    priority: 'low',
+    dataSources: [],
+  };
+}
+

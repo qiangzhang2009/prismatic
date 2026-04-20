@@ -4,7 +4,7 @@
 
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import type { Mode, Persona } from './types';
+import type { Mode } from './types';
 
 interface AppState {
   // Conversation
@@ -35,7 +35,7 @@ interface AppState {
 
 export const useAppStore = create<AppState>()(
   persist(
-    (set, get) => ({
+    (set) => ({
       // Initial state
       currentMode: 'solo',
       currentParticipants: ['steve-jobs'],

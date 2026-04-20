@@ -2,6 +2,7 @@
  * Prismatic — User Management System
  * 使用 Prisma User 表进行用户管理
  */
+/* eslint-disable @typescript-eslint/no-require-imports */
 
 import { prisma } from '@/lib/prisma';
 import { neon } from '@neondatabase/serverless';
@@ -196,6 +197,7 @@ export async function getUserByEmail(email: string): Promise<PublicUser | null> 
   return getUserById(email);
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars -- one-time migration function
 async function syncUserToNewTable(oldUser: any): Promise<void> {
   try {
     await prisma.user.upsert({
