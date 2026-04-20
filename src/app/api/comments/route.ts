@@ -98,76 +98,78 @@ export async function GET(req: NextRequest) {
     const cookieStore = await cookies();
     const visitorId = cookieStore.get('prismatic-visitor')?.value || 'anonymous';
 
-    // Use raw SQL to avoid Prisma model proxy issues
-    const rawComments = await prisma.$queryRaw`
-      SELECT
-        c.id,
-        c.content,
-        c.nickname,
-        c.avatar_seed as "avatarSeed",
-        c.gender,
-        c.geo_country_code as "geoCountryCode",
-        c.geo_country as "geoCountry",
-        c.geo_region as "geoRegion",
-        c.geo_city as "geoCity",
-        c.created_at as "createdAt",
-        c.updated_at as "updatedAt",
-        c.reactions,
-        c.persona_slug as "personaSlug",
-        (SELECT COUNT(*) FROM comments r WHERE r.parent_id = c.id AND r.status = 'published') as "replyCount"
-      FROM comments c
-      WHERE c.status = 'published' AND c.parent_id IS NULL
-      ORDER BY c.created_at DESC
-      LIMIT ${limit} OFFSET ${offset}
-    `;
+    // Build the where clause programmatically
+    const where: Record<string, unknown> = {
+      status: 'published',
+      parentId: null,
+    };
 
-    const totalResult = await prisma.$queryRaw<[{count: bigint}]>`
-      SELECT COUNT(*) as count
-      FROM comments c
-      WHERE c.status = 'published' AND c.parent_id IS NULL
-    `;
+    let comments;
+    try {
+      comments = await prisma.comment.findMany({
+        where,
+        orderBy: { createdAt: 'desc' },
+        skip: offset,
+        take: limit,
+      });
+    } catch (dbError) {
+      console.error('[comments] DB query error:', dbError);
+      return NextResponse.json(
+        { error: 'Database error', detail: String(dbError) },
+        { status: 500 }
+      );
+    }
 
-    const processedComments: any[] = (rawComments as any[]).map((c: any) => {
-      let counts: Record<string, number> = {};
+    let total;
+    try {
+      total = await prisma.comment.count({ where });
+    } catch (dbError) {
+      console.error('[comments] DB count error:', dbError);
+      total = 0;
+    }
+
+    const processedComments = [];
+    for (let i = 0; i < comments.length; i++) {
+      const c = comments[i] as any;
+      const counts: Record<string, number> = {};
       let userReaction: string | null = null;
 
       const rawReactions = c.reactions;
-
       if (Array.isArray(rawReactions)) {
-        for (const r of rawReactions as any[]) {
+        for (let j = 0; j < rawReactions.length; j++) {
+          const r = rawReactions[j] as any;
           if (r && typeof r === 'object' && typeof r.emoji === 'string') {
-            counts[r.emoji] = (counts[r.emoji] || 0) + 1;
-            if ((r as any).visitorId === visitorId) {
-              userReaction = r.emoji;
+            const emoji = r.emoji;
+            counts[emoji] = (counts[emoji] || 0) + 1;
+            if (r.visitorId === visitorId) {
+              userReaction = emoji;
             }
           }
         }
-      } else if (rawReactions && typeof rawReactions === 'object' && !Array.isArray(rawReactions)) {
-        for (const [emoji, count] of Object.entries(rawReactions)) {
+      } else if (rawReactions && typeof rawReactions === 'object') {
+        const entries = Object.entries(rawReactions);
+        for (let j = 0; j < entries.length; j++) {
+          const [emoji, count] = entries[j];
           if (typeof emoji === 'string') {
             counts[emoji] = Number(count) || 0;
           }
         }
       }
 
-      const avatarUrl = c.avatarSeed
-        ? getAvatarUrl(c.avatarSeed, c.gender || undefined)
-        : null;
-
       const geoCountry = COUNTRY_NAMES[c.geoCountryCode || ''] || c.geoCountry || '';
       const location = [geoCountry, c.geoRegion, c.geoCity].filter(Boolean).join(' · ') || null;
 
-      return {
+      processedComments.push({
         id: c.id,
         content: c.content,
         author_name: c.nickname,
         author_avatar: null,
-        avatar_url: avatarUrl,
+        avatar_url: c.avatarSeed ? getAvatarUrl(c.avatarSeed, c.gender || undefined) : null,
         display_name: c.nickname,
         gender: c.gender || null,
         location,
-        created_at: c.createdAt ? new Date(c.createdAt).toISOString() : new Date().toISOString(),
-        updated_at: c.updatedAt ? new Date(c.updatedAt).toISOString() : new Date().toISOString(),
+        created_at: c.createdAt ? c.createdAt.toISOString() : new Date().toISOString(),
+        updated_at: c.updatedAt ? c.updatedAt.toISOString() : new Date().toISOString(),
         is_pinned: false,
         is_edited: false,
         likes: 0,
@@ -176,14 +178,10 @@ export async function GET(req: NextRequest) {
         userReaction,
         view_count: 0,
         report_count: 0,
-        replyCount: Number(c.replyCount) || 0,
+        replyCount: 0,
         personaSlug: c.personaSlug,
-      };
-    });
-
-    const totalCount = totalResult[0]?.count
-      ? Number(totalResult[0].count)
-      : 0;
+      });
+    }
 
     if (sort === 'popular') {
       processedComments.sort((a: any, b: any) => {
@@ -194,8 +192,8 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json({
       comments: processedComments,
-      total: totalCount,
-      hasMore: offset + limit < totalCount,
+      total,
+      hasMore: offset + limit < total,
     });
   } catch (error) {
     const msg = error instanceof Error ? error.message : String(error);
