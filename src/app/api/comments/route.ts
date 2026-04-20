@@ -109,19 +109,19 @@ export async function GET(req: NextRequest) {
         c.id,
         c.content,
         c.nickname,
-        c.avatar_seed as "avatarSeed",
+        c."avatarSeed",
         c.gender,
-        c.geo_country_code as "geoCountryCode",
-        c.geo_country as "geoCountry",
-        c.geo_region as "geoRegion",
-        c.geo_city as "geoCity",
-        c.created_at as "createdAt",
-        c.updated_at as "updatedAt",
+        c."geoCountryCode",
+        c."geoCountry",
+        c."geoRegion",
+        c."geoCity",
+        c."createdAt",
+        c."updatedAt",
         c.reactions,
-        c.persona_slug as "personaSlug"
+        c."personaSlug"
       FROM comments c
-      WHERE c.status = 'published' AND c.parent_id IS NULL
-      ORDER BY c.created_at DESC
+      WHERE c.status = 'published' AND c."parentId" IS NULL
+      ORDER BY c."createdAt" DESC
       LIMIT ${limit}
       OFFSET ${offset}
     `;
@@ -129,7 +129,7 @@ export async function GET(req: NextRequest) {
     const countRows = await sql`
       SELECT COUNT(*) as total
       FROM comments c
-      WHERE c.status = 'published' AND c.parent_id IS NULL
+      WHERE c.status = 'published' AND c."parentId" IS NULL
     `;
 
     const total = Number(countRows[0]?.total ?? 0);
