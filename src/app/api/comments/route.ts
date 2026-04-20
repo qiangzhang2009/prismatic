@@ -124,11 +124,12 @@ export async function GET(req: NextRequest) {
 
     const total = await prisma.comment.count({ where });
 
-    const processedComments = comments.map((c) => {
-      let counts: Record<string, number> = {};
-      let userReaction: string | null = null;
+    let processedComments: any[];
+    try {
+      processedComments = comments.map((c: any) => {
+        let counts: Record<string, number> = {};
+        let userReaction: string | null = null;
 
-      try {
         const rawReactions = c.reactions;
 
         if (Array.isArray(rawReactions)) {
@@ -147,43 +148,41 @@ export async function GET(req: NextRequest) {
             }
           }
         }
-      } catch (e) {
-        console.warn('[comments] Failed to parse reactions for comment', c.id, e);
-        counts = {};
-      }
 
-      const avatarUrl = c.avatarSeed
-        ? getAvatarUrl(c.avatarSeed, c.gender || undefined)
-        : null;
+        const avatarUrl = c.avatarSeed
+          ? getAvatarUrl(c.avatarSeed, c.gender || undefined)
+          : null;
 
-      const geoCountry = COUNTRY_NAMES && typeof COUNTRY_NAMES === 'object'
-        ? (COUNTRY_NAMES[c.geoCountryCode || ''] || c.geoCountry || '')
-        : (c.geoCountry || '');
-      const location = [geoCountry, c.geoRegion, c.geoCity].filter(Boolean).join(' · ') || null;
+        const geoCountry = COUNTRY_NAMES[c.geoCountryCode || ''] || c.geoCountry || '';
+        const location = [geoCountry, c.geoRegion, c.geoCity].filter(Boolean).join(' · ') || null;
 
-      return {
-        id: c.id,
-        content: c.content,
-        author_name: c.nickname,
-        author_avatar: null,
-        avatar_url: avatarUrl,
-        display_name: c.nickname,
-        gender: c.gender || null,
-        location,
-        created_at: c.createdAt.toISOString(),
-        updated_at: c.updatedAt.toISOString(),
-        is_pinned: false,
-        is_edited: false,
-        likes: 0,
-        reactions: counts,
-        reactionCount: Object.values(counts).reduce((a: number, b: number) => a + b, 0),
-        userReaction,
-        view_count: 0,
-        report_count: 0,
-        replyCount: c._count?.replies ?? 0,
-        personaSlug: c.personaSlug,
-      };
-    });
+        return {
+          id: c.id,
+          content: c.content,
+          author_name: c.nickname,
+          author_avatar: null,
+          avatar_url: avatarUrl,
+          display_name: c.nickname,
+          gender: c.gender || null,
+          location,
+          created_at: c.createdAt.toISOString(),
+          updated_at: c.updatedAt.toISOString(),
+          is_pinned: false,
+          is_edited: false,
+          likes: 0,
+          reactions: counts,
+          reactionCount: Object.values(counts).reduce((a: number, b: number) => a + b, 0),
+          userReaction,
+          view_count: 0,
+          report_count: 0,
+          replyCount: c._count?.replies ?? 0,
+          personaSlug: c.personaSlug,
+        };
+      });
+    } catch (mapError) {
+      console.error('[comments] Error processing comments map:', mapError, 'comments length:', comments.length);
+      throw mapError;
+    }
 
     if (sort === 'popular') {
       processedComments.sort((a, b) => {
