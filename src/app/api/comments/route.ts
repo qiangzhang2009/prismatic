@@ -124,33 +124,41 @@ export async function GET(req: NextRequest) {
 
     const total = await prisma.comment.count({ where });
 
-    const processedComments = comments.map(c => {
-      // reactions is stored as either:
-      // - object {emoji: count} — legacy/seed format
-      // - array [{emoji, visitorId}] — real-time user reactions
-      const rawReactions = typeof c.reactions === 'string' ? JSON.parse(c.reactions as string) : (c.reactions || []);
-      const counts: Record<string, number> = {};
+    const processedComments = comments.map((c) => {
+      let counts: Record<string, number> = {};
       let userReaction: string | null = null;
 
-      if (Array.isArray(rawReactions)) {
-        for (const r of rawReactions as any[]) {
-          counts[r.emoji] = (counts[r.emoji] || 0) + 1;
-          if ((r as any).visitorId === visitorId) {
-            userReaction = r.emoji;
+      try {
+        const rawReactions = c.reactions;
+
+        if (Array.isArray(rawReactions)) {
+          for (const r of rawReactions as any[]) {
+            if (r && typeof r === 'object' && typeof r.emoji === 'string') {
+              counts[r.emoji] = (counts[r.emoji] || 0) + 1;
+              if ((r as any).visitorId === visitorId) {
+                userReaction = r.emoji;
+              }
+            }
+          }
+        } else if (rawReactions && typeof rawReactions === 'object' && !Array.isArray(rawReactions)) {
+          for (const [emoji, count] of Object.entries(rawReactions)) {
+            if (typeof emoji === 'string') {
+              counts[emoji] = Number(count) || 0;
+            }
           }
         }
-      } else if (rawReactions && typeof rawReactions === 'object') {
-        // Object format: {emoji: count}
-        for (const [emoji, count] of Object.entries(rawReactions)) {
-          counts[emoji] = Number(count);
-        }
+      } catch (e) {
+        console.warn('[comments] Failed to parse reactions for comment', c.id, e);
+        counts = {};
       }
 
       const avatarUrl = c.avatarSeed
         ? getAvatarUrl(c.avatarSeed, c.gender || undefined)
         : null;
 
-      const geoCountry = COUNTRY_NAMES[c.geoCountryCode || ''] || c.geoCountry || '';
+      const geoCountry = COUNTRY_NAMES && typeof COUNTRY_NAMES === 'object'
+        ? (COUNTRY_NAMES[c.geoCountryCode || ''] || c.geoCountry || '')
+        : (c.geoCountry || '');
       const location = [geoCountry, c.geoRegion, c.geoCity].filter(Boolean).join(' · ') || null;
 
       return {
@@ -168,11 +176,11 @@ export async function GET(req: NextRequest) {
         is_edited: false,
         likes: 0,
         reactions: counts,
-        reactionCount: Object.values(counts).reduce((a, b) => a + b, 0),
+        reactionCount: Object.values(counts).reduce((a: number, b: number) => a + b, 0),
         userReaction,
         view_count: 0,
         report_count: 0,
-        replyCount: c._count.replies,
+        replyCount: c._count?.replies ?? 0,
         personaSlug: c.personaSlug,
       };
     });
