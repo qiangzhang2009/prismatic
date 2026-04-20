@@ -1,6 +1,6 @@
 /**
  * Prismatic — Personas Registry
- * 15 pre-built distilled thinking personas
+ * 62 pre-built distilled thinking personas
  */
 
 import type { Persona } from './types';

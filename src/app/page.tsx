@@ -42,7 +42,7 @@ function getDomainGradient(domains: string[]) {
 
 // ─── Hero Stats ────────────────────────────────────────────────────────────────
 const HERO_STATS = [
-  { value: '60+', label: '蒸馏人物', icon: BookOpen, color: '#4d96ff' },
+  { value: String(PERSONA_LIST.length), label: '蒸馏人物', icon: BookOpen, color: '#4d96ff' },
   { value: '8', label: '协作模式', icon: Layers, color: '#6bcb77' },
   { value: '1.2GB+', label: '训练语料', icon: BarChart3, color: '#c77dff' },
   { value: '∞', label: '视角组合', icon: TrendingUp, color: '#ff9f43' },
@@ -193,7 +193,7 @@ export default function HomePage() {
           >
             每个人的一生都是一本书，每本书都是一个人的灵魂。
             当我们阅读那些卓越人物的著作时，不仅是在获取知识，更是在与一个伟大的灵魂对话。
-            <br />{APP_NAME} 已蒸馏 60+ 卓越人物，涵盖哲学、投资、科技、科学、东方智慧等领域。
+            <br />{APP_NAME} 已蒸馏 {PERSONA_LIST.length} 位卓越人物，涵盖哲学、投资、科技、科学、东方智慧等领域。
             让乔布斯、马斯克、芒格、费曼同时为你思考——不是引用他们说过的话，而是用他们的方式去思考你的问题。
           </motion.p>
 
@@ -215,7 +215,7 @@ export default function HomePage() {
               href="/personas"
               className="inline-flex items-center gap-2 px-6 py-3 rounded-xl border border-white/10 text-text-primary font-medium hover:bg-white/5 transition-all backdrop-blur-sm"
             >
-              探索 60+ 蒸馏人物
+              探索 {PERSONA_LIST.length} 位蒸馏人物
               <ArrowRight className="w-4 h-4" />
             </Link>
           </motion.div>
@@ -258,7 +258,7 @@ export default function HomePage() {
             </h2>
             <p className="text-text-muted text-sm max-w-lg mx-auto">
               基于全网可获取的完整语料，从零开始系统梳理。每个领域的置信度代表数据的完整程度与质量。
-            已覆盖 60+ 蒸馏人物，涵盖哲学、投资、科技、科学、东方智慧等多个领域
+            已覆盖 {PERSONA_LIST.length} 位蒸馏人物，涵盖哲学、投资、科技、科学、东方智慧等多个领域
             </p>
           </motion.div>
 
@@ -546,7 +546,7 @@ export default function HomePage() {
             <p className="text-text-secondary leading-relaxed max-w-2xl mx-auto">
               {APP_NAME} 基于「认知蒸馏」技术，通过深度访谈、文献研究、著作分析等方式，
               对人类历史上最卓越的思考者进行系统性分析，重构他们的思维模型、决策框架和表达 DNA。
-              <br />目前已蒸馏 60+ 卓越人物，支持 8 种协作模式，从单人深度追问到多智能体实时辩论，
+              <br />目前已蒸馏 {PERSONA_LIST.length} 位卓越人物，支持 8 种协作模式，从单人深度追问到多智能体实时辩论，
               让不同领域的顶尖头脑同时为你思考，发现单一视角无法产生的洞见。
             </p>
           </motion.div>

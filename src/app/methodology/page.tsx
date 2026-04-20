@@ -468,7 +468,7 @@ export default function MethodologyPage() {
           >
             <h2 className="text-2xl font-display font-bold mb-4">亲身体验蒸馏的力量</h2>
             <p className="text-text-secondary mb-8 max-w-lg mx-auto">
-              15位经过科学蒸馏的思维伙伴已经就位。选择一位或多位，开启真正有深度的认知协作。
+              62位经过科学蒸馏的思维伙伴已经就位。选择一位或多位，开启真正有深度的认知协作。
             </p>
             <div className="flex items-center justify-center gap-4">
               <Link href="/app" className="btn-primary inline-flex items-center gap-2">
