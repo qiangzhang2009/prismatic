@@ -3,7 +3,7 @@
  * POST /api/comments — Create a comment (open to everyone)
  */
 import { NextRequest, NextResponse } from 'next/server';
-import { Prisma } from '@prisma/client';
+import { neon, NeonQueryFunction } from '@neondatabase/serverless';
 import { prisma } from '@/lib/prisma';
 import { cookies } from 'next/headers';
 import { processCommentInteractions } from '@/lib/guardian-engine';
@@ -91,46 +91,52 @@ export async function GET(req: NextRequest) {
   const limit = Math.min(parseInt(searchParams.get('limit') || '20'), 50);
   const offset = parseInt(searchParams.get('offset') || '0');
   const sort = searchParams.get('sort') || 'latest';
-  const date = searchParams.get('date');
-  const personaSlug = searchParams.get('personaSlug');
 
   try {
     const cookieStore = await cookies();
     const visitorId = cookieStore.get('prismatic-visitor')?.value || 'anonymous';
 
-    // Build the where clause programmatically
-    const where: Record<string, unknown> = {
-      status: 'published',
-      parentId: null,
-    };
-
-    let comments;
-    try {
-      comments = await prisma.comment.findMany({
-        where,
-        orderBy: { createdAt: 'desc' },
-        skip: offset,
-        take: limit,
-      });
-    } catch (dbError) {
-      console.error('[comments] DB query error:', dbError);
-      return NextResponse.json(
-        { error: 'Database error', detail: String(dbError) },
-        { status: 500 }
-      );
+    // Use Neon directly to bypass any Prisma model proxy issues
+    const connectionString = process.env.DATABASE_URL;
+    if (!connectionString) {
+      return NextResponse.json({ error: 'DATABASE_URL not set' }, { status: 500 });
     }
+    // eslint-disable-next-line
+    const sql = neon(connectionString) as NeonQueryFunction<false, false>;
 
-    let total;
-    try {
-      total = await prisma.comment.count({ where });
-    } catch (dbError) {
-      console.error('[comments] DB count error:', dbError);
-      total = 0;
-    }
+    const rows = await sql`
+      SELECT
+        c.id,
+        c.content,
+        c.nickname,
+        c.avatar_seed as "avatarSeed",
+        c.gender,
+        c.geo_country_code as "geoCountryCode",
+        c.geo_country as "geoCountry",
+        c.geo_region as "geoRegion",
+        c.geo_city as "geoCity",
+        c.created_at as "createdAt",
+        c.updated_at as "updatedAt",
+        c.reactions,
+        c.persona_slug as "personaSlug"
+      FROM comments c
+      WHERE c.status = 'published' AND c.parent_id IS NULL
+      ORDER BY c.created_at DESC
+      LIMIT ${limit}
+      OFFSET ${offset}
+    `;
+
+    const countRows = await sql`
+      SELECT COUNT(*) as total
+      FROM comments c
+      WHERE c.status = 'published' AND c.parent_id IS NULL
+    `;
+
+    const total = Number(countRows[0]?.total ?? 0);
 
     const processedComments = [];
-    for (let i = 0; i < comments.length; i++) {
-      const c = comments[i] as any;
+    for (let i = 0; i < rows.length; i++) {
+      const c = rows[i] as any;
       const counts: Record<string, number> = {};
       let userReaction: string | null = null;
 
@@ -168,8 +174,8 @@ export async function GET(req: NextRequest) {
         display_name: c.nickname,
         gender: c.gender || null,
         location,
-        created_at: c.createdAt ? c.createdAt.toISOString() : new Date().toISOString(),
-        updated_at: c.updatedAt ? c.updatedAt.toISOString() : new Date().toISOString(),
+        created_at: c.createdAt ? new Date(c.createdAt).toISOString() : new Date().toISOString(),
+        updated_at: c.updatedAt ? new Date(c.updatedAt).toISOString() : new Date().toISOString(),
         is_pinned: false,
         is_edited: false,
         likes: 0,
