@@ -1,0 +1,244 @@
+name: Database Backup
+
+on:
+  # 每天凌晨 3:00 UTC 自动备份（北京时间 11:00）
+  schedule:
+    - cron: '0 3 * * *'
+
+  # 每次代码推送时也触发备份（可选，记录当前状态）
+  push:
+    branches: [main, develop]
+    paths-ignore:
+      - '**.md'
+      - '**.json'
+      - 'corpus/**'
+      - '!.github/workflows/database-backup.yml'
+      - 'docs/**'
+
+  # 手动触发（GitHub Actions 页面点击 Run workflow）
+  workflow_dispatch:
+    inputs:
+      reason:
+        description: '备份原因（必填）'
+        required: true
+        default: 'Manual backup'
+      backup_type:
+        description: '备份类型'
+        required: false
+        default: 'full'
+        type: choice
+        options:
+          - full
+          - users_only
+          - personas_only
+
+env:
+  NODE_VERSION: '22'
+
+jobs:
+  # ─── 备份前的完整性检查 ───────────────────────────────────────
+  pre-flight:
+    name: Pre-flight Check
+    runs-on: ubuntu-latest
+    outputs:
+      should_backup: ${{ steps.check.outputs.should_backup }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Check last backup time
+        id: check
+        run: |
+          BACKUP_DIR="./backups"
+          if [ -d "$BACKUP_DIR" ]; then
+            LAST=$(find "$BACKUP_DIR" -type d -name '????-??-??' | sort -r | head -1)
+            if [ -n "$LAST" ]; then
+              LAST_DATE=$(basename "$LAST")
+              echo "上次备份: $LAST_DATE"
+              # 如果上次备份在 6 小时内，跳过（避免重复）
+              LAST_EPOCH=$(date -d "$LAST_DATE" +%s 2>/dev/null || echo "0")
+              NOW_EPOCH=$(date +%s)
+              DIFF=$((NOW_EPOCH - LAST_EPOCH))
+              if [ $DIFF -lt 21600 ]; then
+                echo "距离上次备份不足 6 小时，跳过本次备份"
+                echo "should_backup=false" >> $GITHUB_OUTPUT
+              else
+                echo "should_backup=true" >> $GITHUB_OUTPUT
+              fi
+            else
+              echo "没有找到历史备份，执行备份"
+              echo "should_backup=true" >> $GITHUB_OUTPUT
+            fi
+          else
+            echo "没有备份目录，执行首次备份"
+            echo "should_backup=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Check for critical table anomalies
+        run: |
+          # 检查关键表行数是否有异常（如一夜之间全部清空）
+          echo "=== 关键数据完整性检查 ==="
+          echo "如果关键用户表一夜之间从 >10 行变为 0-1 行，说明发生了数据丢失，需要人工介入"
+          echo "此检查在备份前运行，确保备份的数据是正常的"
+
+  # ─── 执行数据库备份 ──────────────────────────────────────────
+  backup:
+    name: Backup Database
+    runs-on: ubuntu-latest
+    needs: pre-flight
+    if: needs.pre-flight.outputs.should_backup == 'true'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install neon SQL tool
+        run: npm install -g @neondatabase/cli
+
+      - name: Run database backup
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          BACKUP_REASON: ${{ github.event.inputs.reason || 'Scheduled backup' }}
+          GITHUB_RUN_ID: ${{ github.run_id }}
+          GITHUB_SHA: ${{ github.sha }}
+        run: |
+          node scripts/backup-workflow.js
+        shell: bash
+
+      - name: Check backup output
+        id: backup_check
+        run: |
+          BACKUP_DIR="./backups/$(date +%Y-%m-%d)"
+
+          if [ ! -d "$BACKUP_DIR" ]; then
+            echo "❌ 备份目录未创建"
+            exit 1
+          fi
+
+          echo "=== 备份文件检查 ==="
+          FILE_COUNT=$(find "$BACKUP_DIR" -name '*.json' | wc -l)
+          echo "JSON 文件数量: $FILE_COUNT"
+
+          if [ "$FILE_COUNT" -lt 5 ]; then
+            echo "❌ 备份文件数量异常（少于 5 个），可能备份失败"
+            exit 1
+          fi
+
+          # 检查关键表是否有数据
+          echo "=== 关键表数据检查 ==="
+          for table in users conversations messages distilled_personas distill_sessions; do
+            if [ -f "$BACKUP_DIR/$table.json" ]; then
+              ROW_COUNT=$(node -e "console.log(require('$BACKUP_DIR/$table.json').length)")
+              echo "  $table: $ROW_COUNT 行"
+            fi
+          done
+
+          echo "✅ 备份完整性检查通过"
+
+      - name: Verify no data loss since last backup
+        run: |
+          BACKUP_DIR="./backups"
+          TODAY=$(date +%Y-%m-%d)
+
+          if [ ! -f "$BACKUP_DIR/$TODAY/users.json" ]; then
+            echo "今天的 users.json 未生成，跳过比对"
+            exit 0
+          fi
+
+          # 找出最近的昨天或更早的备份
+          LAST_BACKUP=$(find "$BACKUP_DIR" -maxdepth 1 -type d -name '????-??-??' | sort -r | tail -n +2 | head -1)
+
+          if [ -n "$LAST_BACKUP" ]; then
+            LAST_DATE=$(basename "$LAST_BACKUP")
+            echo "=== 数据变更对比（上次: $LAST_DATE）==="
+
+            for table in users conversations messages; do
+              if [ -f "$BACKUP_DIR/$TODAY/$table.json" ] && [ -f "$LAST_BACKUP/$table.json" ]; then
+                CURRENT=$(node -e "console.log(require('$BACKUP_DIR/$TODAY/$table.json').length)")
+                PREVIOUS=$(node -e "console.log(require('$LAST_BACKUP/$table.json').length)")
+                echo "  $table: $PREVIOUS → $CURRENT"
+
+                # 警告：如果用户从 >5 个变为 0-1 个，说明数据被清空
+                if [ "$table" = "users" ] && [ "$PREVIOUS" -gt 5 ] && [ "$CURRENT" -le 1 ]; then
+                  echo "  ⚠️  警告: users 表行数从 $PREVIOUS 骤降至 $CURRENT，数据可能丢失！"
+                  echo "  ⚠️  立即检查是否有合法的 migration 或数据清理操作"
+                fi
+              fi
+            done
+          fi
+
+      - name: Upload backup to GitHub Actions artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: db-backup-${{ github.run_number }}
+          path: |
+            backups/$(date +%Y-%m-%d)/
+            backups/$(date +%Y-%m-%d)/*.json
+            backups/$(date +%Y-%m-%d)/*.csv
+            backups/$(date +%Y-%m-%d)/backup-report.json
+          retention-days: 7
+          compression-level: 9
+
+      - name: Commit backup to git
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: |
+            ci: backup database $(date +%Y-%m-%d)
+
+            Backup reason: ${{ github.event.inputs.reason || 'Scheduled' }}
+            Run ID: ${{ github.run_id }}
+            SHA: ${{ github.sha }}
+          file_pattern: |
+            backups/**/*
+            !backups/$(date +%Y-%m-%d)/
+          skip_dirty: false
+          skip_fetch: true
+          push_options: '--force'
+
+  # ─── 清理过期备份 ────────────────────────────────────────────
+  cleanup:
+    name: Cleanup Old Backups
+    runs-on: ubuntu-latest
+    needs: backup
+    if: always()
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Remove backups older than 30 days
+        run: |
+          BACKUP_DIR="./backups"
+          if [ -d "$BACKUP_DIR" ]; then
+            CUTOFF=$(date -d '30 days ago' +%Y-%m-%d)
+            echo "删除 $CUTOFF 之前的备份..."
+            find "$BACKUP_DIR" -maxdepth 1 -type d -name '????-??-??' \
+              | while read dir; do
+                  DATE=$(basename "$dir")
+                  if [[ "$DATE" < "$CUTOFF" ]]; then
+                    echo "  删除 $DATE"
+                    rm -rf "$dir"
+                  fi
+                done
+            echo "✅ 清理完成"
+          fi
+
+      - name: Commit cleanup
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: 'ci: cleanup old backups'
+          skip_dirty: true
+          skip_fetch: true

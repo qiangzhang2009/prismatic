@@ -94,6 +94,12 @@ model User {
   // Credit logs
   creditLogs    UserCreditLog[]
 
+  // Multi-device sync
+  devices        Device[]
+  syncLogs       SyncLog[]
+  syncConflicts  SyncConflict[]
+  conversationMigrations ConversationMigration[]
+
   @@map("users")
 }
 
@@ -600,3 +606,399 @@ model UserCreditLog {
   @@index([createdAt])
   @@map("user_credit_logs")
 }
+
+// ─── News (legacy) ────────────────────────────────────────────────────────────
+
+model NewsSnapshot {
+  id            String   @id @default(cuid())
+  sourceId      String
+  sourceName    String
+  snapshotAt    DateTime @default(now())
+  snapshotDate  DateTime @db.Date
+  itemCount    Int      @default(0)
+  status       String   @default("success") // success | error | partial
+  errorMsg     String?
+
+  @@unique([sourceId, snapshotDate])
+  @@map("news_snapshots")
+}
+
+model NewsItem {
+  id        String   @id @default(cuid())
+  title     String
+  content   String   @default("")
+  url       String?
+  source    String?
+  createdAt DateTime @default(now())
+
+  @@map("news_items")
+}
+
+// ─── Distillation Session ─────────────────────────────────────────────────────
+
+model DistillSession {
+  id              String   @id @default(cuid())
+
+  // Core info
+  personaName     String
+  personaId       String   // can be empty for new personas
+  personaDomain   String   @default("philosophy")
+
+  // Status
+  status          String   @default("pending") // pending | running | completed | failed | cancelled
+
+  // Options snapshot
+  options         Json?    @default("{}")
+
+  // Result (populated when completed)
+  result          Json?    // FullDistillationResult serialized
+
+  // Error
+  error           String?
+
+  // Metadata
+  totalCost       Float    @default(0)
+  totalTokens     Int      @default(0)
+
+  // Relations
+  corpus          DistillCorpusItem[]
+  savedPersona    DistilledPersona?
+
+  // Timestamps
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  completedAt     DateTime?
+
+  @@index([status])
+  @@index([personaId])
+  @@index([personaName])
+  @@index([createdAt])
+  @@map("distill_sessions")
+}
+
+// ─── Distillation Corpus (persistent raw collected data) ─────────────────────────
+
+model DistillCorpusItem {
+  id              String   @id @default(cuid())
+  sessionId       String
+  session         DistillSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  // Source identification
+  collectorType    String   // twitter | blog | weibo | video | podcast | book | forum
+  source          String   // URL or identifier
+  sourceName      String?  // Display name (account handle, blog title, etc.)
+
+  // Content
+  content         String   // Full text content
+  author          String?
+  publishedAt     DateTime?
+  url             String?
+
+  // Metadata
+  wordCount       Int      @default(0)
+  language        String   @default("mixed") // zh | en | mixed
+  quality         Float?   // Quality score from collector
+
+  // Raw metadata snapshot
+  rawMetadata     Json?    @default("{}")
+
+  createdAt       DateTime @default(now())
+
+  @@index([sessionId])
+  @@index([collectorType])
+  @@index([language])
+  @@map("distill_corpus_items")
+}
+
+// ─── Distilled Persona (saved to DB for website library) ──────────────────────
+
+model DistilledPersona {
+  id              String   @id @default(cuid())
+  sessionId       String   @unique
+  session         DistillSession @relation(fields: [sessionId], references: [id])
+
+  // Identity (mirrors Persona type fields)
+  slug            String   @unique
+  name            String
+  nameZh          String
+  nameEn          String
+  domain          String   @default("philosophy") // comma-separated or JSON
+
+  // Basic info
+  tagline         String   @default("")
+  taglineZh       String   @default("")
+  avatar          String?
+  accentColor     String   @default("#6366f1")
+  gradientFrom    String   @default("#6366f1")
+  gradientTo      String   @default("#8b5cf6")
+  brief           String   @default("")
+  briefZh         String   @default("")
+
+  // Core distillation output
+  mentalModels    Json     @default("[]")    // MentalModel[]
+  decisionHeuristics Json @default("[]")      // string[]
+  expressionDNA   Json     // ExpressionDNA object
+  values          Json     @default("[]")    // Value[]
+  antiPatterns    Json     @default("[]")    // string[]
+
+  // Boundaries & qualities
+  tensions        Json     @default("[]")    // Tension[]
+  honestBoundaries Json    @default("[]")    // HonestBoundary[]
+  strengths       Json     @default("[]")    // string[]
+  blindspots      Json     @default("[]")    // string[]
+
+  // System prompts
+  systemPromptTemplate String @default("")
+  identityPrompt     String @default("")
+
+  // Extended
+  reasoningStyle   String?
+  decisionFramework Json?
+  keyQuotes        Json?
+  lifePhilosophy   Json?
+
+  // Quality metrics from distillation
+  finalScore      Float   @default(0)
+  qualityGrade    String  @default("F")
+  thresholdPassed Boolean @default(false)
+  qualityGateSkipped Boolean @default(false)
+
+  // Source corpus summary
+  corpusItemCount  Int    @default(0)
+  corpusTotalWords Int    @default(0)
+  corpusSources    Json   @default("[]")  // string[] of source names
+
+  // Versioning
+  distillVersion   String  @default("0.1.0")
+  distillDate      DateTime @default(now())
+
+  // Status
+  isActive        Boolean @default(true)
+  isPublished     Boolean @default(false)  // published to website library
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([slug])
+  @@index([nameZh])
+  @@index([domain])
+  @@index([finalScore])
+  @@index([isPublished])
+  @@map("distilled_personas")
+}
+
+// ─── Device & Conversation Sync ─────────────────────────────────────────────────
+// 支持同一账号多设备登录、对话记录本地存储与跨设备同步
+
+model Device {
+  // 直接用浏览器传入的 deviceFingerprint 作为主键（不再生成 cuid）
+  // 这样 upsert 时 `where: { id: deviceId }` 直接命中，无需双 key
+  id                  String   @id
+  userId              String
+  user                User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // 设备信息
+  deviceName   String?
+  deviceType   DeviceType @default(DESKTOP)
+  platform     String?
+  browser      String?
+  osVersion     String?
+
+  // 同步状态
+  lastSyncedAt DateTime @default(now())
+  syncToken    String?
+
+  // 活跃状态
+  lastActiveAt DateTime @default(now())
+  isActive    Boolean  @default(true)
+
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // 关联: 每个设备有本地对话快照记录
+  localConversations LocalConversation[]
+
+  @@index([userId, lastActiveAt])
+  @@map("devices")
+}
+
+enum DeviceType {
+  DESKTOP
+  MOBILE
+  TABLET
+  UNKNOWN
+}
+
+// 本地对话快照: 记录每个设备上的本地对话元信息，用于同步时做 merge
+// 不存具体消息内容（消息内容很大，存在本地 localStorage 里）
+// 每次设备登录时，对比快照找出哪些对话需要 merge
+
+model LocalConversation {
+  id           String   @id @default(cuid())
+  deviceId     String
+  device       Device   @relation(fields: [deviceId], references: [id], onDelete: Cascade)
+
+  // 对话标识: 用 persona IDs 组合作为本地对话的全局唯一 ID
+  // 这样跨设备时，同一组 persona 的对话可以 merge
+  conversationKey String   // e.g. "wittgenstein-confucius" (排序后的 persona IDs join)
+  personaIds    String[]            // 对应的 persona IDs（排序后）
+
+  // 该设备上的本地状态
+  localTitle   String?             // 本地设置的对话标题
+  localTags    String[] @default([])
+
+  // 消息计数（用于快速比对）
+  localMessageCount Int    @default(0)
+
+  // 消息哈希（用于快速检测变更）
+  contentHash String?               // 消息内容的 SHA-256 哈希
+  lastLocalUpdateAt DateTime @default(now())  // 本地最后更新时间
+
+  // 对应数据库中的真实 conversation ID（如果已同步过）
+  syncedConversationId String?       // 指向 conversations.id（如果有的话）
+
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@unique([deviceId, conversationKey])
+  @@index([deviceId])
+  @@index([conversationKey])
+  @@index([syncedConversationId])
+  @@map("local_conversations")
+}
+
+// 同步操作日志: 记录每次同步的详情，用于冲突解决和审计
+model SyncLog {
+  id           String   @id @default(cuid())
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  deviceId     String?
+
+  // 同步方向
+  direction    SyncDirection  // PUSH_LOCAL | PULL_SERVER | MERGE
+
+  // 同步的对话数量统计
+  pushedCount  Int    @default(0)   // 上推的对话数
+  pulledCount  Int    @default(0)   // 下拉的对话数
+  mergedCount  Int    @default(0)   // 合并的对话数
+  conflictCount Int   @default(0)   // 冲突数
+
+  // 同步状态
+  status      SyncStatus @default(SUCCESS)
+
+  // 同步详情（JSON）
+  details     Json?    @default("{}")
+  // {
+  //   "conversations": [
+  //     { "key": "witt-conf", "action": "created", "conflict": false },
+  //     { "key": "elon-musk", "action": "merged", "conflict": true, "resolution": "server_wins" }
+  //   ]
+  // }
+
+  // 设备信息
+  userAgent   String?
+  ip          String?
+  durationMs  Int?                // 同步耗时
+
+  // 反向关系
+  conflicts   SyncConflict[]
+
+  createdAt   DateTime @default(now())
+
+  @@index([userId, createdAt])
+  @@index([deviceId])
+  @@index([status])
+  @@map("sync_logs")
+}
+
+enum SyncDirection {
+  PUSH_LOCAL    // 本地 → 服务器
+  PULL_SERVER   // 服务器 → 本地
+  MERGE         // 双向合并
+}
+
+enum SyncStatus {
+  SUCCESS
+  PARTIAL     // 部分成功（有冲突）
+  FAILED
+  CONFLICT    // 完全冲突
+}
+
+enum ConflictType {
+  CONTENT_OVERWRITE  // 双方都有消息，内容覆盖
+  TITLE_CONFLICT    // 标题不同
+  BOTH_CREATED      // 同一人格对话在两个设备同时创建
+  DELETED_CONFLICT  // 一方删除，另一方有更新
+}
+
+enum ResolutionStrategy {
+  SERVER_WINS      // 服务器版本优先
+  LOCAL_WINS       // 本地版本优先
+  MERGE_APPEND     // 合并追加（按时间排序）
+  USER_DECIDES     // 需要用户手动选择
+}
+
+// 冲突记录: 存储每次同步中发生的具体冲突
+model SyncConflict {
+  id           String   @id @default(cuid())
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  syncLogId    String
+  syncLog      SyncLog  @relation(fields: [syncLogId], references: [id], onDelete: Cascade)
+
+  // 冲突的对话
+  conversationKey String
+  personaIds    String[]
+
+  // 冲突数据
+  localSnapshot Json?
+  serverSnapshot Json?
+
+  // 冲突类型
+  conflictType  ConflictType
+  // CONTENT_OVERWRITE: 双方都有消息，内容覆盖
+  // TITLE_CONFLICT: 标题不同
+  // BOTH_CREATED: 同一人格对话在两个设备同时创建
+  // DELETED_CONFLICT: 一方删除，另一方有更新
+
+  // 解决方式
+  resolution    ResolutionStrategy?  // null = 未解决
+  resolvedAt   DateTime?
+
+  createdAt    DateTime @default(now())
+
+  @@index([syncLogId])
+  @@index([userId])
+  @@map("sync_conflicts")
+}
+
+// 匿名/访客用户升级时的对话迁移记录
+model ConversationMigration {
+  id           String   @id @default(cuid())
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // 来源
+  visitorId    String?             // 升级前的匿名 visitor ID
+  sourceDeviceId String?           // 来源设备 ID
+
+  // 迁移的对话
+  conversationKey String
+  personaIds    String[]
+
+  // 迁移的数据
+  messageCount  Int    @default(0)
+  messagesJson  Json?  @default("[]")  // 迁移的消息内容（JSON 数组）
+
+  status       String  @default("pending")  // pending | completed | failed
+  error        String?
+
+  createdAt    DateTime @default(now())
+  completedAt  DateTime?
+
+  @@index([userId])
+  @@index([visitorId])
+  @@map("conversation_migrations")
+}
+

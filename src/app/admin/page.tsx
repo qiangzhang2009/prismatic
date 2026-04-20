@@ -2,11 +2,12 @@
 
 /**
  * Prismatic — Admin Dashboard
- * 三个核心 Tab: 数据驾驶舱 / 用户管理 / 对话资产
+ * 四个核心 Tab: 数据驾驶舱 / 用户管理 / 对话资产 / 蒸馏中心
  */
 
 import { Suspense, useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import dynamic from 'next/dynamic';
 import {
   Users, Search, Crown, UserCheck, UserX, Filter,
   RefreshCw, Ban, ChevronRight, ChevronLeft, Plus, Eye,
@@ -16,6 +17,8 @@ import {
   TrendingDown, DollarSign, Bot, BarChart2,
   Database, BookOpen, Clock, ArrowUpRight, ArrowDownRight,
   Target, Layers, Sparkles, GitFork, PieChart, Edit3,
+  FlaskConical, UsersRound,
+  Cloud, CloudOff, Monitor, Smartphone, AlertTriangle, CheckCircle, XCircle, RefreshCw as SyncIcon, Wifi, WifiOff,
 } from 'lucide-react';
 import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip,
@@ -34,7 +37,7 @@ import type { User, UserFilter } from '@/lib/use-admin-data';
 
 // ─── Types ─────────────────────────────────────────────────────────────────────
 
-type Tab = 'dashboard' | 'users' | 'assets';
+type Tab = 'dashboard' | 'users' | 'assets' | 'distill' | 'sync';
 
 // ─── Helpers ────────────────────────────────────────────────────────────────────
 
@@ -71,6 +74,8 @@ function AdminDashboardPage() {
     { id: 'dashboard' as Tab, label: '数据驾驶舱', icon: LayoutDashboard },
     { id: 'users' as Tab, label: '用户管理', icon: UserCog },
     { id: 'assets' as Tab, label: '对话资产', icon: BookOpen },
+    { id: 'distill' as Tab, label: '蒸馏中心', icon: FlaskConical },
+    { id: 'sync' as Tab, label: '同步管理', icon: UsersRound },
   ];
 
   return (
@@ -108,6 +113,8 @@ function AdminDashboardPage() {
           {activeTab === 'dashboard' && <TabPanel key="dashboard"><DashboardSection /></TabPanel>}
           {activeTab === 'users' && <TabPanel key="users"><UsersSection /></TabPanel>}
           {activeTab === 'assets' && <TabPanel key="assets"><AssetsSection /></TabPanel>}
+          {activeTab === 'distill' && <TabPanel key="distill"><DistillSection /></TabPanel>}
+          {activeTab === 'sync' && <TabPanel key="sync"><SyncSection /></TabPanel>}
         </AnimatePresence>
       </div>
     </div>
@@ -125,6 +132,21 @@ function TabPanel({ children }: { children: React.ReactNode }) {
       {children}
     </motion.div>
   );
+}
+
+// ─── Tab 4: 蒸馏中心 ──────────────────────────────────────────────────────────
+
+const DistillAdminPage = dynamic(() => import('@/app/admin/distill/page'), {
+  ssr: false,
+  loading: () => (
+    <div className="flex items-center justify-center py-20">
+      <Loader2 className="w-8 h-8 animate-spin text-purple-400" />
+    </div>
+  ),
+});
+
+function DistillSection() {
+  return <DistillAdminPage />;
 }
 
 // ─── Tab 1: 数据驾驶舱 ────────────────────────────────────────────────────────
@@ -827,7 +849,7 @@ function UsersSection() {
  * 下部：对话列表（可展开查看完整聊天记录）+ 维度图表
  */
 
-type AssetDim = 'overview' | 'cost' | 'topics' | 'personas' | 'behavior';
+type AssetDim = 'overview' | 'cost' | 'topics' | 'personas' | 'behavior' | 'userchats';
 
 function AssetsSection() {
   const [dim, setDim] = useState<AssetDim>('overview');
@@ -864,6 +886,12 @@ function AssetsSection() {
     staleTime: 1000 * 30,
   });
 
+  const { data: userChatsData, isLoading: userChatsLoading, refetch: refetchUserChats } = useQuery({
+    queryKey: ['admin', 'chats', 'by-user', params.toString()],
+    queryFn: () => fetch(`/api/admin/chats/by-user?${params}`).then(r => r.json()),
+    staleTime: 1000 * 30,
+  });
+
   const convs = convData?.conversations || [];
   const total = convData?.total || 0;
   const totalPages = convData?.totalPages || 1;
@@ -874,6 +902,7 @@ function AssetsSection() {
     { id: 'topics', label: '话题聚类', icon: Layers },
     { id: 'personas', label: '人物互动', icon: Bot },
     { id: 'behavior', label: '用户分群', icon: Target },
+    { id: 'userchats', label: '用户记录', icon: UsersRound },
   ];
 
   return (
@@ -919,6 +948,7 @@ function AssetsSection() {
           {dim === 'topics' && <AssetTopics key="topics" days={30} />}
           {dim === 'personas' && <AssetPersonas key="personas" days={30} />}
           {dim === 'behavior' && <AssetBehavior key="behavior" days={30} />}
+          {dim === 'userchats' && <AssetUserChats key="userchats" userChatsData={userChatsData} isLoading={userChatsLoading} onRefresh={refetchUserChats} />}
         </AnimatePresence>
       </div>
 
@@ -1591,6 +1621,495 @@ function AssetBehavior({ days }: { days: number }) {
           })}
         </div>
       )}
+    </div>
+  );
+}
+
+// ─── 用户记录 ───────────────────────────────────────────────────────────────
+
+function AssetUserChats({ userChatsData, isLoading, onRefresh }: {
+  userChatsData: any; isLoading: boolean; onRefresh: () => void;
+}) {
+  const [expandedUser, setExpandedUser] = useState<string | null>(null);
+
+  const users = userChatsData?.users || [];
+  const totalUsers = userChatsData?.totalUsers || 0;
+  const totalMessages = users.reduce((s: number, u: any) => s + u.totalMessages, 0);
+  const totalCost = users.reduce((s: number, u: any) => s + u.totalCost, 0);
+
+  return (
+    <div className="space-y-5">
+      <div className="flex items-center justify-between">
+        <div>
+          <h4 className="text-sm font-semibold text-white">用户对话记录</h4>
+          <p className="text-xs text-gray-500 mt-0.5">
+            共 {totalUsers} 位用户产生对话 · 筛选条件同上（日期/模式/计费）
+          </p>
+        </div>
+        <button
+          onClick={onRefresh}
+          className="flex items-center gap-1.5 px-3 py-1.5 bg-gray-800 hover:bg-gray-700 border border-gray-700 rounded-lg text-xs transition-colors"
+        >
+          <RefreshCw className={`w-3 h-3 ${isLoading ? 'animate-spin' : ''}`} />
+          刷新
+        </button>
+      </div>
+
+      {/* KPI Summary */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        {[
+          { label: '活跃用户', value: totalUsers, icon: Users, color: 'text-purple-400' },
+          { label: '总消息数', value: totalMessages.toLocaleString(), icon: MessageSquare, color: 'text-cyan-400' },
+          { label: 'API 成本', value: `¥${Number(totalCost || 0).toFixed(4)}`, icon: DollarSign, color: 'text-amber-400' },
+          { label: '平均/用户', value: totalUsers > 0 ? (totalMessages / totalUsers).toFixed(1) : '0', icon: Zap, color: 'text-green-400' },
+        ].map(card => (
+          <div key={card.label} className="bg-gray-800/50 border border-gray-700/50 rounded-xl p-3 flex items-center gap-3">
+            <div className={`${card.color}`}><card.icon className="w-4 h-4" /></div>
+            <div>
+              <div className={`text-lg font-bold ${card.color}`}>{card.value}</div>
+              <div className="text-[10px] text-gray-500">{card.label}</div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* User list */}
+      {isLoading ? (
+        <div className="space-y-2">{[1,2,3].map(i => <div key={i} className="h-16 bg-gray-800 rounded-xl animate-pulse" />)}</div>
+      ) : users.length === 0 ? (
+        <div className="text-center py-12 text-gray-500 text-sm">
+          <UsersRound className="w-10 h-10 mx-auto mb-2 opacity-30" />
+          暂无对话记录
+        </div>
+      ) : (
+        <div className="space-y-2 max-h-[60vh] overflow-y-auto pr-1">
+          {users.map((userGroup: any) => {
+            const isExpanded = expandedUser === userGroup.user?.id;
+            const avatarColor = [
+              'from-blue-500 to-purple-500',
+              'from-green-500 to-teal-500',
+              'from-orange-500 to-red-500',
+              'from-pink-500 to-rose-500',
+              'from-indigo-500 to-blue-500',
+            ][users.indexOf(userGroup) % 5];
+
+            return (
+              <div key={userGroup.user?.id} className="bg-gray-800/50 border border-gray-700/50 rounded-xl overflow-hidden">
+                {/* User header row */}
+                <button
+                  className="w-full text-left px-4 py-3 flex items-center justify-between hover:bg-gray-700/30 transition-colors"
+                  onClick={() => setExpandedUser(isExpanded ? null : userGroup.user?.id)}
+                >
+                  <div className="flex items-center gap-3 flex-1 min-w-0">
+                    {/* Avatar */}
+                    <div className={`w-8 h-8 rounded-full bg-gradient-to-br ${avatarColor} flex items-center justify-center text-white text-xs font-bold flex-shrink-0`}>
+                      {(userGroup.user?.name?.[0] || userGroup.user?.email?.[0] || '?').toUpperCase()}
+                    </div>
+
+                    {/* User info */}
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="text-sm font-medium text-white truncate">
+                          {userGroup.user?.name || <span className="text-gray-500 italic">未命名</span>}
+                        </span>
+                        <span className="text-[10px] text-gray-500 truncate">{userGroup.user?.email}</span>
+                        {userGroup.user?.plan && userGroup.user?.plan !== 'FREE' && (
+                          <span className="text-[10px] px-1.5 py-0.5 bg-purple-900/40 text-purple-300 rounded-full">
+                            {userGroup.user?.plan}
+                          </span>
+                        )}
+                      </div>
+                      {/* Stats row */}
+                      <div className="flex items-center gap-3 mt-0.5 text-[10px] text-gray-500">
+                        <span>{userGroup.convCount} 次对话</span>
+                        <span className="text-gray-600">·</span>
+                        <span>{userGroup.totalMessages} 条消息</span>
+                        <span className="text-gray-600">·</span>
+                        <span className="text-amber-400">¥{Number(userGroup.totalCost || 0).toFixed(4)}</span>
+                        <span className="text-gray-600">·</span>
+                        <span>{userGroup.lastActivity ? fmtDateShort(userGroup.lastActivity) : '—'}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2 flex-shrink-0">
+                    {isExpanded ? (
+                      <span className="text-[10px] text-gray-600">收起</span>
+                    ) : (
+                      <span className="text-[10px] text-gray-600">展开 {userGroup.convCount} 个对话</span>
+                    )}
+                    <ChevronRight className={`w-4 h-4 text-gray-500 transition-transform ${isExpanded ? 'rotate-90' : ''}`} />
+                  </div>
+                </button>
+
+                {/* Expanded: conversation list */}
+                <AnimatePresence>
+                  {isExpanded && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: 'auto', opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.2 }}
+                      className="overflow-hidden border-t border-gray-700/40"
+                    >
+                      <div className="px-4 py-3 space-y-2">
+                        {userGroup.conversations.map((conv: any) => (
+                          <div key={conv.id} className="bg-gray-900/60 border border-gray-700/40 rounded-lg px-3 py-2">
+                            <div className="flex items-center justify-between gap-2 flex-wrap">
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <span className="text-[10px] text-gray-500">{fmtDate(conv.createdAt)}</span>
+                                <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-gray-800 text-gray-400">{conv.mode}</span>
+                                <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${conv.billingMode === 'A' ? 'bg-blue-900/30 text-blue-400' : 'bg-green-900/30 text-green-400'}`}>
+                                  {conv.billingMode === 'A' ? 'API Key' : '平台代付'}
+                                </span>
+                                {conv.personaIds?.length > 0 && (
+                                  <span className="text-[10px] text-gray-500">
+                                    {conv.personaIds.slice(0, 3).join(', ')}
+                                    {conv.personaIds.length > 3 ? ` +${conv.personaIds.length - 3}` : ''}
+                                  </span>
+                                )}
+                              </div>
+                              <div className="flex items-center gap-2 text-[10px] text-gray-500">
+                                <span>{conv.messageCount} 条消息</span>
+                                <span className="text-amber-400">¥{Number(conv.totalCost || 0).toFixed(4)}</span>
+                              </div>
+                            </div>
+                            {/* Message preview */}
+                            {conv.messages?.length > 0 && (
+                              <div className="mt-2 space-y-1">
+                                {conv.messages.slice(0, 2).map((msg: any) => {
+                                  const isUser = msg.role === 'user' || msg.role === 'human';
+                                  return (
+                                    <div key={msg.id} className="flex items-start gap-2">
+                                      <span className={`text-[9px] font-bold flex-shrink-0 w-4 ${isUser ? 'text-blue-400' : 'text-purple-400'}`}>
+                                        {isUser ? 'U' : 'AI'}
+                                      </span>
+                                      <span className="text-[10px] text-gray-400 truncate flex-1">
+                                        {msg.content?.slice(0, 120)}
+                                      </span>
+                                    </div>
+                                  );
+                                })}
+                                {conv.messages.length > 2 && (
+                                  <p className="text-[9px] text-gray-600 pl-6">+{conv.messages.length - 2} 条更多...</p>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── Tab 5: 同步管理 ─────────────────────────────────────────────────────────
+
+function SyncSection() {
+  const [syncData, setSyncData] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [tab, setTab] = useState<'overview' | 'conflicts' | 'devices' | 'logs'>('overview');
+
+  const loadSyncData = async () => {
+    try {
+      setRefreshing(true);
+      const res = await fetch('/api/admin/sync/stats');
+      if (res.ok) {
+        const data = await res.json();
+        setSyncData(data);
+      }
+    } catch (e) {
+      console.error('Failed to load sync stats:', e);
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  };
+
+  useEffect(() => {
+    loadSyncData();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <Loader2 className="w-8 h-8 text-blue-400 animate-spin" />
+      </div>
+    );
+  }
+
+  const stats = syncData?.stats ?? {};
+  const conflicts = syncData?.conflicts ?? [];
+  const devices = syncData?.devices ?? [];
+  const recentLogs = syncData?.recentLogs ?? [];
+
+  return (
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-xl font-bold text-white">同步管理</h2>
+          <p className="text-gray-400 text-sm mt-1">多设备对话同步状态监控</p>
+        </div>
+        <button
+          onClick={loadSyncData}
+          disabled={refreshing}
+          className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gray-800 hover:bg-gray-700 text-sm text-gray-300 transition-colors disabled:opacity-50"
+        >
+          <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
+          刷新
+        </button>
+      </div>
+
+      {/* KPI Cards */}
+      <div className="grid grid-cols-4 gap-4">
+        <KpiCard
+          label="已注册设备"
+          value={stats.totalDevices ?? 0}
+          icon={<Monitor className="w-5 h-5 text-blue-400" />}
+          color="blue"
+        />
+        <KpiCard
+          label="本地对话快照"
+          value={stats.totalLocalConversations ?? 0}
+          icon={<Smartphone className="w-5 h-5 text-purple-400" />}
+          color="purple"
+        />
+        <KpiCard
+          label="待解决冲突"
+          value={stats.unresolvedConflicts ?? 0}
+          icon={<AlertTriangle className="w-5 h-5 text-amber-400" />}
+          color="amber"
+          highlight={stats.unresolvedConflicts > 0}
+        />
+        <KpiCard
+          label="总同步次数"
+          value={stats.totalSyncs ?? 0}
+          icon={<SyncIcon className="w-5 h-5 text-green-400" />}
+          color="green"
+        />
+      </div>
+
+      {/* Tab bar */}
+      <div className="flex items-center gap-1 border-b border-gray-800">
+        {([
+          ['overview', '总览'],
+          ['conflicts', `冲突 (${conflicts.length})`],
+          ['devices', `设备 (${devices.length})`],
+          ['logs', '同步日志'],
+        ] as [typeof tab, string][]).map(([key, label]) => (
+          <button
+            key={key}
+            onClick={() => setTab(key)}
+            className={`px-4 py-2.5 text-sm font-medium transition-colors border-b-2 -mb-px ${
+              tab === key
+                ? 'border-prism-blue text-white'
+                : 'border-transparent text-gray-500 hover:text-gray-300'
+            }`}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
+
+      {/* Tab content */}
+      {tab === 'overview' && (
+        <div className="space-y-6">
+          {/* Sync success rate */}
+          <div className="bg-gray-900/60 border border-gray-800/60 rounded-2xl p-5">
+            <h3 className="text-sm font-semibold text-white mb-4">同步健康度</h3>
+            <div className="grid grid-cols-3 gap-6">
+              <div className="text-center">
+                <div className="relative w-20 h-20 mx-auto mb-2">
+                  <svg className="w-20 h-20 -rotate-90">
+                    <circle cx="40" cy="40" r="36" fill="none" stroke="#1f2937" strokeWidth="6" />
+                    <circle
+                      cx="40" cy="40" r="36" fill="none"
+                      stroke="#10b981" strokeWidth="6"
+                      strokeDasharray={`${(stats.syncSuccessRate ?? 0) * 2.26} 226`}
+                      strokeLinecap="round"
+                    />
+                  </svg>
+                  <span className="absolute inset-0 flex items-center justify-center text-sm font-bold text-white">
+                    {Math.round((stats.syncSuccessRate ?? 0) * 100)}%
+                  </span>
+                </div>
+                <p className="text-xs text-gray-500">成功率</p>
+              </div>
+              <div className="text-center">
+                <div className="relative w-20 h-20 mx-auto mb-2">
+                  <svg className="w-20 h-20 -rotate-90">
+                    <circle cx="40" cy="40" r="36" fill="none" stroke="#1f2937" strokeWidth="6" />
+                    <circle
+                      cx="40" cy="40" r="36" fill="none"
+                      stroke="#06b6d4" strokeWidth="6"
+                      strokeDasharray={`${(stats.avgConflictRate ?? 0) * 2.26} 226`}
+                      strokeLinecap="round"
+                    />
+                  </svg>
+                  <span className="absolute inset-0 flex items-center justify-center text-sm font-bold text-white">
+                    {Math.round((stats.avgConflictRate ?? 0) * 100)}%
+                  </span>
+                </div>
+                <p className="text-xs text-gray-500">冲突率</p>
+              </div>
+              <div className="text-center">
+                <p className="text-3xl font-bold text-white mb-2">
+                  {stats.avgDurationMs ? `${(stats.avgDurationMs / 1000).toFixed(1)}s` : '—'}
+                </p>
+                <p className="text-xs text-gray-500">平均耗时</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Sync volume over time */}
+          <div className="bg-gray-900/60 border border-gray-800/60 rounded-2xl p-5">
+            <h3 className="text-sm font-semibold text-white mb-4">每日同步量</h3>
+            <div className="h-48">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={syncData?.dailyStats ?? []}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#1f2937" />
+                  <XAxis dataKey="date" tick={{ fill: '#6b7280', fontSize: 11 }} />
+                  <YAxis tick={{ fill: '#6b7280', fontSize: 11 }} />
+                  <Tooltip contentStyle={{ background: '#111', border: '1px solid #374151', borderRadius: 8 }} labelStyle={{ color: '#fff' }} />
+                  <Bar dataKey="pushCount" name="推送" fill="#8b5cf6" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="pullCount" name="拉取" fill="#06b6d4" radius={[4, 4, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {tab === 'conflicts' && (
+        <div className="space-y-3">
+          {conflicts.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-16 text-center">
+              <CheckCircle className="w-12 h-12 text-green-500 mb-3" />
+              <p className="text-base font-medium text-white">暂无同步冲突</p>
+              <p className="text-sm text-gray-500 mt-1">所有设备的对话数据已完美同步</p>
+            </div>
+          ) : (
+            conflicts.map((conflict: any) => (
+              <div key={conflict.id} className="bg-gray-900/60 border border-amber-500/20 rounded-xl p-4">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex items-start gap-3">
+                    <AlertTriangle className="w-4 h-4 text-amber-400 flex-shrink-0 mt-0.5" />
+                    <div>
+                      <p className="text-sm font-medium text-white">
+                        {conflict.personaIds?.join(' + ') || '未知对话'}
+                      </p>
+                      <p className="text-xs text-gray-500 mt-0.5">
+                        类型: {conflict.conflictType} · 用户: {conflict.userId?.slice(0, 8)}...
+                      </p>
+                      <p className="text-xs text-gray-600 mt-0.5">
+                        设备: {conflict.deviceId?.slice(0, 8)}... · {fmtDate(conflict.createdAt)}
+                      </p>
+                    </div>
+                  </div>
+                  <span className={`text-xs px-2 py-0.5 rounded-full flex-shrink-0 ${
+                    conflict.resolution === 'PENDING' ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20'
+                    : 'bg-green-500/10 text-green-400 border border-green-500/20'
+                  }`}>
+                    {conflict.resolution === 'PENDING' ? '待解决' : conflict.resolution}
+                  </span>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+      )}
+
+      {tab === 'devices' && (
+        <div className="space-y-3">
+          {devices.map((device: any) => (
+            <div key={device.id} className="bg-gray-900/60 border border-gray-800/60 rounded-xl p-4">
+              <div className="flex items-center gap-3">
+                {device.deviceType === 'DESKTOP' ? (
+                  <Monitor className="w-5 h-5 text-blue-400" />
+                ) : (
+                  <Smartphone className="w-5 h-5 text-purple-400" />
+                )}
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-white truncate">{device.deviceName || '未知设备'}</p>
+                  <p className="text-xs text-gray-500">
+                    {device.platform} · {device.browser} · {device.osVersion}
+                  </p>
+                </div>
+                <div className="text-right flex-shrink-0">
+                  <p className="text-xs text-gray-400">{device.conversationCount} 个对话</p>
+                  <p className="text-xs text-gray-600">最后活跃: {fmtDate(device.lastActiveAt)}</p>
+                </div>
+                <div className={`w-2 h-2 rounded-full flex-shrink-0 ${device.syncToken ? 'bg-green-500' : 'bg-gray-600'}`} title={device.syncToken ? '已同步' : '未同步'} />
+              </div>
+            </div>
+          ))}
+          {devices.length === 0 && (
+            <div className="text-center py-12 text-gray-500">暂无设备数据</div>
+          )}
+        </div>
+      )}
+
+      {tab === 'logs' && (
+        <div className="space-y-2">
+          {recentLogs.map((log: any) => (
+            <div key={log.id} className="bg-gray-900/60 border border-gray-800/60 rounded-xl px-4 py-3">
+              <div className="flex items-center gap-3 flex-wrap">
+                <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
+                  log.status === 'SUCCESS' ? 'bg-green-500/10 text-green-400 border border-green-500/20'
+                  : log.status === 'PARTIAL' ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20'
+                  : log.status === 'CONFLICT' ? 'bg-red-500/10 text-red-400 border border-red-500/20'
+                  : 'bg-gray-500/10 text-gray-400 border border-gray-500/20'
+                }`}>
+                  {log.status}
+                </span>
+                <span className="text-xs text-gray-500">
+                  {log.direction} · 推送 {log.pushedCount ?? 0} · 拉取 {log.pulledCount ?? 0} · 合并 {log.mergedCount ?? 0}
+                </span>
+                <span className="text-xs text-gray-600 ml-auto">{fmtDate(log.createdAt)}</span>
+                <span className="text-xs text-gray-600">{(log.durationMs ?? 0) / 1000}s</span>
+              </div>
+            </div>
+          ))}
+          {recentLogs.length === 0 && (
+            <div className="text-center py-12 text-gray-500">暂无同步日志</div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function KpiCard({ label, value, icon, color, highlight }: {
+  label: string;
+  value: number;
+  icon: React.ReactNode;
+  color: 'blue' | 'purple' | 'amber' | 'green';
+  highlight?: boolean;
+}) {
+  const colorMap = {
+    blue: 'border-blue-500/20',
+    purple: 'border-purple-500/20',
+    amber: highlight ? 'border-amber-500/40 bg-amber-500/5' : 'border-amber-500/20',
+    green: 'border-green-500/20',
+  };
+  const textMap = { blue: 'text-blue-400', purple: 'text-purple-400', amber: 'text-amber-400', green: 'text-green-400' };
+
+  return (
+    <div className={`rounded-2xl border p-5 bg-gray-900/60 ${colorMap[color]}`}>
+      <div className="flex items-center justify-between mb-3">
+        <span className="text-xs text-gray-500 font-medium">{label}</span>
+        {icon}
+      </div>
+      <p className={`text-2xl font-bold ${textMap[color]}`}>{value.toLocaleString()}</p>
     </div>
   );
 }

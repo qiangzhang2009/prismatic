@@ -4,6 +4,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useState, useEffect, useRef, type ReactNode } from 'react';
 import { useAuthStore } from '@/lib/auth-store';
 import { TrackingInitializer } from '@/components/tracking-initializer';
+import { migrateLegacyStorage, isMigrationComplete } from '@/lib/migrate-legacy-storage';
 
 export function Providers({ children }: { children: ReactNode }) {
   const [queryClient] = useState(
@@ -40,10 +41,32 @@ export function Providers({ children }: { children: ReactNode }) {
  */
 function AuthInitializer() {
   const init = useAuthStore((s) => s.init);
+  const migrated = useRef(false);
 
   useEffect(() => {
     init();
   }, [init]);
+
+  // Run legacy storage migration once on mount
+  useEffect(() => {
+    if (migrated.current) return;
+    migrated.current = true;
+
+    if (isMigrationComplete()) return;
+
+    // Defer migration slightly to not block initial render
+    const timer = setTimeout(() => {
+      const result = migrateLegacyStorage();
+      if (result.migratedCount > 0) {
+        console.info(
+          `[Migration] Migrated ${result.migratedCount} legacy conversations ` +
+          `(${result.totalMessages} total messages) from old localStorage format.`
+        );
+      }
+    }, 2000);
+
+    return () => clearTimeout(timer);
+  }, []);
 
   return null;
 }

@@ -1,0 +1,698 @@
+'use client';
+
+/**
+ * useConversationSync — Multi-device Conversation Synchronization Hook
+ *
+ * Features:
+ *  1. Automatic device registration on mount
+ *  2. Bidirectional sync on login and app focus
+ *  3. Real-time push after each message
+ *  4. Offline queue: messages sent while offline are queued and pushed when online
+ *  5. Conflict detection and resolution UI
+ *  6. Visitor → Registered user migration on first login
+ *
+ * Storage Strategy:
+ *  - localStorage: all conversation messages (already implemented in use-chat-history.ts)
+ *  - DB (via API): conversation metadata, content hashes, and last sync timestamps
+ *  - IndexedDB: offline message queue (backup for localStorage)
+ *
+ * Sync Triggers:
+ *  - On login: full sync (all conversations)
+ *  - On app focus: incremental sync
+ *  - After each message: lightweight push
+ *  - Every 5 minutes: background push (automatic)
+ *  - On manual refresh: full sync
+ */
+
+import { useState, useEffect, useCallback, useRef } from 'react';
+import type { AgentMessage } from '@/lib/types';
+import { buildConversationKey } from '@/lib/sync-engine';
+
+// ─── Types ──────────────────────────────────────────────────────────────────
+
+export interface SyncMessage {
+  id: string;
+  role: 'user' | 'assistant' | 'system';
+  content: string;
+  personaId?: string;
+  timestamp: string;
+}
+
+export interface LocalConversationSnapshot {
+  conversationKey: string;
+  personaIds: string[];
+  title?: string;
+  tags?: string[];
+  messageCount: number;
+  contentHash: string;
+  lastMessageAt: string;
+  messages?: SyncMessage[];
+  snapshotAt: string;
+}
+
+export interface ConflictItem {
+  conversationKey: string;
+  personaIds: string[];
+  conflictType: string;
+  localSnapshot: LocalConversationSnapshot;
+  serverSnapshot: LocalConversationSnapshot;
+  suggestedMerge?: SyncMessage[];
+}
+
+export interface SyncState {
+  status: 'idle' | 'syncing' | 'success' | 'error' | 'conflict';
+  lastSyncedAt: string | null;
+  syncToken: string | null;
+  deviceId: string | null;
+  conflicts: ConflictItem[];
+  error: string | null;
+  stats: {
+    pushed: number;
+    pulled: number;
+    conflicts: number;
+  };
+}
+
+export interface SyncResult {
+  success: boolean;
+  pullConversations: Array<{
+    conversationKey: string;
+    personaIds: string[];
+    title?: string;
+    messages: SyncMessage[];
+    serverUpdatedAt: string;
+    isNew: boolean;
+  }>;
+  acknowledged: string[];
+  conflicts: ConflictItem[];
+  syncToken: string;
+  stats: {
+    pushed: number;
+    pulled: number;
+    conflicts: number;
+    durationMs: number;
+  };
+}
+
+// ─── Device Fingerprint ────────────────────────────────────────────────────
+
+/** Get or create a stable device ID for this browser/device */
+function getOrCreateDeviceId(): string {
+  const STORAGE_KEY = 'prismatic-device-id';
+  try {
+    let deviceId = localStorage.getItem(STORAGE_KEY);
+    if (!deviceId) {
+      deviceId = `dev_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
+      localStorage.setItem(STORAGE_KEY, deviceId);
+    }
+    return deviceId;
+  } catch {
+    // SSR or private browsing — generate ephemeral ID
+    return `ephemeral_${Date.now()}`;
+  }
+}
+
+/** Extract device info from the browser */
+function getDeviceInfo() {
+  if (typeof window === 'undefined') return {};
+
+  const ua = navigator.userAgent;
+  const platform = navigator.platform;
+
+  let deviceName = 'Unknown Device';
+  let deviceType: 'DESKTOP' | 'MOBILE' | 'TABLET' | 'UNKNOWN' = 'UNKNOWN';
+  let browser = 'Unknown Browser';
+  let osVersion = '';
+
+  // Platform detection
+  if (/iPhone|iPad|iPod/i.test(ua)) {
+    deviceType = /iPad/i.test(ua) ? 'TABLET' : 'MOBILE';
+    const match = ua.match(/OS ([\d_]+)/);
+    osVersion = match ? `iOS ${match[1].replace(/_/g, '.')}` : '';
+  } else if (/Android/i.test(ua)) {
+    deviceType = 'MOBILE';
+    const match = ua.match(/Android ([\d.]+)/);
+    osVersion = match ? `Android ${match[1]}` : '';
+  } else if (/Mac/i.test(platform)) {
+    deviceType = 'DESKTOP';
+    const match = ua.match(/Mac OS X ([\d_.]+)/);
+    osVersion = match ? `macOS ${match[1].replace(/_/g, '.')}` : '';
+    deviceName = 'Mac';
+  } else if (/Win/i.test(platform)) {
+    deviceType = 'DESKTOP';
+    deviceName = 'Windows PC';
+  } else if (/Linux/i.test(platform)) {
+    deviceType = 'DESKTOP';
+    deviceName = 'Linux';
+  }
+
+  // Browser detection
+  if (/Chrome\/[\d.]+/.test(ua) && !/Chromium|Edge/.test(ua)) {
+    const match = ua.match(/Chrome\/([\d.]+)/);
+    browser = match ? `Chrome ${match[1].split('.')[0]}` : 'Chrome';
+    if (deviceType === 'DESKTOP' && deviceName === 'Mac') deviceName = 'Chrome on Mac';
+  } else if (/Safari\/[\d.]+/.test(ua) && !/Chrome|Chromium/.test(ua)) {
+    const match = ua.match(/Version\/([\d.]+)/);
+    browser = match ? `Safari ${match[1].split('.')[0]}` : 'Safari';
+    if (deviceType === 'DESKTOP' && deviceName === 'Mac') deviceName = 'Safari on Mac';
+  } else if (/Firefox\/[\d.]+/.test(ua)) {
+    const match = ua.match(/Firefox\/([\d.]+)/);
+    browser = match ? `Firefox ${match[1].split('.')[0]}` : 'Firefox';
+  }
+
+  return {
+    deviceName,
+    deviceType,
+    platform: platform.toLowerCase(),
+    browser,
+    osVersion,
+  };
+}
+
+// ─── Storage Helpers ──────────────────────────────────────────────────────────
+
+/** Get all conversation snapshots from localStorage */
+function getAllLocalSnapshots(messagesMap: Map<string, { messages: AgentMessage[]; title?: string; tags?: string[] }>): LocalConversationSnapshot[] {
+  const snapshots: LocalConversationSnapshot[] = [];
+
+  messagesMap.forEach((data, conversationKey) => {
+    const { messages, title, tags } = data;
+    if (messages.length === 0) return;
+
+    // Extract persona IDs from conversationKey (e.g. "confucius-wittgenstein" → ["confucius", "wittgenstein"])
+    const personaIds = conversationKey.split('-');
+
+    snapshots.push({
+      conversationKey,
+      personaIds,
+      title,
+      tags,
+      messageCount: messages.length,
+      contentHash: computeContentHash(messages),
+      lastMessageAt: messages.length > 0
+        ? (messages[messages.length - 1] as any).timestamp || new Date().toISOString()
+        : new Date().toISOString(),
+      snapshotAt: new Date().toISOString(),
+    });
+  });
+
+  return snapshots;
+}
+
+/** SHA-256 hash using Web Crypto API (browser-only) */
+async function sha256(message: string): Promise<string> {
+  const msgBuffer = new TextEncoder().encode(message);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+async function computeContentHash(messages: AgentMessage[]): Promise<string> {
+  // Use the last 20 messages + count for quick hash (avoids hashing huge content)
+  const recentMessages = messages.slice(-20).map(m => ({
+    id: m.id,
+    role: m.role,
+    content: (m.content as string || '').slice(0, 200),
+    timestamp: (m as any).timestamp,
+  }));
+  const payload = JSON.stringify({ count: messages.length, recent: recentMessages });
+  return sha256(payload).then(h => h.slice(0, 32));
+}
+
+// ─── Offline Queue ────────────────────────────────────────────────────────────
+
+interface QueuedSnapshot {
+  conversationKey: string;
+  snapshot: LocalConversationSnapshot;
+  queuedAt: string;
+}
+
+function getOfflineQueue(): QueuedSnapshot[] {
+  try {
+    const raw = localStorage.getItem('prismatic-sync-queue');
+    return raw ? JSON.parse(raw) : [];
+  } catch { return []; }
+}
+
+function addToOfflineQueue(conversationKey: string, snapshot: LocalConversationSnapshot) {
+  const queue = getOfflineQueue();
+  const existing = queue.findIndex(q => q.conversationKey === conversationKey);
+  if (existing >= 0) {
+    queue[existing] = { conversationKey, snapshot, queuedAt: new Date().toISOString() };
+  } else {
+    queue.push({ conversationKey, snapshot, queuedAt: new Date().toISOString() });
+  }
+  try { localStorage.setItem('prismatic-sync-queue', JSON.stringify(queue)); } catch {}
+}
+
+function clearOfflineQueue() {
+  try { localStorage.removeItem('prismatic-sync-queue'); } catch {}
+}
+
+function flushOfflineQueue(): QueuedSnapshot[] {
+  const queue = getOfflineQueue();
+  clearOfflineQueue();
+  return queue;
+}
+
+// ─── Conversation Registry ────────────────────────────────────────────────────
+// Maintains the mapping of conversationKey → messages for ALL conversations
+// (not just the active one like useChatHistory does)
+
+const REGISTRY_KEY = 'prismatic-conversation-registry';
+const STORAGE_VERSION = 3;
+
+interface ConversationRegistry {
+  version: number;
+  conversations: Record<string, {
+    messages: AgentMessage[];
+    title?: string;
+    tags?: string[];
+    lastUpdated: number;
+  }>;
+}
+
+function loadRegistry(): ConversationRegistry {
+  try {
+    const raw = localStorage.getItem(REGISTRY_KEY);
+    if (!raw) return { version: STORAGE_VERSION, conversations: {} };
+    const registry: ConversationRegistry = JSON.parse(raw);
+    if (registry.version !== STORAGE_VERSION) {
+      // Version migration: re-parse from old format
+      return migrateRegistry(registry);
+    }
+    return registry;
+  } catch { return { version: STORAGE_VERSION, conversations: {} }; }
+}
+
+function migrateRegistry(old: ConversationRegistry): ConversationRegistry {
+  // v1→v2: old format stored by persona pair, v2+ uses conversationKey
+  // v2→v3: add metadata fields
+  const conversations: ConversationRegistry['conversations'] = {};
+  for (const [key, data] of Object.entries(old.conversations || {})) {
+    conversations[key] = {
+      ...(data as any),
+      lastUpdated: (data as any).lastUpdated || Date.now(),
+      title: (data as any).title || '',
+      tags: (data as any).tags || [],
+    };
+  }
+  return { version: STORAGE_VERSION, conversations };
+}
+
+function saveRegistry(registry: ConversationRegistry) {
+  try {
+    localStorage.setItem(REGISTRY_KEY, JSON.stringify(registry));
+  } catch {
+    // Storage full — warn user
+    console.warn('[Sync] localStorage full, sync may not work');
+  }
+}
+
+function getOrCreateConversation(
+  registry: ConversationRegistry,
+  conversationKey: string
+): ConversationRegistry['conversations'][string] {
+  if (!registry.conversations[conversationKey]) {
+    registry.conversations[conversationKey] = {
+      messages: [],
+      title: '',
+      tags: [],
+      lastUpdated: Date.now(),
+    };
+  }
+  return registry.conversations[conversationKey];
+}
+
+// ─── Main Hook ───────────────────────────────────────────────────────────────
+
+export function useConversationSync() {
+  const deviceIdRef = useRef<string>(getOrCreateDeviceId());
+  const deviceId = deviceIdRef.current;
+
+  const [syncState, setSyncState] = useState<SyncState>({
+    status: 'idle',
+    lastSyncedAt: null,
+    syncToken: null,
+    deviceId,
+    conflicts: [],
+    error: null,
+    stats: { pushed: 0, pulled: 0, conflicts: 0 },
+  });
+
+  const syncTokenRef = useRef<string | null>(null);
+  const isOnlineRef = useRef<boolean>(typeof navigator !== 'undefined' ? navigator.onLine : true);
+  const syncInProgressRef = useRef(false);
+  const syncIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const registryRef = useRef<ConversationRegistry>(loadRegistry());
+
+  // ── Push a conversation snapshot ───────────────────────────────────────
+
+  /** Call this after every message to push a snapshot to the server */
+  const pushSnapshot = useCallback(async (personaIds: string[], messages: AgentMessage[], title?: string, tags?: string[]) => {
+    const conversationKey = buildConversationKey(personaIds);
+    const contentHash = await computeContentHash(messages);
+
+    const snapshot: LocalConversationSnapshot = {
+      conversationKey,
+      personaIds,
+      title,
+      tags,
+      messageCount: messages.length,
+      contentHash,
+      lastMessageAt: messages.length > 0
+        ? ((messages[messages.length - 1] as any).timestamp as string || new Date().toISOString())
+        : new Date().toISOString(),
+      snapshotAt: new Date().toISOString(),
+    };
+
+    if (!isOnlineRef.current) {
+      // Offline: queue for later
+      addToOfflineQueue(conversationKey, snapshot);
+      return;
+    }
+
+    try {
+      await fetch('/api/sync/push', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ deviceId, snapshots: [snapshot] }),
+      });
+    } catch {
+      // Network error — queue for later
+      addToOfflineQueue(conversationKey, snapshot);
+    }
+  }, [deviceId]);
+
+  // ── Full sync ─────────────────────────────────────────────────────────
+
+  const runFullSync = useCallback(async (): Promise<SyncResult | null> => {
+    if (syncInProgressRef.current) return null;
+    if (!isOnlineRef.current) return null;
+
+    syncInProgressRef.current = true;
+    setSyncState(prev => ({ ...prev, status: 'syncing', error: null }));
+
+    try {
+      // Build snapshots for all conversations in the registry
+      const allSnapshots = getAllLocalSnapshots(
+        new Map(Object.entries(registryRef.current.conversations))
+      );
+
+      const result = await fetch('/api/sync', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          deviceId,
+          deviceInfo: getDeviceInfo(),
+          localSnapshots: allSnapshots,
+          syncToken: syncTokenRef.current,
+          lastSyncAt: syncState.lastSyncedAt,
+        }),
+      });
+
+      if (!result.ok) {
+        throw new Error(`Sync failed: ${result.status}`);
+      }
+
+      const syncResult: SyncResult = await result.json();
+
+      // ── Apply pulled conversations to localStorage ─────────────────
+      if (syncResult.pullConversations && syncResult.pullConversations.length > 0) {
+        for (const pull of syncResult.pullConversations) {
+          // Update local registry with pulled messages
+          const conv = getOrCreateConversation(registryRef.current, pull.conversationKey);
+
+          // Merge: add pulled messages that don't exist locally
+          const localIds = new Set(conv.messages.map(m => m.id));
+          const newMessages = pull.messages.filter((m: SyncMessage) => !localIds.has(m.id));
+
+          if (newMessages.length > 0) {
+            // Sort by timestamp and append
+            const merged = [...conv.messages, ...newMessages].sort((a, b) => {
+              const aTime = new Date((a as any).timestamp || 0).getTime();
+              const bTime = new Date((b as any).timestamp || 0).getTime();
+              return aTime - bTime;
+            });
+            conv.messages = merged;
+            conv.lastUpdated = Date.now();
+          }
+
+          if (pull.title) conv.title = pull.title;
+        }
+        saveRegistry(registryRef.current);
+      }
+
+      // ── Update sync state ───────────────────────────────────────────
+      syncTokenRef.current = syncResult.syncToken;
+      setSyncState(prev => ({
+        ...prev,
+        status: syncResult.conflicts.length > 0 ? 'conflict' : 'success',
+        lastSyncedAt: new Date().toISOString(),
+        syncToken: syncResult.syncToken,
+        conflicts: syncResult.conflicts || [],
+        error: null,
+        stats: syncResult.stats,
+      }));
+
+      return syncResult;
+    } catch (e) {
+      const error = e instanceof Error ? e.message : '同步失败';
+      setSyncState(prev => ({ ...prev, status: 'error', error }));
+      return null;
+    } finally {
+      syncInProgressRef.current = false;
+    }
+  }, [deviceId, syncState.lastSyncedAt]);
+
+  // ── Resolve a conflict ───────────────────────────────────────────────
+
+  const resolveConflict = useCallback(async (
+    conversationKey: string,
+    strategy: 'SERVER_WINS' | 'LOCAL_WINS' | 'MERGE_APPEND' | 'USER_DECIDES',
+    resolvedMessages?: AgentMessage[]
+  ) => {
+    try {
+      const result = await fetch('/api/sync/conflicts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ conversationKey, strategy, resolvedMessages }),
+      });
+
+      if (!result.ok) throw new Error('Failed to resolve conflict');
+
+      // Apply the resolution locally
+      if (resolvedMessages) {
+        const conv = getOrCreateConversation(registryRef.current, conversationKey);
+        conv.messages = resolvedMessages;
+        conv.lastUpdated = Date.now();
+        saveRegistry(registryRef.current);
+      }
+
+      setSyncState(prev => ({
+        ...prev,
+        conflicts: prev.conflicts.filter(c => c.conversationKey !== conversationKey),
+        status: prev.conflicts.length <= 1 ? 'success' : 'conflict',
+      }));
+
+      return true;
+    } catch {
+      return false;
+    }
+  }, []);
+
+  // ── Flush offline queue ──────────────────────────────────────────────
+
+  const flushOfflineQueue_ = useCallback(async () => {
+    const queue = flushOfflineQueue();
+    if (queue.length === 0) return;
+
+    try {
+      await fetch('/api/sync/push', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          deviceId,
+          snapshots: queue.map(q => q.snapshot),
+        }),
+      });
+    } catch {
+      // Re-queue on failure
+      for (const item of queue) {
+        addToOfflineQueue(item.conversationKey, item.snapshot);
+      }
+    }
+  }, [deviceId]);
+
+  // ── Online/offline listeners ─────────────────────────────────────────
+
+  useEffect(() => {
+    const handleOnline = () => {
+      isOnlineRef.current = true;
+      // Flush offline queue and do a sync when coming back online
+      flushOfflineQueue_().then(() => runFullSync());
+    };
+
+    const handleOffline = () => {
+      isOnlineRef.current = false;
+    };
+
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, [flushOfflineQueue_, runFullSync]);
+
+  // ── App focus listener (incremental sync) ────────────────────────────
+
+  useEffect(() => {
+    const handleVisibility = () => {
+      if (document.visibilityState === 'visible') {
+        // App came into focus — do incremental sync
+        runFullSync();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibility);
+    return () => document.removeEventListener('visibilitychange', handleVisibility);
+  }, [runFullSync]);
+
+  // ── Periodic background sync (every 5 minutes) ──────────────────────
+
+  useEffect(() => {
+    syncIntervalRef.current = setInterval(() => {
+      if (isOnlineRef.current && !syncInProgressRef.current) {
+        // Only push, don't pull (to keep it lightweight)
+        const allSnapshots = getAllLocalSnapshots(
+          new Map(Object.entries(registryRef.current.conversations))
+        );
+        if (allSnapshots.length > 0) {
+          fetch('/api/sync/push', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ deviceId, snapshots: allSnapshots }),
+          }).catch(() => {});
+        }
+      }
+    }, 5 * 60 * 1000); // 5 minutes
+
+    return () => {
+      if (syncIntervalRef.current) clearInterval(syncIntervalRef.current);
+    };
+  }, [deviceId, runFullSync]);
+
+  return {
+    syncState,
+    deviceId,
+    pushSnapshot,
+    runFullSync,
+    resolveConflict,
+    flushOfflineQueue: flushOfflineQueue_,
+    registry: registryRef.current,
+  };
+}
+
+// ─── Visitor → Registered Migration ──────────────────────────────────────────
+
+/**
+ * migrateVisitorConversations — call this on first login after visitor was using the app
+ *
+ * Moves all localStorage conversations from the "anonymous visitor" storage
+ * to the registered user's account in the DB.
+ */
+export async function migrateVisitorConversationsToServer(
+  userId: string,
+  visitorId: string,
+  registry: ConversationRegistry
+): Promise<{ migrated: number; conflicts: number }> {
+  // Convert registry to snapshots
+  const snapshots: LocalConversationSnapshot[] = [];
+
+  for (const [conversationKey, data] of Object.entries(registry.conversations)) {
+    if (data.messages.length === 0) continue;
+
+    const personaIds = conversationKey.split('-');
+
+    const snapshot: LocalConversationSnapshot = {
+      conversationKey,
+      personaIds,
+      title: data.title,
+      tags: data.tags,
+      messageCount: data.messages.length,
+      contentHash: await computeContentHash(data.messages),
+      lastMessageAt: data.messages.length > 0
+        ? ((data.messages[data.messages.length - 1] as any).timestamp as string || new Date().toISOString())
+        : new Date().toISOString(),
+      snapshotAt: new Date().toISOString(),
+    };
+    snapshots.push(snapshot);
+  }
+
+  try {
+    const result = await fetch('/api/sync/migrate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userId, visitorId, snapshots }),
+    });
+
+    if (!result.ok) throw new Error('Migration failed');
+
+    const data = await result.json();
+    return { migrated: data.migrated, conflicts: data.conflicts };
+  } catch {
+    return { migrated: 0, conflicts: 0 };
+  }
+}
+
+// ─── Compatibility shim for existing useChatHistory ────────────────────────
+
+/**
+ * Extends the existing useChatHistory pattern to work with the sync system.
+ *
+ * Replace `useChatHistory` with `useSyncedChatHistory` in chat components.
+ * The API is identical but messages are also synced to the server.
+ */
+export function useSyncedChatHistory(personaIds: string[]) {
+  const conversationKey = buildConversationKey(personaIds);
+
+  const registry = loadRegistry();
+  const conv = registry.conversations[conversationKey];
+  const [messages, setMessages] = useState<AgentMessage[]>(conv?.messages || []);
+
+  const { pushSnapshot, runFullSync } = useConversationSync();
+
+  const setMessagesAndSync = useCallback(async (updater: (prev: AgentMessage[]) => AgentMessage[]) => {
+    setMessages(prev => {
+      const next = updater(prev);
+
+      // Save to registry
+      const reg = loadRegistry();
+      reg.conversations[conversationKey] = {
+        messages: next,
+        title: reg.conversations[conversationKey]?.title || '',
+        tags: reg.conversations[conversationKey]?.tags || [],
+        lastUpdated: Date.now(),
+      };
+      saveRegistry(reg);
+      registryRef.current = reg;
+
+      // Push to server
+      pushSnapshot(personaIds, next, reg.conversations[conversationKey]?.title);
+
+      return next;
+    });
+  }, [conversationKey, personaIds, pushSnapshot]);
+
+  const clearHistory = useCallback(() => {
+    const reg = loadRegistry();
+    delete reg.conversations[conversationKey];
+    saveRegistry(reg);
+    registryRef.current = reg;
+    setMessages([]);
+  }, [conversationKey]);
+
+  return { messages, setMessages: setMessagesAndSync, clearHistory };
+}
