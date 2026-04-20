@@ -3,6 +3,7 @@
  * POST /api/comments — Create a comment (open to everyone)
  */
 import { NextRequest, NextResponse } from 'next/server';
+import { Prisma } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
 import { cookies } from 'next/headers';
 import { processCommentInteractions } from '@/lib/guardian-engine';
@@ -97,95 +98,95 @@ export async function GET(req: NextRequest) {
     const cookieStore = await cookies();
     const visitorId = cookieStore.get('prismatic-visitor')?.value || 'anonymous';
 
-    const where: any = {
-      status: 'published',
-      parentId: null, // root comments only
-    };
+    // Use raw SQL to avoid Prisma model proxy issues
+    const rawComments = await prisma.$queryRaw`
+      SELECT
+        c.id,
+        c.content,
+        c.nickname,
+        c.avatar_seed as "avatarSeed",
+        c.gender,
+        c.geo_country_code as "geoCountryCode",
+        c.geo_country as "geoCountry",
+        c.geo_region as "geoRegion",
+        c.geo_city as "geoCity",
+        c.created_at as "createdAt",
+        c.updated_at as "updatedAt",
+        c.reactions,
+        c.persona_slug as "personaSlug",
+        (SELECT COUNT(*) FROM comments r WHERE r.parent_id = c.id AND r.status = 'published') as "replyCount"
+      FROM comments c
+      WHERE c.status = 'published' AND c.parent_id IS NULL
+      ORDER BY c.created_at DESC
+      LIMIT ${limit} OFFSET ${offset}
+    `;
 
-    if (date) {
-      const dateStart = new Date(`${date}T00:00:00Z`);
-      const dateEnd = new Date(`${date}T23:59:59Z`);
-      where.createdAt = { gte: dateStart, lte: dateEnd };
-    }
+    const totalResult = await prisma.$queryRaw<[{count: bigint}]>`
+      SELECT COUNT(*) as count
+      FROM comments c
+      WHERE c.status = 'published' AND c.parent_id IS NULL
+    `;
 
-    if (personaSlug) {
-      where.personaSlug = personaSlug;
-    }
+    const processedComments: any[] = (rawComments as any[]).map((c: any) => {
+      let counts: Record<string, number> = {};
+      let userReaction: string | null = null;
 
-    const comments = await prisma.comment.findMany({
-      where,
-      orderBy: { createdAt: 'desc' },
-      skip: offset,
-      take: limit,
-      include: {
-        _count: { select: { replies: true } },
-      },
-    });
+      const rawReactions = c.reactions;
 
-    const total = await prisma.comment.count({ where });
-
-    let processedComments: any[];
-    try {
-      processedComments = comments.map((c: any) => {
-        let counts: Record<string, number> = {};
-        let userReaction: string | null = null;
-
-        const rawReactions = c.reactions;
-
-        if (Array.isArray(rawReactions)) {
-          for (const r of rawReactions as any[]) {
-            if (r && typeof r === 'object' && typeof r.emoji === 'string') {
-              counts[r.emoji] = (counts[r.emoji] || 0) + 1;
-              if ((r as any).visitorId === visitorId) {
-                userReaction = r.emoji;
-              }
-            }
-          }
-        } else if (rawReactions && typeof rawReactions === 'object' && !Array.isArray(rawReactions)) {
-          for (const [emoji, count] of Object.entries(rawReactions)) {
-            if (typeof emoji === 'string') {
-              counts[emoji] = Number(count) || 0;
+      if (Array.isArray(rawReactions)) {
+        for (const r of rawReactions as any[]) {
+          if (r && typeof r === 'object' && typeof r.emoji === 'string') {
+            counts[r.emoji] = (counts[r.emoji] || 0) + 1;
+            if ((r as any).visitorId === visitorId) {
+              userReaction = r.emoji;
             }
           }
         }
+      } else if (rawReactions && typeof rawReactions === 'object' && !Array.isArray(rawReactions)) {
+        for (const [emoji, count] of Object.entries(rawReactions)) {
+          if (typeof emoji === 'string') {
+            counts[emoji] = Number(count) || 0;
+          }
+        }
+      }
 
-        const avatarUrl = c.avatarSeed
-          ? getAvatarUrl(c.avatarSeed, c.gender || undefined)
-          : null;
+      const avatarUrl = c.avatarSeed
+        ? getAvatarUrl(c.avatarSeed, c.gender || undefined)
+        : null;
 
-        const geoCountry = COUNTRY_NAMES[c.geoCountryCode || ''] || c.geoCountry || '';
-        const location = [geoCountry, c.geoRegion, c.geoCity].filter(Boolean).join(' · ') || null;
+      const geoCountry = COUNTRY_NAMES[c.geoCountryCode || ''] || c.geoCountry || '';
+      const location = [geoCountry, c.geoRegion, c.geoCity].filter(Boolean).join(' · ') || null;
 
-        return {
-          id: c.id,
-          content: c.content,
-          author_name: c.nickname,
-          author_avatar: null,
-          avatar_url: avatarUrl,
-          display_name: c.nickname,
-          gender: c.gender || null,
-          location,
-          created_at: c.createdAt.toISOString(),
-          updated_at: c.updatedAt.toISOString(),
-          is_pinned: false,
-          is_edited: false,
-          likes: 0,
-          reactions: counts,
-          reactionCount: Object.values(counts).reduce((a: number, b: number) => a + b, 0),
-          userReaction,
-          view_count: 0,
-          report_count: 0,
-          replyCount: c._count?.replies ?? 0,
-          personaSlug: c.personaSlug,
-        };
-      });
-    } catch (mapError) {
-      console.error('[comments] Error processing comments map:', mapError, 'comments length:', comments.length);
-      throw mapError;
-    }
+      return {
+        id: c.id,
+        content: c.content,
+        author_name: c.nickname,
+        author_avatar: null,
+        avatar_url: avatarUrl,
+        display_name: c.nickname,
+        gender: c.gender || null,
+        location,
+        created_at: c.createdAt ? new Date(c.createdAt).toISOString() : new Date().toISOString(),
+        updated_at: c.updatedAt ? new Date(c.updatedAt).toISOString() : new Date().toISOString(),
+        is_pinned: false,
+        is_edited: false,
+        likes: 0,
+        reactions: counts,
+        reactionCount: Object.values(counts).reduce((a: number, b: number) => a + b, 0),
+        userReaction,
+        view_count: 0,
+        report_count: 0,
+        replyCount: Number(c.replyCount) || 0,
+        personaSlug: c.personaSlug,
+      };
+    });
+
+    const totalCount = totalResult[0]?.count
+      ? Number(totalResult[0].count)
+      : 0;
 
     if (sort === 'popular') {
-      processedComments.sort((a, b) => {
+      processedComments.sort((a: any, b: any) => {
         if (b.reactionCount !== a.reactionCount) return b.reactionCount - a.reactionCount;
         return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
       });
@@ -193,8 +194,8 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json({
       comments: processedComments,
-      total,
-      hasMore: offset + limit < total,
+      total: totalCount,
+      hasMore: offset + limit < totalCount,
     });
   } catch (error) {
     const msg = error instanceof Error ? error.message : String(error);
