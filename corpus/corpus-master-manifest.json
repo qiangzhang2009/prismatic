@@ -1,0 +1,792 @@
+{
+  "generated": "2026-04-22",
+  "summary": "全面语料盘点报告",
+  "locations": [
+    "corpus/ — 蒸馏管道读取的主目录",
+    "scrapers/training_data/raw/ — 爬虫原始数据缓存",
+    "scrapers/济群法师微博/ — 济群法师微博爬虫输出",
+    "scrapers/personae/ — 其他人物爬虫项目"
+  ],
+  "personas": {
+    "alan-turing": {
+      "location": "corpus/alan-turing/texts/",
+      "files": 1,
+      "total_bytes": 720691,
+      "total_words": 20955,
+      "file_list": [
+        "computing-machinery-intelligence.txt"
+      ],
+      "status": "has_data",
+      "v4_distilled": true,
+      "v4_file": "corpus/distilled/v4/alan-turing-v4.json"
+    },
+    "alan-watts": {
+      "location": "scrapers/training_data/raw/alan-watts/",
+      "files": [],
+      "total_bytes": 0,
+      "total_words": 0,
+      "note": "目录为空",
+      "scraper_status": "no_data",
+      "v4_distilled": false
+    },
+    "aleister-crowley": {
+      "location": "corpus/aleister-crowley/texts/",
+      "files": 1,
+      "total_bytes": 41273,
+      "total_words": 6940,
+      "file_list": [
+        "book-of-the-law.txt"
+      ],
+      "status": "has_data",
+      "v4_distilled": true,
+      "v4_file": "corpus/distilled/v4/aleister-crowley-v4.json"
+    },
+    "cao-cao": {
+      "location": "corpus/cao-cao/texts/",
+      "files": 1,
+      "total_bytes": 1863585,
+      "total_words": 20619,
+      "file_list": [
+        "three-kingdoms-source.txt"
+      ],
+      "status": "has_data",
+      "v4_distilled": true,
+      "v4_file": "corpus/distilled/v4/cao-cao-v4.json"
+    },
+    "carl-jung": {
+      "location": "corpus/carl-jung/texts/",
+      "files": 1,
+      "total_bytes": 1350168,
+      "total_words": 187235,
+      "file_list": [
+        "jung-symbols-of-transformation.html"
+      ],
+      "status": "has_data",
+      "v4_distilled": true,
+      "v4_file": "corpus/distilled/v4/carl-jung-v4.json"
+    },
+    "confucius": {
+      "location": "corpus/confucius/texts/",
+      "files": 3,
+      "total_bytes": 760131,
+      "total_words": 123339,
+      "file_list": [
+        "great-learning.txt",
+        "lunyu-ctext.html",
+        "analects-legge.txt"
+      ],
+      "status": "has_data",
+      "v4_distilled": true,
+      "v4_file": "corpus/distilled/v4/confucius-v4.json"
+    },
+    "donald-trump": {
+      "location": "scrapers/personae/truth-social/ + scrapers/personae/trump-campaign/",
+      "files": [
+        "truth_archive.json",
+        "trump_campaign_corpus.json"
+      ],
+      "total_bytes": 785000000,
+      "total_words": 0,
+      "note": "truth social存档+竞选演讲（scrapers为git-repo子模块，需单独克隆）",
+      "scraper_status": "scraper_submodule",
+      "v4_distilled": false
+    },
+    "einstein": {
+      "location": "corpus/einstein/texts/",
+      "files": 1,
+      "total_bytes": 849566,
+      "total_words": 150484,
+      "file_list": [
+        "relativity.txt"
+      ],
+      "status": "has_data",
+      "v4_distilled": true,
+      "v4_file": "corpus/distilled/v4/einstein-v4.json"
+    },
+    "epictetus": {
+      "location": "corpus/epictetus/texts/",
+      "files": 1,
+      "total_bytes": 106166,
+      "total_words": 15273,
+      "file_list": [
+        "enchiridion.html"
+      ],
+      "status": "has_data",
+      "v4_distilled": true,
+      "v4_file": "corpus/distilled/v4/epictetus-v4.json"
+    },
+    "han-fei-zi": {
+      "location": "corpus/han-fei-zi/texts/",
+      "files": 1,
+      "total_bytes": 94091,
+      "total_words": 6896,
+      "file_list": [
+        "hanfeizi-ctext.html"
+      ],
+      "status": "has_data",
+      "v4_distilled": true,
+      "v4_file": "corpus/distilled/v4/han-fei-zi-v4.json"
+    },
+    "huangdi-neijing": {
+      "location": "corpus/huangdi-neijing/texts/",
+      "files": 2,
+      "total_bytes": 163272,
+      "total_words": 12630,
+      "file_list": [
+        "huangdi-neijing-lingshu.html",
+        "huangdi-neijing-suwen.html"
+      ],
+      "status": "has_data",
+      "v4_distilled": true,
+      "v4_file": "corpus/distilled/v4/huangdi-neijing-v4.json"
+    },
+    "hui-neng": {
+      "location": "corpus/hui-neng/texts/",
+      "files": 2,
+      "total_bytes": 420432,
+      "total_words": 44884,
+      "file_list": [
+        "liuzu-tanjing-ctext.html",
+        "platform-sutra.html"
+      ],
+      "status": "has_data",
+      "v4_distilled": true,
+      "v4_file": "corpus/distilled/v4/hui-neng-v4.json"
+    },
+    "jack-ma": {
+      "location": "corpus/jack-ma/texts/",
+      "files": 1,
+      "total_bytes": 110184,
+      "total_words": 5107,
+      "file_list": [
+        "jack-ma-placeholder.txt"
+      ],
+      "status": "placeholder_only",
+      "v4_distilled": true,
+      "v4_file": "corpus/distilled/v4/jack-ma-v4.json"
+    },
+    "jeff-bezos": {
+      "location": "corpus/jeff-bezos/texts/",
+      "files": 1,
+      "total_bytes": 46793,
+      "total_words": 2332,
+      "file_list": [
+        "amazon-ir-placeholder.txt"
+      ],
+      "status": "placeholder_only",
+      "v4_distilled": true,
+      "v4_file": "corpus/distilled/v4/jeff-bezos-v4.json"
+    },
+    "jiqun": {
+      "location": "scrapers/济群法师微博/济群法师_微博全量/",
+      "files": [
+        "济群法师_微博_全量.txt",
+        "济群法师_微博_全量.json",
+        "济群法师_微博_全量.csv"
+      ],
+      "total_bytes": 12000000,
+      "total_words": 843000,
+      "note": "9666条微博，1.7M字符，含长文本和现场演讲记录",
+      "scraper_status": "scraper_pending_import",
+      "v4_distilled": false
+    },
+    "john-dee": {
+      "location": "corpus/john-dee/texts/",
+      "files": 0,
+      "total_bytes": 0,
+      "total_words": 0,
+      "file_list": [],
+      "status": "empty",
+      "v4_distilled": false
+    },
+    "john-maynard-keynes": {
+      "location": "corpus/john-maynard-keynes/texts/",
+      "files": 1,
+      "total_bytes": 452867,
+      "total_words": 73030,
+      "file_list": [
+        "economic-consequences-peace.txt"
+      ],
+      "status": "has_data",
+      "v4_distilled": true,
+      "v4_file": "corpus/distilled/v4/john-maynard-keynes-v4.json"
+    },
+    "journey-west": {
+      "location": "corpus/journey-west/texts/",
+      "files": 2,
+      "total_bytes": 2386031,
+      "total_words": 36016,
+      "file_list": [
+        "journey-west-arthur-waley.txt",
+        "xiyouji-ctext.html"
+      ],
+      "status": "has_data",
+      "v4_distilled": true,
+      "v4_file": "corpus/distilled/v4/journey-west-v4.json"
+    },
+    "kant": {
+      "location": "corpus/kant/texts/",
+      "files": 0,
+      "total_bytes": 0,
+      "total_words": 0,
+      "file_list": [],
+      "status": "empty",
+      "v4_distilled": false
+    },
+    "lao-zi": {
+      "location": "corpus/lao-zi/texts/",
+      "files": 1,
+      "total_bytes": 81636,
+      "total_words": 6315,
+      "file_list": [
+        "daodejing-ctext.html"
+      ],
+      "status": "has_data",
+      "v4_distilled": true,
+      "v4_file": "corpus/distilled/v4/lao-zi-v4.json"
+    },
+    "li-chunfeng": {
+      "location": "corpus/li-chunfeng/texts/",
+      "files": 1,
+      "total_bytes": 81636,
+      "total_words": 6315,
+      "file_list": [
+        "li-chunfeng-placeholder.txt"
+      ],
+      "status": "placeholder_only",
+      "v4_distilled": true,
+      "v4_file": "corpus/distilled/v4/li-chunfeng-v4.json"
+    },
+    "lin-yutang": {
+      "location": "corpus/lin-yutang/texts/",
+      "files": 0,
+      "total_bytes": 0,
+      "total_words": 0,
+      "file_list": [],
+      "status": "empty",
+      "v4_distilled": false
+    },
+    "liu-bei": {
+      "location": "corpus/liu-bei/texts/",
+      "files": 1,
+      "total_bytes": 1863585,
+      "total_words": 20619,
+      "file_list": [
+        "three-kingdoms-source.txt"
+      ],
+      "status": "has_data",
+      "v4_distilled": true,
+      "v4_file": "corpus/distilled/v4/liu-bei-v4.json"
+    },
+    "marcus-aurelius": {
+      "location": "corpus/marcus-aurelius/texts/",
+      "files": 2,
+      "total_bytes": 787837,
+      "total_words": 126067,
+      "file_list": [
+        "meditations-hays.txt",
+        "meditations-hays-gutenberg.html"
+      ],
+      "status": "has_data",
+      "v4_distilled": true,
+      "v4_file": "corpus/distilled/v4/marcus-aurelius-v4.json"
+    },
+    "marcus-aurelius-stoic": {
+      "location": "corpus/marcus-aurelius-stoic/texts/",
+      "files": 0,
+      "total_bytes": 0,
+      "total_words": 0,
+      "file_list": [],
+      "status": "empty",
+      "v4_distilled": false
+    },
+    "mencius": {
+      "location": "corpus/mencius/texts/",
+      "files": 1,
+      "total_bytes": 87204,
+      "total_words": 6323,
+      "file_list": [
+        "mengzi-ctext.html"
+      ],
+      "status": "has_data",
+      "v4_distilled": true,
+      "v4_file": "corpus/distilled/v4/mencius-v4.json"
+    },
+    "menocius": {
+      "location": "corpus/menocius/texts/",
+      "files": 0,
+      "total_bytes": 0,
+      "total_words": 0,
+      "file_list": [],
+      "status": "empty",
+      "v4_distilled": false
+    },
+    "mo-zi": {
+      "location": "corpus/mo-zi/texts/",
+      "files": 1,
+      "total_bytes": 81636,
+      "total_words": 6315,
+      "file_list": [
+        "mozi-ctext.html"
+      ],
+      "status": "has_data",
+      "v4_distilled": true,
+      "v4_file": "corpus/distilled/v4/mo-zi-v4.json"
+    },
+    "mrbeast": {
+      "location": "corpus/mrbeast/texts/",
+      "files": 0,
+      "total_bytes": 0,
+      "total_words": 0,
+      "file_list": [],
+      "status": "empty",
+      "v4_distilled": false
+    },
+    "naval-ravikant": {
+      "location": "corpus/naval-ravikant/texts/",
+      "files": 1,
+      "total_bytes": 103772,
+      "total_words": 3297,
+      "file_list": [
+        "naval-almanack.html"
+      ],
+      "status": "has_data",
+      "v4_distilled": true,
+      "v4_file": "corpus/distilled/v4/naval-ravikant-v4.json"
+    },
+    "ni-haixia": {
+      "location": "corpus/ni-haixia/texts/",
+      "files": 0,
+      "total_bytes": 0,
+      "total_words": 0,
+      "file_list": [],
+      "status": "empty",
+      "v4_distilled": false
+    },
+    "nikola-tesla": {
+      "location": "corpus/nikola-tesla/texts/",
+      "files": 1,
+      "total_bytes": 544470,
+      "total_words": 97636,
+      "file_list": [
+        "inventions-researches.txt"
+      ],
+      "status": "has_data",
+      "v4_distilled": true,
+      "v4_file": "corpus/distilled/v4/nikola-tesla-v4.json"
+    },
+    "osamu-dazai": {
+      "location": "corpus/osamu-dazai/texts/",
+      "files": 0,
+      "total_bytes": 0,
+      "total_words": 0,
+      "file_list": [],
+      "status": "empty",
+      "v4_distilled": false
+    },
+    "peter-thiel": {
+      "location": "corpus/peter-thiel/texts/",
+      "files": 1,
+      "total_bytes": 980795,
+      "total_words": 59921,
+      "file_list": [
+        "tim-ferriss-interview.html"
+      ],
+      "status": "has_data",
+      "v4_distilled": true,
+      "v4_file": "corpus/distilled/v4/peter-thiel-v4.json"
+    },
+    "qian-xuesen": {
+      "location": "corpus/qian-xuesen/texts/",
+      "files": 1,
+      "total_bytes": 211033,
+      "total_words": 9495,
+      "file_list": [
+        "engineering-cybernetics.html"
+      ],
+      "status": "has_data",
+      "v4_distilled": true,
+      "v4_file": "corpus/distilled/v4/qian-xuesen-v4.json"
+    },
+    "qu-yuan": {
+      "location": "corpus/qu-yuan/texts/",
+      "files": 1,
+      "total_bytes": 81636,
+      "total_words": 6315,
+      "file_list": [
+        "chuci-ctext.html"
+      ],
+      "status": "has_data",
+      "v4_distilled": true,
+      "v4_file": "corpus/distilled/v4/qu-yuan-v4.json"
+    },
+    "ray-dalio": {
+      "location": "corpus/ray-dalio/texts/",
+      "files": 1,
+      "total_bytes": 700954,
+      "total_words": 2604,
+      "file_list": [
+        "principles-ted-placeholder.txt"
+      ],
+      "status": "placeholder_only",
+      "v4_distilled": true,
+      "v4_file": "corpus/distilled/v4/ray-dalio-v4.json"
+    },
+    "records-grand-historian": {
+      "location": "corpus/records-grand-historian/texts/",
+      "files": 1,
+      "total_bytes": 2123857,
+      "total_words": 36755,
+      "file_list": [
+        "shiji-gutenberg.html"
+      ],
+      "status": "has_data",
+      "v4_distilled": true,
+      "v4_file": "corpus/distilled/v4/records-grand-historian-v4.json"
+    },
+    "sam-altman": {
+      "location": "corpus/sam-altman/texts/",
+      "files": 1,
+      "total_bytes": 75855,
+      "total_words": 9554,
+      "file_list": [
+        "sam-altman-blog.html"
+      ],
+      "status": "has_data",
+      "v4_distilled": true,
+      "v4_file": "corpus/distilled/v4/sam-altman-v4.json"
+    },
+    "seneca": {
+      "location": "corpus/seneca/texts/",
+      "files": 2,
+      "total_bytes": 647229,
+      "total_words": 106897,
+      "file_list": [
+        "seneca-shortness-of-life.html",
+        "seneca-moral-letters.html"
+      ],
+      "status": "has_data",
+      "v4_distilled": true,
+      "v4_file": "corpus/distilled/v4/seneca-v4.json"
+    },
+    "shao-yong": {
+      "location": "corpus/shao-yong/texts/",
+      "files": 1,
+      "total_bytes": 81636,
+      "total_words": 6315,
+      "file_list": [
+        "shao-yong-placeholder.txt"
+      ],
+      "status": "placeholder_only",
+      "v4_distilled": true,
+      "v4_file": "corpus/distilled/v4/shao-yong-v4.json"
+    },
+    "sima-qian": {
+      "location": "corpus/sima-qian/texts/",
+      "files": 2,
+      "total_bytes": 2250055,
+      "total_words": 45717,
+      "file_list": [
+        "shiji-gutenberg.html",
+        "shiji-ctext.html"
+      ],
+      "status": "has_data",
+      "v4_distilled": true,
+      "v4_file": "corpus/distilled/v4/sima-qian-v4.json"
+    },
+    "socrates": {
+      "location": "corpus/socrates/texts/",
+      "files": 1,
+      "total_bytes": 717660,
+      "total_words": 132606,
+      "file_list": [
+        "plato-complete.txt"
+      ],
+      "status": "has_data",
+      "v4_distilled": true,
+      "v4_file": "corpus/distilled/v4/socrates-v4.json"
+    },
+    "sun-tzu": {
+      "location": "corpus/sun-tzu/texts/",
+      "files": 2,
+      "total_bytes": 166877,
+      "total_words": 20197,
+      "file_list": [
+        "sunjia-ctext.html",
+        "art-of-war.txt"
+      ],
+      "status": "has_data",
+      "v4_distilled": true,
+      "v4_file": "corpus/distilled/v4/sun-tzu-v4.json"
+    },
+    "sun-wukong": {
+      "location": "corpus/sun-wukong/texts/",
+      "files": 1,
+      "total_bytes": 2264068,
+      "total_words": 26794,
+      "file_list": [
+        "journey-west-source.txt"
+      ],
+      "status": "has_data",
+      "v4_distilled": true,
+      "v4_file": "corpus/distilled/v4/sun-wukong-v4.json"
+    },
+    "three-kingdoms": {
+      "location": "corpus/three-kingdoms/texts/",
+      "files": 2,
+      "total_bytes": 1945221,
+      "total_words": 26934,
+      "file_list": [
+        "three-kingdoms-brett.txt",
+        "sanguoyanyi-ctext.html"
+      ],
+      "status": "has_data",
+      "v4_distilled": true,
+      "v4_file": "corpus/distilled/v4/three-kingdoms-v4.json"
+    },
+    "tripitaka": {
+      "location": "corpus/tripitaka/texts/",
+      "files": 1,
+      "total_bytes": 2264068,
+      "total_words": 26794,
+      "file_list": [
+        "journey-west-source.txt"
+      ],
+      "status": "has_data",
+      "v4_distilled": true,
+      "v4_file": "corpus/distilled/v4/tripitaka-v4.json"
+    },
+    "wittgenstain": {
+      "location": "corpus/wittgenstain/texts/",
+      "files": 0,
+      "total_bytes": 0,
+      "total_words": 0,
+      "file_list": [],
+      "status": "empty",
+      "v4_distilled": false
+    },
+    "wittgenstein": {
+      "location": "corpus/wittgenstein/texts/",
+      "files": 26,
+      "total_bytes": 33579234,
+      "total_words": 5185676,
+      "file_list": [
+        "Ms-149_Clarino-CC.txt",
+        "Ts-201a1_Clarino-CC.txt",
+        "Ts-213_Clarino-CC.txt",
+        "Ts-310_Clarino-CC.txt",
+        "Ms-154_Clarino-CC.txt",
+        "Ms-141_Clarino-CC.txt",
+        "Ms-156a_Clarino-CC.txt",
+        "Ms-152_Clarino-CC.txt",
+        ".DS_Store",
+        "sep-rule-following.txt",
+        "Ts-207_Clarino-CC.txt",
+        "Ts-212_Clarino-CC.txt",
+        "iep-wittgenstein.txt",
+        "Ms-155_Clarino-CC.txt",
+        "Ms-148_Clarino-CC.txt",
+        "Ts-201a2_Clarino-CC.txt",
+        "Ms-150_Clarino-CC.txt",
+        "维特根斯坦文本材料最全资源梳理.md",
+        "Ms-114_Clarino-CC.txt",
+        "Ms-115_Clarino-CC.txt",
+        "Ms-139a_Clarino-CC.txt",
+        "Ms-153b_Clarino-CC.txt",
+        "sep-wittgenstein-main.txt",
+        "sep-wittgenstein-atomism.txt",
+        "维特根斯坦前后思想对比：从前期到后期的哲学之旅.md",
+        "Ms-153a_Clarino-CC.txt"
+      ],
+      "status": "has_data",
+      "v4_distilled": true,
+      "v4_file": "corpus/distilled/v4/wittgenstein-v4.json"
+    },
+    "xiang-yu": {
+      "location": "corpus/xiang-yu/texts/",
+      "files": 1,
+      "total_bytes": 81636,
+      "total_words": 6315,
+      "file_list": [
+        "xiangyu-shiji-ctext.html"
+      ],
+      "status": "has_data",
+      "v4_distilled": true,
+      "v4_file": "corpus/distilled/v4/xiang-yu-v4.json"
+    },
+    "yuan-tiangang": {
+      "location": "corpus/yuan-tiangang/texts/",
+      "files": 0,
+      "total_bytes": 0,
+      "total_words": 0,
+      "file_list": [],
+      "status": "empty",
+      "v4_distilled": false
+    },
+    "zhu-bajie": {
+      "location": "corpus/zhu-bajie/texts/",
+      "files": 1,
+      "total_bytes": 2264068,
+      "total_words": 26794,
+      "file_list": [
+        "journey-west-source.txt"
+      ],
+      "status": "has_data",
+      "v4_distilled": true,
+      "v4_file": "corpus/distilled/v4/zhu-bajie-v4.json"
+    },
+    "zhuang-zi": {
+      "location": "corpus/zhuang-zi/texts/",
+      "files": 2,
+      "total_bytes": 673258,
+      "total_words": 108059,
+      "file_list": [
+        "zhuangzi-ctext.html",
+        "zhuangzi-watson.html"
+      ],
+      "status": "has_data",
+      "v4_distilled": true,
+      "v4_file": "corpus/distilled/v4/zhuang-zi-v4.json"
+    },
+    "zhuge-liang": {
+      "location": "corpus/zhuge-liang/texts/",
+      "files": 2,
+      "total_bytes": 1945221,
+      "total_words": 26934,
+      "file_list": [
+        "chu-ci-ctext.html",
+        "three-kingdoms-source.txt"
+      ],
+      "status": "has_data",
+      "v4_distilled": true,
+      "v4_file": "corpus/distilled/v4/zhuge-liang-v4.json"
+    },
+    "elon-musk": {
+      "location": "scrapers/training_data/raw/elon-musk/",
+      "files": [
+        "all_tweets.txt",
+        "top_tweets.txt",
+        "tweets_2010-2026.txt"
+      ],
+      "total_bytes": 17000000,
+      "total_words": 4000000,
+      "note": "178K条推文",
+      "scraper_status": "scraper_pending_import",
+      "v4_distilled": false
+    },
+    "charlie-munger": {
+      "location": "scrapers/training_data/raw/charlie-munger/ + scrapers/personae/charlie-munger/",
+      "files": [
+        "all_meetings.txt",
+        "quality_content.txt",
+        "伯克希尔年会2013-2023.md"
+      ],
+      "total_bytes": 4300000,
+      "total_words": 700000,
+      "note": "1987-2023股东会+Daily Journal年会",
+      "scraper_status": "scraper_pending_import",
+      "v4_distilled": false
+    },
+    "nassim-taleb": {
+      "location": "scrapers/training_data/raw/",
+      "files": [],
+      "total_bytes": 0,
+      "total_words": 0,
+      "note": "twitter目录为空",
+      "scraper_status": "no_data",
+      "v4_distilled": false
+    },
+    "ilya-sutskever": {
+      "location": "scrapers/training_data/raw/",
+      "files": [],
+      "total_bytes": 0,
+      "total_words": 0,
+      "note": "无爬虫数据",
+      "scraper_status": "no_data",
+      "v4_distilled": false
+    },
+    "zhang-xuefeng": {
+      "location": "scrapers/training_data/raw/zhang-xuefeng/",
+      "files": [
+        "training_corpus.txt"
+      ],
+      "total_bytes": 13000000,
+      "total_words": 3000,
+      "note": "语料量极少(6KB)，需扩充",
+      "scraper_status": "scraper_poor_quality",
+      "v4_distilled": false
+    },
+    "richard-feynman": {
+      "location": "scrapers/training_data/raw/richard-feynman/",
+      "files": [
+        "fy(1-38).pdf",
+        "Thesis-1942.pdf"
+      ],
+      "total_bytes": 131000000,
+      "total_words": 0,
+      "note": "全是PDF，需要OCR提取文本",
+      "scraper_status": "scraper_pdf_only",
+      "v4_distilled": false
+    },
+    "paul-graham": {
+      "location": "scrapers/training_data/raw/paul-graham/",
+      "files": [
+        "229 essays .txt"
+      ],
+      "total_bytes": 3500000,
+      "total_words": 900000,
+      "note": "229篇完整散文",
+      "scraper_status": "scraper_pending_import",
+      "v4_distilled": false
+    },
+    "andrej-karpathy": {
+      "location": "scrapers/training_data/raw/andrej-karpathy/",
+      "files": [],
+      "total_bytes": 0,
+      "total_words": 0,
+      "note": "目录为空",
+      "scraper_status": "no_data",
+      "v4_distilled": false
+    },
+    "warren-buffett": {
+      "location": "scrapers/training_data/raw/jeff-bezos/warren-buffett-ceo.json",
+      "files": [
+        "warren-buffett-ceo.json"
+      ],
+      "total_bytes": 0,
+      "total_words": 0,
+      "note": "只有CEO记录，非主要语料",
+      "scraper_status": "scraper_partial",
+      "v4_distilled": false
+    },
+    "steve-jobs": {
+      "location": "无",
+      "files": [],
+      "total_bytes": 0,
+      "total_words": 0,
+      "note": "无爬虫数据",
+      "scraper_status": "no_data",
+      "v4_distilled": false
+    },
+    "zhang-yiming": {
+      "location": "无",
+      "files": [],
+      "total_bytes": 0,
+      "total_words": 0,
+      "note": "无爬虫数据",
+      "scraper_status": "no_data",
+      "v4_distilled": false
+    },
+    "jensen-huang": {
+      "location": "scrapers/training_data/raw/jeff-bezos/jensen-huang-ceo.json",
+      "files": [
+        "jensen-huang-ceo.json"
+      ],
+      "total_bytes": 0,
+      "total_words": 0,
+      "note": "只有CEO记录",
+      "scraper_status": "scraper_partial",
+      "v4_distilled": false
+    }
+  }
+}
