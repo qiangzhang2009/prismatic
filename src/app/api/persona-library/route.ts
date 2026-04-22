@@ -1,14 +1,25 @@
 /**
  * Prismatic — Distilled Persona Library API
  * GET /api/persona-library
+ *
+ * Uses Pool from @neondatabase/serverless (WebSocket mode) to bypass both:
+ * 1. Prisma engine binary incompatibility with Vercel Node.js runtime
+ * 2. Neon HTTP API column-name normalization (lowercases identifiers)
  */
 
 export const dynamic = 'force-dynamic';
 
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { Pool } from '@neondatabase/serverless';
 
 export async function GET(req: NextRequest) {
+  const connectionString = process.env.DATABASE_URL;
+  if (!connectionString) {
+    return NextResponse.json({ items: [], total: 0, domains: [] });
+  }
+
+  const pool = new Pool({ connectionString });
+
   try {
     const { searchParams } = new URL(req.url);
     const domain = searchParams.get('domain');
@@ -17,67 +28,56 @@ export async function GET(req: NextRequest) {
     const sortBy = searchParams.get('sortBy') || 'distillDate';
     const limit = Math.min(parseInt(searchParams.get('limit') || '50'), 100);
 
-    const where: Record<string, unknown> = { isActive: true };
-    if (domain) where.domain = domain;
-    if (published === 'true') where.isPublished = true;
+    const orderByMap: Record<string, string> = {
+      score: '"finalScore" DESC',
+      name: 'namezh ASC',
+      default: '"distillDate" DESC',
+    };
+    const orderBy = orderByMap[sortBy] ?? orderByMap.default;
+
+    const conditions: string[] = ['"isActive" = true'];
+    const params: unknown[] = [];
+    let paramIdx = 1;
+
+    if (domain) {
+      conditions.push(`"domain" = $${paramIdx++}`);
+      params.push(domain);
+    }
+    if (published === 'true') {
+      conditions.push('"isPublished" = true');
+    }
     if (search) {
-      where.OR = [
-        { nameZh: { contains: search, mode: 'insensitive' } },
-        { nameEn: { contains: search, mode: 'insensitive' } },
-        { name: { contains: search, mode: 'insensitive' } },
-      ];
+      conditions.push(`(namezh ILIKE $${paramIdx} OR nameen ILIKE $${paramIdx} OR name ILIKE $${paramIdx})`);
+      params.push(`%${search}%`);
+      paramIdx++;
     }
 
-    const orderBy: Record<string, string> = {};
-    if (sortBy === 'score') orderBy.finalScore = 'desc';
-    else if (sortBy === 'name') orderBy.nameZh = 'asc';
-    else orderBy.distillDate = 'desc';
+    const whereClause = conditions.join(' AND ');
 
-    const personas = await prisma.distilledPersona.findMany({
-      where,
-      orderBy,
-      take: limit,
-      select: {
-        id: true,
-        slug: true,
-        name: true,
-        nameZh: true,
-        nameEn: true,
-        domain: true,
-        tagline: true,
-        taglineZh: true,
-        avatar: true,
-        accentColor: true,
-        gradientFrom: true,
-        gradientTo: true,
-        brief: true,
-        briefZh: true,
-        finalScore: true,
-        qualityGrade: true,
-        thresholdPassed: true,
-        qualityGateSkipped: true,
-        corpusItemCount: true,
-        corpusTotalWords: true,
-        corpusSources: true,
-        distillVersion: true,
-        distillDate: true,
-        isPublished: true,
-        createdAt: true,
-      },
-    });
+    // Use SELECT * to avoid column-name issues (some columns may be lowercase in DB)
+    const [personasResult, countResult] = await Promise.all([
+      pool.query(
+        `SELECT * FROM distilled_personas WHERE ${whereClause} ORDER BY ${orderBy} LIMIT $${paramIdx++} OFFSET $${paramIdx++}`,
+        [...params, limit, 0]
+      ),
+      pool.query(
+        `SELECT COUNT(*) as cnt FROM distilled_personas WHERE ${whereClause}`,
+        params
+      ),
+    ]);
 
-    const total = await prisma.distilledPersona.count({ where });
+    await pool.end();
+
+    const total = parseInt(countResult.rows[0]?.cnt ?? '0', 10);
 
     return NextResponse.json({
-      items: personas,
+      items: personasResult.rows,
       total,
-      domains: ['philosophy', 'science', 'business', 'technology', 'strategy', 'creativity', 'leadership', 'negotiation', 'economics', 'startup'],
+      domains: ['philosophy', 'science', 'technology', 'investment', 'strategy', 'history', 'literature', 'product'],
     });
   } catch (err) {
     console.error('[PersonaLibrary GET]', err);
-    return NextResponse.json(
-      { error: err instanceof Error ? err.message : 'Internal error' },
-      { status: 500 },
-    );
+    await pool.end().catch(() => {});
+    return NextResponse.json({ items: [], total: 0, domains: [] });
   }
 }

@@ -3,9 +3,13 @@
  * Protects /app and /admin routes — validates JWT and checks DB role.
  * Uses jose for Edge runtime compatibility.
  *
- * Security: middleware verifies the user's role against the database on every
- * protected request. This ensures admin demotions take effect immediately —
- * the old JWT role claim alone is not authoritative.
+ * Security model:
+ * - /app routes: require any valid JWT
+ * - /admin routes: require JWT + ADMIN role (from DB, or bypassed for demo users)
+ *
+ * Demo user bypass: when ALLOW_ADMIN_BYPASS='true', users with userId starting
+ * with 'demo_' or email starting with 'demo' are granted ADMIN access without a
+ * DB record lookup. This is for development/demo environments only.
  */
 import { NextRequest, NextResponse } from 'next/server';
 import { jwtVerify } from 'jose';
@@ -19,14 +23,11 @@ function getSecretKey() {
 interface JWTPayload {
   userId: string;
   email?: string;
+  name?: string;
   iat?: number;
   exp?: number;
 }
 
-/**
- * Verifies the JWT token and returns the payload.
- * Returns null if the token is invalid or expired.
- */
 async function verifyToken(token: string): Promise<JWTPayload | null> {
   try {
     const { payload } = await jwtVerify(token, getSecretKey());
@@ -36,21 +37,17 @@ async function verifyToken(token: string): Promise<JWTPayload | null> {
   }
 }
 
-/**
- * Checks the database for the user's current role.
- * Returns 'ADMIN', 'PRO', or 'FREE'. Defaults to 'FREE' if not found.
- * Falls back gracefully on DB errors so a DB outage doesn't hard-lock users.
- */
+function isDemoUser(userId: string, email?: string): boolean {
+  return userId.startsWith('demo_') || (email != null && email.startsWith('demo'));
+}
+
 async function getUserRoleFromDB(userId: string): Promise<string> {
-  // Only import Neon here (Edge-compatible), not Prisma.
-  // Only do DB lookup for /admin routes to minimize DB load.
   try {
     const { neon } = await import('@neondatabase/serverless');
     const connectionString = process.env.DATABASE_URL;
     if (!connectionString) return 'FREE';
     // eslint-disable-next-line
     const sql = neon(connectionString);
-    // Cast enums to text for proper string comparison
     const rows = await sql`
       SELECT role::text as role
       FROM users
@@ -61,7 +58,6 @@ async function getUserRoleFromDB(userId: string): Promise<string> {
     if (rows.length === 0) return 'FREE';
     return String(rows[0].role);
   } catch (err) {
-    // DB unavailable — let the request through; /api/auth/me will handle auth errors.
     console.error('[middleware] getUserRoleFromDB error:', err);
     return 'FREE';
   }
@@ -70,7 +66,7 @@ async function getUserRoleFromDB(userId: string): Promise<string> {
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
-  // Auth guard for /app routes (requires any valid JWT)
+  // Auth guard for /app routes
   if (pathname.startsWith('/app')) {
     const token = req.cookies.get('prismatic_token')?.value;
     if (!token || !(await verifyToken(token))) {
@@ -81,7 +77,7 @@ export async function middleware(req: NextRequest) {
     return NextResponse.next();
   }
 
-  // Admin guard for /admin routes (requires ADMIN role from DB)
+  // Admin guard for /admin routes
   if (pathname.startsWith('/admin')) {
     const token = req.cookies.get('prismatic_token')?.value;
     if (!token) {
@@ -97,11 +93,15 @@ export async function middleware(req: NextRequest) {
       return NextResponse.redirect(signInUrl);
     }
 
-    // Check DB for current role — this catches admin demotions immediately.
+    // DEMO USER BYPASS: inline check, before DB call
+    if (isDemoUser(payload.userId, payload.email) && process.env.ALLOW_ADMIN_BYPASS === 'true') {
+      return NextResponse.next();
+    }
+
+    // DB role check
     const role = await getUserRoleFromDB(payload.userId);
     if (role !== 'ADMIN') {
-      const forbiddenUrl = new URL('/app', req.url);
-      return NextResponse.redirect(forbiddenUrl);
+      return NextResponse.redirect(new URL('/app', req.url));
     }
 
     return NextResponse.next();

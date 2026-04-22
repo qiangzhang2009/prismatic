@@ -6,13 +6,15 @@ import { NextRequest, NextResponse } from 'next/server';
 import { authenticateAdminRequest } from '@/lib/user-management';
 import { getCapacityReport } from '@/lib/admin/capacity-monitor';
 
-export async function GET(req: NextRequest) {
-  const adminId = await authenticateAdminRequest(req);
-  if (!adminId) {
-    return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
-  }
+export const dynamic = 'force-dynamic';
 
+export async function GET(req: NextRequest) {
   try {
+    const adminId = await authenticateAdminRequest(req);
+    if (!adminId) {
+      return NextResponse.json({ error: 'Admin access required', debug: { authSecretEnv: !!process.env.AUTH_SECRET } }, { status: 403 });
+    }
+
     const report = await getCapacityReport();
     return NextResponse.json(report);
   } catch (err) {

@@ -89,7 +89,7 @@ export async function createUser(input: CreateUserInput & { emailVerified?: bool
           'ACTIVE',
           'FREE',
           'FREE',
-          0,
+          10,
           ${input.emailVerified ? new Date() : null},
           NOW(),
           NOW()
@@ -109,7 +109,7 @@ export async function createUser(input: CreateUserInput & { emailVerified?: bool
       emailVerified: !!input.emailVerified,
       role: 'FREE',
       plan: 'FREE',
-      credits: 0,
+      credits: 10,
       avatar: null,
       createdAt: new Date(),
       lastLoginAt: null,
@@ -450,7 +450,13 @@ export async function authenticateAdminRequest(
 ): Promise<string | null> {
   const userId = await authenticateRequest(req);
   if (!userId) return null;
-  if (isDemoUserId(userId)) return null;
+
+  // Dev/demo bypass: allow demo users through when ALLOW_ADMIN_BYPASS is set.
+  // This grants demo accounts admin-level access without a DB record.
+  if (isDemoUserId(userId)) {
+    if (process.env.ALLOW_ADMIN_BYPASS === 'true') return userId;
+    return null;
+  }
 
   const user = await prisma.user.findUnique({
     where: { id: userId },

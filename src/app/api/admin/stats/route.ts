@@ -4,10 +4,8 @@
 export const runtime = 'nodejs';
 
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '@/lib/prisma';
 import { authenticateAdminRequest, getUserStats } from '@/lib/user-management';
-
-const prisma = new PrismaClient();
 
 async function withTimeout<T>(promise: Promise<T>, timeoutMs: number = 8000): Promise<T | null> {
   const timeout = new Promise<null>((resolve) => setTimeout(() => resolve(null), timeoutMs));
@@ -15,8 +13,16 @@ async function withTimeout<T>(promise: Promise<T>, timeoutMs: number = 8000): Pr
 }
 
 export async function GET(req: NextRequest) {
-  const adminId = await authenticateAdminRequest(req);
+  let adminId: string | null = null;
+  try {
+    adminId = await authenticateAdminRequest(req);
+  } catch (authErr) {
+    console.error('[Admin/Stats] Auth error:', authErr);
+    return NextResponse.json({ error: 'Authentication failed', detail: String(authErr) }, { status: 401 });
+  }
+
   if (!adminId) {
+    console.error('[Admin/Stats] adminId null — JWT valid but DB check failed for user');
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
@@ -49,12 +55,26 @@ export async function GET(req: NextRequest) {
         users: allRows,
       });
     } catch (e: any) {
-      return NextResponse.json({ error: e.message });
+      console.error('[Admin/Stats/Debug]', e);
+      return NextResponse.json({ error: e.message || 'Debug mode error' });
     }
   }
 
-  const stats = await withTimeout(getUserStats(), 8000);
-  if (!stats) {
+  try {
+    const stats = await withTimeout(getUserStats(), 8000);
+    if (!stats) {
+      return NextResponse.json({
+        totalUsers: 0,
+        activeUsers: 0,
+        newUsersToday: 0,
+        byRole: {},
+        byPlan: {},
+        note: 'Data temporarily unavailable',
+      });
+    }
+    return NextResponse.json(stats);
+  } catch (err) {
+    console.error('[Admin/Stats]', err);
     return NextResponse.json({
       totalUsers: 0,
       activeUsers: 0,
@@ -64,5 +84,4 @@ export async function GET(req: NextRequest) {
       note: 'Data temporarily unavailable',
     });
   }
-  return NextResponse.json(stats);
 }

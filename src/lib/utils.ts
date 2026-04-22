@@ -9,6 +9,25 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
+// ─── Persona Domain Colors ───────────────────────────────────────────────────────
+
+export const DOMAIN_GRADIENTS: Record<string, { from: string; to: string; label: string }> = {
+  philosophy: { from: '#4d96ff', to: '#6bcb77', label: '哲学' },
+  technology: { from: '#6bcb77', to: '#ffd93d', label: '科技' },
+  investment: { from: '#ffd93d', to: '#ff6b6b', label: '投资' },
+  science: { from: '#c77dff', to: '#4d96ff', label: '科学' },
+  history: { from: '#f59e0b', to: '#ef4444', label: '历史' },
+  literature: { from: '#ec4899', to: '#f97316', label: '文学' },
+  product: { from: '#14b8a6', to: '#06b6d4', label: '产品' },
+  strategy: { from: '#8b5cf6', to: '#c77dff', label: '战略' },
+  default: { from: '#4d96ff', to: '#8e44ad', label: '其他' },
+};
+
+export function getDomainGradient(domains: string[]): { from: string; to: string; label: string } {
+  const d = domains?.[0] || 'default';
+  return DOMAIN_GRADIENTS[d] || DOMAIN_GRADIENTS.default;
+}
+
 export function formatDate(date: Date | string): string {
   const d = typeof date === 'string' ? new Date(date) : date;
   return new Intl.DateTimeFormat('zh-CN', {
@@ -47,6 +66,24 @@ export function slugify(str: string): string {
     .replace(/[^\w\s-]/g, '')
     .replace(/[\s_-]+/g, '-')
     .replace(/^-+|-+$/g, '');
+}
+
+export function unquote(str: unknown): string {
+  if (typeof str !== 'string') return '';
+  return str.replace(/^"+|"+$/g, '');
+}
+
+export function decodeUnicodeEscapes(str: unknown): string {
+  if (typeof str !== 'string') return '';
+  let result = str;
+  try {
+    result = str.replace(/\\u([0-9a-fA-F]{4})/g, (_, code) =>
+      String.fromCodePoint(parseInt(code, 16))
+    );
+  } catch {
+    // keep original
+  }
+  return result;
 }
 
 export function randomId(): string {

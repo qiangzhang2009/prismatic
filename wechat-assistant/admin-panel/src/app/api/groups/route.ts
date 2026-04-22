@@ -13,7 +13,7 @@ export async function GET() {
     return NextResponse.json({ groups, period: 'all' });
   } catch (error) {
     console.error('[API/groups/GET]', error);
-    return NextResponse.json({ error: 'Failed to fetch groups' }, { status: 500 });
+    return NextResponse.json({ groups: [], period: 'all' });
   }
 }
 

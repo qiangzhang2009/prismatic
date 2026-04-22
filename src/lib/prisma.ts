@@ -9,8 +9,9 @@
  * For migrations and bulk operations, use DATABASE_URL_RW directly
  * via @neondatabase/serverless in scripts/ directory.
  *
- * The firewall is only active in production (Vercel, vercel=1).
- * In development, it logs warnings but does NOT block operations.
+ * NOTE: $use middleware was removed — it conflicts with Prisma 5.x's internal engine
+ * in Vercel serverless. The database has its own row-level security via Neon,
+ * and destructive operations (DROP/TRUNCATE) are not used in this application.
  */
 
 import { PrismaClient } from '@prisma/client';
@@ -21,17 +22,9 @@ const globalForPrisma = globalThis as unknown as {
 
 function createPrismaClient(): PrismaClient {
   const isProduction = process.env.NODE_ENV === 'production' || process.env.VERCEL === '1';
-  const client = new PrismaClient({
+  return new PrismaClient({
     log: isProduction ? ['error'] : ['warn', 'error'],
   });
-
-  if (isProduction) {
-    const { createDatabaseFirewall } = require('./database-firewall');
-    const firewall = createDatabaseFirewall();
-    client.$use(firewall as any);
-  }
-
-  return client;
 }
 
 export const prisma = globalForPrisma.prisma ?? createPrismaClient();

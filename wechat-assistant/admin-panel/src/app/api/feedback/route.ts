@@ -27,10 +27,8 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ feedbacks, total });
   } catch (error) {
     console.error('[API/feedback/GET]', error);
-    return NextResponse.json(
-      { error: 'Failed to fetch feedback', details: String(error) },
-      { status: 500 },
-    );
+    // Graceful degradation: return empty list if DB is unavailable (e.g. on Vercel)
+    return NextResponse.json({ feedbacks: [], total: 0 });
   }
 }
 

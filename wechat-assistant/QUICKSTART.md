@@ -89,17 +89,21 @@ WEIXIN_GROUP_ALLOWED_USERS=群ID1,群ID2
 WEIXIN_DM_POLICY=open
 ```
 
-### 步骤 6：添加群组到管理后台
+### 步骤 6：在管理后台添加群组
 
-启动 Gateway 后，机器人会记录你加入的群的 ID。
+启动 Gateway 后，机器人会监听已加入的群。
 
-然后在管理后台 https://admin-panel-gamma-pied.vercel.app：
+然后在管理后台：
 
 1. 进入 **群组配置** 页面
-2. 点击 **添加群组**
-3. 填入群名称和群 ID
+2. 点击 **从 Hermes 发现群组**（推荐方式）
+   - Hermes 会从 `channel_directory.json` 中读取已记录的微信群列表
+   - 直接从列表中选择群，一键复制 ID 并填入表单
+3. 或者手动填写群名称和群 ID
 4. 选择使用哪个 Persona（人格）
-5. 设置关键词过滤策略
+5. 点击「确认添加」
+
+> **关于微信群 ID**：微信群 ID 不是群的显示名称，而是一个由字母和数字组成的唯一标识符（如 `R:xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx`）。你无法从微信客户端直接看到这个 ID，所以推荐使用「发现群组」功能从 Hermes 记录中获取。
 
 ### 步骤 7：验证连接
 

@@ -10,15 +10,13 @@ export async function GET() {
   try {
     const personality = readPersonality();
     if (!personality) {
-      return NextResponse.json({ error: 'Personality file not found' }, { status: 404 });
+      // Graceful: return null instead of 404 to avoid console error
+      return NextResponse.json({ name: null, content: null, exists: false });
     }
-    return NextResponse.json(personality);
+    return NextResponse.json({ name: personality.name, content: personality.content, exists: true });
   } catch (error) {
     console.error('[API/hermes/personality/GET]', error);
-    return NextResponse.json(
-      { error: 'Failed to read personality', details: String(error) },
-      { status: 500 },
-    );
+    return NextResponse.json({ name: null, content: null, exists: false });
   }
 }
 

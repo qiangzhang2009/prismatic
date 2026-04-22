@@ -1,0 +1,1847 @@
+[
+  {
+    "file": "alan-turing-v4.json",
+    "status": "suspicious",
+    "issues": [
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '语言游戏'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '家族相似性'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '生活形式'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '私人语言'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '遵守规则'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '第一性原理'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '小我'}"
+      }
+    ],
+    "notes": [],
+    "mentalModelCount": 7,
+    "vocabularyCount": 0,
+    "uniqueWordRatio": 1.0,
+    "signalStrength": "unknown"
+  },
+  {
+    "file": "aleister-crowley-v4.json",
+    "status": "suspicious",
+    "issues": [
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '语言游戏'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '家族相似性'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '生活形式'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '私人语言'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '遵守规则'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '第一性原理'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '小我'}"
+      }
+    ],
+    "notes": [],
+    "mentalModelCount": 8,
+    "vocabularyCount": 15,
+    "uniqueWordRatio": 1.0,
+    "signalStrength": "unknown"
+  },
+  {
+    "file": "cao-cao-v4.json",
+    "status": "suspicious",
+    "issues": [
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '语言游戏'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '家族相似性'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '生活形式'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '私人语言'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '遵守规则'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '第一性原理'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '小我'}"
+      }
+    ],
+    "notes": [],
+    "mentalModelCount": 7,
+    "vocabularyCount": 15,
+    "uniqueWordRatio": 1.0,
+    "signalStrength": "unknown"
+  },
+  {
+    "file": "carl-jung-v4.json",
+    "status": "suspicious",
+    "issues": [
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '语言游戏'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '家族相似性'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '生活形式'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '私人语言'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '遵守规则'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '第一性原理'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '小我'}"
+      }
+    ],
+    "notes": [],
+    "mentalModelCount": 7,
+    "vocabularyCount": 0,
+    "uniqueWordRatio": 1.0,
+    "signalStrength": "unknown"
+  },
+  {
+    "file": "confucius-v4.json",
+    "status": "suspicious",
+    "issues": [
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '语言游戏'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '家族相似性'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '生活形式'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '私人语言'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '遵守规则'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '第一性原理'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '小我'}"
+      }
+    ],
+    "notes": [],
+    "mentalModelCount": 7,
+    "vocabularyCount": 0,
+    "uniqueWordRatio": 1.0,
+    "signalStrength": "unknown"
+  },
+  {
+    "file": "einstein-v4.json",
+    "status": "suspicious",
+    "issues": [
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '语言游戏'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '家族相似性'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '生活形式'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '私人语言'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '遵守规则'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '第一性原理'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '小我'}"
+      }
+    ],
+    "notes": [],
+    "mentalModelCount": 7,
+    "vocabularyCount": 0,
+    "uniqueWordRatio": 1.0,
+    "signalStrength": "unknown"
+  },
+  {
+    "file": "epictetus-v4.json",
+    "status": "suspicious",
+    "issues": [
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '语言游戏'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '家族相似性'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '生活形式'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '私人语言'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '遵守规则'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '第一性原理'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '小我'}"
+      }
+    ],
+    "notes": [],
+    "mentalModelCount": 6,
+    "vocabularyCount": 0,
+    "uniqueWordRatio": 1.0,
+    "signalStrength": "unknown"
+  },
+  {
+    "file": "han-fei-zi-v4.json",
+    "status": "suspicious",
+    "issues": [
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '语言游戏'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '家族相似性'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '生活形式'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '私人语言'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '遵守规则'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '第一性原理'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '小我'}"
+      }
+    ],
+    "notes": [],
+    "mentalModelCount": 7,
+    "vocabularyCount": 0,
+    "uniqueWordRatio": 1.0,
+    "signalStrength": "unknown"
+  },
+  {
+    "file": "huangdi-neijing-v4.json",
+    "status": "suspicious",
+    "issues": [
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '语言游戏'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '家族相似性'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '生活形式'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '私人语言'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '遵守规则'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '第一性原理'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '小我'}"
+      }
+    ],
+    "notes": [],
+    "mentalModelCount": 7,
+    "vocabularyCount": 15,
+    "uniqueWordRatio": 1.0,
+    "signalStrength": "unknown"
+  },
+  {
+    "file": "hui-neng-v4.json",
+    "status": "suspicious",
+    "issues": [
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '语言游戏'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '家族相似性'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '生活形式'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '私人语言'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '遵守规则'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '第一性原理'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '小我'}"
+      }
+    ],
+    "notes": [],
+    "mentalModelCount": 7,
+    "vocabularyCount": 0,
+    "uniqueWordRatio": 1.0,
+    "signalStrength": "unknown"
+  },
+  {
+    "file": "jack-ma-v4.json",
+    "status": "suspicious",
+    "issues": [
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '语言游戏'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '家族相似性'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '生活形式'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '私人语言'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '遵守规则'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '第一性原理'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '小我'}"
+      }
+    ],
+    "notes": [],
+    "mentalModelCount": 7,
+    "vocabularyCount": 0,
+    "uniqueWordRatio": 1.0,
+    "signalStrength": "unknown"
+  },
+  {
+    "file": "jeff-bezos-v4.json",
+    "status": "suspicious",
+    "issues": [
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '语言游戏'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '家族相似性'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '生活形式'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '私人语言'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '遵守规则'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '第一性原理'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '小我'}"
+      }
+    ],
+    "notes": [],
+    "mentalModelCount": 10,
+    "vocabularyCount": 0,
+    "uniqueWordRatio": 1.0,
+    "signalStrength": "unknown"
+  },
+  {
+    "file": "john-maynard-keynes-v4.json",
+    "status": "suspicious",
+    "issues": [
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '语言游戏'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '家族相似性'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '生活形式'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '私人语言'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '遵守规则'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '第一性原理'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '小我'}"
+      }
+    ],
+    "notes": [],
+    "mentalModelCount": 7,
+    "vocabularyCount": 0,
+    "uniqueWordRatio": 1.0,
+    "signalStrength": "unknown"
+  },
+  {
+    "file": "journey-west-v4.json",
+    "status": "suspicious",
+    "issues": [
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '语言游戏'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '家族相似性'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '生活形式'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '私人语言'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '遵守规则'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '第一性原理'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '小我'}"
+      }
+    ],
+    "notes": [],
+    "mentalModelCount": 7,
+    "vocabularyCount": 0,
+    "uniqueWordRatio": 1.0,
+    "signalStrength": "unknown"
+  },
+  {
+    "file": "lao-zi-v4.json",
+    "status": "suspicious",
+    "issues": [
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '语言游戏'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '家族相似性'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '生活形式'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '私人语言'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '遵守规则'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '第一性原理'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '小我'}"
+      }
+    ],
+    "notes": [],
+    "mentalModelCount": 7,
+    "vocabularyCount": 0,
+    "uniqueWordRatio": 1.0,
+    "signalStrength": "unknown"
+  },
+  {
+    "file": "li-chunfeng-v4.json",
+    "status": "suspicious",
+    "issues": [
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '语言游戏'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '家族相似性'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '生活形式'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '私人语言'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '遵守规则'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '第一性原理'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '小我'}"
+      }
+    ],
+    "notes": [],
+    "mentalModelCount": 7,
+    "vocabularyCount": 0,
+    "uniqueWordRatio": 1.0,
+    "signalStrength": "unknown"
+  },
+  {
+    "file": "liu-bei-v4.json",
+    "status": "suspicious",
+    "issues": [
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '语言游戏'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '家族相似性'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '生活形式'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '私人语言'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '遵守规则'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '第一性原理'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '小我'}"
+      }
+    ],
+    "notes": [],
+    "mentalModelCount": 7,
+    "vocabularyCount": 15,
+    "uniqueWordRatio": 1.0,
+    "signalStrength": "unknown"
+  },
+  {
+    "file": "marcus-aurelius-v4.json",
+    "status": "polluted",
+    "issues": [
+      {
+        "field": "knowledge.mentalModels.context-over-content.evidence",
+        "problem": "Evidence quote appears to be from wrong domain (gardening/plants)",
+        "evidence": "a brilliant solution in one culture is a disaster in another. it's not about the solution, it's abou"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '语言游戏'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '家族相似性'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '生活形式'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '私人语言'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '遵守规则'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '第一性原理'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '小我'}"
+      }
+    ],
+    "notes": [],
+    "mentalModelCount": 7,
+    "vocabularyCount": 0,
+    "uniqueWordRatio": 1.0,
+    "signalStrength": "unknown"
+  },
+  {
+    "file": "mencius-v4.json",
+    "status": "suspicious",
+    "issues": [
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '语言游戏'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '家族相似性'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '生活形式'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '私人语言'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '遵守规则'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '第一性原理'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '小我'}"
+      }
+    ],
+    "notes": [],
+    "mentalModelCount": 7,
+    "vocabularyCount": 0,
+    "uniqueWordRatio": 1.0,
+    "signalStrength": "unknown"
+  },
+  {
+    "file": "mo-zi-v4.json",
+    "status": "suspicious",
+    "issues": [
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '语言游戏'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '家族相似性'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '生活形式'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '私人语言'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '遵守规则'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '第一性原理'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '小我'}"
+      }
+    ],
+    "notes": [],
+    "mentalModelCount": 7,
+    "vocabularyCount": 0,
+    "uniqueWordRatio": 1.0,
+    "signalStrength": "unknown"
+  },
+  {
+    "file": "naval-ravikant-v4.json",
+    "status": "suspicious",
+    "issues": [
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '语言游戏'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '家族相似性'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '生活形式'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '私人语言'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '遵守规则'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '第一性原理'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '小我'}"
+      }
+    ],
+    "notes": [],
+    "mentalModelCount": 7,
+    "vocabularyCount": 0,
+    "uniqueWordRatio": 1.0,
+    "signalStrength": "unknown"
+  },
+  {
+    "file": "nikola-tesla-v4.json",
+    "status": "suspicious",
+    "issues": [
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '语言游戏'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '家族相似性'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '生活形式'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '私人语言'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '遵守规则'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '第一性原理'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '小我'}"
+      }
+    ],
+    "notes": [],
+    "mentalModelCount": 6,
+    "vocabularyCount": 0,
+    "uniqueWordRatio": 1.0,
+    "signalStrength": "unknown"
+  },
+  {
+    "file": "peter-thiel-v4.json",
+    "status": "suspicious",
+    "issues": [
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '语言游戏'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '家族相似性'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '生活形式'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '私人语言'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '遵守规则'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '第一性原理'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '小我'}"
+      }
+    ],
+    "notes": [],
+    "mentalModelCount": 7,
+    "vocabularyCount": 0,
+    "uniqueWordRatio": 1.0,
+    "signalStrength": "unknown"
+  },
+  {
+    "file": "qian-xuesen-v4.json",
+    "status": "suspicious",
+    "issues": [
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '语言游戏'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '家族相似性'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '生活形式'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '私人语言'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '遵守规则'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '第一性原理'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '小我'}"
+      }
+    ],
+    "notes": [],
+    "mentalModelCount": 7,
+    "vocabularyCount": 0,
+    "uniqueWordRatio": 1.0,
+    "signalStrength": "unknown"
+  },
+  {
+    "file": "qu-yuan-v4.json",
+    "status": "suspicious",
+    "issues": [
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '语言游戏'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '家族相似性'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '生活形式'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '私人语言'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '遵守规则'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '第一性原理'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '小我'}"
+      }
+    ],
+    "notes": [],
+    "mentalModelCount": 7,
+    "vocabularyCount": 0,
+    "uniqueWordRatio": 1.0,
+    "signalStrength": "unknown"
+  },
+  {
+    "file": "ray-dalio-v4.json",
+    "status": "suspicious",
+    "issues": [
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '语言游戏'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '家族相似性'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '生活形式'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '私人语言'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '遵守规则'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '第一性原理'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '小我'}"
+      }
+    ],
+    "notes": [],
+    "mentalModelCount": 7,
+    "vocabularyCount": 15,
+    "uniqueWordRatio": 1.0,
+    "signalStrength": "unknown"
+  },
+  {
+    "file": "records-grand-historian-v4.json",
+    "status": "suspicious",
+    "issues": [
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '语言游戏'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '家族相似性'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '生活形式'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '私人语言'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '遵守规则'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '第一性原理'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '小我'}"
+      }
+    ],
+    "notes": [],
+    "mentalModelCount": 7,
+    "vocabularyCount": 0,
+    "uniqueWordRatio": 1.0,
+    "signalStrength": "unknown"
+  },
+  {
+    "file": "sam-altman-v4.json",
+    "status": "suspicious",
+    "issues": [
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '语言游戏'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '家族相似性'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '生活形式'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '私人语言'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '遵守规则'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '第一性原理'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '小我'}"
+      }
+    ],
+    "notes": [],
+    "mentalModelCount": 8,
+    "vocabularyCount": 15,
+    "uniqueWordRatio": 1.0,
+    "signalStrength": "unknown"
+  },
+  {
+    "file": "seneca-v4.json",
+    "status": "suspicious",
+    "issues": [
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '语言游戏'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '家族相似性'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '生活形式'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '私人语言'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '遵守规则'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '第一性原理'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '小我'}"
+      }
+    ],
+    "notes": [],
+    "mentalModelCount": 7,
+    "vocabularyCount": 0,
+    "uniqueWordRatio": 1.0,
+    "signalStrength": "unknown"
+  },
+  {
+    "file": "shao-yong-v4.json",
+    "status": "suspicious",
+    "issues": [
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '语言游戏'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '家族相似性'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '生活形式'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '私人语言'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '遵守规则'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '第一性原理'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '小我'}"
+      }
+    ],
+    "notes": [],
+    "mentalModelCount": 7,
+    "vocabularyCount": 0,
+    "uniqueWordRatio": 1.0,
+    "signalStrength": "unknown"
+  },
+  {
+    "file": "sima-qian-v4.json",
+    "status": "suspicious",
+    "issues": [
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '语言游戏'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '家族相似性'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '生活形式'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '私人语言'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '遵守规则'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '第一性原理'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '小我'}"
+      }
+    ],
+    "notes": [],
+    "mentalModelCount": 7,
+    "vocabularyCount": 0,
+    "uniqueWordRatio": 1.0,
+    "signalStrength": "unknown"
+  },
+  {
+    "file": "socrates-v4.json",
+    "status": "suspicious",
+    "issues": [
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '语言游戏'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '家族相似性'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '生活形式'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '私人语言'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '遵守规则'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '第一性原理'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '小我'}"
+      }
+    ],
+    "notes": [],
+    "mentalModelCount": 7,
+    "vocabularyCount": 0,
+    "uniqueWordRatio": 1.0,
+    "signalStrength": "unknown"
+  },
+  {
+    "file": "sun-tzu-v4.json",
+    "status": "suspicious",
+    "issues": [
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '语言游戏'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '家族相似性'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '生活形式'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '私人语言'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '遵守规则'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '第一性原理'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '小我'}"
+      }
+    ],
+    "notes": [],
+    "mentalModelCount": 7,
+    "vocabularyCount": 0,
+    "uniqueWordRatio": 1.0,
+    "signalStrength": "unknown"
+  },
+  {
+    "file": "sun-wukong-v4.json",
+    "status": "suspicious",
+    "issues": [
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '语言游戏'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '家族相似性'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '生活形式'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '私人语言'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '遵守规则'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '第一性原理'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '小我'}"
+      }
+    ],
+    "notes": [],
+    "mentalModelCount": 7,
+    "vocabularyCount": 0,
+    "uniqueWordRatio": 1.0,
+    "signalStrength": "unknown"
+  },
+  {
+    "file": "three-kingdoms-v4.json",
+    "status": "suspicious",
+    "issues": [
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '语言游戏'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '家族相似性'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '生活形式'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '私人语言'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '遵守规则'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '第一性原理'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '小我'}"
+      }
+    ],
+    "notes": [],
+    "mentalModelCount": 7,
+    "vocabularyCount": 15,
+    "uniqueWordRatio": 1.0,
+    "signalStrength": "unknown"
+  },
+  {
+    "file": "tripitaka-v4.json",
+    "status": "suspicious",
+    "issues": [
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '语言游戏'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '家族相似性'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '生活形式'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '私人语言'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '遵守规则'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '第一性原理'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '小我'}"
+      }
+    ],
+    "notes": [],
+    "mentalModelCount": 7,
+    "vocabularyCount": 0,
+    "uniqueWordRatio": 1.0,
+    "signalStrength": "unknown"
+  },
+  {
+    "file": "xiang-yu-v4.json",
+    "status": "suspicious",
+    "issues": [
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '语言游戏'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '家族相似性'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '生活形式'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '私人语言'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '遵守规则'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '第一性原理'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '小我'}"
+      }
+    ],
+    "notes": [],
+    "mentalModelCount": 7,
+    "vocabularyCount": 0,
+    "uniqueWordRatio": 1.0,
+    "signalStrength": "unknown"
+  },
+  {
+    "file": "zhu-bajie-v4.json",
+    "status": "suspicious",
+    "issues": [
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '语言游戏'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '家族相似性'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '生活形式'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '私人语言'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '遵守规则'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '第一性原理'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '小我'}"
+      }
+    ],
+    "notes": [],
+    "mentalModelCount": 7,
+    "vocabularyCount": 0,
+    "uniqueWordRatio": 1.0,
+    "signalStrength": "unknown"
+  },
+  {
+    "file": "zhuang-zi-v4.json",
+    "status": "suspicious",
+    "issues": [
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '语言游戏'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '家族相似性'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '生活形式'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '私人语言'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '遵守规则'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '第一性原理'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '小我'}"
+      }
+    ],
+    "notes": [],
+    "mentalModelCount": 7,
+    "vocabularyCount": 0,
+    "uniqueWordRatio": 1.0,
+    "signalStrength": "unknown"
+  },
+  {
+    "file": "zhuge-liang-v4.json",
+    "status": "suspicious",
+    "issues": [
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '语言游戏'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '家族相似性'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '生活形式'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '私人语言'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '遵守规则'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '第一性原理'}"
+      },
+      {
+        "field": "knowledge.keyConcepts",
+        "problem": "keyConcept has empty original and english",
+        "evidence": "{'original': '', 'english': '', 'chinese': '小我'}"
+      }
+    ],
+    "notes": [],
+    "mentalModelCount": 7,
+    "vocabularyCount": 0,
+    "uniqueWordRatio": 1.0,
+    "signalStrength": "unknown"
+  }
+]

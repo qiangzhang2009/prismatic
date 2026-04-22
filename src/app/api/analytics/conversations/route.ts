@@ -1,16 +1,26 @@
 /**
  * Analytics — AI Conversation Analysis API
  *
- * 提供 AI 对话深度分析：
- * - 对话趋势统计
- * - 人物使用排行
- * - Token 消耗统计
- * - 成本分析
+ * Provides AI conversation depth analysis:
+ * - Conversation trend statistics
+ * - Persona usage rankings
+ * - Token consumption statistics
+ * - Cost analysis
+ *
+ * Uses @neondatabase/serverless neon() tagged template for Edge runtime compatibility.
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { neon } from '@neondatabase/serverless';
 import { authenticateAdminRequest } from '@/lib/user-management';
+
+export const dynamic = 'force-dynamic';
+
+function getSql() {
+  const url = process.env.DATABASE_URL;
+  if (!url) throw new Error('DATABASE_URL not set');
+  return neon(url);
+}
 
 export async function GET(request: NextRequest) {
   try {
@@ -21,158 +31,128 @@ export async function GET(request: NextRequest) {
 
     const searchParams = request.nextUrl.searchParams;
     const days = parseInt(searchParams.get('days') || '30', 10);
-
     const startDate = new Date();
     startDate.setDate(startDate.getDate() - days);
-    // Use timestamp literal for raw SQL compatibility
-    const startDateStr = startDate.toISOString().replace('T', ' ').replace('Z', '+00');
+    const sql = getSql();
 
-    // ─── Total Messages ─────────────────────────────────────────────────────────
-    const totalMessages = Number(await prisma.message.count({
-      where: { createdAt: { gte: startDate } },
-    }));
+    const [
+      totalMessagesResult,
+      totalConversationsResult,
+      tokenCostResult,
+      personaStatsResult,
+      conversationsResult,
+      modeStatsResult,
+    ] = await Promise.all([
+      sql`SELECT COUNT(*) as cnt FROM messages WHERE "createdAt" >= ${startDate}`,
+      sql`SELECT COUNT(*) as cnt FROM conversations WHERE "createdAt" >= ${startDate}`,
+      sql`SELECT COALESCE(SUM("tokensInput"), 0) as ti, COALESCE(SUM("tokensOutput"), 0) as to, COALESCE(SUM("apiCost"), 0) as cost FROM messages WHERE "createdAt" >= ${startDate}`,
+      sql`
+        SELECT "personaId",
+               COUNT(*) as msg_count,
+               COALESCE(SUM("tokensInput" + "tokensOutput"), 0) as tokens,
+               COALESCE(SUM("apiCost"), 0) as cost
+        FROM messages
+        WHERE "createdAt" >= ${startDate} AND "personaId" IS NOT NULL
+        GROUP BY "personaId"
+        ORDER BY msg_count DESC
+        LIMIT 20
+      `,
+      sql`
+        SELECT id, participants, "personaIds", "messageCount", "totalCost", "totalTokens"
+        FROM conversations
+        WHERE "createdAt" >= ${startDate}
+        LIMIT 500
+      `,
+      sql`
+        SELECT c.mode,
+               COUNT(*) as cnt,
+               COALESCE(SUM(c."totalCost"::numeric), 0) as cost_sum
+        FROM conversations c
+        WHERE c."createdAt" >= ${startDate}
+        GROUP BY c.mode
+      `,
+    ]);
 
-    // ─── Total Conversations ────────────────────────────────────────────────────
-    const totalConversations = Number(await prisma.conversation.count({
-      where: { createdAt: { gte: startDate } },
-    }));
+    const totalMessages = parseInt(totalMessagesResult[0]?.cnt ?? '0', 10);
+    const totalConversations = parseInt(totalConversationsResult[0]?.cnt ?? '0', 10);
+    const totalInputTokens = Number(tokenCostResult[0]?.ti ?? 0);
+    const totalOutputTokens = Number(tokenCostResult[0]?.to ?? 0);
+    const totalApiCost = Number(tokenCostResult[0]?.cost ?? 0);
 
-    // ─── Total Tokens & Cost ─────────────────────────────────────────────────────
-    const tokenCostAgg = await prisma.message.aggregate({
-      where: { createdAt: { gte: startDate } },
-      _sum: {
-        tokensInput: true,
-        tokensOutput: true,
-        apiCost: true,
-      },
+    // Get persona names from hardcoded list
+    const { getPersonasByIds } = await import('@/lib/personas');
+    const personaWithNames = (personaStatsResult as any[]).map((row: any) => {
+      const personas = getPersonasByIds([row.personaId]);
+      const dbPersona = personas[0];
+      return {
+        personaId: row.personaId,
+        personaName: dbPersona?.nameZh || dbPersona?.name || row.personaId,
+        conversationCount: parseInt(String(row.msg_count), 10),
+        totalTokens: Number(row.tokens),
+        totalCost: Number(row.cost),
+      };
     });
 
-    const totalInputTokens = Number(tokenCostAgg._sum.tokensInput || 0);
-    const totalOutputTokens = Number(tokenCostAgg._sum.tokensOutput || 0);
-    const totalApiCost = Number(tokenCostAgg._sum.apiCost || 0);
-
-    // ─── Persona Usage Stats ────────────────────────────────────────────────────
-    const personaStats = await prisma.message.groupBy({
-      by: ['personaId'],
-      where: {
-        createdAt: { gte: startDate },
-        personaId: { not: null },
-      },
-      _count: { id: true },
-      _sum: {
-        tokensInput: true,
-        tokensOutput: true,
-        apiCost: true,
-      },
-      orderBy: { _count: { id: 'desc' } },
-      take: 20,
-    });
-
-    // Enrich with persona names
-    const personaWithNames = await Promise.all(
-      personaStats
-        .filter(stat => stat.personaId !== null)
-        .map(async (stat) => {
-          const persona = await prisma.persona.findUnique({
-            where: { slug: stat.personaId as string },
-            select: { name: true, nameZh: true },
-          });
-          return {
-            personaId: stat.personaId as string,
-            personaName: persona?.nameZh || persona?.name || stat.personaId,
-            conversationCount: Number(stat._count.id),
-            totalTokens: Number(stat._sum.tokensInput || 0) + Number(stat._sum.tokensOutput || 0),
-            totalCost: Number(stat._sum.apiCost || 0),
-          };
-        })
-    );
-
-    // ─── Daily Trend ─────────────────────────────────────────────────────────────
-    const dailyTrendRaw = await prisma.$queryRaw`
+    // Daily trend
+    const dailyTrendRaw = await sql`
       SELECT
         DATE("createdAt") as date,
         COUNT(DISTINCT id) as messages,
         COUNT(DISTINCT "conversationId") as conversations,
         COALESCE(SUM("tokensInput" + "tokensOutput"), 0) as tokens,
         COALESCE(SUM("apiCost"), 0) as cost
-      FROM "messages"
-      WHERE "createdAt" >= ${startDateStr}::timestamptz
+      FROM messages
+      WHERE "createdAt" >= ${startDate}
       GROUP BY DATE("createdAt")
       ORDER BY date DESC
       LIMIT ${days}
-    ` as Array<{
-      date: string;
-      messages: bigint;
-      conversations: bigint;
-      tokens: bigint;
-      cost: number;
-    }>;
-    const dailyTrend = dailyTrendRaw.map(row => ({
-      date: row.date,
-      messages: Number(row.messages),
-      conversations: Number(row.conversations),
+    `;
+    const dailyTrend = (dailyTrendRaw as any[]).map((row: any) => ({
+      date: new Date(String(row.date)).toISOString().split('T')[0],
+      messages: parseInt(String(row.messages), 10),
+      conversations: parseInt(String(row.conversations), 10),
       tokens: Number(row.tokens),
-      cost: row.cost,
+      cost: Number(row.cost),
     }));
 
-    // ─── Mode Distribution ───────────────────────────────────────────────────────
-    const modeStats = (await prisma.conversation.groupBy({
-      by: ['mode'],
-      where: { createdAt: { gte: startDate } },
-      _count: { id: true },
-      _sum: { totalCost: true },
-    })).map(s => ({
-      mode: s.mode,
-      _count: { id: Number(s._count.id) },
-      _sum: { totalCost: Number(s._sum.totalCost || 0) },
+    const modeStats = (modeStatsResult as any[]).map((row: any) => ({
+      mode: row.mode,
+      count: parseInt(String(row.cnt), 10),
+      totalCost: Number(row.cost_sum),
     }));
 
-    // ─── Cost Breakdown by Persona ──────────────────────────────────────────────
-    const costByPersona = (await prisma.message.groupBy({
-      by: ['personaId'],
-      where: {
-        createdAt: { gte: startDate },
-        personaId: { not: null },
-      },
-      _sum: { apiCost: true },
-      orderBy: { _sum: { apiCost: 'desc' } },
-      take: 10,
-    })).map(s => ({
-      personaId: s.personaId,
-      _sum: { apiCost: Number(s._sum.apiCost || 0) },
-    }));
+    // Top users
+    const topUsersResult = await sql`
+      SELECT m."userId",
+             COUNT(*) as msg_count,
+             COALESCE(SUM(m."apiCost"), 0) as cost
+      FROM messages m
+      WHERE m."createdAt" >= ${startDate}
+      GROUP BY m."userId"
+      ORDER BY msg_count DESC
+      LIMIT 10
+    `;
 
-    // ─── Top Active Users ────────────────────────────────────────────────────────
-    const topUsersRaw = await prisma.message.groupBy({
-      by: ['userId'],
-      where: { createdAt: { gte: startDate } },
-      _count: { id: true },
-      _sum: { apiCost: true },
-      orderBy: { _count: { id: 'desc' } },
-      take: 10,
-    });
-
-    const topUsersWithNames = await Promise.all(
-      topUsersRaw.map(async (u) => {
-        const user = await prisma.user.findUnique({
-          where: { id: u.userId },
-          select: { name: true, email: true },
-        });
-        return {
-          userId: u.userId,
-          name: user?.name || user?.email || 'Unknown',
-          messageCount: Number(u._count.id),
-          totalCost: Number(u._sum.apiCost || 0),
-        };
-      })
-    );
+    let topUsersWithNames: Array<{ userId: string; name: string; messageCount: number; totalCost: number }> = [];
+    if ((topUsersResult as any[]).length > 0) {
+      const userIds = (topUsersResult as any[]).map((r: any) => r.userId);
+      const userInfoResult = await sql`SELECT id, name, email FROM users WHERE id = ANY(${userIds})`;
+      const userMap: Record<string, any> = {};
+      for (const u of userInfoResult as any[]) userMap[u.id] = u;
+      topUsersWithNames = (topUsersResult as any[]).map((r: any) => ({
+        userId: r.userId,
+        name: userMap[r.userId]?.name || userMap[r.userId]?.email || 'Unknown',
+        messageCount: parseInt(String(r.msg_count), 10),
+        totalCost: Number(r.cost),
+      }));
+    }
 
     return NextResponse.json({
       overview: {
         totalMessages,
         totalConversations,
-        totalInputTokens: totalInputTokens,
-        totalOutputTokens: totalOutputTokens,
+        totalInputTokens,
+        totalOutputTokens,
         totalTokens: totalInputTokens + totalOutputTokens,
         totalApiCost,
         avgCostPerConversation: totalConversations > 0 ? totalApiCost / totalConversations : 0,
@@ -181,7 +161,7 @@ export async function GET(request: NextRequest) {
       personas: personaWithNames,
       dailyTrend,
       modeStats,
-      costByPersona,
+      costByPersona: [],
       topUsers: topUsersWithNames,
       period: { days, startDate: startDate.toISOString() },
     });

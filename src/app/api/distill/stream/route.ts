@@ -1,17 +1,23 @@
 /**
- * Prismatic — Distillation SSE Progress Stream
- * Server-Sent Events endpoint for real-time pipeline progress
+ * Prismatic — Distillation SSE Progress Stream (v4)
+ * Server-Sent Events endpoint using the v4 pipeline with DeepSeek LLM
  */
-
-import { NextRequest, NextResponse } from 'next/server';
-import { getPersonaById } from '@/lib/personas';
-import { DistillationOrchestrator } from '@/lib/distillation-orchestrator';
-import { formatSSE } from '@/lib/distillation-events';
-import type { PipelineEvent } from '@/lib/distillation-events';
-import type { Persona } from '@/lib/types';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
+
+import { NextRequest, NextResponse } from 'next/server';
+import { getPersonaById } from '@/lib/personas';
+import { distillPersonaV4, DEFAULT_CONFIG } from '@/lib/distillation-v4';
+import { formatSSE } from '@/lib/distillation-events';
+import type { PipelineEvent } from '@/lib/distillation-events';
+import * as path from 'path';
+
+const CORPUS_ROOT = path.join(process.cwd(), 'corpus');
+
+function resolveCorpusDir(personaId: string): string {
+  return path.join(CORPUS_ROOT, personaId);
+}
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
@@ -21,49 +27,73 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: 'Missing personaId' }, { status: 400 });
   }
 
-  const persona = getPersonaById(personaId) ?? undefined;
+  const persona = getPersonaById(personaId);
   if (!persona) {
     return NextResponse.json({ error: 'Persona not found' }, { status: 404 });
   }
 
   const encoder = new TextEncoder();
+  const sessionId = `v4-${Date.now()}`;
 
   const stream = new ReadableStream({
     start(controller) {
-      function send(type: string, data: Record<string, unknown>) {
+      function send(type: string, message: string, data: Record<string, unknown> = {}) {
         const event: PipelineEvent = {
           id: `${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
           type: type as PipelineEvent['type'],
           severity: 'info',
-          planId: 'pending',
+          planId: sessionId,
           personaId: personaId as string,
           timestamp: new Date().toISOString(),
-          message: type,
+          message,
           detail: data,
         };
-        controller.enqueue(encoder.encode(formatSSE(event)));
+        try {
+          controller.enqueue(encoder.encode(formatSSE(event) + '\n'));
+        } catch {
+          // Controller may already be closed
+        }
       }
 
-      // 发送初始连接事件
-      send('plan_created', { personaId, status: 'connecting' });
+      send('plan_created', `v4 distillation started for ${persona.nameZh || persona.name}`, {
+        personaId,
+        version: 'v4',
+      });
 
-      // 运行蒸馏管道（带实时进度）
-      runWithProgress(persona, send, controller)
-        .then(({ plan, score, error }) => {
-          if (error) {
-            send('pipeline_failed', { error: String(error) });
-          } else {
-            send('pipeline_completed', {
-              planId: plan.id,
-              score: score?.overall,
-              grade: score?.grade,
-              thresholdPassed: score?.thresholdPassed,
-            });
-          }
+      const corpusDir = resolveCorpusDir(personaId);
+
+      distillPersonaV4({
+        personaId,
+        corpusDir,
+        config: {
+          maxIterations: DEFAULT_CONFIG.maxIterations,
+          adaptiveThreshold: DEFAULT_CONFIG.adaptiveThreshold,
+          outputLanguage: 'zh-CN',
+        },
+        onProgress: (stage, pct) => {
+          send('progress', `[v4] ${stage}: ${pct}%`, { stage, progress: pct, sessionId });
+        },
+      })
+        .then((result) => {
+          const score = result.pipelineResult.finalScore;
+          send(
+            'pipeline_completed',
+            `v4 distillation completed — Score: ${score}`,
+            {
+              finalScore: score,
+              grade: score >= 90 ? 'A' : score >= 75 ? 'B' : score >= 60 ? 'C' : score >= 45 ? 'D' : 'F',
+              route: 'unknown',
+              iterations: result.pipelineResult.iterationList?.length ?? 1,
+              sessionId,
+            }
+          );
           controller.close();
         })
         .catch((err) => {
-          send('pipeline_failed', { error: String(err) });
+          send('pipeline_failed', `v4 distillation failed: ${err instanceof Error ? err.message : String(err)}`, {
+            error: err instanceof Error ? err.message : String(err),
+            sessionId,
+          });
           controller.close();
         });
     },
@@ -77,40 +107,4 @@ export async function GET(req: NextRequest) {
       'X-Accel-Buffering': 'no',
     },
   });
-}
-
-async function runWithProgress(
-  persona: Persona,
-  send: (type: string, data: Record<string, unknown>) => void,
-  controller: ReadableStreamDefaultController
-): Promise<{
-  plan: { id: string };
-  score?: { overall: number; grade: string; thresholdPassed: boolean };
-  error?: Error;
-}> {
-  const orchestrator = new DistillationOrchestrator(persona);
-  const plan = orchestrator.getPlan();
-
-  send('plan_created', {
-    planId: plan.id,
-    totalTasks: plan.tasks.length,
-    waves: plan.waves.map(w => w.length),
-  });
-
-  try {
-    const result = await orchestrator.run();
-    return {
-      plan: { id: result.plan.id },
-      score: result.score ? {
-        overall: result.score.overall,
-        grade: result.score.grade,
-        thresholdPassed: result.score.thresholdPassed,
-      } : undefined,
-    };
-  } catch (err) {
-    return {
-      plan: { id: plan.id },
-      error: err instanceof Error ? err : new Error(String(err)),
-    };
-  }
 }

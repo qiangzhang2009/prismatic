@@ -19,7 +19,7 @@ export async function GET(_req: NextRequest, { params }: RouteParams) {
     return NextResponse.json({ group });
   } catch (error) {
     console.error('[API/groups/[id]/GET]', error);
-    return NextResponse.json({ error: String(error) }, { status: 500 });
+    return NextResponse.json({ error: 'Group not found' }, { status: 404 });
   }
 }
 
@@ -41,7 +41,7 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
     return NextResponse.json({ group });
   } catch (error) {
     console.error('[API/groups/[id]/PATCH]', error);
-    return NextResponse.json({ error: String(error) }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to update group' }, { status: 500 });
   }
 }
 
@@ -53,6 +53,6 @@ export async function DELETE(_req: NextRequest, { params }: RouteParams) {
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error('[API/groups/[id]/DELETE]', error);
-    return NextResponse.json({ error: String(error) }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to delete group' }, { status: 500 });
   }
 }

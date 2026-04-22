@@ -4,12 +4,18 @@
  * Prismatic — Sign In Page
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { useAuthStore } from '@/lib/auth-store';
 import { Hexagon, Mail, Lock, Eye, EyeOff, AlertCircle, ArrowLeft, LogIn } from 'lucide-react';
 import { APP_NAME } from '@/lib/constants';
+
+function getCallbackUrl(): string {
+  if (typeof window === 'undefined') return '/app';
+  const params = new URLSearchParams(window.location.search);
+  return params.get('callbackUrl') || '/app';
+}
 
 export default function SignInPage() {
   const { login, isLoading, user, isInitialized } = useAuthStore();
@@ -18,20 +24,24 @@ export default function SignInPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
 
-  // If already logged in, redirect to /app
+  // If already logged in, redirect to callbackUrl or /app
   useEffect(() => {
     if (isInitialized && user) {
-      window.location.href = '/app';
+      window.location.href = getCallbackUrl();
     }
   }, [user, isInitialized]);
+
+  const handleLoginSuccess = useCallback(() => {
+    window.location.href = getCallbackUrl();
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-    
+
     const result = await login(email, password);
     if (result.success) {
-      window.location.href = '/app';
+      handleLoginSuccess();
     } else {
       setError(result.error || 'Login failed');
     }

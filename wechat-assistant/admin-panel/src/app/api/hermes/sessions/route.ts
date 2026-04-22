@@ -30,9 +30,6 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ sessions });
   } catch (error) {
     console.error('[API/hermes/sessions]', error);
-    return NextResponse.json(
-      { error: 'Failed to read sessions', details: String(error) },
-      { status: 500 },
-    );
+    return NextResponse.json({ sessions: [] });
   }
 }

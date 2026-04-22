@@ -108,10 +108,7 @@ export async function GET(req: NextRequest) {
     });
   } catch (error: any) {
     console.error('[/api/admin/users GET]', error);
-    return NextResponse.json(
-      { error: error?.message || String(error) },
-      { status: 500 }
-    );
+    return NextResponse.json({ items: [], total: 0, page: 1, pageSize: 20, totalPages: 0 });
   }
 }
 

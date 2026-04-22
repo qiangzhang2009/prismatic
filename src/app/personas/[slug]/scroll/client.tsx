@@ -3,10 +3,11 @@
 /**
  * Prismatic — Persona Scroll Experience (Client)
  * A long-scroll immersive page that unfolds a persona like a scroll painting.
+ * v2 — forces chunk hash regeneration to flush old cached JS
  */
 
 import Link from 'next/link';
-import { getPersona } from '@/lib/personas';
+import type { Persona } from '@/lib/types';
 import { getPersonaScrollTheme, getThemeCSSVars } from '@/lib/persona-scroll-themes';
 import { OpeningSection } from '@/components/scroll/opening-section';
 import { SoulPortrait } from '@/components/scroll/soul-portrait';
@@ -20,13 +21,10 @@ import { AstroProfile } from '@/components/scroll/astro-profile';
 import { ParticleCanvas } from '@/components/scroll/particle-canvas';
 
 interface Props {
-  slug: string;
+  persona: Persona;
 }
 
-export function PersonaScrollClient({ slug }: Props) {
-  const persona = getPersona(slug);
-  if (!persona) return null;
-
+export function PersonaScrollClient({ persona }: Props) {
   const theme = getPersonaScrollTheme(persona.slug, persona.domain);
   const cssVars = getThemeCSSVars(theme);
 

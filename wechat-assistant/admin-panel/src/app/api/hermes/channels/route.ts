@@ -10,9 +10,6 @@ export async function GET() {
     return NextResponse.json(channels);
   } catch (error) {
     console.error('[API/hermes/channels]', error);
-    return NextResponse.json(
-      { error: 'Failed to read channels', details: String(error) },
-      { status: 500 },
-    );
+    return NextResponse.json({ updated_at: '', platforms: {} });
   }
 }

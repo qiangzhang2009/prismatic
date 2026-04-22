@@ -22,6 +22,7 @@ import {
   Terminal,
   RefreshCw,
   Shield,
+  Sparkles,
 } from 'lucide-react';
 
 // ============================================
@@ -548,12 +549,13 @@ export default function DashboardPage() {
         </div>
 
         {/* Quick nav */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
           {[
             { href: '/groups', icon: Users, label: '群组配置', color: '#4d96ff' },
             { href: '/personas', icon: Bot, label: 'Persona 管理', color: '#c77dff' },
             { href: '/feedback', icon: AlertCircle, label: '反馈中心', color: '#ff9f43' },
             { href: '/settings', icon: Settings, label: '系统设置', color: '#6bcb77' },
+            { href: '/distill', icon: Zap, label: '蒸馏中心', color: '#ff9f43' },
           ].map((item) => (
             <a
               key={item.href}

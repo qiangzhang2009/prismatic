@@ -305,7 +305,6 @@ h1, h2, h3, h4, h5, h6 {
   position: relative;
   overflow: hidden;
   border-radius: 1rem;
-  padding: 1.25rem;
   background-color: var(--bg-surface);
   border: 1px solid var(--border-subtle);
   transition: all 0.3s ease;

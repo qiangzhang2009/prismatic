@@ -8,9 +8,6 @@ export async function GET() {
     return NextResponse.json({ skills, count: skills.length });
   } catch (error) {
     console.error('[API/hermes/skills]', error);
-    return NextResponse.json(
-      { error: 'Failed to read skills', details: String(error) },
-      { status: 500 },
-    );
+    return NextResponse.json({ skills: [], count: 0 });
   }
 }

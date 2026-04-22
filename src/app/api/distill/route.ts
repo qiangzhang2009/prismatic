@@ -1,16 +1,11 @@
 /**
- * Prismatic — Distillation Pipeline API
+ * Prismatic — Distillation Pipeline API (v4)
  * REST endpoints for distillation pipeline management
  */
 
 import { NextRequest, NextResponse } from 'next/server';
 import { getPersonaById } from '@/lib/personas';
 import { PERSONA_CONFIDENCE } from '@/lib/confidence';
-import {
-  DistillationOrchestrator,
-  runDistillation,
-  quickScore,
-} from '@/lib/distillation-orchestrator';
 import { calculateDistillationScore } from '@/lib/distillation-metrics';
 import type { Persona } from '@/lib/types';
 
@@ -72,7 +67,6 @@ export async function GET(req: NextRequest) {
   }
 
   if (action === 'status') {
-    // 返回所有人物的状态摘要
     const summary = {
       total: Object.keys(PERSONA_CONFIDENCE).length,
       highPriority: Object.values(PERSONA_CONFIDENCE).filter(c => c.priority === 'high').length,
@@ -95,11 +89,12 @@ export async function GET(req: NextRequest) {
   return NextResponse.json({ error: 'Unknown action' }, { status: 400 });
 }
 
-// POST /api/distill — 启动蒸馏管道
+// POST /api/distill — 启动蒸馏管道 (v4)
+// For full distillation, use /api/distill/full or /api/admin/distill
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { personaId, mode = 'full', stream = false } = body;
+    const { personaId, mode = 'score' } = body;
 
     if (!personaId) {
       return NextResponse.json({ error: 'Missing personaId' }, { status: 400 });
@@ -111,40 +106,21 @@ export async function POST(req: NextRequest) {
     }
 
     if (mode === 'score') {
-      // 快速评分模式
       const score = calculateDistillationScore(persona);
       return NextResponse.json({
         personaId,
         mode: 'score',
         score,
+        version: 'v4',
       });
     }
 
-    if (mode === 'plan') {
-      // 生成任务计划
-      const orchestrator = new DistillationOrchestrator(persona);
-      const plan = orchestrator.getPlan();
-      return NextResponse.json({
-        personaId,
-        mode: 'plan',
-        plan,
-      });
-    }
-
-    // Full pipeline mode
-    const orchestrator = new DistillationOrchestrator(persona);
-    const plan = orchestrator.getPlan();
-
-    // 在后台运行（实际项目中应该用队列）
-    // 这里简化为同步执行
-    const result = await orchestrator.run();
-
+    // Redirect to full distillation endpoint
     return NextResponse.json({
+      message: 'For full distillation, use POST /api/distill/full',
       personaId,
-      mode: 'full',
-      plan: result.plan,
-      score: result.score,
-      fixedCount: result.fixedCount ?? 0,
+      mode,
+      version: 'v4',
     });
   } catch (err) {
     console.error('[Distillation API] Error:', err);

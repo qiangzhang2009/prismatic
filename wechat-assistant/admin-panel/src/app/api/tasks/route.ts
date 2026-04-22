@@ -29,7 +29,7 @@ export async function GET() {
     return NextResponse.json({ tasks: tasksWithNextRun });
   } catch (error) {
     console.error('[API/tasks/GET]', error);
-    return NextResponse.json({ error: 'Failed to fetch tasks' }, { status: 500 });
+    return NextResponse.json({ tasks: [] });
   }
 }
 

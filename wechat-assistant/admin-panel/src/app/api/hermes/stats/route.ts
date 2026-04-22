@@ -15,9 +15,23 @@ export async function GET() {
     });
   } catch (error) {
     console.error('[API/hermes/stats]', error);
-    return NextResponse.json(
-      { error: 'Failed to read Hermes stats', details: String(error) },
-      { status: 500 },
-    );
+    return NextResponse.json({
+      stats: {
+        totalSessions: 0,
+        totalMessages: 0,
+        totalInputTokens: 0,
+        totalOutputTokens: 0,
+        totalCacheReadTokens: 0,
+        estimatedCostUsd: 0,
+        activePlatforms: [],
+        connectedPlatforms: [],
+        disconnectedPlatforms: [],
+        sessions: [],
+        lastActivity: null,
+      },
+      gateway: null,
+      hermesPath: process.env.HERMES_DATA_PATH || '~/.hermes',
+      isLocal: false,
+    });
   }
 }

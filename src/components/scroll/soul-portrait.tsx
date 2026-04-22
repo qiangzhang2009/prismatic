@@ -47,14 +47,14 @@ function GeometricPortrait({ theme, domains }: { theme: PersonaScrollTheme; doma
             cx="140" cy="150" r="80"
             fill="none" stroke={primary}
             strokeWidth="0.5" opacity={0.12}
-            animate={{ r: [78, 84, 78] }}
+            animate={{ opacity: [0.08, 0.16, 0.08] }}
             transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
           />
           {/* Inner circle */}
           <motion.circle
             cx="140" cy="150" r="40"
             fill={primary} opacity={0.08}
-            animate={{ opacity: [0.06, 0.12, 0.06], r: [38, 42, 38] }}
+            animate={{ opacity: [0.08, 0.14, 0.08] }}
             transition={{ duration: 3.5, repeat: Infinity }}
           />
           {/* Center dot — the soul */}
@@ -130,7 +130,7 @@ function GeometricPortrait({ theme, domains }: { theme: PersonaScrollTheme; doma
           />
           <motion.circle cx="140" cy="140" r="16"
             fill="none" stroke={primary} strokeWidth="0.75" opacity={0.2}
-            animate={{ r: [14, 20, 14], opacity: [0.15, 0.3, 0.15] }}
+            animate={{ opacity: [0.12, 0.25, 0.12] }}
             transition={{ duration: 3, repeat: Infinity }}
           />
           {/* Tech lines */}

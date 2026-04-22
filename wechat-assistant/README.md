@@ -83,7 +83,7 @@ hermes gateway run
 | 反馈中心 | `/feedback` | 查看/处理用户反馈，标记状态 |
 | 定时任务 | `/tasks` | 创建/管理 Cron 定时任务 |
 | 消息日志 | `/logs` | 搜索历史消息记录 |
-| 系统设置 | `/settings` | Gateway 状态、人格编辑、Skills、文档链接 |
+| 系统设置 | `/settings` | Gateway 状态、**微信权限配置**、人格编辑、Skills、文档链接 |
 | 会话详情 | `/sessions/[id]` | 单个会话的完整对话记录 |
 
 ---

@@ -1,11 +1,19 @@
 /**
  * Analytics — System Overview API
  *
- * 返回系统级统计数据（DAU、MAU、消息数、对话数、用户数等）。
- * 所有数据来自 Prisma 查询，真实、实时、准确。
+ * Returns system-level statistics (DAU, MAU, messages, conversations, users).
+ * Uses @neondatabase/serverless neon() tagged template for Edge runtime compatibility.
  */
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { neon } from '@neondatabase/serverless';
+
+export const dynamic = 'force-dynamic';
+
+function getSql() {
+  const url = process.env.DATABASE_URL;
+  if (!url) throw new Error('DATABASE_URL not set');
+  return neon(url);
+}
 
 export async function GET(request: NextRequest) {
   try {
@@ -18,60 +26,41 @@ export async function GET(request: NextRequest) {
     const monthStart = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
     monthStart.setHours(0, 0, 0, 0);
 
+    const sql = getSql();
+
     const [
-      totalUsers,
-      newUsersToday,
-      totalMessages,
-      totalConversations,
+      totalUsersResult,
+      newUsersTodayResult,
+      totalMessagesResult,
+      totalConversationsResult,
       dauResult,
       mauResult,
-      weekMessages,
-      paidUsers,
-      periodApiCost,
+      weekMessagesResult,
+      paidUsersResult,
+      weekCostResult,
     ] = await Promise.all([
-      // 总用户数（活跃）
-      prisma.user.count({ where: { status: 'ACTIVE' } }),
-      // 今日新增用户
-      prisma.user.count({ where: { createdAt: { gte: today }, status: 'ACTIVE' } }),
-      // 历史总消息数（排除心跳消息）
-      prisma.message.count({ where: { content: { not: '[message-counted]' } } }),
-      // 历史总对话数
-      prisma.conversation.count(),
-      // DAU：今日发送过消息的独立用户数
-      prisma.message.groupBy({
-        by: ['userId'],
-        where: { createdAt: { gte: today } },
-        _count: { userId: true },
-      }),
-      // MAU：过去30天发送过消息的独立用户数
-      prisma.message.groupBy({
-        by: ['userId'],
-        where: { createdAt: { gte: monthStart } },
-        _count: { userId: true },
-      }),
-      // 过去 N 天的消息数
-      prisma.message.count({
-        where: {
-          createdAt: { gte: weekStart },
-          content: { not: '[message-counted]' },
-        },
-      }),
-      // 付费用户数（非 FREE 计划）
-      prisma.user.count({ where: { status: 'ACTIVE', plan: { not: 'FREE' } } }),
-      // 近 N 天 API 总成本（从 messages.apiCost 聚合）
-      prisma.message.aggregate({
-        where: { createdAt: { gte: weekStart } },
-        _sum: { apiCost: true },
-      }),
+      sql`SELECT COUNT(*) as cnt FROM users WHERE status = 'ACTIVE'`,
+      sql`SELECT COUNT(*) as cnt FROM users WHERE status = 'ACTIVE' AND "createdAt" >= ${today}`,
+      sql`SELECT COUNT(*) as cnt FROM messages WHERE content != '[message-counted]'`,
+      sql`SELECT COUNT(*) as cnt FROM conversations`,
+      sql`SELECT COUNT(DISTINCT "userId") as cnt FROM messages WHERE "createdAt" >= ${today}`,
+      sql`SELECT COUNT(DISTINCT "userId") as cnt FROM messages WHERE "createdAt" >= ${monthStart}`,
+      sql`SELECT COUNT(*) as cnt FROM messages WHERE "createdAt" >= ${weekStart} AND content != '[message-counted]'`,
+      sql`SELECT COUNT(*) as cnt FROM users WHERE status = 'ACTIVE' AND plan != 'FREE' AND plan IS NOT NULL`,
+      sql`SELECT COALESCE(SUM("apiCost"), 0) as cost FROM messages WHERE "createdAt" >= ${weekStart}`,
     ]);
 
-    const dau = dauResult.length;
-    const mau = mauResult.length;
-    const totalApiCost = Number(periodApiCost._sum.apiCost || 0);
+    const totalUsers = parseInt(totalUsersResult[0]?.cnt ?? '0', 10);
+    const newUsersToday = parseInt(newUsersTodayResult[0]?.cnt ?? '0', 10);
+    const totalMessages = parseInt(totalMessagesResult[0]?.cnt ?? '0', 10);
+    const totalConversations = parseInt(totalConversationsResult[0]?.cnt ?? '0', 10);
+    const dau = parseInt(dauResult[0]?.cnt ?? '0', 10);
+    const mau = parseInt(mauResult[0]?.cnt ?? '0', 10);
+    const weekMessages = parseInt(weekMessagesResult[0]?.cnt ?? '0', 10);
+    const paidUsers = parseInt(paidUsersResult[0]?.cnt ?? '0', 10);
+    const totalApiCost = Number(weekCostResult[0]?.cost ?? 0);
 
-    // 活跃率 = 今日 DAU / 总用户
     const activeRate = totalUsers > 0 ? (dau / totalUsers) * 100 : 0;
-    // DAU/MAU 比 = 今日活跃 / 月活用户
     const dauMauRatio = mau > 0 ? (dau / mau) * 100 : 0;
 
     return NextResponse.json({
@@ -91,8 +80,8 @@ export async function GET(request: NextRequest) {
       period: { days },
     });
   } catch (error) {
-    console.error('[Analytics/Overview]', error);
-    // Graceful degradation — return empty stats instead of 500
+    const message = error instanceof Error ? error.message : String(error);
+    console.error('[Analytics/Overview]', message);
     return NextResponse.json({
       totalUsers: 0,
       activeUsers: 0,

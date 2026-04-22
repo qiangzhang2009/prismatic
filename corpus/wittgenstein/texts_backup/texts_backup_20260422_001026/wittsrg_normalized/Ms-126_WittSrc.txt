@@ -1,0 +1,1321 @@
+Collapse
+Drag
+
+
+ 	 			 	
+     Handelt nur von Logik &
+      Mathematik.
+
+
+
+		
+ 	 			 	
+20.10.42.
+     Eine Addition von Formen in der gewisse Glieder verschmelzen spielt in unserm Leben eine sehr geringe Rolle. – Wie wenn
+ und △ die Figur  ergeben.
+Aber wäre dies eine wichtigere Operation, so hätten wir vielleicht auch einen andern geläufigen Begriff von der arithmetischen Addition.
+
+
+		
+ 	 			 	
+
+Daß man ein Boot, einen Hut, einen Katzenkopf etc. aus einem Stück Papier nach gewissen Regeln falten kann, betrachten wir als Sache || Angelegenheit der Geometrie, nicht der Physik. Aber ist die Geometrie, so verstanden, nicht ein Teil
+der Physik? Nein: Wir || ; wir spalten die Geometrie von der Physik ab. Die geometrische Möglichkeit von der physikalischen. Aber wie, wenn man sie beisammen ließe? Wenn man einfach sagte: ‘wenn Du das & das & das mit dem Stück Papier tust, wird dies herauskommen’? Was zu tun ist, könnte etwa durch einen Reim gegeben werden. Ist es denn nicht möglich, daß jemand zwischen den beiden Möglichkeiten gar nicht unterscheidet?
+
+
+		
+ 	 			 	
+Wie wenn man sagte: ‘wenn Du gut ausgeruht bist & Du addierst die
+Zahlen ...... kommt meistens ..... heraus’? Hier, kann man sagen, heißt ‘addieren’ etwas anderes, als als in unserem Sprachgebrauch. Aber doch etwas Ähnliches.
+
+
+		
+ 	 			 	
+Es heißt dann ungefähr, was wir “zu addieren versuchen” nennen. Und wir sagen, von einem Schüler z.B., er versucht die & die Zahlen zu addieren, & meinen damit etwas ganz bestimmtes, obwohl die Kriterien dafür, daß das || es geschieht, nicht leicht aufzuzählen sind. (Es ist wie ‘zu
+lesen versuchen’.)
+
+
+		
+ 	 			 	
+     Wie ist es mit dem Satz “p ⊃ p ist eine Tautologie”? Er ist etwa vergleichbar mit: “318 ist durch 3 teilbar”.
+
+
+		
+ 	 			 	
+     Man könnte sich die Logik mit solchen Sätzen betrieben denken. Und dann natürlich, ebensogut || ebenso auch mit Sätzen der Art “p ∙ ~p ist eine Kontradiktion”. Und daher auch einfach mit Kontradiktionen wie bisher mit Tautologien. Daß ich in einer Beschreibung, oder einem Befehl Widersprüche nicht dulde, daraus folgt nicht, daß ich sie in der Logik nicht brauchen kann.
+
+
+Die Reaktion auf ‘p ⊃ p’ ist: ‘Nun gut, – was weiter!’. Eine Art Bejahung, wie die einer gänzlich unverbindlichen Äußerung.
+
+
+		
+ 	 			 	
+Denke Dir einen Satz || Sätze, wie 25 × 25 = 625, immer || gewohnheitsmäßig so hingeschrieben || geschrieben: 25 × 25 ‒ 625 = 0, & am Ende || endlich das ‘ = 0’ weggelassen, so daß einfach (die) Sätze der Arithmetik die Form arithmetischer Ausdrücke annehmen, die gleich 0 sind, – obwohl das || dies nicht gesagt ist || wird. Wäre diese Situation nicht ähnlich der in unsrer Logik, die aus Tautologien besteht?
+
+
+		
+ 	 			 	
+21.10.
+     Die Konstruktion einer (neuen) Schlußregel kann man als Einführung eines neuen Sprachspiels deuten. Ich denke mir eines, in welchem etwa eine Person ‘p ⊃ q’ aussagt, eine andere ‘p’, & eine dritte den Schluß ‘q’ zieht. || Die Einführung einer neuen Schlußregel kann man als Übergang zu einem neuen Sprachspiel auffassen. Ich stelle mir eines vor, in welchem etwa eine Person ‘p ⊃ q’ aussagt, eine andere ‘p’, & eine dritte den Schluß zieht.”
+
+
+		
+ 	 			 	
+22.10.
+     Es handelt sich um die Beobachtung einer Fläche
+r	b	w	g	s	o
+die in Stücke von verschiedener
+Farbe geteilt ist. Die Farben aller Stücke ändern sich zu gleicher Zeit immer nach einer Minute. Jeder beobachtet einen Aspekt der ihn aus bestimmten Gründen angeht.
+Jetzt sind die Farben
+      r, g, b, w, s, o.
+Es wird beobachtet, daß immer || jedesmal
+      r ∙ b ⊃ w . ⊃ . s.
+Es wird auch beobachtet
+     ~g ⊃ ~ s.
+Und Einer zieht den Schluß
+     ~g ⊃ r ∙ b ∙ ~ w.
+
+
+		
+ 	 			 	
+Sind das echte Beobachtungen, so müssen sie einander widersprechen können.
+These implications, by the way, are really ‘material’ implications.
+
+
+		
+ 	 			 	
+     Inwiefern hängt der Schluß von der Erfahrung ab?
+
+
+		
+ 	 			 	
+Einer beobachtet eine zweigeteilte Fläche & ruft aus “rot & blau”; ein Anderer macht
+von der Beobachtung Gebrauch & sagt: “Also rot”. Er zieht aus ‘p ∙ q’ den Schluß ‘p’.
+     Oder ihn interessiert es, ob die Flächen rot oder gelb zeigen, & er sagt: “Also: rot oder gelb”. Er hat von ‘p ∙ p’ auf ‘p ⌵ r’ geschlossen.
+
+
+		
+ 	 			 	
+     Ja, man kann sich ein Sprachspiel denken, in dem || welchem der Eine immer den für seine Tätigkeit || Funktion relevanten Schluß aus der Angabe des Andern zu ziehen hat, || – etwa einen Schluß von ‘p ∙ q ∙ r’ auf ‘q’ – & daß er in dieser Tätigkeit manchmal || auch aus dieser || einer
+Angabe ‘p’ den Schluß zieht: “also ‘p’”, daß er also nach der Formel ‘p ⊃ p’ schließt.
+
+
+		
+ 	 			 	
+23.10.
+‘So machen wir's’, dieser || . Dieser Regel folgen wir; & wenn dabei etwas schief geht, so schieben wir's nicht der Regel in die Schuhe.
+
+
+		
+ 	 			 	
+     Einer beobachtet eine Fläche, die || welche in Quadranten geteilt ist. Er ruft aus: “Ganz weiß”. Ein Arbeiter, den die Farbe des Quadranten No. 4 angeht, sagt: “Also No. 4 weiß”.
+     Wenn nun in dem Arbeitsprozeß irgend etwas schief geht, so wird niemand sagen: aus
+‘(x).f(x)’ habe hier nicht ‘f(a)’ gefolgt.
+
+
+		
+ 	 			 	
+     Wie aber, wenn wir Leute aus dem allgemeinen Satz auch entgegengesetzt schließen sähen?
+
+
+		
+ 	 			 	
+     Denke Dir Einen, der ein Patent auf eine Regel nimmt um Regeln zu erzeugen nach denen Reihen von Kardinalzahlen erzeugt werden können (etwa zum Zweck von Numerierungen). Er sagt er habe eine Regel gefunden nach der alle möglichen endlosen Reihen erzeugt werden können & kein Konkurrent
+könne eine Regel bilden die nicht in der seinen enthalten wäre. Und nun zeigt ihm Cantor, daß das nicht möglich ist. Dieser Beweis ändert unzweifelhaft seinen Begriff von der endlosen Zahlenfolge.
+     Vorher hatte er etwa geglaubt, da er sich so große Mühe gegeben habe alle Regeln in sein System einzuschließen, so könne er keine ausgelassen haben. Nun denkt er ganz anders über die Sache.
+     Wie Einer, der nicht wußte, daß die Konstruktion einer Winkelteilung unmöglich sein könne. Er sieht es nun ganz anders
+an.
+
+
+		
+ 	 			 	
+Wie, wenn man sagte: Wer die Folge 1 2 3 umgekehrt hat, lernt über sie, daß sie umgekehrt 3 2 1 ergibt? Und zwar ist, was er lernt, nicht eine Eigenschaft dieser Tintenstriche, sondern der Folge von Formen. Er lernt eine formale Eigenschaft von Formen. Der Satz, welcher diese formale Eigenschaft aussagt, wird durch die Erfahrung bewiesen, die ihm die Entstehung der einen Form, aus der andern in dieser || auf diese Weise, || , in dieser || , auf diese Weise, aus der andern zeigt.
+
+
+
+
+
+		
+ 	 			 	
+Hat nun, wer das lernt, zwei Eindrücke? Einen davon daß die Reihenfolge umgekehrt wird, den andern davon daß 3 2 1 entsteht? Und könnte er die Erfahrung, den Eindruck, daß 1 2 3 umgekehrt wird nicht haben und doch nicht den daß 3 2 1 entsteht? Vielleicht wird man sagen: “nur durch eine seltsame Täuschung”. –
+
+
+		
+ 	 			 	
+Warum man eigentlich nicht sagen kann, daß man jenen formalen Satz aus der Erfahrung lernt – weil man es nur || erst dann
+diese Erfahrung nennt, wenn dieser Prozeß zu diesem Resultat führt. Die Erfahrung, die man meint, besteht schon aus diesem Prozeß mit diesem Resultat.
+
+
+		
+ 	 			 	
+Darum ist sie mehr wie die Erfahrung: ein Bild zu sehen.
+
+
+		
+ 	 			 	
+Kann eine Buchstabenreihe zwei Umkehrungen haben?
+     Etwa eine akustische & eine andere optische Umkehrung. Angenommen ich erkläre jemandem was die Umkehrung eines Wortes auf dem Papier ist, was man so nennt. Und nun
+stellt sich heraus daß er eine akustische Umkehrung des Wortes hat, d.h., etwas was er so nennen möchte was aber nicht ganz mit der geschriebenen Buchstabenreihe übereinstimmt. So daß man sagen kann: er hört das als Umkehrung des Wortes. Gleichsam als verzerrte sich ihm das Wort beim Umkehren. Und dies könnte etwa eintreten wenn er das Wort & die Umkehrung schnell || fließend ausspricht im Gegensatz zu dem || zum Fall in welchem || wenn er es buchstabiert. Oder die Umkehrung könnte anders scheinen, wenn er das
+Wort in einem Zuge vor- & rückwärts spricht.
+
+
+		
+ 	 			 	
+     Es wäre möglich, daß man das genaue Spiegelbild eines Profils sogleich nach diesem gesehen nie für das gleiche & nur verkehrte in anderer Richtung sehende || in die andere Richtung gedrehte erklärte, sondern daß, um den Eindruck der genauen Umkehrung zu machen, das Profil in den Maßen etwas || ein wenig geändert werden müßte.
+
+
+		
+ 	 			 	
+
+
+
+
+
+
+		
+ 	 			 	
+     Ich will doch sagen, man könne nicht || habe kein Recht zu sagen: wir mögen zwar über die korrekte Umkehrung, eines langen Wortes z.B., im Zweifel sein, aber wir wissen, daß das Wort nur eine Umkehrung hat.
+
+
+		
+ 	 			 	
+     ‘Ja, aber wenn es eine Umkehrung in diesem Sinne sein soll, dann kann es nur eine geben!’
+     Heißt hier ‘in diesem Sinne’: nach diesen Regeln, oder: mit dieser Physiognomie. Im ersten Falle wäre der Satz tautologisch, im zweiten muß er nicht wahr sein.
+
+
+
+
+
+		
+ 	 			 	
+24.10.
+     “Notwendige Wahrheit”
+      “necessary proposition” –
+ein schlechter Ausdruck suggeriert eine feste starre Verbindung gewisser Gegenstände, wie Formen oder Zahlen in der Natur || . Läßt uns an eine starre Verbindung gewisser Gegenstände¤ (Formen, Zahlen, etc.) in der Natur denken; eine Art Naturwissenschaft dieser Fakten. D.h., wir bilden eine Art Superlativ der Starrheit einer Verbindung, wozu als Vorbild unsere Mechanismen dienen.
+
+
+		
+ 	 			 	
+     Ein Satz der Wahrscheinlichkeitsrechnung kann einen Begriff der Wahrscheinlichkeit des Eintreffens von Ereignissen bestimmen oder aber auch einen Begriff der Geometrie. || geometrischen Begriff. Gibt es ¤ nun nicht eine reine
+Mathematik die bloß die Form aller solcher Anwendungen wäre, aber keine von ihnen andeutete?
+     Als solch eine reine Mathematik scheint sich uns ein || das Zeichenspiel anzubieten das allen solchen Deutungen gemeinsam ist.
+
+
+		
+ 	 			 	
+     Und wozu nun dies Zeichenspiel mit Axiomen || in den Formen der Axiomatik spielen & nicht gleich so, wie es sich für gewöhnlich mit einer Deutung darstellt, || – nur mit bedeutungslosen Zeichen gespielt? || Und wozu nun dies Spiel in den steifen
+25.10.
+Formen der Axiomatik || axiomatischen Formen spielen statt gleich so wie es sich uns darstellt wenn es eine Deutung hat – nur eben mit bedeutungslosen Zeichengespielt. || .
+
+
+		
+ 	 			 	
+     Denke Dir also Menschen, welche addierten, multiplizierten, dividierten, wie wir, nur ohne jeden nützlichen Zweck; etwa: weil es ihnen Spaß zu machen scheint. || als eine harmlose Unterhaltungwie es scheint. || . Die Jungen lernen es von den Alten durch Zuschauen. Übrigens ist die Bemerkung “ohne jeden nützlichen Zweck” ganz irrelevant denn ◇◇◇ warum soll Unterhaltung kein nützlicher Zweck
+sein, & es ließen sich leicht ganz andere nützliche Zwecke dieser Tätigkeit denken, die || welche doch nicht Anwendungen der Mathematik || mathematische Anwendungen wären. Aber von einer solchen Tätigkeit ließen sich leicht Abbildungen denken, die niemand für Mathematik erklären würde, sondern etwa für einen Tanz oder für das Ornamentieren einer Wandfläche || Wand || ◇◇◇.
+
+
+		
+ 	 			 	
+      Ein Traum:
+Mir träumte neulich: Ich steige auf einen Sessel & knie mit einem Knie auf einen Tisch. Der Tisch war eine Art flacher Schreibtisch,
+ich glaube aus Mahagoniholz & hat in der Mitte ein Loch, wie um eine Schreibmaschine aufzunehmen.
+In dem Loch liegen zwei Spachteln, eine stählerne & eine hölzerne, die sehr schön gearbeitet ist und eine aussieht wie ¤ ein großer Brieföffner. Ich knie gerade auf den beiden Spachteln & breche die stählerne & die hölzerne. Fürchte mich daß mein Vorgesetzter sich darüber ärgern wird.
+
+
+		
+ 	 			 	
+     Heute nacht träumte ich: Ich steige eine Treppe hinauf. Auf dem obersten Absatz sind || ist in einer Art Käfig ein Taubenpaar
+die einander sehr lieben. Das Weibchen mag mich nicht, sträubt die Federn & will auf mich los gehen so wie ich mich ihr nähere. Gedanke daß sie mir mit dem Schnabel in die Hand stoßen würde wenn ich die Hand hin hielte. – Dann: Die Frau (die Taube) ist gestorben und ihr Mann [(]nun ein Mann﹖1) zimmert ihr einen || den Sarg: mehrere flache Kisten wie um Bilder oder Schriften zu verwahren. Dann setzt er sich ermüdet, & wie um selbst zu sterben, nieder & seine Säge steckt vor ihm in einem
+Stück Holz, einem Kasten.
+     Entweder zwischen diesen beiden Szenen oder nach der zweiten (ich weiß es nicht mehr) eine andere: Francis & Drobil sind mit mir in einem Zimmer (einer Schenke?) & ich fange ein Argument mit einem Dritten an der mir etwas gesagt hat das ich richtig stellen will (ich weiß nicht mehr was). Während ich mit ihm spreche sind die beiden andern fort gegangen, wie ich mich umdrehe sind sie nicht mehr da. Ich gehe sie im Haus suchen, will erst ins obere dann ins untere Schlafzimmer
+gehen um sie zu suchen, weiß aber daß sie ohne mich ausgegangen sind wahrscheinlich zum Nachtmahl. Sie werden dann wohl wieder kommen. Bin sehr verstimmt darüber daß sie, & ohne auf mich zu warten, weggegangen sind & wache traurig auf. Das Haus in welchem ich in dieser Szene die beiden suche ist dasselbe in welchem ich in der ersten Szene die Treppe hinaufgestiegen bin & in welchem auch der Mann mit den flachen Kisten die Taube einsargt. Wenn er sich dann zum Sterben hinsetzt so ist es als säße er
+auf dem Deck im Hinterteil eines Schiffes.
+		
+ 	 			 	
+26.10.
+     Ist ein Schachproblem ein Problem der angewandten Mathematik? Vergleiche es mit einem Problem der theoretischen Mechanik.
+
+
+		
+ 	 			 	
+Wenn die Math. ein Spiel ist, so gibt es keinen Unterschied zwischen rein mathem. Axiomen & nicht rein mathematischen. Und man könnte ein Kapitel der mathem. Physik ebensogut als (ein) Spiel spielen, wie eins aus der Zahlentheorie.
+
+
+		
+ 	 			 	
+     Denke Dir solche Schlußketten:
+
+
+
+ dunkler als 
+
+     und
+ dunkler als 
+
+
+
+ dunkler als 
+daher: der Unterschied zwischen  &  größer als der zwischen  & .
+Dies ist ein schlechtes Beispiel.
+
+
+		
+ 	 			 	
+     Denke Dir die Fünfeckskonstruktion gezeichnet & über sie einen durchsichtigen Kegel gestellt & in ihm solche Flächen gezogen (dreidimensionale Konstruktion) daß jeder ebene Schnitt parallel zur Basis offenbar wieder so eine erfolgreiche Fünfeckskonstruktion ist || ergibt. Dies wäre eine Konstruktion || ein Beweis
+in einer anschaulichen Geometrie.
+
+
+		
+ 	 			 	
+     Die Augen & die Nase müssen nicht ‘irgendwie verwandt’ sein, um ein Gesicht zu ergeben.
+
+
+		
+ 	 			 	
+     Es ist natürlich klar, daß der Mathematiker, insofern er wirklich ‘ein Spiel spielt’ keine || nicht Schlüsse zieht. Denn ‘Spielen’ muß hier heißen: nach || in Übereinstimmung mit gewissen Regeln handeln. Und schon das wäre ein Heraustreten aus dem bloßen Spiel; wenn er den Schluß zöge, daß er hier der allgemeinen Regel gemäß so handeln dürfe.
+
+
+
+
+
+		
+ 	 			 	
+27.
+     Aber wie seltsam ist es, zu sagen, daß, wenn Einer die ganze Mathematik || mathem. Literatur als Spiel schriebe || hervorbrächte, daß es || dies dann nicht Mathematik wäre!
+     Es kann, willst Du sagen, doch nicht auf gedankliche (psychologische) Prozesse ankommen.
+(Und soweit ist es richtig.)
+
+
+		
+ 	 			 	
+     ‘Diese müssen unwesentlich sein. Gleichsam Abschweifungen vom Thema.’
+
+
+		
+ 	 			 	
+     Statt des obigen konventionellen & schlechten Beispiels wären farbengeometrische Beobachtungen am Farbenkreis zu setzen, die nicht mit
+dem, was man etwa erwarten möchte übereinstimmen || der gemeinen Erwartung übereinstimmen. (Was man etwa || Das also, was man farbgeometrische || farbengeometrische Paradoxe nennen könnte.)
+
+
+		
+ 	 			 	
+28.
+Rechnet die Rechenmaschine?
+
+
+		
+ 	 			 	
+     Denk Dir, eine Rechenmaschine wäre durch Zufall entstanden; & nun drückt Einer durch Zufall auf ihre Knöpfe (oder eine Maus || ein Tier läuft über sie) & sie rechnet das Produkt 25 × 20. –
+
+
+		
+ 	 			 	
+     Ich will sagen: Es ist der Mathematik wesentlich, daß ihre Zeichen auch im Zivil gebraucht werden.
+     Es ist der Gebrauch
+außerhalb der Mathematik, also die Bedeutung der Zeichen, was das Zeichenspiel zur Mathematik macht.
+
+
+		
+ 	 			 	
+     So wie es ja auch kein logischer Schluß ist, wenn ich von einem Gebilde (etwa Tonreihen) || ein Gebilde in ein anderes transformiere (eine Anordnung Stühle || von Stühlen etwa in eine andere) wenn diese Anordnungen nicht außerhalb dieser Transformation einen sprachlichen Gebrauch haben.
+
+
+		
+ 	 			 	
+     Aber ist nicht das wahr, daß Einer, der keine Ahnung von der Bedeutung der Russellschen Zeichen hätte, R's Beweise nachrechnen könnte? || der nichts von der Bedeutung der R'schen Zeichen wüßte, die R'schen Beweise nachrechnen könnte? Und
+also in einem wichtigen Sinne prüfen könnte ob sie richtig seien oder falsch?
+
+
+		
+ 	 			 	
+
+
+G
+
+
+
+
+1	2	3	S
+4	5	6	a
+7	8	9	b
+10	11	12	c
+13	14	15	W
+
+Wenn das Feld G gleichmäßig gelb ist || Das Feld G ist gleichmäßig gelb, S schwarz, W weiß, & a b c drei Töne von grau, die in gleichen Farbabständen von S zu W führen || leiten. Ebenso führen || leiten 1, 2, 3 von G nach S, 4, 5, 6 von G nach a u.s.w.. Dann wird man vielleicht sehen, daß die lotrechten Reihen 1, 4, 7, 10, 13 & 2, 5, 8, 11, 14 & 3, 6, 9, 12, 15 nicht gleichabständig sind. Dies || Und dies, oder das Entgegengesetzte, wäre eine farbengeometrische
+Tatsache.
+
+
+		
+ 	 			 	
+     Ich meine: es könnte sein, daß man keine Gleichabständigkeit der waagrechten & || & der senkrechten Reihen || Gleichabständigkeit der waagrechten & || & senkrechten Reihen nicht zugleich erreichen kann. || Es könnte also sein, daß man gleiche Abstände || Farbabstände in den waagrechten & in den senkrechten Reihen zugleich nicht erreichen kann.
+
+
+		
+ 	 			 	
+     Architektur ist eine Geste. Nicht jede zweckmäßige Bewegung des menschlichen Körpers ist eine Geste. Sowenig, wie jedes zweckmäßige Gebäude Architektur.
+
+
+		
+ 	 			 	
+29.
+     Man könnte eine menschliche
+Rechenmaschine so abrichten, daß sie, wenn ihr die Schlußregeln gezeigt & etwa an Beispielen vorgeführt wurden, die Beweise eines mathem. Systems (etwa des R'schen) durchliest & nach jedem richtig gezogenen Schluß mit dem Kopf nickt bei einem Fehler || bei einem Verstoß gegen die Regel aber den Kopf schüttelt, & zu rechnen aufhört. Dieses Wesen könnte man sich im übrigen vollkommen idiotisch vorstellen.
+
+
+		
+ 	 			 	
+     Einen Beweis nennen wir etwas, was sich nachrechnen, aber auch kopieren läßt.
+
+
+
+
+
+		
+ 	 			 	
+     Wenn die Math. ein Spiel ist, dann ist ein Spiel spielen Mathematik treiben, & warum dann nicht auch: Tanzen?
+
+
+		
+ 	 			 	
+     Man könnte sich den Fall denken, daß Einer seinem eignen Rechnen weniger traut, als dem einer Rechenmaschine.
+
+
+		
+ 	 			 	
+     Denke Dir, daß Rechenmaschinen in der Natur vorkämen || Naturprodukte wären, ihre Gehäuse aber für die Menschen undurchdringlich (wären). Und diese Menschen benützten nun diese Maschine || Vorrichtungen etwa wie wir das Rechnen, wovon sie aber
+gar nichts wissen. Sie machen also etwa Vorhersagen mit Hilfe der Rechenmaschinen, aber für sie ist das Benützen || Handhaben dieser seltsamen Gegenstände ein Experimentieren.
+
+
+		
+ 	 			 	
+30.
+     Diesen Leuten fehlen Begriffe, die wir haben; aber wodurch ersetzen sie diese? || ; aber wodurch sind die || diese bei ihnen ersetzt? –
+
+
+		
+ 	 			 	
+     Denke an den Mechanismus dessen Bewegung wir als geometrischen (kinematischen) Beweis ansahen: Das ist klar, das normalerweise von Einem || einem der das Rad umtreibt nicht
+gesagt würde, er beweist etwas.2
+     Ist es nicht ebenso mit dem, der zum Spiel Zeichen aneinander reiht & diese Reihen verändert; auch wenn, was er hervorbringt als Beweis angesehen werden könnte?
+
+
+		
+ 	 			 	
+     Zu sagen, die Math. sei ein Spiel, soll heißen: wir brauchen beim Beweisen nirgends an die Bedeutung der Zeichen appellieren, also an ihre außermathematische Anwendung. Aber was heißt es denn überhaupt, || : an diese appellieren? Wie kann so ein Appell etwas fruchten?
+
+
+
+     Heißt das, aus der Mathematik heraustreten & wieder in sie zurückkehren, oder heißt es aus einer math. Schlußweise in eine andre treten?
+
+
+		
+ 	 			 	
+     Was heißt es, einen neuen Begriff von der Oberfläche einer Kugel gewinnen? In wiefern ist das dann ein Begriff von der Oberfläche einer Kugel? Doch nur insofern er sich auf wirkliche Kugeln anwenden läßt.
+
+
+		
+ 	 			 	
+     Wieweit muß man einen Begriff vom ‘Satz’ haben, um die R'sche mathem. Logik zu verstehen?
+		
+ 	 			 	
+1.11.42.
+     Wenn die intendierte Anwendung der Math. wesentlich ist, wie steht es da mit Teilen der Mathematik, deren Anwendung , || – wenigstens die, was Mathematiker für eine Anwendung hielten – || wenigstens || oder doch das, was Mathematiker für eine || die Anwendung hielten || halten, – gänzlich phantastisch ist. So daß man, wie in der Mengenlehre, einen Zweig der Math. treibt, von dessen Anwendung man sich einen ganz falschen Begriff macht. Treibt man nun nicht doch Mathematik?
+
+
+		
+ 	 			 	
+2.11.
+     Wenn die arithmetischen Operationen lediglich zur Konstruktion einer Chiffre dienten wäre ihre Verwendung natürlich grundlegend von der unsern
+verschieden. Wären diese Operationen dann aber überhaupt mathematische Operationen?
+
+
+		
+ 	 			 	
+     Kann man von Dem, der eine Regel des Entzifferns anwendet, sagen, er vollziehe mathem. Operationen? Und doch lassen sich seine Transformationen || Umformungen so auffassen. Denn er könnte doch sagen, er berechne, was bei der Entzifferung des Zeichens … nach der und der Regel herauskommen müsse. || des Zeichens … gemäß dem & dem Schlüssel herauskommen müsse. Und der Satz, || : daß die Zeichen … dieser Regel gemäß entziffert … ergeben
+ist ein mathematischer. Sowie auch der Satz, || : daß man beim Schachspiel von dieser Konstellation || Stellung zu jener kommen kann.
+
+
+		
+ 	 			 	
+Denke Dir die Geometrie des vierdimensionalen Raums zu dem Zweck betrieben, die Lebensbedingungen der Geister kennen zu lernen. Ist sie darum nicht Mathematik? Und kann ich nun sagen sie bestimme Begriffe?
+
+
+		
+ 	 			 	
+     Wäre es nicht seltsam || Würde es nicht seltsam klingen von einem Kinde zu sagen, es könne bereits tausende & tausende von
+Multiplikationen machen – womit man (nämlich) meint || (nämlich) gemeint sein soll, es könne bereits im unbegrenzten Zahlenraum rechnen. Und doch || zwar könnte das noch als eine äußerst bescheidene Ausdrucksweise gelten, da er (ja) nur ‘tausende & tausende’ statt ‘unendlich viele’ sagt.
+
+
+		
+ 	 			 	
+     Könnte man sich Menschen denken, die im gewöhnlichen Leben etwa nur bis 1000 rechnen & die Rechnungen mit höheren Zahlen ¤ mathem. Untersuchungen über die Geisterwelt vorbehalten¤.3
+
+
+		
+ 	 			 	
+     ‘Jedes Ding ist sich selbst gleich’. Betrachte: “Jedes Ding ist sich selbst sehr ähnlich”!
+
+
+		
+ 	 			 	
+3.11.
+     Warum nun hat das ‘den Schein der Wahrheit’ & nicht einfach den der Unsinnigkeit?
+
+
+		
+ 	 			 	
+Nehmen wir an, die Bahnen zweier Körper kreuzten sich, so daß die beiden zu einer || in der Kreuzungsstelle zusammenfielen. Man könnte dann sagen: wo sie zusammenfallen sind sie einander gleich. Und das ist nicht notwendig der Fall: denke etwa an eine
+perspektivische Darstellung.
+
+
+		
+ 	 			 	
+     Wenn wir Einem || jemandem zugeständen, daß ‘a = a’ nichts sagt, ihn aber fragten ob er sich nicht dennoch || doch noch lieber mit einem der beiden Sätze
+     ‘a = a’
+     und ‘a ≠ a’, als mit dem andern einverstanden erklärte; so ist kein Zweifel, er würde sich für ‘a = a’ entscheiden.
+
+
+		
+ 	 			 	
+     Er würde sagen: “Ein Ding ist jedenfalls nicht ungleich mit sich selbst || sich selbst nicht ungleich”.
+
+
+		
+ 	 			 	
+     Zu sagen “ein Ding fällt mit sich selbst zusammen” ist eigentlich eine
+Bestimmung dessen, was man ‘ein Ding’ nennt.
+
+
+		
+ 	 			 	
+4.11.
+     Was für eine Art Satz ist eine Gleichung, wie
+     y = 3x² + 4? Es ist jedenfalls kein Satz || Jedenfalls keiner der reinen Mathematik, obwohl er nur aus ‘mathematischen’ Zeichen besteht. || zusammengesetzt ist.
+     Die Gleichung kann ein Satz der angewandten Math. sein. In der reinen Math. spielt sie die Rolle eines Satzteils || ist sie ein Satzteil (etwa des Satzes daß ihre Lösung für x = 1 y = 7 ist). (Und für “x = 1” gilt ähnliches.)
+
+
+		
+ 	 			 	
+     “Ob das nun von einer wirklichen Kugelfläche gilt – von der mathematischen
+gilt es” – das erweckt den Anschein, als unterschiede sich der mathem. Satz von einem Erfahrungssatz besonders || insbesondere darin, daß wo die Wahrheit des Erfahrungssatzes schwankend & ungefähr ist, der mathem. Satz sein Objekt exakt & unbedingt wahr beschreibt. Als wäre eben die ‘mathem. Kugel’ eine Kugel. Und man könnte sich etwa fragen ob es nur eine solche Kugel, oder ob es mehrere gebe (eine Fregesche Fragestellung).
+
+
+		
+ 	 			 	
+Tut ein Mißverständnis, die mögliche || denkbare Anwendung
+betreffend, der Rechnung als einem Teil der Mathematik Eintrag?
+
+
+		
+ 	 			 	
+     Und abgesehen von einem Mißverständnis, – wie ist es mit der bloßen Unklarheit?
+
+
+		
+ 	 			 	
+     Wer glaubt, die Mathematiker haben ein seltsames Wesen, die √‒1, entdeckt, die || das quadriert nun doch ‒ 1 ergebe || ergäbe, kann der nicht doch ganz gut mit komplexen Zahlen rechnen & solche Rechnungen in der Physik anwenden? Und sind's darum weniger Rechnungen?
+     In einer Beziehung steht freilich sein Verständnis auf schwachen Füßen; aber
+¤ er wird mit völliger Sicherheit seine Schlüsse ziehen, & sein, Kalkül wird auf festen Füßen stehen.
+
+
+		
+ 	 			 	
+Wäre es nun nicht lächerlich, zu sagen, dieser triebe nicht Mathematik?
+
+
+		
+ 	 			 	
+     Es erweitert Einer die Math., gibt neue Definitionen & findet neue Lehrsätze – – & in gewisser Beziehung kann man sagen, er wisse nicht, was er tut. – Er hat eine vage Vorstellung, etwas entdeckt zu haben wie einen Raum (wobei er an ein || sein Zimmer
+denkt), ein Reich erschlossen zu haben, & würde, darüber gefragt, viel Unsinn reden.
+
+
+		
+ 	 			 	
+     Denken wir uns den primitiven Fall, daß Einer zu seinem Vergnügen ungeheure Multiplikationen ausführte um wie er sagt: dadurch neue riesige Provinzen des Zahlenreichs zu gewinnen.
+
+
+		
+ 	 			 	
+     Denk Dir das Rechnen mit der √‒1 wäre von einem Narren erfunden worden, der bloß vom Paradoxen der Idee angezogen die Rechnung als eine Art Gottesdienst || Gottes- oder Tempeldienst des Absurden treibt. Er bildet sich ein
+das Unmögliche || schlechthin Unmögliche aufzuschreiben & mit ihm zu operieren.
+
+
+		
+ 	 			 	
+     Mit andern Worten: Wer an die mathematischen Gegenstände glaubt & ihre seltsamen Eigenschaften, – kann der nicht doch Mathematik betreiben? Oder: – treibt der nicht auch Mathematik?
+
+
+		
+ 	 			 	
+5.11.
+     ‘Idealer Gegenstand’. “Das Zeichen ‘a’ bezeichnet einen idealen Gegenstand” soll offenbar etwas über die Bedeutung, also den Gebrauch von ‘a’ aussagen. Und es heißt natürlich, daß dieser Gebrauch in gewisser Beziehung ähnlich ist dem eines
+Zeichens, dem ein Gegenstand entspricht || den ein Gegenstand bezeichnet || das einen Gegenstand hat, & daß ◇◇◇ || es (aber) keinen Gegenstand bezeichnet. Es ist aber interessant, was der Ausdruck || das Wort ‘idealer Gegenstand’ aus diesem || dem Faktum macht.
+
+
+		
+ 	 			 	
+     Man könnte sich so ausdrücken: “Der Name ‘Regan’ im Lear bezeichnet eine ideale Person”.
+
+
+		
+ 	 			 	
+     Man könnte unter Umständen von einer endlosen Kugelreihe reden. – Denken wir uns eine solche gerade endlose Kugelreihe || Reihe von Kugeln in gleichen Abständen & wir berechnen die Kraft, die alle diese Kugeln
+nach einem bestimmten Attraktionsgesetz auf einen bestimmten Körper ausüben. Die Zahl, die diese Rechnung liefert, betrachten wir als das Ideal der Genauigkeit für gewisse Messungen.
+
+
+		
+ 	 			 	
+     Das Gefühl des Seltsamen kommt hier von einem Mißverständnis. Der Art von Mißverständnis, die ein Daumenfangen des Verstandes erzeugt, dem || –. – Dem ich Einhalt gebieten will.
+
+
+		
+ 	 			 	
+     Der Einwand, daß ‘das Endliche nicht das Unendliche erfassen kann’ richtet sich eigentlich gegen die Idee eines
+psychologischen Akts des Erfassens oder Verstehens.
+
+
+		
+ 	 			 	
+     Oder denke Dir, wir sagen einfach: “Diese Kraft entspricht der Anziehung einer endlosen Kugelreihe die so & so angeordnet sind & den Körper nach diesem Attraktionsgesetz anziehen”.
+     Oder wieder: “Berechne die Kraft die eine endlose Kugelreihe, von der & der Beschaffenheit, auf einen Körper ausübt!” – Dieser Befehl hat doch gewiß Sinn. Eine bestimmte Rechnung ist beschrieben.
+
+
+
+
+
+		
+ 	 			 	
+     Wie wäre es mit dieser Aufgabe: “Berechne das Gewicht einer Säule von sovielen aufeinander geschichteten || liegenden Platten, als es Kardinalzahlen gibt; die unterste Platte wiegt 1 kg jede höhere immer die Hälfte der vorhergehenden.”
+
+
+		
+ 	 			 	
+     Die Schwierigkeit ist nicht die, daß wir uns keine Vorstellung machen können. Es ist leicht genug sich irgend eine || welche Vorstellung einer unendlichen Reihe, oder || von dergl. || z.B., zu machen. Es fragt sich: was nützt uns die Vorstellung.
+
+
+		
+ 	 			 	
+     Denke Dir unendliche Zahlen in: einem Märchen
+gebraucht. Die Zwerge haben soviele Goldstücke aufeinander gelegt || getürmt, als es Kardinalzahlen gibt, || – etc. Was in einem Märchen vorkommen kann, muß doch Sinn haben. –
+
+
+		
+ 	 			 	
+     Denke Dir die Mengenlehre wäre als eine Art Parodie der || auf die Mathematik von einem Satiriker erfunden worden. – Später hätte man dann einen Nutzen || einen vernünftigen Sinn in ihr gesehen & sie zur Mathematik gerechnet || in die Mathematik einbezogen. (Denn wenn der eine sie als das Paradies der Mathematiker ansehen kann, warum nicht ein andrer als einen Scherz || Witz?)
+
+
+		
+ 	 			 	
+     Die Frage ist: ist sie nun
+als Scherz nicht auch offenbar Mathematik? –
+
+
+		
+ 	 			 	
+     Und warum ist sie offenbar Mathematik? – Weil sie ein Zeichenspiel nach Regeln ist?
+
+
+		
+ 	 			 	
+     Werden hier nicht doch offenbar Begriffe gebildet – auch wenn man sich über deren Anwendung nicht im Klaren ist?
+     Aber wie kann man einen Begriff haben & sich über seine Anwendung nicht im Klaren sein? || nicht klar sein?
+
+
+		
+ 	 			 	
+6.11.
+Nimm die Konstruktion des Kräfteparallelogramms || Kräftepolygons: ist das nicht ein Stück
+angewandter || angewandte Mathematik? & wo ist der Satz der reinen Mathematik der bei dieser graphischen Berechnung zu Hilfe genommen wird?
+     Ist dies nicht ein Fall wie der des Stammes, welcher eine rechnerische Technik zum Zweck gewisser Vorhersagungen hat, aber keine Sätze der reinen Mathematik?
+
+
+		
+ 	 			 	
+     Die Rechnung die zur Ausführung einer Zeremonie dient. Es werde z.B. nach einer bestimmten Technik aus dem Alter des Vaters & der Mutter & der Anzahl ihrer Kinder die Anzahl der Worte einer Segensformel abgeleitet die auf das Haus der Familie anzuwenden
+ist. In einem Gesetz wie dem Mosaischen könnte man sich Rechenvorgänge beschrieben denken || solche Rechenvorschriften niedergelegt denken. Und könnte man sich nicht denken, daß das Volk das diese || sie || diese zeremoniellen Rechenvorschriften besitzt im praktischen Leben nie rechnet?
+
+
+		
+ 	 			 	
+     Dies wäre zwar ein angewandtes Rechnen, aber es würde nicht dem Zweck einer || der Vorhersage dienen.
+
+
+		
+ 	 			 	
+7.11.
+     Wäre es ein Wunder wenn die Technik des Rechnens eine Familie von Anwendungen hätte?!
+
+
+		
+ 	 			 	
+8.11.
+     Wie seltsam die Frage
+ist ob in der unendlichen Entwicklung von π die Figur φ(eine gewisse Anordnung von Ziffern, z.B. ‘770’) vorkommen wird, sieht man erst wenn man die Frage in einer ganz hausbackenen Weise zu stellen versucht: Menschen sind darauf abgerichtet worden nach einer Regel || gewissen Regeln Zeichen zu setzen. Sie verfahren nun dieser Abrichtung gemäß & wir fragen || sagen es sei ein Problem, ob sie der gegebenen Regel folgend jemals diese || die Figur φ anschreiben werden.
+
+
+
+
+
+		
+ 	 			 	
+     Was aber sagt der, der || welcher, wie Weyl, sagt, eines sei klar: man werde oder werde nicht, in der endlosen Entwicklung auf φ kommen?
+
+
+		
+ 	 			 	
+     Mir scheint, wer dies sagt, stellt schon selbst eine Regel, oder ein Postulat auf.
+
+
+		
+ 	 			 	
+     Wie, wenn man auf eine Frage hin erwiderte: ‘Auf diese Frage gibt es bis jetzt noch keine Antwort’?
+
+
+		
+ 	 			 	
+So könnte etwa der Dichter antworten der gefragt wird ob der Held seiner Dichtung
+eine Schwester hat oder nicht – wenn er nämlich noch nichts darüber entschieden hat.
+
+
+		
+ 	 			 	
+     Die Frage – will ich sagen – verändert ihren Status, wenn sie entscheidbar wird. Denn ein Zusammenhang wird dann gemacht, der früher nicht da war.
+
+
+		
+ 	 			 	
+     Man kann von dem Abgerichteten fragen: ‘wie wird er die Regel ◇◇◇ || für diesen Fall deuten?’, oder auch ‘wie soll er die Regeln für diesen Fall deuten’. Wie aber, wenn über diese Frage keine Entscheidung getroffen wurde? – Nun, dann
+ist die Antwort nicht: ‘er soll sie so deuten, daß φ in der Entwicklung vorkommt’ oder: ‘er soll sie so deuten daß es nicht vorkommt’, sondern: ‘darüber ist noch nichts entschieden’.
+
+
+		
+ 	 			 	
+     Wir mathematisieren mit den Begriffen. – Und mit gewissen Begriffen mehr als mit andern.
+
+
+		
+ 	 			 	
+10.11.
+     Ich will sagen: Es scheint, als ob ein Entscheidungsgrund bereits vorläge; & er muß erst erfunden werden.
+
+
+
+
+
+		
+ 	 			 	
+Käme das darauf hinaus, zu sagen: Man benutzt beim Reden || Denken über die gelernte Technik des Entwickelns das falsche Bild einer vollendeten Entwicklung (dessen, was man für gewöhnlich ‘Reihe’ nennt) & wird dadurch gezwungen unbeantwortbare Fragen zu stellen.
+
+
+		
+ 	 			 	
+     Denn schließlich müßte sich doch jede Frage über die Entwicklung von √2 auf eine praktische Frage, die Technik des Entwickelns betreffend, bringen lassen || von √2 in Form einer praktischen Frage die Technik des Entwickelns betreffend, stellen lassen || von √2 als praktische
+Frage, die Technik des Entwickelns betreffend, stellen lassen.
+
+
+		
+ 	 			 	
+     Und es handelt sich hier natürlich nicht nur um den Fall der Entwicklung einer reellen Zahl oder überhaupt um ein mathematisches Zeichenspiel || die Erzeugung mathematischer Zeichen, sondern um jeden analogen Vorgang, er sei ein Spiel, oder ein Tanz, etc. etc.
+
+
+		
+ 	 			 	
+     Wenn Einer den Satz vom ausgeschlossenen Dritten als fundamentale || größte Wahrheit uns || uns als fundamentale || größte Wahrheit vorhält, so ist klar, daß mit seiner Frage etwas nicht in Ordnung war || ist. || uns
+als größte Wahrheit vorhält, der man nicht entgehen könne || kann, – so ist klar, daß mit seiner Frage etwas nicht in Ordnung ist. || Wenn Einer uns den Satz vom ausgeschlossenen Dritten einhämmert, dem nicht zu entgehen sei, – so ist klar daß mit seiner Frage etwas nicht in Ordnung ist.
+
+
+		
+ 	 			 	
+     Wenn einer den Satz vom ausgeschlossenen Dritten aufstellt so legt er uns gleichsam zwei Bilder zur Auswahl vor & sagt eins müsse der Tatsache entsprechen. Wie aber, wenn es fraglich ist, ob sich die Bilder hier anwenden lassen?
+
+
+		
+ 	 			 	
+     Und wer von der endlosen Entwicklung sagt sie müsse entweder die Figur φ enthalten oder sie nicht enthalten zeigt uns sozusagen
+das Bild einer in die Ferne verlaufenden unübersehbaren Reihe.
+
+
+		
+ 	 			 	
+     Wie aber, wenn das Bild in weiter Ferne zu flimmern anfinge?
+
+
+		
+ 	 			 	
+     Von einer unendlichen Reihe zu sagen, sie enthielte eine bestimmte Figur nicht, hat nur unter ganz gewissen || speziellen Bedingungen Sinn.
+
+
+		
+ 	 			 	
+11.11.
+     D.h., || : man hat diesem Satz nur für gewisse Fälle Sinn gegeben.
+
+
+		
+ 	 			 	
+Ungefähr den: Es ist im Gesetz dieser Reihe, keine Figur … zu enthalten.
+
+Ferner, man könnte sagen: Wie … Ferner: (So) wie ich die Entwicklung weiterrechne, errechne ich etwas neues über das Gesetz der Reihe. || errechne ich neue Gesetze, denen die Reihe folgt. || weiterrechne, leite ich neue Gesetze ab, denen die Reihe folgt.
+
+
+		
+ 	 			 	
+     “Nun gut, – so können wir sagen: ‘Es muß entweder im Gesetz der Reihe liegen, daß die Figur in der Entwicklung vorkommt, oder das Gegenteil’.” || , oder daß sie nicht vorkommt’.” Aber ist das so? – “Nun, determiniert das Entwicklungsgesetz die Reihe denn nicht vollkommen?
+Und wenn es das tut, keine Zweideutigkeiten läßt, dann muß es, implizite, alle Eigenschaften der Reihe bestimmen.” || mitbestimmen.” || es implizite alle Fragen die Struktur der Reihe betreffend entscheiden.” – Du denkst da an die endlichen Reihen.
+
+
+		
+ 	 			 	
+‘Aber es sind doch alle Glieder der Reihe bestimmt vom 1sten bis zum 1000sten, bis zum 10¹⁰-ten, etc. etc. || u.s.f. || vom 1sten bis zum 1000sten, bis zum 10¹⁰-ten, etc. etc. || u.s.f., bestimmt; also sind doch alle Glieder bestimmt.’ Das ist richtig, wenn es heißen soll es sei nicht
+(etwa) das so-&-so-vielte nicht bestimmt. Aber Du siehst ja, daß das Dir keinen Aufschluß darüber gibt, ob die || eine Figur … (je) in der Reihe erscheinen wird (wenn sie so weit nicht schon erschienen ist). Wir sehen also, daß wir ein irreführendes Bild gebrauchen.
+
+
+		
+ 	 			 	
+     Willst Du mehr über die Reihe wissen, so mußt Du, so zu sagen, in eine andere Dimension (gleichsam wie aus der Linie in die Ebene || in eine sie umgebende Ebene) gehen. – Aber ist denn ◇◇◇ nicht die Ebene da, wie die Linie, || die Ebene nicht eben da, so wie die Linie, & nur zu erforschen, wenn man wissen will, wie es sich verhält?
+
+
+
+		
+ 	 			 	
+     Nein, die Mathematik dieser weiteren || weitern Dimension muß so gut erfunden werden, wie jede Mathematik.
+
+
+		
+ 	 			 	
+     In einer Arithmetik, in der man nicht weiter als 5 zählt, hat die Frage, wieviel 4 + 3 ist noch keinen Sinn. Wohl aber kann das Problem || die Aufgabe existieren, dieser Frage (einen) Sinn zu geben. D.h.: die Frage hat so wenig Sinn, wie der Satz vom ausgeschlossenen Dritten, auf sie angewendet.
+
+
+		
+ 	 			 	
+     Man meint in dem Satz vom ausgeschlossenen Dritten schon etwas
+Festes zu haben, was jedenfalls nicht in Zweifel zu ziehen ist. Während in Wahrheit der Sinn dieser Tautologie (wenn man so sagen darf) ebenso schwankend ist wie der der Frage, ob p oder ~p der Fall ist. || Während in Wahrheit diese Tautologie einen ebenso schwankenden Sinn (wenn ich so sagen darf) hat, wie die Frage ob p oder ~p der Fall ist. || wie die Frage, ob die eine, oder die andere Alternative wahr ist.
+
+
+		
+ 	 			 	
+12.11.
+Denke, ich fragte, || : Was meint man damit “die Figur … kommt in dieser
+Entwicklung vor?”. So wird man antworten: “Du weißt doch was das heißt– sie || . Sie kommt vor, wie z.B. die Figur … in jeder || der Entwicklung … tatsächlich vorkommt.” – Wohl; – aber wie kann ich diese Analogie nun gebrauchen || anwenden? Denn ich verstehe wohl, wenn man mir nun sagt: “Kommt die Figur 159 in den ersten 100 Stellen von √2 vor; wie sie in den ersten 10 Stellen von π vorkommt?” || Sie kommt vor, wie die Figur … in der Entwicklung tatsächlich vorkommt” – Also so kommt sie vor? – Aber wie ist das?
+     Denke Dir, man sagte: “Entweder sie kommt
+so vor, oder sie kommt nicht so vor”!
+
+
+		
+ 	 			 	
+‘Aber verstehst Du denn wirklich nicht, was gemeint ist?!’ – Aber kann ich nicht glauben, ich verstehe es & mich irren? –
+
+
+		
+ 	 			 	
+     Wie weiß ich denn, was es heißt: die Figur … komme in der Entwicklung vor? Doch durch Beispiele – die mir zeigen, wie das ist, wenn … Diese Beispiele zeigen mir aber nicht, wie es ist, wenn die Figur in der Entwicklung nicht vorkommt!
+
+
+		
+ 	 			 	
+Könnte man nicht sagen: wenn ich wirklich ein
+Recht hätte zu sagen, diese Beispiele lehren mich, wie es ist wenn die Figur in der Entwicklung vorkommt, so müßten sie mir auch zeigen, was das Gegenteil des Satzes bedeutet.
+
+
+		
+ 	 			 	
+     Der allgemeine Satz die Figur kommt in der Entwicklung nicht vor kann nur ein Gebot sein.
+
+
+		
+ 	 			 	
+     Wie wenn man die math. Sätze als Gebote ansieht & sie auch als solche ausspricht? “25² gebe 625!”
+     Nun, – || –, || – || , ein Gebot hat eine innere & eine äußere Verneinung.
+
+
+
+		
+ 	 			 	
+     Die Symbole “(x).φx” & “(∃x).φx” sind wohl nützlich in der Math., wenn man im übrigen die Technik der Beweise || des Beweises der Existenz oder nicht Existenz || Nicht-Existenz kennt auf den sich die Russellschen Zeichen hier beziehen. Wird dies aber offen gelassen so sind diese Begriffe der alten Logik äußerst irreführend.
+
+
+		
+ 	 			 	
+     Wenn Einer sagt: “aber Du weißt doch was ‘die Figur kommt in der Entwicklung vor’ bedeutet, nämlich das” – & zeigt auf einen Fall des Vorkommens, – so kann
+ich nur erwidern, daß was er mir zeigt verschiedene Fakten illustrieren kann. Man kann daher nicht sagen ich wisse was der Satz heißt, weil ich weiß, daß er ihn in diesem Fall gewiß anwenden wird.
+
+
+		
+ 	 			 	
+Das Gegenteil von “es besteht ein Gesetz, daß p” ist nicht: “es besteht ein Gesetz, daß ~p”. Drückt man aber das erste durch P, das zweite || andre durch ~P aus, so wird man in Schwierigkeiten geraten.
+		
+ 	 			 	
+13.11.
+Wie, wenn den Kindern beigebracht wird, die
+Welt || Erde sei eine unendliche Ebene; oder Gott habe eine unendliche Reihe von Sternen geschaffen; oder ein Stern fliege in einer geraden Linie gleichförmig immer weiter & weiter ohne je aufzuhören.
+     Seltsam: wenn man so etwas als selbstverständlich, gleichsam ganz ruhig, aufnimmt, so verliert es alles Paradoxe. Es ist als sagte uns || mir jemand: Beruhige Dich, diese Reihe, oder Bewegung, läuft fort & fort ohne je aufzuhören. Wir sind sozusagen der Mühe überhaben (je) an ein Ende zu denken.
+
+
+
+		
+ 	 			 	
+     ‘Wir werden ein Ende nicht in Betracht ziehen’. (We won't bother about an end.)
+
+
+		
+ 	 			 	
+     Man könnte auch sagen: ‘für uns ist die Reihe endlos’.
+
+
+		
+ 	 			 	
+     ‘Wir werden uns um ein Ende der Reihe nicht bekümmern; für uns ist es immer unabsehbar.’
+
+
+		
+ 	 			 	
+14.11.
+     Nicht ‘abzählbar’ sollte es heißen – von den rationalen Zahlen etwa – sondern ‘abzählfähig’. Man kann die rationalen Zahlen nicht
+abzählen, weil man sie nicht zählen kann, || – aber man kann mittels der rationalen Zahlen zählen, || – so, || so nämlich, wie mit den Kardinalzahlen. Die schiefe || schielende Ausdrucksweise gehört mit zu dem ganzen System der Vorspiegelung, || : daß wir mit dem neuen Apparat die unendlichen Mengen mit der selben || gleichen Sicherheit behandeln, wie bis dahin nur die endlichen.
+
+
+		
+ 	 			 	
+15.11.
+     Aber wo ist hier das Problem? Warum soll ich nicht sagen, || ; || , was wir Mathematik nennen sei eine Familie von Tätigkeiten zu einer Familie von Zwecken.
+
+     Die Menschen könnten z.B. Rechnungen zu einer Art || zum Zweck einer Art von Wettrennen gebrauchen. Wie Kinder ja wirklich manchmal um die Wette rechnen; nur daß diese Verwendung bei uns keine große || eine ganz untergeordnete Rolle spielt.
+
+
+		
+ 	 			 	
+     Oder das Multiplizieren könnte uns viel schwerer fallen, als es tut – wenn wir z.B. im Gedächtnis || nur mündlich rechneten, & um uns eine Multiplikation zu merken, sie also zu erfassen, wäre es nötig sie in die Form eines gereimten Gedichts zu bringen. Wäre
+dies dann einem Menschen gelungen, so hätte er das Gefühl, eine große, wunderbare Wahrheit gefunden zu haben.
+     Es wäre sozusagen für jede neue Multiplikation eine neue individuelle Arbeit nötig.
+
+
+		
+ 	 			 	
+     Wenn diese Leute nun glaubten, die Zahlen wären Geister & durch ihre Rechnungen erforschten sie das Geisterreich, oder zwängen die Geister, sich zu offenbaren – wäre dies nun Arithmetik? Oder – wäre es auch dann Arithmetik, wenn diese Menschen die Rechnungen
+zu nichts anderm gebrauchten?
+
+
+		
+ 	 			 	
+(Ich suche einen Abstieg.)
+
+
+		
+ 	 			 	
+Der Vergleich mit der Alchemie liegt nahe. Man könnte von einer Alchemie in der Mathematik reden.
+
+
+		
+ 	 			 	
+     ‘Man kennt sich nicht aus’ heißt nicht: man weiß nicht, wo man geht – sondern, man weiß nicht wohin diese Richtung führen wird & wohin jene andere führen wird. Ich meine: wer sich im Wald verloren hat, sieht allerdings || wohl den Fleck
+um ihn herum klar vor sich, aber die Geographie des Waldes kennt er doch nicht. || Waldes ist ihm doch unbekannt. || ,
+     D.h., er wird sich verloren fühlen, obwohl er seine Umgebung klar vor sich sieht.
+     So kennt man sich in den ‘Grundlagen’ der Math. nicht aus – nicht, weil man nicht weiß, was man tut; sondern weil die Geographie der großen Zusammenhänge uns unbekannt ist.
+
+
+		
+ 	 			 	
+     Charakterisiert schon das die mathem. Alchimie, daß || Macht schon das die mathematische Alchimie aus, daß || Ist schon das die mathematische Alchimie, daß die mathem. Sätze
+als Aussagen über mathem. Gegenstände betrachtet werden, – also die Math. als die Erforschung dieser Gegenstände?
+
+
+		
+ 	 			 	
+     In einem gewissen Sinn kann man in der Math. darum nicht an die Bedeutung der Zeichen appellieren, weil die Math. ihnen erst die Bedeutung gibt.
+
+
+		
+ 	 			 	
+     Es ist das Typische der Erscheinung von welcher ich rede, daß das Mysteriöse an irgend einem mathem. Begriff nicht sofort als Fehler || irrige Auffassung,
+als Fehlbegriff, gedeutet wird; sondern als etwas, was jedenfalls nicht zu verachten, vielleicht sogar eher zu respektieren ist.
+
+
+		
+ 	 			 	
+     Alles was ich machen || tun kann ist einen leichten Weg aus dieser Unklarheit & dem Glitzern der Begriffe zeigen.
+
+
+		
+ 	 			 	
+     Man kann seltsamerweise sagen, daß an allen diesen glänzenden Begriffsbildungen ein sozusagen solider Kern ist. Und ich möchte sagen, daß der es ist der sie zu mathem. Produkten macht.
+
+
+
+
+
+		
+ 	 			 	
+     Man könnte sagen: Was Du siehst schaut freilich mehr wie eine glänzende Lufterscheinung aus; aber sieh sie von einem andern Winkel || einer andern Seite an & Du siehst sie als (einen) || den soliden Körper, der nur von jener Richtung aus gesehen || von || aus jener Richtung gesehen glänzt || schimmert & unkörperlich aussieht. || der nur von || aus jener Richtung wie ein Glanz ohne körperliches Substrat aussieht. || der nur aus jener Richtung wie ein Glanz aussieht der zu keinem Körper gehört.
+
+
+		
+ 	 			 	
+      Ich fürchte sehr für die Gesundheit
+meiner Nerven. Sie sind sehr stark belastet.
+		
+ 	 			 	
+16.11.
+     Ich habe die Tiefe nicht einfach durch Weite ersetzt.
+
+
+		
+ 	 			 	
+‘Die Figur ist in der Reihe, oder sie ist nicht in der Reihe’ heißt: entweder schaut die Sache so aus oder sie schaut nicht so aus.
+
+
+		
+ 	 			 	
+     Wie weiß man, was das Gegenteil des Satzes “φ kommt in der Reihe vor”, oder auch des Satzes “φ kommt nicht in der Reihe vor” bedeutet? Diese Frage klingt unsinnig, hat aber doch einen
+Sinn.
+     Nämlich: wie weiß ich, daß ich den Satz, “φ kommt in der Reihe vor”, verstehe.
+     Es ist wahr, || : ich kann Beispiele geben für das Vorkommen & Nicht-Vorkommen. || geben für den Gebrauch solcher Aussagen, & auch der gegenteiligen. Und sie sind Beispiele dafür, daß es eine Regel gibt, die das Vorkommen in einer bestimmten Zone, oder einer Reihe von Zonen, vorschreibt, oder bestimmt daß dies || das Vorkommen ausgeschlossen ist.
+
+
+		
+ 	 			 	
+Wenn “Du tust es” heißt: Du mußt es tun, & “Du
+tust es nicht” heißt: Du darfst es nicht tun – dann ist “Du tust es, oder Du tust es nicht” nicht der Satz vom ausgeschlossenen Dritten.
+
+
+		
+ 	 			 	
+     Jeder fühlt sich ungemütlich bei der Idee || dem Gedanken, ein Satz sage aus || könne aussagen, in der endlosen Reihe komme das & das nicht vor. Dagegen || – dagegen hat es gar nichts Befremdliches daß ein Befehl aussagt || sage in dieser Reihe dürfe, soweit sie auch fortgesetzt werde, das nicht vorkommen.
+
+
+		
+ 	 			 	
+     Woher aber dieser Unterschied zwischen: “soweit
+Du auch gehst, wirst Du das nie finden” – & “soweit Du auch gehst darfst Du das nie tun”?
+
+
+		
+ 	 			 	
+     Auf jenen Satz kann man fragen: “wie kann man so etwas wissen”, aber nichts Analoges gilt vom zweiten || Befehl.
+
+
+		
+ 	 			 	
+     Die Aussage scheint sich zu übernehmen, der Befehl aber gar nicht.
+
+
+		
+ 	 			 	
+     Kann man sich denken, daß alle mathematischen Sätze im Imperativ ausgesprochen würden? Z.B.: “10 × 10 sei 100”.
+
+
+		
+ 	 			 	
+     Und wer nun sagt: “Es sei so, oder es sei nicht so”, der spricht nicht den Satz vom ausgeschlossen Dritten aus, – sondern || wohl aber eine Regel. (Wie ich es auch || schon weiter oben einmal gesagt habe.)
+
+
+		
+ 	 			 	
+17.11.
+     Aber ist das wirklich ein Ausweg aus der Schwierigkeit? Denn wie verhält es sich dann mit allen anderen mathem. Sätzen, sagen wir 25² = 625, gilt für diese nicht der Satz vom ausgeschlossenen Dritten innerhalb der Mathematik?
+
+
+		
+ 	 			 	
+Wie wendet man denn den Satz vom
+ausgeschlossenen Dritten an?
+
+
+		
+ 	 			 	
+18.11.
+     “Es gibt entweder eine Regel die es gebietet, oder eine, die es verbietet || verbietet, oder eine, die es gebietet”.
+
+
+		
+ 	 			 	
+Angenommen, es gibt keine Regel die das Vorkommen verbietet, – warum soll es dann eine geben, die es gebietet?
+
+
+		
+ 	 			 	
+Hat es Sinn zu sagen: “Es gibt zwar keine Regel die das Vorkommen verbietet, die Figur kommt aber tatsächlich doch nicht vor”? – Und wenn das nun keinen Sinn hat – || , wie kann das Gegenteil davon Sinn
+haben, nämlich, die Figur komme vor?
+
+
+		
+ 	 			 	
+     Nun, wenn ich sage, sie kommt vor, schwebt mir das Bild der Reihe vor, von ihrem Anfang bis zu der || jener Figur – wenn ich aber sage die Figur komme nicht vor, so nützt mir kein solches Bild der Reihe. || so nützt mir kein solches Bild, & die Bilder gehen mir aus.
+
+
+		
+ 	 			 	
+     Wie, wenn die Regel sich beim Gebrauch unmerklich biegen würde? Ich meine so, daß ich von verschiedenen Räumen sprechen
+könnte, in denen ich sie gebrauche.
+
+
+		
+ 	 			 	
+Das Gegenteil von “es || φ darf nicht vorkommen” heißt “es || φ darf vorkommen”. Für ein endliches Stück der Reihe aber scheint das Gegenteil von “es || φ darf in ihm nicht vorkommen” zu sein: “es || φ muß darin vorkommen”.
+
+
+		
+ 	 			 	
+19.11.
+     Das Seltsame in der Alternative “φ kommt in der unendlichen Reihe vor, oder es kommt nicht vor” ist, daß wir uns die beiden Möglichkeiten separat || einzeln vorstellen müssen,
+daß wir nach einer Vorstellung für jedes besonders suchen, & daß nicht wie sonst eine zureicht || für den negativen Fall & für den positiven || & für den positiven Fall zureicht.
+
+
+		
+ 	 			 	
+     Wie weiß ich, daß der allgemeine Satz “Es gibt …” hier Sinn hat? Nun, wenn er zu einer Mitteilung über die Technik des Entwickelns in einem Sprachspiel verwendet werden kann.
+
+
+		
+ 	 			 	
+     Eine Mitteilung heißt: “es darf nicht vorkommen” – d.h.: wenn es vorkommt, hast Du falsch gerechnet.
+
+     Eine heißt: “es darf vorkommen”, d.h., es existiert so ein Verbot nicht. Eine heißt: “es muß in der & der Region (an den & den || diesen Stellen, immer in den & den || diesen Regionen) vorkommen”. Das Gegenteil davon aber scheint zu sein: “es darf – dort & dort – nicht vorkommen”, || – statt “es muß dort nicht vorkommen”.
+     Wie aber, wenn man die Regel gäbe, daß, z.B., überall, wo die Bildungsregel von π 4 ergibt, statt der 4 auch eine beliebige andere Ziffer gesetzt werden kann.
+     Zieh auch die Regel in Betracht die an gewissen Stellen eine
+Ziffer verbietet, aber im übrigen die Wahl offen läßt.
+
+
+		
+ 	 			 	
+20.11.
+     Ist es nicht so? Die Begriffe in den mathematischen Sätzen von den unendlichen Dezimalbrüchen sind nicht Begriffe von Reihen, sondern von der unbegrenzten Technik des Entwickelns von Reihen.
+
+
+		
+ 	 			 	
+     Wir lernen eine endlose Technik: D.h., es wird uns etwas vorgemacht, wir machen es nach; es werden uns Regeln gesagt & wir machen Übungen in ihrer Befolgung;
+es wird dabei vielleicht auch der || ein Ausdruck wie “u.s.f. ad inf.” gebraucht, aber damit ist nicht von irgend einer riesigen || riesenhaften Ausdehnung die Rede. || , aber es ist damit von keiner riesenhaften Ausdehnung die Rede.
+
+
+		
+ 	 			 	
+Das sind die Fakten. Und was heißt es nun: “φ kommt entweder in der Entwicklung vor, oder es kommt nicht vor”! || ?
+
+
+		
+ 	 			 	
+     Aber heißt das nun, daß es kein Problem gibt: “Kommt die Figur φ in dieser Entwicklung vor?”? – Wer das fragt
+fragt & nach einer Regel das Vorkommen von φ betreffend. Und die Alternative des Existierens oder Nichtexistierens so einer Regel ist jedenfalls keine mathematische.
+
+
+		
+ 	 			 	
+     Erst innerhalb einem, erst zu errichtenden, mathem. Gebäude wird die Frage zur mathematischen. || wird die Frage zur Forderung einer mathematischen Entscheidung. || mathem. Gebäude läßt die Frage eine mathem. Entscheidung zu & wird somit zur Forderung einer solchen Entscheidung.
+
+
+
+		
+ 	 			 	
+     Ist denn das Unendliche nicht wirklich – kann ich nicht sagen: “diese zwei Kanten der Platte schneiden sich im Unendlichen”?
+
+
+		
+ 	 			 	
+Nicht “der Kreis hat diese Eigenschaft weil er durch die beiden unendlich fernen Punkte … geht”; sondern: “die Eigenschaften des Kreises lassen sich aus dieser (merkwürdigen) Perspektive betrachten || anschauen”.
+
+
+		
+ 	 			 	
+     Es ist wesentlich eine Perspektive & eine weithergeholte. (Womit kein Tadel
+ausgesprochen ist.) Aber es muß immer ganz klar sein wie weit hergeholt diese Anschauungsart ist. Denn sonst ist ihre eigentliche Bedeutung im Dunkeln.
+
+
+		
+ 	 			 	
+Was heißt das: “der Mathematiker weiß nicht was er tut”, oder “er weiß was er tut”?
+
+
+		
+ 	 			 	
+23.11.
+     Kann man unendliche Vorhersagungen machen? – Nun, warum soll man nicht z.B. das Trägheitsgesetz eine solche nennen? Oder den Satz, daß ein Komet eine Parabel beschreibt?
+
+     In gewissem Sinne wird freilich ihre Unendlichkeit nicht sehr ernst genommen.
+
+
+		
+ 	 			 	
+     Wie ist es nun mit einer Vorhersagung, || : daß, wer π entwickelt, so weit er auch geht || gehen mag, nie auf die Figur φ stoßen wird? – Nun, man könnte sagen, daß dies entweder eine unmathematische Vorhersagung ist, oder (aber) eine mathematische Regel.
+
+
+		
+ 	 			 	
+     Jemand, der das Entwickeln von √2 || √2 entwickeln gelernt hat geht zu einer ◇◇◇ ◇◇◇ Wahrsagerin, & sie weissagt ihm, daß,
+er nie, soweit er auch die √2 entwickeln mag, || ¤ soweit er auch die √2 entwickeln mag, er nie zur || zu einer Figur … gelangen wird. Ist ihre Weissagung ein mathem. Satz || eine mathematische Proposition? Nein, – außer || . – Außer sie sagt: “wenn Du immer richtig entwickelt hast || entwickelst, wirst Du nicht || nie dahin kommen”. || entwickeln wirst, kommst Du nie dahin”. Aber ist das noch eine Vorhersage?
+
+
+		
+ 	 			 	
+Es scheint nun, daß so eine Vorhersage des richtig Entwickelten denkbar wäre und sich von einem mathem. Gesetz, daß es sich so & so verhalten muß, unterschiede. So daß es in der mathem. Entwicklung einen Unterschied gäbe zwischen
+dem, was tatsächlich so herauskommt – gleichsam || sozusagen zufällig – & dem, was herauskommen muß.
+
+
+		
+ 	 			 	
+24.11.
+     Wie soll man es entscheiden, || : ob eine unendliche Voraussage Sinn hat?
+     So jedenfalls nicht, daß || indem man sagt: “ich bin sicher, ich meine etwas, wenn ich sage …”.
+
+
+		
+ 	 			 	
+     Auch ist wohl nicht so sehr die Frage, ob die Voraussage irgend einen Sinn hat, als: was für eine Art von Sinn sie hat. (Also,
+in welchen Sprachspielen sie vorkommt.)
+
+
+		
+ 	 			 	
+25.11.
+     Die Mathematiker lieben einen haut-goût an ihren Sätzen, der, wie überall, dadurch zustande kommt, daß etwas in Fäulnis übergegangen ist || von der Fäulnis herrührt.
+
+
+		
+ 	 			 	
+     ‘Übereinstimmung’ heißt zum Teil, Friede & || der Friede & die Eintracht.
+
+
+		
+ 	 			 	
+Ein Traum: Ich lebte in einer Wohnung, wie in einem Wiener Mietshaus.  Im gleichen Stock neben mir hatte Smythies eine Wohnung; im
+ersten Stockwerk unter ihm Timy Moore. Ich sehe diesen öfters & wir musizieren. – Ich trete einmal vor mir und ein Portier der aus S.'s Türe kommt sagt mir etwas in spaßhafter Weise (ich habe das Wort vergessen, welches er gebrauchte) woraus ich entnehme daß S. gestorben sei. Ich hatte ihn abwesend geglaubt, aber er muß ohne mein Wissen zurückgekommen, krank gewesen & gestorben sein. Ich bin sehr von der Nachricht betroffen, denke, daß er Moore & mich musizieren gehört hat & allein krank gewesen
+ist & mich nicht gerufen hat. – Ich gehe dann in S.'s Wohnung & treffe da seinen Vater, der komisch aussieht, mehr wie eine Frau. Ich frage ob S. eine Nachricht || Botschaft für mich hinterlassen, oder etwas über mich gesagt habe. Es war auf einem großen Tisch ein Bild da mit andern Sachen aus dem Nachlaß das S. als Andenken für mich bestimmt hatte & eine Landkarte für einen Herrn so & so (Namen vergessen) in Prag. Ich war ein wenig auf diesen, den S. kaum gekannt haben konnte, eifersüchtig, sagte mir
+aber daß ein Bild doch von mehr Zuneigung zeuge als eine Landkarte. – Wurde von großer Angst für Francis befallen, der irgendwo auf dem Lande sei & von dem ich lange nicht gehört hatte. Ich sagte mir, daß ich ihm gleich telegraphieren müsse und erfahren wie es ihm geht. – Ich wachte mit Angst und Besorgnis auf.
+
+
+		
+ 	 			 	
+28.11.
+“Der unheilvolle Einbruch” der Logik in die Mathematik.
+
+
+		
+ 	 			 	
+     Denke Dir Menschen die keine Gelegenheit
+hätten je mehr als 1000 Gegenstände || Dinge zu zählen, – die aber dennoch mit Zahlen über Tausend rechneten. sie || Sie sagen z.B. 1000² = ¤ 100² + 900² + 180000.
+
+
+		
+ 	 			 	
+1.12.
+     Was kann man eigentlich an der naiven Auffassung der ‘mathematischen Realität’ falsch nennen, || – abgesehen von dem Abstoßenden der Auffassung –?
+
+
+		
+ 	 			 	
+     In dem so vorbereiteten Feld ist das ein Existenzbeweis.
+
+
+		
+ 	 			 	
+Das Verderbliche der logischen Technik ist, daß sie uns die
+spezielle mathem. Technik vergessen läßt || macht. Während die logische Technik nur eine Hilfstechnik in der Math. ist. Z.B. gewisse Verbindungen zwischen anderen Techniken herstellt.
+
+
+		
+ 	 			 	
+     Es ist beinahe als wollte man sagen, daß das Tischlern im Leimen besteht.
+
+
+		
+ 	 			 	
+So könnte man Dedekinds Theorem ableiten wenn, was wir irrationale Zahlen nennen ganz unbekannt wäre, wenn
+es aber eine Technik gäbe, die Stellen vor Dezimalzahlen zu würfeln. Und dieses Theorem hätte dann seine Anwendung auch wenn es die Mathematik der irrationalen Zahlen nicht gäbe. Es ist nicht, als sähen die Dedekindschen Entwicklungen || alle besonderen irrationalen || reellen Zahlen schon voraus. Es scheint nur so, sobald man die Dedekindsche Technik || den Dedekindschen Kalkül mit den Kalkülen der besonderen reellen Zahlen vereinigt.
+
+
+		
+ 	 			 	
+
+
+     Der Beweis überzeugt Dich davon, daß es eine Wurzel der Gleichung gibt (ohne Dir eine Ahnung zu geben wo) – – wie weißt Du, daß Du den Satz verstehst, es gebe eine Wurzel? Wie weißt Du daß Du wirklich von etwas überzeugt bist? Du magst davon überzeugt sein, daß sich die Anwendung des bewiesenen Satzes finden lassen wird. Aber Du verstehst ihn nicht solange Du sie nicht gefunden hast.
+
+
+
+		
+ 	 			 	
+     Wenn ein Beweis allgemein beweist, es gebe eine Wurzel, so kommt alles darauf an, in welcher Form er das beweist. Was es ist, das hier zu diesem Wortausdruck führt, der ein bloßer Schein ist & die Hauptsache verschweigt. Während er den Logikern nur die Nebensache zu verschweigen scheint.
+
+
+		
+ 	 			 	
+2.12.
+     Was hat die Beweismethode zu tun mit dem, was bewiesen ist?
+
+
+		
+ 	 			 	
+Der eine Beweis
+(als wäre er eine Person) sagt Dir || sagt Dir (als wäre er eine Person) daß dies vorkommt. Der andere sagt Dir, wo es vorkommt. – So scheint es. Und es ist als käme es gar nicht mehr drauf an wie jener Satz bewiesen wurde. Genug, daß er bewiesen ist & wir nun wissen, daß es vorkommt || es komme vor. Wir können es dann gleichsam unsern Kindern überliefern (hand down). Und sie werden so wenig wissen wie wir. Es klingt dann mehr wie eine Fabel. Und könnte vielleicht die Rolle einer Fabel spielen.
+
+
+		
+ 	 			 	
+     ‘Wir müssen || müssen also annehmen, daß … irgendwo 0
+wird’. Dieser Satz ist nur darum nicht ein bloßer Mythus, weil sein Beweis der Anfang einer Ortsbestimmung ist. Oder vielmehr: Der Satz der als Existentialsatz angesehen ein Mythus ist, ist es darum nicht in einer andern Beleuchtung.
+
+
+		
+ 	 			 	
+     Der Satz als Existentialsatz || Existenzsatz sagt uns, so zu sagen, ein Geheimnis.
+		
+ 	 			 	
+3.12.
+Der Beweis zeigt dieses Bild der Sache. – Aber damit ist es noch nicht klar, was wir mit diesem Bild anfangen können.
+
+
+
+		
+ 	 			 	
+     Das Bewiesene sagt “es || der Ausdruck muß irgendwo 0 werden”: Aber nun kommt alles darauf an, wie der || an, auf welche Weise der Beweis das sagt; ob das nun ein guter, oder ein, im Ganzen, irreführender Ausdruck des Bewiesenen war, wird sich auf diese Weise zeigen. Der Beweis kann Dich lehren, wie der Satz etwa anzuwenden wäre.
+
+
+		
+ 	 			 	
+8.12.
+“Abzählbar” dürfte es nicht heißen, dagegen hätte es Sinn zu sagen “numerierbar”. Und dieser Ausdruck läßt auch die || eine Anwendung des Begriffs erkennen.
+Denn man kann zwar die Rationalzahlen || rationalen Zahlen nicht abzählen wollen, wohl aber kann man ihnen Nummern zulegen wollen.
+
+
+		
+ 	 			 	
+     Das mathematisch Allgemeine steht zum mathematisch Besonderen nicht in dem Verhältnis wie sonst das Allgemeine zum Besondern.
+
+
+		
+ 	 			 	
+     Alles was ich sage kommt eigentlich darauf hinaus, daß man einen Beweis wohl || genau kennen kann || & ihm auch Schritt für Schritt folgen kann, & dabei doch, was bewiesen würde || wurde, nicht versteht.
+
+
+
+		
+ 	 			 	
+     Und das hängt wieder damit zusammen, daß man einen mathem. Satz richtig || grammatisch richtig bilden kann ohne seinen Sinn zu verstehen.
+
+
+		
+ 	 			 	
+     Wann versteht man ihn nun? – Ich glaube: wenn man ihn anwenden kann.
+     Man könnte vielleicht || könnte auch sagen: wenn man ein klares Bild von seiner Anwendung hat. Dazu aber genügt es nicht, daß man ein klares Bild mit ihm verbindet.
+Vielmehr wäre besser gewesen zu sagen: wenn man eine klare Übersicht von seiner Anwendung hat. Und auch das ist schlecht, denn es handelt sich nur darum daß man die Anwendung nicht dort vermutet wo sie nicht ist; daß man sich von der Wortform des Satzes nicht täuschen läßt.
+
+
+		
+ 	 			 	
+     Wie kommt es aber nun daß man einen Satz, oder Beweis, auf diese Weise nicht verstehen, oder mißverstehen kann? Und was
+ist dann nötig um dieses Verständnis herbeizuführen?
+
+
+		
+ 	 			 	
+Es gibt da, glaube ich, Fälle in denen man || Einer || den Fall, daß Einer den Satz (oder Beweis) zwar anwenden kann, über die Art der || dieser Anwendung aber keine || nicht klar Rechenschaft zu geben im Stande ist. Und den Fall, daß er den Satz auch nicht anzuwenden weiß. (Mult. Ax.)
+
+
+		
+ 	 			 	
+     Wie ist es in der Beziehung mit 0 × 0 = 0?
+
+
+		
+ 	 			 	
+9.12.
+Man möchte sagen, das Verständnis eines
+math. Satzes sei nicht durch seine Wortform garantiert, wie im Fall der meisten nicht-mathematischen Sätze. Das heißt –

@@ -337,6 +337,7 @@ export function calculateSafetyCompliance(
 
   // 政治中立性
   const hasPoliticalNeutrality = persona.tensions.every(t =>
+    typeof t.description === 'string' &&
     !t.description.includes('政治') && !t.description.includes('党派')
   );
   const politicalNeutralityScore = hasPoliticalNeutrality ? 100 : 60;

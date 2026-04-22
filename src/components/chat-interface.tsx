@@ -127,7 +127,66 @@ export function ChatInterface({ className, initialPersona, initialMode }: ChatIn
   const [pickerTab, setPickerTab] = useState<string>('all');
   const [pickerSearch, setPickerSearch] = useState('');
 
-  const selectedPersonas = getPersonasByIds(selectedIds);
+  // DB personas — fetched once, merged with hardcoded PERSONA_LIST
+  const [dbPersonas, setDbPersonas] = useState<any[]>([]);
+
+  // Fetch all DB personas on mount (for picker + initial lookup)
+  useEffect(() => {
+    let cancelled = false;
+    fetch('/api/persona-library')
+      .then(r => r.json())
+      .then(data => {
+        if (cancelled) return;
+        const items: any[] = data.items || [];
+        const parsed = items.map((row: any) => {
+          const parseJson = (raw: unknown): any => {
+            if (Array.isArray(raw)) return raw;
+            if (typeof raw === 'string') {
+              try { return JSON.parse(raw); } catch { return raw; }
+            }
+            return raw;
+          };
+          return {
+            id: row.slug,
+            slug: row.slug,
+            name: row.name || row.nameen || '',
+            nameZh: row.namezh || row.name || '',
+            domain: row.domain ?? [],
+            accentColor: row.accentcolor || row.accentColor || '#4d96ff',
+            gradientFrom: row.gradientfrom || row.gradientFrom || '#4d96ff',
+            gradientTo: row.gradientto || row.gradientTo || '#c77dff',
+            tagline: row.tagline || '',
+            taglineZh: row.taglinezh || row.tagline || '',
+            brief: row.brief || '',
+            briefZh: row.briefzh || row.brief || '',
+            systemPromptTemplate: parseJson(row.systemPromptTemplate) ?? '',
+            identityPrompt: parseJson(row.identityPrompt) ?? '',
+            strengths: parseJson(row.strengths) ?? [],
+            blindspots: parseJson(row.blindspots) ?? [],
+            mentalModels: parseJson(row.mentalModels) ?? [],
+            decisionHeuristics: parseJson(row.decisionHeuristics) ?? [],
+            expressionDNA: parseJson(row.expressionDNA) ?? {},
+            values: parseJson(row.values) ?? [],
+            tensions: parseJson(row.tensions) ?? [],
+            honestBoundaries: parseJson(row.honestBoundaries) ?? [],
+            reasoningStyle: typeof row.reasoningStyle === 'string' ? row.reasoningStyle : '',
+            decisionFramework: parseJson(row.decisionFramework) ?? '',
+            keyQuotes: parseJson(row.keyQuotes) ?? [],
+            lifePhilosophy: typeof row.lifePhilosophy === 'string' ? row.lifePhilosophy : '',
+            isDbPersona: true,
+          };
+        });
+        setDbPersonas(parsed);
+      })
+      .catch(() => {});
+    return () => { cancelled = true; };
+  }, []);
+
+  // selectedPersonas — resolve from both hardcoded and DB personas
+  const allPersonas = [...PERSONA_LIST, ...dbPersonas];
+  const selectedPersonas = selectedIds
+    .map(id => allPersonas.find(p => p.id === id))
+    .filter((p): p is Persona => !!p);
 
   // Reset picker filters when picker closes
   useEffect(() => {
@@ -137,13 +196,13 @@ export function ChatInterface({ className, initialPersona, initialMode }: ChatIn
     }
   }, [isPickerOpen]);
 
-  // Filtered persona list
-  const filteredPersonas = PERSONA_LIST.filter((p) => {
-    const matchTab = pickerTab === 'all' || p.domain.includes(pickerTab as any);
+  // Filtered persona list — both hardcoded and DB
+  const filteredPersonas = allPersonas.filter((p: any) => {
+    const matchTab = pickerTab === 'all' || p.domain?.includes(pickerTab);
     const matchSearch = pickerSearch.trim() === '' ||
-      p.nameZh.includes(pickerSearch) ||
-      p.name.toLowerCase().includes(pickerSearch.toLowerCase()) ||
-      p.domain.some(d => d.toLowerCase().includes(pickerSearch.toLowerCase()));
+      p.nameZh?.includes(pickerSearch) ||
+      p.name?.toLowerCase().includes(pickerSearch.toLowerCase()) ||
+      p.domain?.some((d: string) => d.toLowerCase().includes(pickerSearch.toLowerCase()));
     return matchTab && matchSearch;
   });
 

@@ -28,7 +28,13 @@ export type Domain =
   | 'technology'
   | 'investing'
   | 'innovation'
-  | 'principles';
+  | 'history'
+  | 'literature'
+  | 'principles'
+  | 'business'
+  | 'medicine'
+  | 'fiction'
+  | 'economics';
 
 export type Mode =
   | 'solo'
@@ -43,7 +49,7 @@ export type Mode =
 // ─── Persona ──────────────────────────────────────────────────────────────────
 
 export interface Source {
-  type: 'primary' | 'secondary' | 'book' | 'interview' | 'lecture' | 'weibo' | 'speech' | 'tweet' | 'archive' | 'blog' | 'essay' | 'podcast' | 'classical_text' | 'video' | 'shareholder-letter' | 'ceo-quotes' | 'earnings' | 'gtc' | 'YC';
+  type: 'primary' | 'secondary' | 'book' | 'interview' | 'lecture' | 'weibo' | 'speech' | 'tweet' | 'archive' | 'blog' | 'essay' | 'podcast' | 'classical_text' | 'video' | 'shareholder-letter' | 'ceo-quotes' | 'earnings' | 'gtc' | 'YC' | 'investor_relations' | 'financial_reporting' | 'manuscript' | 'lecture_notes' | 'article';
   title: string;
   url?: string;
   description?: string;
@@ -95,9 +101,12 @@ export interface ExpressionDNA {
 
 export interface Tension {
   dimension: string;
+  tension?: string;
   tensionZh: string;
-  description: string;
+  description?: string;
   descriptionZh: string;
+  positivePole?: string;
+  negativePole?: string;
 }
 
 export interface Value {
@@ -110,6 +119,8 @@ export interface Value {
 export interface HonestBoundary {
   text: string;
   textZh: string;
+  reason?: string;
+  reasonZh?: string;
 }
 
 export interface PersonaResearchDim {
@@ -163,7 +174,7 @@ export interface Persona {
   reasoningStyle?: string;
   decisionFramework?: string[];
   keyQuotes?: Array<{ quote: string; source: string; sourceZh?: string }>;
-  lifePhilosophy?: {
+  lifePhilosophy?: string | {
     core: string;
     threeLevels?: {
       person: string;

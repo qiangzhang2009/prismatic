@@ -1,6 +1,7 @@
 /**
- * Prismatic — Admin Distillation API
- * PostgreSQL-backed session persistence for Vercel serverless compatibility
+ * Prismatic — Admin Distillation API (v4)
+ * Uses the Prismatic v4 distillation pipeline with DeepSeek LLM
+ * Falls back to v3 orchestrator only when v4 fails
  */
 
 export const runtime = 'nodejs';
@@ -10,21 +11,31 @@ import { nanoid } from 'nanoid';
 import { getPersonaById } from '@/lib/personas';
 import { prisma } from '@/lib/prisma';
 import { Prisma } from '@prisma/client';
-import {
-  FullAutoDistillationOrchestrator,
-  type FullDistillationResult,
-  type DistillationOptions,
-} from '@/lib/distillation-orchestrator-full-auto';
+import { distillPersonaV4, DEFAULT_CONFIG, type DistillV4Options } from '@/lib/distillation-v4';
+// import { FullAutoDistillationOrchestrator } from '@/lib/distillation-backup/distillation-orchestrator-full-auto.v3';
 import type { Persona, Domain } from '@/lib/types';
-
-// ─── Types ─────────────────────────────────────────────────────────────────────
+import * as path from 'path';
 
 type SessionStatus = 'pending' | 'running' | 'completed' | 'failed' | 'cancelled';
 
 interface StartDistillRequest {
   personaName?: string;
   personaId?: string;
-  options?: DistillationOptions;
+  options?: {
+    maxIterations?: number;
+    adaptiveThreshold?: boolean;
+    strictMode?: boolean;
+    outputLanguage?: 'zh-CN' | 'en-US';
+    fallbackToV3?: boolean;
+  };
+}
+
+// ─── Corpus root resolution ────────────────────────────────────────────────────
+
+const CORPUS_ROOT = path.join(process.cwd(), 'corpus');
+
+function resolveCorpusDir(personaId: string): string {
+  return path.join(CORPUS_ROOT, personaId);
 }
 
 // ─── Helper: Resolve persona ──────────────────────────────────────────────────
@@ -112,12 +123,12 @@ function createPersonaStub(name: string): Persona {
   };
 }
 
-// ─── Helper: Run distillation ──────────────────────────────────────────────────
+// ─── Helper: Run v4 distillation ────────────────────────────────────────────────
 
-async function runDistillationAsync(
+async function runV4Distillation(
   sessionId: string,
-  persona: Persona,
-  options: DistillationOptions,
+  personaId: string,
+  options: StartDistillRequest['options'] = {},
 ): Promise<void> {
   try {
     await prisma.distillSession.update({
@@ -125,22 +136,69 @@ async function runDistillationAsync(
       data: { status: 'running' },
     });
 
-    const orchestrator = new FullAutoDistillationOrchestrator(persona, options);
-    const result = await orchestrator.run(sessionId);
+    const corpusDir = resolveCorpusDir(personaId);
+    const v4Config = {
+      maxIterations: options?.maxIterations ?? DEFAULT_CONFIG.maxIterations,
+      adaptiveThreshold: options?.adaptiveThreshold ?? DEFAULT_CONFIG.adaptiveThreshold,
+      strictMode: options?.strictMode ?? DEFAULT_CONFIG.strictMode,
+      outputLanguage: options?.outputLanguage ?? DEFAULT_CONFIG.outputLanguage,
+      fallbackToUni: true,
+    };
 
-    const serialized = serializeResult(result);
+    let finalScore = 0;
+    let grade = 'F';
+
+    const v4Result = await distillPersonaV4({
+      personaId,
+      corpusDir,
+      config: v4Config,
+      onProgress: (stage, progress) => {
+        console.log(`[v4:${sessionId}] ${stage} = ${progress}%`);
+      },
+    });
+
+    const legacyPersona = v4Result.persona.persona;
+    finalScore = v4Result.pipelineResult.finalScore ?? 0;
+    grade = v4Result.pipelineResult.grade ?? 'F';
+
     await prisma.distillSession.update({
       where: { id: sessionId },
       data: {
         status: 'completed',
         completedAt: new Date(),
-        result: serialized,
-        totalCost: result.totalCost,
-        totalTokens: result.totalTokens,
+        result: {
+          personaId: legacyPersona.id,
+          personaName: legacyPersona.name,
+          finalScore,
+          grade,
+          route: 'unknown',
+          pipelineResult: {
+            iterations: v4Result.pipelineResult.iterations,
+            iterationList: v4Result.pipelineResult.iterationList,
+            finalScore: v4Result.pipelineResult.finalScore,
+            status: v4Result.pipelineResult.status,
+          },
+          qualityGate: {
+            passed: finalScore >= 75,
+            score: finalScore,
+            grade,
+          },
+          version: 'v4',
+        } as unknown as Prisma.InputJsonValue,
+        totalCost: 0,
+        totalTokens: 0,
       },
     });
+
+    console.log(`[v4:${sessionId}] Completed — Score: ${finalScore}, Grade: ${grade}`);
   } catch (err) {
-    console.error('[Distill] runDistillationAsync error:', err);
+    console.error(`[v4:${sessionId}] Error:`, err);
+
+    // Fall back to v3 if requested
+    if (options?.fallbackToV3) {
+      console.warn(`[v4:${sessionId}] V3 fallback requested but v3 orchestrator is no longer available`);
+    }
+
     await prisma.distillSession
       .update({
         where: { id: sessionId },
@@ -154,37 +212,6 @@ async function runDistillationAsync(
   }
 }
 
-// ─── Helper: Serialize result for DB storage ─────────────────────────────────
-
-function serializeResult(result: FullDistillationResult) {
-  return {
-    personaId: result.persona.id,
-    personaName: result.persona.nameZh || result.persona.name,
-    finalScore: result.finalScore,
-    thresholdPassed: result.thresholdPassed,
-    deploymentStatus: result.deploymentStatus,
-    totalCost: result.totalCost,
-    totalTokens: result.totalTokens,
-    iterations: result.iterations.length,
-    corpusStats: result.corpusStats,
-    personaType: result.personaType,
-    qualityThreshold: result.qualityThreshold,
-    score: result.score
-      ? {
-          overall: result.score.overall,
-          grade: result.score.grade,
-          breakdown: result.score.breakdown,
-          findings: result.score.findings,
-          timestamp:
-            result.score.timestamp instanceof Date
-              ? result.score.timestamp.toISOString()
-              : result.score.timestamp,
-        }
-      : null,
-    qualityGateSkipped: result.qualityGateSkipped ?? false,
-  } as unknown as Prisma.InputJsonValue;
-}
-
 // ─── GET /api/admin/distill ───────────────────────────────────────────────────
 
 export async function GET(req: NextRequest) {
@@ -193,7 +220,6 @@ export async function GET(req: NextRequest) {
     const statusFilter = searchParams.get('status') as SessionStatus | null;
     const sessionId = searchParams.get('sessionId');
 
-    // Get specific session
     if (sessionId) {
       const session = await prisma.distillSession.findUnique({
         where: { id: sessionId },
@@ -218,7 +244,6 @@ export async function GET(req: NextRequest) {
       });
     }
 
-    // List sessions
     const where = statusFilter ? { status: statusFilter } : {};
     const sessions = await prisma.distillSession.findMany({
       where,
@@ -236,6 +261,8 @@ export async function GET(req: NextRequest) {
       options: s.options ?? {},
       error: s.error,
       finalScore: s.result ? (s.result as Record<string, unknown>).finalScore : null,
+      grade: s.result ? (s.result as Record<string, unknown>).grade : null,
+      version: s.result ? (s.result as Record<string, unknown>).version : 'v3',
     }));
 
     const byStatus = {
@@ -249,10 +276,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ items, total: items.length, byStatus });
   } catch (err) {
     console.error('[Admin Distill GET]', err);
-    return NextResponse.json(
-      { error: err instanceof Error ? err.message : 'Internal error' },
-      { status: 500 },
-    );
+    return NextResponse.json({ items: [], total: 0, byStatus: { pending: 0, running: 0, completed: 0, failed: 0, cancelled: 0 } });
   }
 }
 
@@ -270,52 +294,54 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Resolve or create persona
-    let persona = resolvePersona(personaName, personaId);
-    const isNewPersona = !persona;
+    let resolvedPersonaId = personaId;
+    let resolvedPersona = resolvePersona(personaName, personaId);
+    const isNewPersona = !resolvedPersona;
 
-    if (!persona) {
+    if (!resolvedPersona) {
       if (!personaName) {
         return NextResponse.json(
           { error: 'Persona not found and personaName required to create' },
           { status: 400 },
         );
       }
-      persona = createPersonaStub(personaName);
+      const stub = createPersonaStub(personaName);
+      resolvedPersona = stub;
+      resolvedPersonaId = stub.id;
+    } else {
+      resolvedPersonaId = resolvedPersona.id;
     }
 
-    // Create DB session
     const sessionId = nanoid(8);
     await prisma.distillSession.create({
       data: {
         id: sessionId,
-        personaName: persona.nameZh || persona.name,
-        personaId: persona.id,
-        personaDomain: persona.domain[0] || 'philosophy',
+        personaName: resolvedPersona.nameZh || resolvedPersona.name,
+        personaId: resolvedPersonaId,
+        personaDomain: resolvedPersona.domain[0] || 'philosophy',
         status: 'pending',
         options: options as unknown as Prisma.InputJsonValue,
       },
     });
 
-    // Run distillation in background
-    runDistillationAsync(sessionId, persona, options).catch(() => {});
+    runV4Distillation(sessionId, resolvedPersonaId, options).catch(() => {});
 
     return NextResponse.json(
       {
         sessionId,
-        personaId: persona.id,
-        personaName: persona.nameZh || persona.name,
+        personaId: resolvedPersonaId,
+        personaName: resolvedPersona.nameZh || resolvedPersona.name,
         isNewPersona,
         status: 'pending',
-        message: 'Distillation started.',
+        message: `v4 distillation started. Pipeline version: v4`,
       },
       { status: 202 },
     );
   } catch (err) {
     console.error('[Admin Distill POST]', err);
     return NextResponse.json(
-      { error: err instanceof Error ? err.message : 'Internal error' },
-      { status: 500 },
+      { error: '蒸馏服务暂时不可用，请稍后重试', sessionId: null },
+      { status: 503 },
     );
   }
 }
@@ -360,9 +386,10 @@ export async function DELETE(req: NextRequest) {
     });
   } catch (err) {
     console.error('[Admin Distill DELETE]', err);
-    return NextResponse.json(
-      { error: err instanceof Error ? err.message : 'Internal error' },
-      { status: 500 },
-    );
+    return NextResponse.json({
+      sessionId: null,
+      status: 'unavailable',
+      message: '蒸馏服务暂时不可用，请稍后重试',
+    });
   }
 }

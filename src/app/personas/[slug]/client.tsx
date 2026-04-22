@@ -354,19 +354,21 @@ export function PersonaDetailClient({ persona, colors }: Props) {
           {activeTab === 'voice' && persona.expressionDNA && (
             <div className="space-y-6">
               {/* Sentence style */}
-              <div className="rounded-2xl border border-border-subtle bg-bg-surface p-6">
-                <h3 className="font-medium mb-4 flex items-center gap-2">
-                  <Zap className="w-4 h-4" style={{ color: colors.accent }} />
-                  句式特征
-                </h3>
-                <div className="flex flex-wrap gap-2">
-                  {persona.expressionDNA.sentenceStyle.map((s) => (
-                    <span key={s} className="text-sm px-3 py-1 rounded-lg bg-bg-elevated text-text-secondary border border-border-subtle">
-                      {s}
-                    </span>
-                  ))}
+              {(persona.expressionDNA.sentenceStyle ?? []).length > 0 && (
+                <div className="rounded-2xl border border-border-subtle bg-bg-surface p-6">
+                  <h3 className="font-medium mb-4 flex items-center gap-2">
+                    <Zap className="w-4 h-4" style={{ color: colors.accent }} />
+                    句式特征
+                  </h3>
+                  <div className="flex flex-wrap gap-2">
+                    {persona.expressionDNA.sentenceStyle.map((s) => (
+                      <span key={s} className="text-sm px-3 py-1 rounded-lg bg-bg-elevated text-text-secondary border border-border-subtle">
+                        {s}
+                      </span>
+                    ))}
+                  </div>
                 </div>
-              </div>
+              )}
 
               {/* Vocabulary */}
               {persona.expressionDNA.vocabulary.length > 0 && (
@@ -432,10 +434,12 @@ export function PersonaDetailClient({ persona, colors }: Props) {
               </div>
 
               {/* Identity & Chinese Adaptation */}
-              <div className="rounded-2xl border border-border-subtle bg-bg-surface p-6">
-                <h3 className="font-medium mb-3 text-sm text-text-muted">身份认同</h3>
-                <p className="text-sm text-text-secondary italic">&ldquo;{persona.identityPrompt}&rdquo;</p>
-              </div>
+              {persona.identityPrompt && (
+                <div className="rounded-2xl border border-border-subtle bg-bg-surface p-6">
+                  <h3 className="font-medium mb-3 text-sm text-text-muted">身份认同</h3>
+                  <p className="text-sm text-text-secondary italic">&ldquo;{persona.identityPrompt}&rdquo;</p>
+                </div>
+              )}
 
               {persona.expressionDNA.chineseAdaptation && (
                 <div className="rounded-2xl border border-border-subtle bg-bg-surface p-6">
@@ -459,43 +463,108 @@ export function PersonaDetailClient({ persona, colors }: Props) {
           )}
 
           {/* Quotes Tab */}
-          {activeTab === 'quotes' && persona.sources && persona.sources.length > 0 && (
+          {activeTab === 'quotes' && (
             <div className="space-y-4">
-              <div className="rounded-2xl border border-border-subtle bg-bg-surface p-6">
-                <h3 className="font-medium mb-4 flex items-center gap-2">
-                  <Quote className="w-4 h-4" style={{ color: colors.accent }} />
-                  主要参考来源
-                </h3>
-                <div className="space-y-3">
-                  {persona.sources.map((s, i) => (
-                    <div key={i} className="flex items-start gap-3">
-                      <span
-                        className="text-xs px-2 py-0.5 rounded flex-shrink-0 mt-0.5"
-                        style={{
-                          backgroundColor: s.type === 'primary' ? `${colors.accent}20` : 'bg-bg-elevated',
-                          color: s.type === 'primary' ? colors.accent : 'var(--color-text-muted)',
-                        }}
-                      >
-                        {s.type === 'primary' ? '一手' : '二手'}
-                      </span>
-                      <div>
-                        <p className="text-sm text-text-secondary">{s.title}</p>
-                        {s.url && (
-                          <a
-                            href={s.url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-xs text-text-muted hover:text-text-primary flex items-center gap-1 mt-0.5"
-                          >
-                            <ExternalLink className="w-3 h-3" />
-                            {s.url}
-                          </a>
+              {/* Key Quotes */}
+              {persona.keyQuotes && persona.keyQuotes.length > 0 && (
+                <div className="rounded-2xl border border-border-subtle bg-bg-surface p-6">
+                  <h3 className="font-medium mb-4 flex items-center gap-2">
+                    <Quote className="w-4 h-4" style={{ color: colors.accent }} />
+                    核心引用
+                  </h3>
+                  <div className="space-y-4">
+                    {persona.keyQuotes.map((q, i) => (
+                      <div key={i} className="border-l-2 border-border-subtle pl-4">
+                        <p className="text-sm text-text-secondary italic leading-relaxed">&ldquo;{q.quote}&rdquo;</p>
+                        {q.source && (
+                          <p className="text-xs text-text-muted mt-1">— {q.source}{q.sourceZh ? ` / ${q.sourceZh}` : ''}</p>
                         )}
                       </div>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
-              </div>
+              )}
+
+              {/* Sources / Corpus */}
+              {persona.sources && persona.sources.length > 0 && (
+                <div className="rounded-2xl border border-border-subtle bg-bg-surface p-6">
+                  <h3 className="font-medium mb-4 flex items-center gap-2">
+                    <BookOpen className="w-4 h-4" style={{ color: colors.accent }} />
+                    主要参考来源
+                  </h3>
+                  <div className="space-y-3">
+                    {persona.sources.map((s: any, i: number) => (
+                      <div key={i} className="flex items-start gap-3">
+                        <span
+                          className="text-xs px-2 py-0.5 rounded flex-shrink-0 mt-0.5"
+                          style={{
+                            backgroundColor: s.type === 'primary' ? `${colors.accent}20` : 'var(--bg-elevated)',
+                            color: s.type === 'primary' ? colors.accent : 'var(--color-text-muted)',
+                          }}
+                        >
+                          {s.type === 'primary' ? '一手' : '二手'}
+                        </span>
+                        <div>
+                          <p className="text-sm text-text-secondary">{s.title}</p>
+                          {s.url && (
+                            <a
+                              href={s.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-xs text-text-muted hover:text-text-primary flex items-center gap-1 mt-0.5"
+                            >
+                              <ExternalLink className="w-3 h-3" />
+                              {s.url}
+                            </a>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* lifePhilosophy fallback */}
+              {!persona.sources?.length && !(persona.keyQuotes ?? []).length && persona.lifePhilosophy && (
+                <div className="rounded-2xl border border-border-subtle bg-bg-surface p-6">
+                  <h3 className="font-medium mb-3 text-sm text-text-muted flex items-center gap-2">
+                    <Quote className="w-4 h-4" style={{ color: colors.accent }} />
+                    人生哲学
+                  </h3>
+                  {typeof persona.lifePhilosophy === 'string' ? (
+                    <p className="text-sm text-text-secondary italic leading-relaxed">&ldquo;{persona.lifePhilosophy}&rdquo;</p>
+                  ) : (() => {
+                    const lp = persona.lifePhilosophy as { core: string; threeLevels?: { person: string; becoming: string; ultimate: string } };
+                    return (
+                    <div className="space-y-3">
+                      {lp.core && (
+                        <p className="text-sm text-text-secondary italic leading-relaxed">&ldquo;{lp.core}&rdquo;</p>
+                      )}
+                      {lp.threeLevels && (
+                        <div className="space-y-1.5">
+                          <p className="text-xs text-text-muted font-medium">三层</p>
+                          {(['person', 'becoming', 'ultimate'] as const).map((l) =>
+                            lp.threeLevels![l] ? (
+                              <p key={l} className="text-xs text-text-secondary">
+                                <span className="text-text-muted capitalize">{l}: </span>{lp.threeLevels![l]}
+                              </p>
+                            ) : null
+                          )}
+                        </div>
+                      )}
+                    </div>
+                    );
+                  })()}
+                </div>
+              )}
+
+              {/* Completely empty state */}
+              {!persona.sources?.length && !(persona.keyQuotes ?? []).length && !persona.lifePhilosophy && (
+                <div className="text-center py-12">
+                  <Quote className="w-8 h-8 text-text-muted mx-auto mb-3" />
+                  <p className="text-sm text-text-muted">暂无引用或来源数据</p>
+                </div>
+              )}
             </div>
           )}
 

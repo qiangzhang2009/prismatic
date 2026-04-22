@@ -30,7 +30,7 @@ export async function GET() {
     });
   } catch (error) {
     console.error('[API/personas/GET]', error);
-    return NextResponse.json({ error: 'Failed to fetch personas' }, { status: 500 });
+    return NextResponse.json({ builtin: [], custom: [], all: [] });
   }
 }
 

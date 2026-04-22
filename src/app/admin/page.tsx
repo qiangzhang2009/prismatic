@@ -163,8 +163,8 @@ function DashboardSection() {
   const [now, setNow] = useState<string | null>(null);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => { setNow(new Date().toLocaleTimeString('zh-CN')); }, []);
-  const { data: overview, isLoading: ovLoading, refetch: refetchOv } = useAnalyticsOverview(days);
-  const { data: trend, isLoading: trLoading } = useAnalyticsTrend(days);
+  const { data: overview, isLoading: ovLoading, refetch: refetchOv, error: ovError } = useAnalyticsOverview(days);
+  const { data: trend, isLoading: trLoading, error: trError } = useAnalyticsTrend(days);
   const { data: personas } = useAnalyticsPersonas(30);
   const { data: capacity } = useCapacity();
 
@@ -207,6 +207,28 @@ function DashboardSection() {
 
   return (
     <div className="space-y-8">
+
+      {/* ── Auth/Error Banner ── */}
+      {(ovError || trError) && (
+        <div className="bg-red-900/20 border border-red-800/30 rounded-xl p-4 flex items-start gap-3">
+          <AlertTriangle className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" />
+          <div>
+            <p className="text-sm font-medium text-red-400">无法加载数据</p>
+            <p className="text-xs text-gray-400 mt-0.5">
+              {ovError ? `概览数据: ${ovError.message}` : ''}
+              {trError ? `趋势数据: ${trError.message}` : ''}
+              {' · '}请检查数据库连接和认证状态
+            </p>
+          </div>
+          <button
+            onClick={() => { refetchOv(); }}
+            className="ml-auto flex items-center gap-1.5 px-3 py-1.5 bg-red-900/40 hover:bg-red-900/60 border border-red-800/40 rounded-lg text-xs text-red-300 transition-colors"
+          >
+            <RefreshCw className="w-3.5 h-3.5" />
+            重试
+          </button>
+        </div>
+      )}
 
       {/* ── Header ── */}
       <div className="flex items-center justify-between">
@@ -880,21 +902,22 @@ function AssetsSection() {
     ...(dateTo && { dateTo }),
   }), [page, search, billingMode, mode, dateFrom, dateTo]);
 
-  const { data: convData, isLoading: convLoading, refetch } = useQuery({
+  const { data: convData, isLoading: convLoading, refetch, isError: convError } = useQuery({
     queryKey: ['admin', 'chats', params.toString()],
-    queryFn: () => fetch(`/api/admin/chats?${params}`).then(r => r.json()),
+    queryFn: () => fetch(`/api/admin/chats?${params}`, { credentials: 'include' }).then(r => r.json()),
     staleTime: 1000 * 30,
   });
 
   const { data: userChatsData, isLoading: userChatsLoading, refetch: refetchUserChats } = useQuery({
     queryKey: ['admin', 'chats', 'by-user', params.toString()],
-    queryFn: () => fetch(`/api/admin/chats/by-user?${params}`).then(r => r.json()),
+    queryFn: () => fetch(`/api/admin/chats/by-user?${params}`, { credentials: 'include' }).then(r => r.json()),
     staleTime: 1000 * 30,
   });
 
   const convs = convData?.conversations || [];
   const total = convData?.total || 0;
   const totalPages = convData?.totalPages || 1;
+  const convErrorMsg = convData?.error || (convError ? '加载失败，请检查登录状态' : null);
 
   const dimensions: Array<{ id: AssetDim; label: string; icon: React.ElementType }> = [
     { id: 'overview', label: '总览', icon: LayoutDashboard },
@@ -995,6 +1018,20 @@ function AssetsSection() {
             搜索
           </button>
         </div>
+
+        {/* ── 错误提示 ── */}
+        {convErrorMsg && (
+          <div className="bg-red-900/20 border border-red-800/30 rounded-xl p-4 flex items-start gap-3">
+            <XCircle className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" />
+            <div className="flex-1">
+              <p className="text-sm font-medium text-red-400">对话资产加载失败</p>
+              <p className="text-xs text-gray-400 mt-0.5">{convErrorMsg}</p>
+            </div>
+            <button onClick={() => refetch()} className="flex items-center gap-1.5 px-3 py-1.5 bg-red-900/40 hover:bg-red-900/60 border border-red-800/40 rounded-lg text-xs text-red-300 transition-colors">
+              <RefreshCw className="w-3.5 h-3.5" /> 重试
+            </button>
+          </div>
+        )}
 
         {/* 对话列表 */}
         {convLoading ? (
@@ -1338,7 +1375,7 @@ function AssetCostAnalysis({ days }: { days: number }) {
 function AssetTopics({ days }: { days: number }) {
   const { data, isLoading } = useQuery({
     queryKey: ['admin', 'chats', 'topics', days],
-    queryFn: () => fetch(`/api/admin/chats/topics?days=${days}`).then(r => r.json()),
+    queryFn: () => fetch(`/api/admin/chats/topics?days=${days}`, { credentials: 'include' }).then(r => r.json()),
     staleTime: 1000 * 60 * 30,
   });
 
@@ -1392,7 +1429,7 @@ function AssetTopics({ days }: { days: number }) {
 function AssetPersonas({ days }: { days: number }) {
   const { data, isLoading } = useQuery({
     queryKey: ['admin', 'chats', 'personas', days],
-    queryFn: () => fetch(`/api/admin/chats/personas?days=${days}`).then(r => r.json()),
+    queryFn: () => fetch(`/api/admin/chats/personas?days=${days}`, { credentials: 'include' }).then(r => r.json()),
     staleTime: 1000 * 60 * 5,
   });
 
@@ -1542,7 +1579,7 @@ function AssetPersonas({ days }: { days: number }) {
 function AssetBehavior({ days }: { days: number }) {
   const { data, isLoading } = useQuery({
     queryKey: ['admin', 'chats', 'behavior', days],
-    queryFn: () => fetch(`/api/admin/chats/behavior?days=${days}`).then(r => r.json()),
+    queryFn: () => fetch(`/api/admin/chats/behavior?days=${days}`, { credentials: 'include' }).then(r => r.json()),
     staleTime: 1000 * 60 * 30,
   });
 
@@ -1816,18 +1853,26 @@ function SyncSection() {
   const [syncData, setSyncData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [syncError, setSyncError] = useState<string | null>(null);
   const [tab, setTab] = useState<'overview' | 'conflicts' | 'devices' | 'logs'>('overview');
 
-  const loadSyncData = async () => {
+  const loadSyncData = async (isRefresh = false) => {
     try {
-      setRefreshing(true);
-      const res = await fetch('/api/admin/sync/stats');
+      setSyncError(null);
+      if (isRefresh) setRefreshing(true);
+      else setLoading(true);
+      const res = await fetch('/api/admin/sync/stats', { credentials: 'include' });
       if (res.ok) {
         const data = await res.json();
         setSyncData(data);
+      } else if (res.status === 401 || res.status === 403) {
+        setSyncError('未授权：请先登录管理账号');
+      } else {
+        const text = await res.text();
+        setSyncError(`加载失败 (${res.status}): ${text}`);
       }
     } catch (e) {
-      console.error('Failed to load sync stats:', e);
+      setSyncError(`网络错误: ${String(e)}`);
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -1846,6 +1891,23 @@ function SyncSection() {
     );
   }
 
+  if (syncError) {
+    return (
+      <div className="space-y-4">
+        <div className="bg-red-900/20 border border-red-800/30 rounded-xl p-4 flex items-start gap-3">
+          <XCircle className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" />
+          <div className="flex-1">
+            <p className="text-sm font-medium text-red-400">同步管理加载失败</p>
+            <p className="text-xs text-gray-400 mt-0.5">{syncError}</p>
+          </div>
+          <button onClick={() => loadSyncData()} className="flex items-center gap-1.5 px-3 py-1.5 bg-red-900/40 hover:bg-red-900/60 border border-red-800/40 rounded-lg text-xs text-red-300 transition-colors">
+            <RefreshCw className="w-3.5 h-3.5" /> 重试
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   const stats = syncData?.stats ?? {};
   const conflicts = syncData?.conflicts ?? [];
   const devices = syncData?.devices ?? [];
@@ -1860,7 +1922,7 @@ function SyncSection() {
           <p className="text-gray-400 text-sm mt-1">多设备对话同步状态监控</p>
         </div>
         <button
-          onClick={loadSyncData}
+          onClick={() => loadSyncData(true)}
           disabled={refreshing}
           className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gray-800 hover:bg-gray-700 text-sm text-gray-300 transition-colors disabled:opacity-50"
         >

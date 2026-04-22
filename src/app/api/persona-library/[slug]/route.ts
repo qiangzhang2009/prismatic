@@ -6,51 +6,36 @@
 export const dynamic = 'force-dynamic';
 
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { Pool } from '@neondatabase/serverless';
 
 interface RouteParams {
   params: Promise<{ slug: string }>;
 }
 
 export async function GET(req: NextRequest, { params }: RouteParams) {
+  const { slug } = await params;
+  const connectionString = process.env.DATABASE_URL;
+  if (!connectionString) {
+    return NextResponse.json({ error: 'Database not configured' }, { status: 503 });
+  }
+
+  const pool = new Pool({ connectionString });
+
   try {
-    const { slug } = await params;
+    const result = await pool.query(
+      `SELECT * FROM distilled_personas WHERE slug = $1 AND "isActive" = true LIMIT 1`,
+      [slug]
+    );
+    await pool.end();
 
-    // Try DB first
-    let persona = await prisma.distilledPersona.findUnique({
-      where: { slug },
-      include: {
-        session: {
-          include: {
-            corpus: {
-              orderBy: { createdAt: 'asc' },
-              select: {
-                id: true,
-                collectorType: true,
-                source: true,
-                sourceName: true,
-                author: true,
-                url: true,
-                publishedAt: true,
-                wordCount: true,
-                language: true,
-                createdAt: true,
-              },
-            },
-          },
-        },
-      },
-    });
-
-    if (persona) {
+    if (result.rows.length > 0) {
       return NextResponse.json({
         source: 'distilled',
-        persona,
-        corpusItems: persona.session?.corpus ?? [],
+        persona: result.rows[0],
+        corpusItems: [],
       });
     }
 
-    // Fall back to code personas
     const { getPersonaById } = await import('@/lib/personas');
     const codePersona = getPersonaById(slug);
     if (codePersona) {
@@ -64,69 +49,76 @@ export async function GET(req: NextRequest, { params }: RouteParams) {
     return NextResponse.json({ error: 'Persona not found' }, { status: 404 });
   } catch (err) {
     console.error('[PersonaLibrary GET slug]', err);
-    return NextResponse.json(
-      { error: err instanceof Error ? err.message : 'Internal error' },
-      { status: 500 },
-    );
+    await pool.end().catch(() => {});
+    return NextResponse.json({ error: 'Internal error' }, { status: 500 });
   }
 }
 
 export async function PUT(req: NextRequest, { params }: RouteParams) {
+  const { slug } = await params;
+  const connectionString = process.env.DATABASE_URL;
+  if (!connectionString) {
+    return NextResponse.json({ error: 'Database not configured' }, { status: 503 });
+  }
+
+  const pool = new Pool({ connectionString });
+
   try {
-    const { slug } = await params;
     const body = await req.json();
+    const allowedFields = [
+      'isPublished', 'isActive', 'tagline', 'taglineZh', 'brief', 'briefZh',
+      'avatar', 'accentColor', 'gradientFrom', 'gradientTo',
+    ];
+    const setClauses: string[] = [];
+    const values: unknown[] = [];
+    let paramIdx = 1;
 
-    const persona = await prisma.distilledPersona.update({
-      where: { slug },
-      data: {
-        isPublished: body.isPublished ?? undefined,
-        isActive: body.isActive ?? undefined,
-        tagline: body.tagline,
-        taglineZh: body.taglineZh,
-        brief: body.brief,
-        briefZh: body.briefZh,
-        avatar: body.avatar,
-        accentColor: body.accentColor,
-        gradientFrom: body.gradientFrom,
-        gradientTo: body.gradientTo,
-        // Allow updating core distillation fields
-        mentalModels: body.mentalModels,
-        decisionHeuristics: body.decisionHeuristics,
-        expressionDNA: body.expressionDNA,
-        values: body.values,
-        antiPatterns: body.antiPatterns,
-        tensions: body.tensions,
-        honestBoundaries: body.honestBoundaries,
-        strengths: body.strengths,
-        blindspots: body.blindspots,
-        systemPromptTemplate: body.systemPromptTemplate,
-        identityPrompt: body.identityPrompt,
-      },
-    });
+    for (const field of allowedFields) {
+      if (body[field] !== undefined) {
+        setClauses.push(`"${field}" = $${paramIdx++}`);
+        values.push(body[field]);
+      }
+    }
 
-    return NextResponse.json(persona);
+    if (setClauses.length === 0) {
+      await pool.end();
+      return NextResponse.json({ error: 'No valid fields to update' }, { status: 400 });
+    }
+
+    values.push(slug);
+    const result = await pool.query(
+      `UPDATE distilled_personas SET ${setClauses.join(', ')} WHERE slug = $${paramIdx} RETURNING *`,
+      values
+    );
+    await pool.end();
+
+    if (result.rows.length === 0) {
+      return NextResponse.json({ error: 'Persona not found' }, { status: 404 });
+    }
+    return NextResponse.json(result.rows[0]);
   } catch (err) {
     console.error('[PersonaLibrary PUT]', err);
-    return NextResponse.json(
-      { error: err instanceof Error ? err.message : 'Internal error' },
-      { status: 500 },
-    );
+    await pool.end().catch(() => {});
+    return NextResponse.json({ error: 'Internal error' }, { status: 500 });
   }
 }
 
 export async function DELETE(req: NextRequest, { params }: RouteParams) {
+  const { slug } = await params;
+  const connectionString = process.env.DATABASE_URL;
+  if (!connectionString) {
+    return NextResponse.json({ error: 'Database not configured' }, { status: 503 });
+  }
+
+  const pool = new Pool({ connectionString });
+
   try {
-    const { slug } = await params;
-    await prisma.distilledPersona.update({
-      where: { slug },
-      data: { isActive: false },
-    });
+    await pool.query(`UPDATE distilled_personas SET "isActive" = false WHERE slug = $1`, [slug]);
+    await pool.end();
     return NextResponse.json({ success: true, slug });
   } catch (err) {
     console.error('[PersonaLibrary DELETE]', err);
-    return NextResponse.json(
-      { error: err instanceof Error ? err.message : 'Internal error' },
-      { status: 500 },
-    );
+    await pool.end().catch(() => {});
+    return NextResponse.json({ error: 'Internal error' }, { status: 500 });
   }
 }

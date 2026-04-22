@@ -156,6 +156,8 @@ export const DOMAINS = {
   negotiation: { label: '谈判', labelEn: 'Negotiation' },
   science: { label: '科学', labelEn: 'Science' },
   risk: { label: '风险管理', labelEn: 'Risk' },
+  history: { label: '历史', labelEn: 'History' },
+  literature: { label: '文学', labelEn: 'Literature' },
 } as const;
 
 // Color palette for personas

@@ -23,22 +23,7 @@ import { PersonaCard } from '@/components/persona-card';
 import { ModeSelector } from '@/components/mode-selector';
 import { Footer } from '@/components/footer';
 import { CommentsSection } from '@/components/comments-section';
-import { cn } from '@/lib/utils';
-
-// ─── Persona Domain Colors ────────────────────────────────────────────────────
-const DOMAIN_COLORS: Record<string, { from: string; to: string; label: string }> = {
-  philosophy: { from: '#4d96ff', to: '#6bcb77', label: '哲学' },
-  technology: { from: '#6bcb77', to: '#ffd93d', label: '科技' },
-  investment: { from: '#ffd93d', to: '#ff6b6b', label: '投资' },
-  entrepreneurship: { from: '#ff6b6b', to: '#c77dff', label: '创业' },
-  science: { from: '#c77dff', to: '#4d96ff', label: '科学' },
-  default: { from: '#4d96ff', to: '#8e44ad', label: '其他' },
-};
-
-function getDomainGradient(domains: string[]) {
-  const d = domains?.[0] || 'default';
-  return DOMAIN_COLORS[d] || DOMAIN_COLORS.default;
-}
+import { cn, getDomainGradient } from '@/lib/utils';
 
 // ─── Hero Stats ────────────────────────────────────────────────────────────────
 const HERO_STATS = [

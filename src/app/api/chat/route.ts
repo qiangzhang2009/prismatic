@@ -24,6 +24,7 @@ import { resolveBillingMode, deductCreditsIfNeeded } from '@/lib/billing/engine'
 import { prisma } from '@/lib/prisma';
 import { trackEvent, trackEvents, incrementSessionMessages, trackChatStart, trackChatEnd } from '@/lib/analytics';
 import type { Mode } from '@/lib/types';
+import { Pool } from '@neondatabase/serverless';
 
 export const runtime = 'nodejs';
 
@@ -154,6 +155,76 @@ async function llmChat(
   options: { temperature?: number; maxTokens: number }
 ): Promise<LLMResponse> {
   return llm.chat({ model, messages, ...options });
+}
+
+/**
+ * Resolves personas from the database (for slugs not in hardcoded PERSONA_LIST).
+ * Falls back to empty array if DB is unavailable.
+ */
+async function resolvePersonasFromDB(ids: string[]): Promise<any[]> {
+  const connectionString = process.env.DATABASE_URL;
+  if (!connectionString) return [];
+
+  const { getPersonasByIds } = await import('@/lib/personas');
+  const hardcoded = getPersonasByIds(ids);
+  const foundIds = new Set(hardcoded.map(p => p.id));
+  const dbIds = ids.filter(id => !foundIds.has(id));
+  if (dbIds.length === 0) return [];
+
+  const pool = new Pool({ connectionString });
+  try {
+    const placeholders = dbIds.map((_, i) => `$${i + 1}`).join(', ');
+    const result = await pool.query(
+      `SELECT slug, name, namezh, nameen, domain, "taglineZh", "briefZh",
+              "accentColor", "gradientFrom", "gradientTo",
+              "systemPromptTemplate", "identityPrompt",
+              strengths, blindspots, "mentalModels", "decisionHeuristics",
+              "expressionDNA", "values", "tensions", "honestBoundaries"
+       FROM distilled_personas
+       WHERE slug IN (${placeholders}) AND "isActive" = true`,
+      dbIds
+    );
+
+    const parseJson = (raw: unknown): any => {
+      if (Array.isArray(raw)) return raw;
+      if (typeof raw === 'string') {
+        try { return JSON.parse(raw); } catch { return raw; }
+      }
+      return raw;
+    };
+
+    const dbPersonas: any[] = result.rows.map(row => ({
+      id: row.slug,
+      slug: row.slug,
+      name: row.name || row.nameen || '',
+      nameZh: row.namezh || row.name || '',
+      domain: row.domain ?? [],
+      accentColor: row.accentColor || '#4d96ff',
+      gradientFrom: row.gradientFrom || '#4d96ff',
+      gradientTo: row.gradientTo || '#c77dff',
+      tagline: row.tagline || '',
+      taglineZh: row.taglineZh || '',
+      brief: row.brief || '',
+      briefZh: row.briefZh || '',
+      systemPromptTemplate: parseJson(row.systemPromptTemplate) ?? '',
+      identityPrompt: parseJson(row.identityPrompt) ?? '',
+      strengths: parseJson(row.strengths) ?? [],
+      blindspots: parseJson(row.blindspots) ?? [],
+      mentalModels: parseJson(row.mentalModels) ?? [],
+      decisionHeuristics: parseJson(row.decisionHeuristics) ?? [],
+      expressionDNA: parseJson(row.expressionDNA) ?? {},
+      values: parseJson(row.values) ?? [],
+      tensions: parseJson(row.tensions) ?? [],
+      honestBoundaries: parseJson(row.honestBoundaries) ?? [],
+    }));
+
+    await pool.end();
+    return dbPersonas;
+  } catch (err) {
+    console.error('[resolvePersonasFromDB]', err);
+    await pool.end().catch(() => {});
+    return [];
+  }
 }
 
 function getPersonaConfidence(personaId: string): number {
@@ -858,7 +929,11 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Invalid request' }, { status: 400 });
     }
 
-    const personas = getPersonasByIds(participantIds);
+    // Resolve from both hardcoded list and DB
+    const hardcoded = getPersonasByIds(participantIds);
+    const dbPersonas = await resolvePersonasFromDB(participantIds);
+    const foundIds = new Set([...hardcoded, ...dbPersonas].map(p => p.id));
+    const personas = [...hardcoded, ...dbPersonas].filter(p => foundIds.has(p.id));
     if (!personas.length) {
       return NextResponse.json({ error: 'No valid personas' }, { status: 400 });
     }
@@ -1037,7 +1112,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(data);
   } catch (error) {
-    const message = error instanceof Error ? error.message : 'Unknown error';
+    const message = error instanceof Error ? error.message : String(error);
     console.error('[Chat API] Error:', message);
     return NextResponse.json(
       { error: '请求失败，请稍后重试。' },
