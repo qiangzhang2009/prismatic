@@ -28,10 +28,16 @@ import {
   Star,
   AlertCircle,
   TrendingUp,
+  Info,
 } from 'lucide-react';
 import type { Persona } from '@/lib/types';
+import type { ScoreBreakdown } from '@/lib/types';
 import { cn } from '@/lib/utils';
-import { PERSONA_CONFIDENCE, getConfidenceLevel } from '@/lib/confidence';
+import {
+  CONFIDENCE_DIMENSIONS,
+  getPersonaConfidence,
+  getConfidenceLevel,
+} from '@/lib/confidence';
 import type { ConfidenceScore } from '@/lib/confidence';
 import { trackModelExpand } from '@/lib/use-tracking';
 
@@ -39,16 +45,6 @@ interface Props {
   persona: Persona;
   colors: { accent: string; from: string; to: string };
 }
-
-const DIMENSION_LABELS = {
-  dataCoverage: { label: '数据覆盖', icon: <BookOpen className="w-3.5 h-3.5" /> },
-  rawMaterial: { label: '原始素材', icon: <Mic className="w-3.5 h-3.5" /> },
-  timeSpan: { label: '时间跨度', icon: <Clock className="w-3.5 h-3.5" /> },
-  contentDiversity: { label: '内容多样', icon: <Layers className="w-3.5 h-3.5" /> },
-  sourceVerifiability: { label: '来源可验证', icon: <CheckCircle2 className="w-3.5 h-3.5" /> },
-} as const;
-
-const DIMENSION_KEYS = Object.keys(DIMENSION_LABELS) as Array<keyof typeof DIMENSION_LABELS>;
 
 const TABS = [
   { id: 'mental-models', label: '心智模型', icon: <Brain className="w-4 h-4" /> },
@@ -609,7 +605,7 @@ export function PersonaDetailClient({ persona, colors }: Props) {
 
           {/* Confidence Tab */}
           {activeTab === 'confidence' && (() => {
-            const confidence: ConfidenceScore | undefined = PERSONA_CONFIDENCE[persona.id];
+            const confidence = getPersonaConfidence(persona.id);
             if (!confidence) {
               return (
                 <div className="text-center py-12 text-text-muted text-sm">
@@ -618,10 +614,12 @@ export function PersonaDetailClient({ persona, colors }: Props) {
               );
             }
             const level = getConfidenceLevel(confidence.overall);
+            const breakdown = confidence.breakdown;
+
             return (
               <div className="space-y-6">
-                {/* Score hero */}
-                <div className="flex items-center gap-6">
+                {/* Hero: score + description */}
+                <div className="flex items-start gap-6">
                   <div className="relative w-24 h-24 flex-shrink-0">
                     <svg width="96" height="96" viewBox="0 0 96 96">
                       <circle cx="48" cy="48" r="40" fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="8" />
@@ -638,116 +636,108 @@ export function PersonaDetailClient({ persona, colors }: Props) {
                       <span className="text-[10px] text-text-muted">/ 100</span>
                     </div>
                   </div>
-                  <div>
-                    <h3 className="text-base font-medium text-text-primary mb-1">综合置信度</h3>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="text-base font-medium text-text-primary mb-1">置信度</h3>
                     <div
                       className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium border mb-2"
                       style={{ color: level.color, backgroundColor: level.bgColor, borderColor: level.borderColor }}
                     >
                       {level.label}
                     </div>
-                    <p className="text-xs text-text-secondary leading-relaxed max-w-sm">
-                      基于 5 维度评估：数据覆盖（30%）、原始素材（25%）、时间跨度（15%）、内容多样（15%）、来源可验证（15%）
-                    </p>
+                    <div className="bg-bg-overlay rounded-lg border border-border-subtle p-3 text-xs text-text-secondary space-y-1.5">
+                      <div className="flex items-center gap-1.5 font-medium text-text-primary mb-2">
+                        <Info className="w-3.5 h-3.5 flex-shrink-0" />
+                        计算说明
+                      </div>
+                      <p>
+                        综合置信度 ={' '}
+                        <span style={{ color: level.color }}>表达DNA还原度 × 30%</span> +{' '}
+                        <span style={{ color: level.color }}>知识覆盖深度 × 30%</span> +{' '}
+                        <span style={{ color: level.color }}>思维模式一致性 × 25%</span> +{' '}
+                        <span style={{ color: level.color }}>安全合规性 × 15%</span>
+                      </p>
+                      <p>
+                        四维分数在蒸馏时由 AI 自动分析人物数据计算，反映该人物对话代理的知识丰富度、声音还原度、思维一致性和内容安全性。
+                      </p>
+                    </div>
                   </div>
                 </div>
 
-                {/* Five-dimension bars */}
+                {/* Four-dimension breakdown */}
                 <div className="rounded-2xl border border-border-subtle bg-bg-surface p-5">
-                  <h4 className="text-sm font-medium text-text-primary mb-4">五维评分</h4>
-                  <div className="space-y-3">
-                    {DIMENSION_KEYS.map((key) => {
-                      const dim = DIMENSION_LABELS[key];
-                      const weights: Record<string, number> = {
-                        dataCoverage: 30, rawMaterial: 25, timeSpan: 15, contentDiversity: 15, sourceVerifiability: 15,
-                      };
+                  <h4 className="text-sm font-medium text-text-primary mb-4">四维评分</h4>
+                  <div className="space-y-5">
+                    {CONFIDENCE_DIMENSIONS.map((dim) => {
+                      const score = breakdown[dim.key] ?? 0;
                       return (
-                        <div key={key} className="space-y-1.5">
-                          <div className="flex justify-between text-xs">
-                            <span className="flex items-center gap-1.5 text-text-secondary">
-                              {dim.icon}
-                              {dim.label}
-                              <span className="text-text-muted">×{weights[key]}%</span>
-                            </span>
-                            <span className="font-medium" style={{ color: level.color }}>{confidence[key]}</span>
+                        <div key={dim.key} className="space-y-2">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                              <span className="text-base">{dim.icon}</span>
+                              <div>
+                                <span className="text-sm font-medium text-text-primary">{dim.labelZh}</span>
+                                <span className="ml-2 text-xs text-text-muted">×{dim.weight}%</span>
+                              </div>
+                            </div>
+                            <span className="text-sm font-bold" style={{ color: level.color }}>{score}</span>
                           </div>
                           <div className="h-1.5 bg-bg-base rounded-full overflow-hidden">
                             <div
-                              className="h-full rounded-full"
-                              style={{ width: `${confidence[key]}%`, backgroundColor: level.color }}
+                              className="h-full rounded-full transition-all duration-700"
+                              style={{ width: `${score}%`, backgroundColor: level.color }}
                             />
                           </div>
+                          <p className="text-xs text-text-muted leading-relaxed">{dim.explanation}</p>
+                          {score < 75 && (
+                            <p className="text-xs text-prism-orange leading-relaxed">
+                              ▸ {dim.howToImprove}
+                            </p>
+                          )}
                         </div>
                       );
                     })}
                   </div>
                 </div>
 
-                {/* Radar chart (simplified CSS version) */}
+                {/* Radar chart */}
                 <div className="rounded-2xl border border-border-subtle bg-bg-surface p-5">
-                  <h4 className="text-sm font-medium text-text-primary mb-4">能力雷达图</h4>
+                  <h4 className="text-sm font-medium text-text-primary mb-4">置信度雷达</h4>
                   <div className="flex items-center justify-center">
                     <div className="relative w-40 h-40">
                       <svg width="160" height="160" viewBox="0 0 160 160">
-                        {/* Grid circles */}
-                        {[25, 50, 75, 100].map((level) => (
-                          <circle
-                            key={level}
-                            cx="80" cy="80"
-                            r={(level / 100) * 65}
-                            fill="none"
-                            stroke="rgba(255,255,255,0.05)"
-                            strokeWidth="1"
-                          />
+                        {[25, 50, 75, 100].map((lvl) => (
+                          <circle key={lvl} cx="80" cy="80" r={(lvl / 100) * 65}
+                            fill="none" stroke="rgba(255,255,255,0.05)" strokeWidth="1" />
                         ))}
-                        {/* Axis lines */}
-                        {DIMENSION_KEYS.map((_, i) => {
-                          const angle = (i * 360 / DIMENSION_KEYS.length) - 90;
+                        {CONFIDENCE_DIMENSIONS.map((_, i) => {
+                          const angle = (i * 360 / CONFIDENCE_DIMENSIONS.length) - 90;
                           const rad = (angle * Math.PI) / 180;
                           return (
-                            <line
-                              key={i}
-                              x1="80" y1="80"
-                              x2={80 + 65 * Math.cos(rad)}
-                              y2={80 + 65 * Math.sin(rad)}
-                              stroke="rgba(255,255,255,0.08)"
-                              strokeWidth="1"
-                            />
+                            <line key={i} x1="80" y1="80"
+                              x2={80 + 65 * Math.cos(rad)} y2={80 + 65 * Math.sin(rad)}
+                              stroke="rgba(255,255,255,0.08)" strokeWidth="1" />
                           );
                         })}
-                        {/* Score polygon */}
                         {(() => {
-                          const points = DIMENSION_KEYS.map((key, i) => {
-                            const angle = (i * 360 / DIMENSION_KEYS.length) - 90;
+                          const pts = CONFIDENCE_DIMENSIONS.map((dim, i) => {
+                            const angle = (i * 360 / CONFIDENCE_DIMENSIONS.length) - 90;
                             const rad = (angle * Math.PI) / 180;
-                            const r = (confidence[key] / 100) * 65;
+                            const r = ((breakdown[dim.key] ?? 0) / 100) * 65;
                             return `${80 + r * Math.cos(rad)},${80 + r * Math.sin(rad)}`;
                           }).join(' ');
                           return (
-                            <polygon
-                              points={points}
-                              fill={`${level.color}25`}
-                              stroke={level.color}
-                              strokeWidth="1.5"
-                            />
+                            <polygon points={pts}
+                              fill={`${level.color}25`} stroke={level.color} strokeWidth="1.5" />
                           );
                         })()}
-                        {/* Axis labels */}
-                        {DIMENSION_KEYS.map((key, i) => {
-                          const angle = (i * 360 / DIMENSION_KEYS.length) - 90;
+                        {CONFIDENCE_DIMENSIONS.map((dim, i) => {
+                          const angle = (i * 360 / CONFIDENCE_DIMENSIONS.length) - 90;
                           const rad = (angle * Math.PI) / 180;
-                          const label = DIMENSION_LABELS[key].label;
                           return (
-                            <text
-                              key={key}
-                              x={80 + 78 * Math.cos(rad)}
-                              y={80 + 78 * Math.sin(rad)}
-                              textAnchor="middle"
-                              dominantBaseline="middle"
-                              fill="rgba(255,255,255,0.45)"
-                              fontSize="8"
-                            >
-                              {label}
+                            <text key={dim.key} x={80 + 78 * Math.cos(rad)} y={80 + 78 * Math.sin(rad)}
+                              textAnchor="middle" dominantBaseline="middle"
+                              fill="rgba(255,255,255,0.45)" fontSize="8">
+                              {dim.labelZh}
                             </text>
                           );
                         })}
@@ -772,12 +762,9 @@ export function PersonaDetailClient({ persona, colors }: Props) {
                           </div>
                           <div className="flex items-center gap-0.5 flex-shrink-0 ml-2">
                             {[1, 2, 3, 4, 5].map((s) => (
-                              <Star
-                                key={s}
-                                className="w-2.5 h-2.5"
+                              <Star key={s} className="w-2.5 h-2.5"
                                 fill={parseInt(src.quality) >= s ? '#f59e0b' : 'transparent'}
-                                stroke={parseInt(src.quality) >= s ? '#f59e0b' : 'rgba(255,255,255,0.15)'}
-                              />
+                                stroke={parseInt(src.quality) >= s ? '#f59e0b' : 'rgba(255,255,255,0.15)'} />
                             ))}
                           </div>
                         </div>
@@ -807,6 +794,11 @@ export function PersonaDetailClient({ persona, colors }: Props) {
                     </div>
                   </div>
                 )}
+
+                {/* Source badge */}
+                <div className="text-center text-xs text-text-muted">
+                  数据来源：{confidence.source === 'db' ? '蒸馏管道自动计算' : '静态评估（下次蒸馏后更新）'}
+                </div>
               </div>
             );
           })()}

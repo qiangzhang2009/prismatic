@@ -11,7 +11,9 @@ import { MessageContent } from '@/components/message-content';
 import { ModeButtonBar } from '@/components/mode-button-bar';
 import { ModePickerOverlay } from '@/components/mode-picker-overlay';
 import { PERSONA_LIST, getPersonasByIds } from '@/lib/personas';
+import { MODES } from '@/lib/constants';
 import { useChatHistory } from '@/lib/use-chat-history';
+import { useConversationSync } from '@/lib/use-conversation-sync';
 import { useAuthStore, getFeatureLimit } from '@/lib/auth-store';
 import type { Mode, Persona, AgentMessage } from '@/lib/types';
 import { nanoid } from 'nanoid';
@@ -59,7 +61,7 @@ function loadSavedState() {
   return null;
 }
 
-function saveState(state: { selectedIds: string[]; mode: Mode }) {
+function saveState(state: { selectedIds: string[]; mode: Mode; conversationId?: string }) {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
   } catch {}
@@ -99,11 +101,15 @@ export function ChatInterface({ className, initialPersona, initialMode }: ChatIn
   };
 
   const [mode, setModeState] = useState<Mode>(getInitialMode);
+  const [conversationId, setConversationId] = useState<string | undefined>(() => saved?.conversationId);
   const [selectedIds, setSelectedIds] = useState<string[]>(() => {
     const id = getInitialPersonaId();
     return saved?.selectedIds?.length > 1 ? saved.selectedIds : [id];
   });
   const { messages, setMessages, clearHistory } = useChatHistory(selectedIds);
+  const { pushSnapshot } = useConversationSync();
+  const messagesRef = useRef(messages);
+  useEffect(() => { messagesRef.current = messages; }, [messages]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [showPersonaPicker, setShowPersonaPicker] = useState(false);
@@ -182,8 +188,27 @@ export function ChatInterface({ className, initialPersona, initialMode }: ChatIn
     return () => { cancelled = true; };
   }, []);
 
+  // Re-validate selectedIds when dbPersonas loads (fixes stale IDs from URL/localStorage)
+  useEffect(() => {
+    if (dbPersonas.length === 0) return;
+    const availableIds = new Set([...PERSONA_LIST.map(p => p.id), ...dbPersonas.map(p => p.id)]);
+    const valid = selectedIds.filter(id => availableIds.has(id));
+    if (valid.length !== selectedIds.length && valid.length > 0) {
+      const modeConfig = MODES[mode];
+      const max = modeConfig?.maxParticipants ?? 6;
+      setSelectedIds(valid.slice(0, max));
+    }
+  }, [dbPersonas]);  // eslint-disable-line react-hooks/exhaustive-deps
+
   // selectedPersonas — resolve from both hardcoded and DB personas
-  const allPersonas = [...PERSONA_LIST, ...dbPersonas];
+  // DB personas override hardcoded ones with the same ID (deduplicate by id, DB wins)
+  const allPersonas = (() => {
+    const map = new Map<string, any>();
+    // Hardcoded first so DB can override
+    for (const p of PERSONA_LIST) map.set(p.id, p);
+    for (const p of dbPersonas) map.set(p.id, p);
+    return Array.from(map.values());
+  })();
   const selectedPersonas = selectedIds
     .map(id => allPersonas.find(p => p.id === id))
     .filter((p): p is Persona => !!p);
@@ -212,7 +237,7 @@ export function ChatInterface({ className, initialPersona, initialMode }: ChatIn
       initialized.current = true;
       return;
     }
-    saveState({ selectedIds, mode });
+    saveState({ selectedIds, mode, conversationId });
 
     // Sync to URL params (for shareability)
     const params = new URLSearchParams();
@@ -228,16 +253,16 @@ export function ChatInterface({ className, initialPersona, initialMode }: ChatIn
   // React to URL param changes (navigating from persona page or graph → update selection)
   useEffect(() => {
     if (!initialPersona) return;
-    // Only change if this is a deliberate navigation from outside
+    // Always sync when URL param changes — guard only prevents accidental overwrite
+    // when user has an active conversation and navigated back within the app.
     if (initialPersona !== selectedIds[0]) {
-      // Check if this is a different conversation (user clicked from persona page)
-      const isDifferentConversation = saved?.selectedIds?.[0] !== initialPersona;
-      if (isDifferentConversation && !hasActiveMessages()) {
-        setSelectedIds([initialPersona]);
+      if (hasActiveMessages()) {
+        // Has active conversation — don't switch automatically
+        return;
       }
+      setSelectedIds([initialPersona]);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [initialPersona]);
+  }, [initialPersona]);  // eslint-disable-line react-hooks/exhaustive-deps
 
   // Helper to check if current conversation has active messages
   function hasActiveMessages(): boolean {
@@ -273,33 +298,32 @@ export function ChatInterface({ className, initialPersona, initialMode }: ChatIn
 
   // Handle mode changes: adjust participant count if needed
   useEffect(() => {
-    const minParticipants =
-        mode === 'solo' ? 1
-        : mode === 'oracle' ? 1
-        : 2;
-    const maxParticipants = mode === 'prism' ? 3 : mode === 'roundtable' ? 8 : 6;
+    const modeConfig = MODES[mode];
+    const min = modeConfig?.minParticipants ?? 2;
+    const max = modeConfig?.maxParticipants ?? 6;
 
     setSelectedIds((prev) => {
       let next = [...prev];
 
-      if (next.length < minParticipants) {
+      if (next.length < min) {
         const currentSet = new Set(next);
-        for (const p of PERSONA_LIST) {
+        // Auto-fill from allPersonas (includes DB personas, deduped)
+        for (const p of allPersonas) {
           if (!currentSet.has(p.id)) {
             currentSet.add(p.id);
-            if (currentSet.size >= minParticipants) break;
+            if (currentSet.size >= min) break;
           }
         }
         next = Array.from(currentSet);
       }
 
-      if (next.length > maxParticipants) {
-        next = next.slice(0, maxParticipants);
+      if (next.length > max) {
+        next = next.slice(0, max);
       }
 
       return next;
     });
-  }, [mode]);
+  }, [mode]);  // eslint-disable-line react-hooks/exhaustive-deps
 
   // Close export menu on outside click
   useEffect(() => {
@@ -388,7 +412,7 @@ export function ChatInterface({ className, initialPersona, initialMode }: ChatIn
           mode,
           participantIds: selectedIds,
           message: input.trim(),
-          conversationId: 'local',
+          conversationId: conversationId || undefined,
           // Pass history for solo mode (deep questioning continuity)
           history: mode === 'solo' ? messages.slice(-8).map(m => ({
             content: m.content,
@@ -398,16 +422,11 @@ export function ChatInterface({ className, initialPersona, initialMode }: ChatIn
       });
 
       if (!response.ok) {
-        // 服务器端报错：解析错误体
         let data: any = {};
         try { data = await response.json(); } catch {}
         const isLimitReached = response.status === 429 || (data?.code === 'DAILY_LIMIT_REACHED');
-        const isInsufficientCredits = data?.code === 'INSUFFICIENT_CREDITS';
         if (isLimitReached) {
           setLimitModalType('daily_limit');
-          setShowLimitModal(true);
-        } else if (isInsufficientCredits) {
-          setLimitModalType('insufficient_credits');
           setShowLimitModal(true);
         } else if (response.status === 401) {
           router.push('/auth/signin');
@@ -429,6 +448,11 @@ export function ChatInterface({ className, initialPersona, initialMode }: ChatIn
 
       const data = await response.json();
 
+      // Store conversation ID for session continuity
+      if (data.conversationId) {
+        setConversationId(data.conversationId);
+      }
+
       // Record usage server-side (non-blocking, ignore failures)
       // Only for authenticated users (guests use localStorage limits only)
       if (user) {
@@ -441,6 +465,19 @@ export function ChatInterface({ className, initialPersona, initialMode }: ChatIn
       const currentTurn = turnCount + 1;
       setTurnCount(currentTurn);
       incrementDailyCount();
+
+      // ── Push snapshot after UI update ────────────────────────────────────────
+      // Build the final messages array from the response so pushSnapshot always
+      // has complete, up-to-date data regardless of React state timing.
+      const snapshotTitle = data.conversationId
+        ? undefined  // conversation already has a title
+        : (messages[0]?.content?.slice(0, 30) || undefined);
+      const pushCurrentSnapshot = () => {
+        if (selectedIds.length > 0) {
+          // messagesRef.current is always fresh (updated via useEffect above)
+          pushSnapshot(selectedIds, messagesRef.current, snapshotTitle, undefined, mode).catch(() => {});
+        }
+      };
 
       // ── Roundtable: Multi-Agent Dialogue ──────────────────────────────────────
       if (data.debate) {
@@ -475,6 +512,8 @@ export function ChatInterface({ className, initialPersona, initialMode }: ChatIn
         if (primaryPersona) {
           trackChatMessage(primaryPersona.id, mode, currentTurn, aiLatencyMs, data.model || 'claude');
         }
+        // Push after state update (setMessages is async, so schedule after it settles)
+        setTimeout(pushCurrentSnapshot, 0);
         return;
       }
 
@@ -529,6 +568,7 @@ export function ChatInterface({ className, initialPersona, initialMode }: ChatIn
         if (primaryPersona2) {
           trackChatMessage(primaryPersona2.id, mode, currentTurn, aiLatencyMs, data.model || 'claude');
         }
+        setTimeout(pushCurrentSnapshot, 0);
         return;
       }
 
@@ -557,7 +597,10 @@ export function ChatInterface({ className, initialPersona, initialMode }: ChatIn
         if (primaryPersona3) {
           trackChatMessage(primaryPersona3.id, mode, currentTurn, aiLatencyMs, data.model || 'claude');
         }
+        setTimeout(pushCurrentSnapshot, 0);
       }
+      // ── Solo + fallback: push snapshot after UI update ──────────────────────
+      setTimeout(pushCurrentSnapshot, 0);
     } catch (error) {
       console.error('Chat error:', error);
       const errMsg = error instanceof Error ? error.message : '';
@@ -581,27 +624,23 @@ export function ChatInterface({ className, initialPersona, initialMode }: ChatIn
   };
 
   const togglePersona = (id: string) => {
-    const minParticipants =
-        mode === 'solo' ? 1
-        : mode === 'oracle' ? 1
-        : 2;
+    const modeConfig = MODES[mode];
+    const min = modeConfig?.minParticipants ?? 2;
+    const max = modeConfig?.maxParticipants ?? 6;
 
     if (selectedIds.includes(id)) {
-      if (selectedIds.length > minParticipants) {
+      if (selectedIds.length > min) {
         setSelectedIds(selectedIds.filter((i) => i !== id));
+      } else if (min === 1) {
+        // Solo mode (or any single-person mode): clicking the already-selected persona
+        // does nothing — user must click a different person to replace
       }
     } else {
-      const maxParticipants =
-        mode === 'epoch' ? 2
-        : mode === 'prism' ? 3
-        : mode === 'solo' ? 1
-        : mode === 'oracle' ? 2
-        : mode === 'council' ? 4
-        : mode === 'fiction' ? 3
-        : mode === 'roundtable' ? 6
-        : 6;
-      if (selectedIds.length < maxParticipants) {
+      if (selectedIds.length < max) {
         setSelectedIds([...selectedIds, id]);
+      } else {
+        // At max capacity: replace the first selected (or the last added)
+        setSelectedIds([...selectedIds.slice(1), id]);
       }
     }
   };
@@ -621,6 +660,7 @@ export function ChatInterface({ className, initialPersona, initialMode }: ChatIn
           setIsPickerOpen(open);
           setShowPersonaPicker(open);
         }}
+        minParticipants={MODES[mode]?.minParticipants ?? 1}
       />
 
       {/* ── Toolbar row (settings / export / limits) ─────────── */}
@@ -721,6 +761,7 @@ export function ChatInterface({ className, initialPersona, initialMode }: ChatIn
             onClick={() => {
               if (window.confirm('确定清空当前对话历史？此操作不可撤销。')) {
                 clearHistory();
+                setConversationId(undefined);
               }
             }}
             title="清空对话历史"
@@ -767,7 +808,7 @@ export function ChatInterface({ className, initialPersona, initialMode }: ChatIn
                 <div>
                   <h3 className="text-sm font-semibold text-text-primary">选择人物</h3>
                   <p className="text-xs text-text-muted mt-0.5">
-                    {selectedIds.length}人已选 · {mode === 'solo' ? '单人模式' : mode === 'prism' ? '折射模式(最多3人)' : '圆桌模式(最多8人)'}
+                    {selectedIds.length}人已选 · {MODES[mode]?.label ?? mode}
                   </p>
                 </div>
                 <button
@@ -805,18 +846,28 @@ export function ChatInterface({ className, initialPersona, initialMode }: ChatIn
               {/* Domain tabs */}
               <div className="flex-shrink-0 border-b border-border-subtle overflow-x-auto scrollbar-none">
                 <div className="flex gap-1 px-4 py-1.5 min-w-max">
-                  {([
-                    ['all', '全部', PERSONA_LIST.length],
-                    ['strategy', '策略', 34],
-                    ['philosophy', '哲学', 33],
-                    ['leadership', '领导力', 18],
-                    ['creativity', '创造力', 10],
-                    ['technology', '科技', 8],
-                    ['science', '科学', 7],
-                    ['education', '教育', 7],
-                    ['investment', '投资', 4],
-                    ['product', '产品', 3],
-                  ] as [string, string, number][]).map(([key, label, count]) => (
+                  {/* Compute domain counts from real data (hardcoded counts excluded DB personas) */}
+                  {(() => {
+                    const domainCount: Record<string, number> = { all: allPersonas.length };
+                    for (const p of allPersonas) {
+                      for (const d of (p.domain ?? [])) {
+                        domainCount[d] = (domainCount[d] ?? 0) + 1;
+                      }
+                    }
+                    const tabs: [string, string, number][] = [['all', '全部', domainCount.all]];
+                    for (const [key, label] of [
+                      ['strategy', '策略'], ['philosophy', '哲学'],
+                      ['leadership', '领导力'], ['creativity', '创造力'],
+                      ['technology', '科技'], ['science', '科学'],
+                      ['education', '教育'], ['investment', '投资'],
+                      ['product', '产品'],
+                    ] as [string, string][]) {
+                      if (domainCount[key] > 0) {
+                        tabs.push([key, label, domainCount[key]]);
+                      }
+                    }
+                    return tabs;
+                  })().map(([key, label, count]) => (
                     <button
                       key={key}
                       onClick={() => { setPickerTab(key); setPickerSearch(''); }}
