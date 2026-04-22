@@ -45,8 +45,15 @@ function makeLLM(type: 'deepseek' | 'openai' | 'anthropic', key?: string) {
 
 // ─── Persistence ────────────────────────────────────────────────────────────────
 
+function getDbPool() {
+  const url = process.env.DATABASE_URL;
+  if (!url) throw new Error('DATABASE_URL not set');
+  return new Pool({ connectionString: url });
+}
+
 /**
  * 持久化对话和消息记录到数据库。
+ * 使用 raw SQL 避免 Prisma nested write 在 skipDuplicates 时的兼容性问题。
  * 包括统计信息的更新（消息数、token、成本）。
  */
 async function persistConversation(
@@ -59,56 +66,92 @@ async function persistConversation(
   totalCost?: number
 ) {
   try {
-    // Upsert conversation
-    const conversation = await prisma.conversation.upsert({
-      where: { id: conversationId },
-      create: {
-        id: conversationId,
-        userId,
-        mode,
-        participants: participantIds,
-        messageCount: messages.length,
-        totalTokens: totalTokens || 0,
-        totalCost: totalCost ? parseFloat(String(totalCost)) : 0,
-        personaIds: participantIds,
-        archived: false,
-        tags: [],
-      },
-      update: {
-        messageCount: messages.length,
-        totalTokens: totalTokens || 0,
-        totalCost: totalCost ? parseFloat(String(totalCost)) : 0,
-        personaIds: participantIds,
-        updatedAt: new Date(),
-      },
-    });
+    const pool = getDbPool();
+    const totalTokensNum = totalTokens || 0;
+    const totalCostNum = totalCost ? parseFloat(String(totalCost)) : 0;
 
-    // Create messages
-    const messageRecords = messages.map(msg => ({
-      id: msg.id || nanoid(),
-      conversationId,
-      userId,
-      role: msg.role === 'agent' ? 'assistant' : msg.role,
-      content: msg.content,
-      personaId: msg.personaId || undefined,
-      modelUsed: msg.modelUsed || undefined,
-      // Use real token usage from API response (_usage) when available
-      tokensInput: msg._usage?.promptTokens || msg.tokensInput || undefined,
-      tokensOutput: msg._usage?.completionTokens || msg.tokensOutput || undefined,
-      apiCost: msg.apiCost ? parseFloat(String(msg.apiCost)) : undefined,
-      metadata: msg.metadata ? JSON.stringify(msg.metadata) : undefined,
-      source: 'web',
-      createdAt: new Date(msg.timestamp || Date.now()),
-    }));
+    // ── Upsert conversation ───────────────────────────────────────────────────
+    const upsertResult = await pool.query(`
+      INSERT INTO conversations (id, "userId", mode, participants, "personaIds",
+                               "messageCount", "totalTokens", "totalCost", archived, tags, "createdAt", "updatedAt")
+      VALUES ($1, $2, $3, $4, $4, $5, $6, $7, false, '{}'::jsonb, NOW(), NOW())
+      ON CONFLICT (id) DO UPDATE SET
+        mode = EXCLUDED.mode,
+        participants = EXCLUDED.participants,
+        "personaIds" = EXCLUDED."personaIds",
+        "messageCount" = EXCLUDED."messageCount",
+        "totalTokens" = EXCLUDED."totalTokens",
+        "totalCost" = EXCLUDED."totalCost",
+        "updatedAt" = NOW()
+    `, [conversationId, userId, mode, JSON.stringify(participantIds), messages.length, totalTokensNum, totalCostNum]);
+    console.log(`[persistConversation] upserted conversation ${conversationId}, rowCount=${upsertResult.rowCount}`);
 
-    await prisma.message.createMany({
-      data: messageRecords,
-      skipDuplicates: true, // 避免重复插入
-    });
+    // ── Insert messages — batch in groups of 50 ─────────────────────────────
+    // Use ON CONFLICT to safely skip duplicates (same message ID already inserted).
+    const BATCH = 50;
+    let totalInserted = 0;
+    let totalSkipped = 0;
+    for (let i = 0; i < messages.length; i += BATCH) {
+      const batch = messages.slice(i, i + BATCH);
+      const values: unknown[] = [];
+      const placeholders: string[] = [];
 
-    return conversation;
+      // Position within the full messages array, used to compute placeholder offsets
+      batch.forEach((msg, batchIdx) => {
+        const globalIdx = i + batchIdx;
+        const resolvedPersonaId = msg.personaId || msg.speakerId || msg.assignedTo || null;
+        const role = msg.role === 'agent' ? 'assistant' : msg.role;
+        const ts = msg.timestamp ? new Date(msg.timestamp) : new Date();
+        const modelUsed = msg.modelUsed || null;
+        const tokensInput = msg._usage?.promptTokens || msg.tokensInput || null;
+        const tokensOutput = msg._usage?.completionTokens || msg.tokensOutput || null;
+        const apiCost = msg.apiCost ? parseFloat(String(msg.apiCost)) : null;
+        const metadata = msg.metadata ? JSON.stringify(msg.metadata) : null;
+
+        const offset = globalIdx * 12;
+        placeholders.push(
+          `($${offset + 1}, $${offset + 2}, $${offset + 3}, $${offset + 4}, $${offset + 5}, $${offset + 6}, $${offset + 7}, $${offset + 8}, $${offset + 9}, $${offset + 10}, $${offset + 11}, $${offset + 12})`
+        );
+        values.push(
+          msg.id || nanoid(),
+          conversationId,
+          userId,
+          role,
+          msg.content || '',
+          resolvedPersonaId,
+          modelUsed,
+          tokensInput,
+          tokensOutput,
+          apiCost,
+          metadata,
+          ts
+        );
+      });
+
+      const insertResult = await pool.query(`
+        INSERT INTO messages (id, "conversationId", "userId", role, content,
+                             "personaId", "modelUsed", "tokensInput", "tokensOutput",
+                             "apiCost", metadata, "createdAt")
+        VALUES ${placeholders.join(', ')}
+        ON CONFLICT (id) DO NOTHING
+        RETURNING id
+      `, values);
+      totalInserted += insertResult.rowCount ?? 0;
+      totalSkipped += batch.length - (insertResult.rowCount ?? 0);
+    }
+    console.log(`[persistConversation] messages inserted=${totalInserted} skipped=${totalSkipped} for conv=${conversationId}`);
+
+    await pool.end();
+    return { id: conversationId, inserted: totalInserted, skipped: totalSkipped };
   } catch (error) {
-    console.error('[Analytics] persistConversation error:', error);
+    // Distinguish between conversation upsert failure and message insert failure
+    // so we know exactly where data loss is occurring.
+    const msg = error instanceof Error ? error.message : String(error);
+    const hint = msg.includes('permission') ? ' → DB permission issue — check Neon row-level security or table grants'
+      : msg.includes('relation') && msg.includes('does not exist') ? ' → Table does not exist — run migration to create conversations/messages tables'
+      : msg.includes('connection') || msg.includes('timeout') ? ' → DB connection issue'
+      : '';
+    console.error(`[persistConversation] FATAL: ${msg}${hint}`, { userId, conversationId, mode, messageCount: messages.length });
     return null;
   }
 }
@@ -1004,16 +1047,73 @@ export async function POST(request: NextRequest) {
       timestamp: new Date(Date.now() - (body as any).history.length - i),
     })) || [];
 
+    // ── Build allMessages: collect every response from every mode ──────────────
+    // Solo: data.messages (array of agent responses)
+    // Prism: data.messages (array of agent responses)
+    // Roundtable/Epoch: data.debate.turns (array of dialogue turns)
+    // Mission: data.mission.taskPlan + data.mission.results (task plan + individual contributions)
+    // Council: data.advice (advisory responses)
+    // Oracle: data.advice (predictions)
+    // Fiction: data.turns (story turns)
+    const agentResponses: any[] = [];
+
+    // Solo / Prism responses
+    if (Array.isArray(data.messages)) {
+      agentResponses.push(...data.messages);
+    }
+
+    // Roundtable / Epoch dialogue turns
+    if (Array.isArray(data.debate?.turns)) {
+      agentResponses.push(...data.debate.turns);
+    }
+
+    // Mission task plan entries
+    if (Array.isArray(data.mission?.taskPlan)) {
+      for (const t of data.mission.taskPlan) {
+        agentResponses.push({
+          id: nanoid(),
+          role: 'agent',
+          content: t.description,
+          personaId: t.assignedTo,
+          timestamp: new Date().toISOString(),
+        });
+      }
+    }
+
+    // Mission individual contributions
+    if (Array.isArray(data.mission?.results)) {
+      for (const r of data.mission.results) {
+        agentResponses.push({
+          id: nanoid(),
+          role: 'agent',
+          content: r.result,
+          personaId: r.personaId,
+          timestamp: new Date().toISOString(),
+        });
+      }
+    }
+
+    // Mission integrated output (as a system summary, not an agent persona)
+    if (data.mission?.output?.content) {
+      // Don't add to agentResponses — the synthesis message is a system message
+      // already handled by the frontend as a system role message
+    }
+
+    // Council advisory responses
+    if (Array.isArray(data.advice)) {
+      agentResponses.push(...data.advice.map((a: any) => ({
+        id: a.id || nanoid(),
+        role: 'agent',
+        content: a.advice,
+        personaId: a.personaId,
+        timestamp: a.timestamp || new Date().toISOString(),
+      })));
+    }
+
     const allMessages = [
       ...historyMessages,
       { id: nanoid(), role: 'user', content: message, timestamp: new Date() },
-      ...(data.messages || data.debate?.turns || data.mission?.taskPlan?.map((t: any) => ({
-        id: nanoid(),
-        role: 'agent',
-        content: t.description,
-        personaId: t.assignedTo,
-        timestamp: new Date(),
-      })) || []),
+      ...agentResponses,
     ].filter(Boolean);
 
     // Use real token counts from API responses where available
@@ -1038,7 +1138,7 @@ export async function POST(request: NextRequest) {
     totalCost = cost;
 
     // Persist conversation and messages
-    await persistConversation(
+    const persistResult = await persistConversation(
       userId,
       convId,
       mode,
@@ -1047,15 +1147,11 @@ export async function POST(request: NextRequest) {
       totalInputTokens + totalOutputTokens,
       cost
     );
+    if (!persistResult) {
+      console.warn(`[Chat API] persistConversation returned null for conv=${convId}, mode=${mode}, messages=${allMessages.length} — data NOT saved to DB`);
+    }
 
-    // Update conversation total tokens and cost
-    await prisma.conversation.update({
-      where: { id: convId },
-      data: {
-        totalTokens: totalInputTokens + totalOutputTokens,
-        totalCost: cost,
-      },
-    });
+    // Tokens and cost are already set by the upsert in persistConversation
 
     // ── Analytics Tracking ─────────────────────────────────────────────────────
     // Track chat start event
