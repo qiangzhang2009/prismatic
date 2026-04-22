@@ -53,8 +53,13 @@ function getDbPool() {
 
 /**
  * 持久化对话和消息记录到数据库。
- * 使用 raw SQL 避免 Prisma nested write 在 skipDuplicates 时的兼容性问题。
+ * 使用 raw SQL + 事务保证原子性，避免 Prisma nested write 在 skipDuplicates 时的兼容性问题。
  * 包括统计信息的更新（消息数、token、成本）。
+ *
+ * 关键设计：
+ * - 事务包装：conversation 和 messages 作为原子单元
+ * - tags 字段使用 text[] 类型
+ * - metadata 使用有效 JSON（null 而不是 JSON.stringify(undefined)）
  */
 async function persistConversation(
   userId: string,
@@ -82,6 +87,8 @@ async function persistConversation(
     return null;
   }
 
+  console.log(`[persistConversation] START conversation=${conversationId} mode=${mode} messages=${messages.length} tokens=${totalTokensNum} cost=${totalCostNum}`);
+
   const pool = getDbPool();
   let poolEnded = false;
 
@@ -94,74 +101,91 @@ async function persistConversation(
   };
 
   try {
-    // ── Upsert conversation ───────────────────────────────────────────────────
-    const upsertResult = await pool.query(`
-      INSERT INTO conversations (id, "userId", mode, participants, "personaIds",
-                               "messageCount", "totalTokens", "totalCost", archived, tags, "createdAt", "updatedAt")
-      VALUES ($1, $2, $3, $4, $4, $5, $6, $7, false, '{}'::jsonb, NOW(), NOW())
-      ON CONFLICT (id) DO UPDATE SET
-        mode = EXCLUDED.mode,
-        participants = EXCLUDED.participants,
-        "personaIds" = EXCLUDED."personaIds",
-        "messageCount" = EXCLUDED."messageCount",
-        "totalTokens" = EXCLUDED."totalTokens",
-        "totalCost" = EXCLUDED."totalCost",
-        "updatedAt" = NOW()
-    `, [conversationId, userId, mode, JSON.stringify(participantIds), messages.length, totalTokensNum, totalCostNum]);
-  console.log(`[persistConversation] STEP_upsert_ok conversation=${conversationId}, messages=${messages.length}`);
+    // Use a transaction so conversation + messages are atomic
+    const client = await pool.connect();
 
-    // ── Insert messages — one at a time for maximum reliability ───────────────
-    // Per-message INSERT avoids PostgreSQL parameter limit issues and ensures
-    // one bad message cannot block the entire batch.
-    let totalInserted = 0;
-    let totalSkipped = 0;
-    let insertErrors = 0;
+    try {
+      await client.query('BEGIN');
 
-    for (let i = 0; i < messages.length; i++) {
-      const msg = messages[i];
-      if (!msg || typeof msg !== 'object') {
-        console.warn(`[persistConversation] STEP_msg_skip_invalid index=${i}`);
-        continue;
-      }
+      // ── Upsert conversation ───────────────────────────────────────────────────
+      await client.query(`
+        INSERT INTO conversations (id, "userId", mode, participants, "personaIds",
+                                 "messageCount", "totalTokens", "totalCost", archived, tags, "createdAt", "updatedAt")
+        VALUES ($1, $2, $3, $4, $4, $5, $6, $7, false, '{}'::text[], NOW(), NOW())
+        ON CONFLICT (id) DO UPDATE SET
+          mode = EXCLUDED.mode,
+          participants = EXCLUDED.participants,
+          "personaIds" = EXCLUDED."personaIds",
+          "messageCount" = EXCLUDED."messageCount",
+          "totalTokens" = EXCLUDED."totalTokens",
+          "totalCost" = EXCLUDED."totalCost",
+          "updatedAt" = NOW()
+      `, [conversationId, userId, mode, JSON.stringify(participantIds), messages.length, totalTokensNum, totalCostNum]);
+      console.log(`[persistConversation] STEP_upsert_ok conversation=${conversationId}, messages=${messages.length}`);
 
-      try {
-        const msgId = msg.id || nanoid();
-        const resolvedPersonaId = msg.personaId || msg.speakerId || msg.assignedTo || null;
-        const role = msg.role === 'agent' ? 'assistant' : (msg.role || 'user');
-        const tsRaw = msg.timestamp;
-        const ts = tsRaw instanceof Date ? tsRaw : (tsRaw ? new Date(tsRaw) : new Date());
-        const modelUsed = msg.modelUsed || null;
-        const tokensInput = msg._usage?.promptTokens || msg.tokensInput || null;
-        const tokensOutput = msg._usage?.completionTokens || msg.tokensOutput || null;
-        const apiCost = msg.apiCost ? parseFloat(String(msg.apiCost)) : null;
-        const metadata = msg.metadata ? JSON.stringify(msg.metadata) : null;
-        const content = typeof msg.content === 'string' ? msg.content : '';
+      // ── Insert messages — one at a time for maximum reliability ───────────────
+      // Per-message INSERT avoids PostgreSQL parameter limit issues and ensures
+      // one bad message cannot block the entire batch.
+      let totalInserted = 0;
+      let totalSkipped = 0;
+      let insertErrors = 0;
 
-        const result = await pool.query(`
-          INSERT INTO messages (id, "conversationId", "userId", role, content,
-                               "personaId", "modelUsed", "tokensInput", "tokensOutput",
-                               "apiCost", metadata, "createdAt")
-          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
-          ON CONFLICT (id) DO NOTHING
-          RETURNING id
-        `, [msgId, conversationId, userId, role, content, resolvedPersonaId, modelUsed, tokensInput, tokensOutput, apiCost, metadata, ts]);
-
-        if ((result.rowCount ?? 0) > 0) {
-          totalInserted++;
-        } else {
+      for (let i = 0; i < messages.length; i++) {
+        const msg = messages[i];
+        if (!msg || typeof msg !== 'object') {
+          console.warn(`[persistConversation] STEP_msg_skip_invalid index=${i}`);
           totalSkipped++;
+          continue;
         }
-      } catch (msgErr) {
-        insertErrors++;
-        const errMsg = msgErr instanceof Error ? msgErr.message : String(msgErr);
-        console.warn(`[persistConversation] STEP_msg_insert_err index=${i} msgId=${msg.id} error=${errMsg}`);
+
+        try {
+          const msgId = msg.id || nanoid();
+          const resolvedPersonaId = msg.personaId || msg.speakerId || msg.assignedTo || null;
+          const role = msg.role === 'agent' ? 'assistant' : (msg.role || 'user');
+          const tsRaw = msg.timestamp;
+          const ts = tsRaw instanceof Date ? tsRaw : (tsRaw ? new Date(tsRaw) : new Date());
+          const modelUsed = msg.modelUsed || null;
+          const tokensInput = msg._usage?.promptTokens || msg.tokensInput || null;
+          const tokensOutput = msg._usage?.completionTokens || msg.tokensOutput || null;
+          const apiCost = msg.apiCost ? parseFloat(String(msg.apiCost)) : null;
+          // metadata: only stringify if it's a valid non-null object, otherwise null
+          let metadata: string | null = null;
+          if (msg.metadata && typeof msg.metadata === 'object') {
+            metadata = JSON.stringify(msg.metadata);
+          }
+          const content = typeof msg.content === 'string' ? msg.content : '';
+
+          const result = await client.query(`
+            INSERT INTO messages (id, "conversationId", "userId", role, content,
+                                 "personaId", "modelUsed", "tokensInput", "tokensOutput",
+                                 "apiCost", metadata, "createdAt")
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+            ON CONFLICT (id) DO NOTHING
+          `, [msgId, conversationId, userId, role, content, resolvedPersonaId, modelUsed, tokensInput, tokensOutput, apiCost, metadata, ts]);
+
+          if ((result.rowCount ?? 0) > 0) {
+            totalInserted++;
+          } else {
+            totalSkipped++;
+          }
+        } catch (msgErr) {
+          insertErrors++;
+          const errMsg = msgErr instanceof Error ? msgErr.message : String(msgErr);
+          console.warn(`[persistConversation] STEP_msg_insert_err index=${i} msgId=${msg.id} error=${errMsg}`);
+        }
       }
+
+      console.log(`[persistConversation] STEP_done conversation=${conversationId} messages=${messages.length} inserted=${totalInserted} skipped=${totalSkipped} errors=${insertErrors}`);
+
+      await client.query('COMMIT');
+      client.release();
+      await endPool();
+      return { id: conversationId, inserted: totalInserted, skipped: totalSkipped };
+    } catch (innerErr) {
+      await client.query('ROLLBACK').catch(() => {});
+      client.release();
+      throw innerErr;
     }
-
-    console.log(`[persistConversation] STEP_done messages=${messages.length} inserted=${totalInserted} skipped=${totalSkipped} errors=${insertErrors}`);
-
-    await endPool();
-    return { id: conversationId, inserted: totalInserted, skipped: totalSkipped };
   } catch (error) {
     const errMsg = error instanceof Error ? error.message : String(error);
     const errStack = error instanceof Error ? error.stack?.split('\n').slice(0, 3).join(' | ') : '';
@@ -169,6 +193,7 @@ async function persistConversation(
       : errMsg.includes('relation') && errMsg.includes('does not exist') ? ' → Table does not exist — run migration'
       : errMsg.includes('connection') || errMsg.includes('timeout') ? ' → DB connection issue'
       : errMsg.includes('unique') || errMsg.includes('duplicate') ? ' → Unique constraint violation'
+      : errMsg.includes('invalid input syntax for type json') ? ' → metadata field has invalid JSON'
       : '';
     console.error(`[persistConversation] STEP_FATAL error=${errMsg} hint=${hint} stack=${errStack} messages=${messages.length}`);
     await endPool();
