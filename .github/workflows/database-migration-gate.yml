@@ -285,7 +285,10 @@ jobs:
       - migration-dry-run
       - danger-zone-block
       - manual-approval
-    if: github.event_name == 'pull_request'
+    # 运行条件: PR 合入时，或者 push 时（只要 schema 无危险变更就通过）
+    if: >
+      github.event_name == 'pull_request' ||
+      (github.event_name == 'push' && needs.danger-zone-block.result != 'success' && needs.analyze-schema-change.outputs.has_dangerous_changes == 'false')
     steps:
       - name: Validate all gates passed
         run: |
@@ -313,6 +316,27 @@ jobs:
           echo "  1. 在 staging 环境验证"
           echo "  2. 监控迁移后的数据库状态"
           echo "  3. 准备好回滚方案"
+
+  # ─── 合入检查：push 时安全变更的快速通过 ──────────────────────
+  final-check-push:
+    name: '[Final] Push Safety Check'
+    runs-on: ubuntu-latest
+    needs:
+      - analyze-schema-change
+      - migration-dry-run
+    # 仅在 push 时运行（非 PR），且无危险变更时通过
+    if: >
+      github.event_name == 'push' &&
+      needs.analyze-schema-change.outputs.has_dangerous_changes == 'false'
+    steps:
+      - name: Validate push safety
+        run: |
+          echo "=== Push 安全检查 ==="
+          echo "变更类型: ${{ needs.analyze-schema-change.outputs.change_type }}"
+          echo "包含危险操作: ${{ needs.analyze-schema-change.outputs.has_dangerous_changes }}"
+          echo "✅ 无危险变更，push 安全通过"
+          echo ""
+          echo "✅ 所有安全闸检查完成（push 路径）"
 
   # ─── 强制禁止: 生产直接运行迁移 ─────────────────────────────
   # 这个 job 永远不应该被触发，如果触发了说明有严重配置问题

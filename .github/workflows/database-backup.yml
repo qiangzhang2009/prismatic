@@ -107,8 +107,8 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Install neon SQL tool
-        run: npm install -g @neondatabase/cli
+      - name: Install neon CLI tool
+        run: npm install -g neonctl
 
       - name: Run database backup
         env:
