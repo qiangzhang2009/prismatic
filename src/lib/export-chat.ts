@@ -52,145 +52,184 @@ export async function exportChatAsImage(
   const modeName = getModeName(mode);
   const personaNames = personas.map(p => p.nameZh).join('、');
 
-  // 构建文本内容用于计算高度
+  // ─── Layout Constants ───────────────────────────────────────────────
+  const canvasWidth = 720;
   const padding = 50;
-  const contentWidth = 620;
-  const qrSize = 180;
+  const contentWidth = canvasWidth - padding * 2; // 620px
+
   const headerHeight = 140;
-  const footerHeight = 120;
-  const messageSpacing = 30;
+  const footerHeight = 140; // 固定 footer 高度，避免被遮挡
+  const messageSpacing = 28;
   const lineHeight = 26;
   const avatarSize = 36;
 
-  // 过滤并准备消息
+  // ─── Filter Messages ───────────────────────────────────────────────
   const chatMessages = messages.filter(msg => msg.content && msg.content.trim());
 
-  // 计算每条消息的高度
+  // ─── Calculate Message Heights ──────────────────────────────────────
+  // Use a temporary canvas context for accurate text measurement
+  const measureCanvas = document.createElement('canvas');
+  const measureCtx = measureCanvas.getContext('2d');
+  const fontFamily = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+  measureCtx!.font = `15px ${fontFamily}`;
+
   const messageHeights: number[] = [];
   for (const msg of chatMessages) {
-    const lines = countLines(msg.content, contentWidth - avatarSize - 20);
-    const baseHeight = 50 + lines * lineHeight; // 头像 + 行数
-    messageHeights.push(Math.max(baseHeight, 70));
+    if (msg.role === 'user') {
+      const lines = wrapTextToLines(measureCtx!, msg.content, contentWidth / 2 - 35);
+      const textHeight = lines.length * lineHeight;
+      messageHeights.push(Math.max(textHeight + 50, 70));
+    } else if (msg.role === 'system') {
+      const lines = msg.content.split('\n').filter(l => l.trim());
+      const textHeight = Math.max(lines.length - 1, 0) * lineHeight;
+      messageHeights.push(textHeight + 50);
+    } else {
+      const lines = wrapTextToLines(measureCtx!, msg.content, contentWidth - avatarSize - 20);
+      const textHeight = lines.length * lineHeight;
+      messageHeights.push(Math.max(textHeight + 50, 70));
+    }
   }
 
   const totalMessagesHeight = messageHeights.reduce((a, b) => a + b, 0);
-  const canvasHeight = Math.max(700, headerHeight + totalMessagesHeight + footerHeight + padding * 2);
+  const totalContentHeight = headerHeight + totalMessagesHeight;
+  const minCanvasHeight = 700;
 
-  // 创建画布
+  // 关键修复：canvas 高度必须同时容纳 header + 消息 + footer，三段相加
+  const canvasHeight = Math.max(
+    minCanvasHeight,
+    totalContentHeight + footerHeight + padding * 2
+  );
+
+  // ─── Create Canvas ─────────────────────────────────────────────────
   const canvas = document.createElement('canvas');
+  canvas.width = canvasWidth;
+  canvas.height = canvasHeight;
+
   const ctx = canvas.getContext('2d');
   if (!ctx) return;
 
-  canvas.width = 720;
-  canvas.height = canvasHeight;
+  // Measure context for actual rendering
+  ctx.font = `15px ${fontFamily}`;
 
-  // 绘制背景
+  // ─── Draw Background ────────────────────────────────────────────────
   ctx.fillStyle = '#0a0a1a';
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.fillRect(0, 0, canvasWidth, canvasHeight);
 
-  // 绘制顶部渐变装饰条
-  const gradient = ctx.createLinearGradient(0, 0, canvas.width, 0);
+  // ─── Draw Top Gradient Bar ──────────────────────────────────────────
+  const gradient = ctx.createLinearGradient(0, 0, canvasWidth, 0);
   gradient.addColorStop(0, '#4d96ff');
   gradient.addColorStop(0.5, '#9b6dff');
   gradient.addColorStop(1, '#c77dff');
   ctx.fillStyle = gradient;
-  ctx.fillRect(0, 0, canvas.width, 5);
+  ctx.fillRect(0, 0, canvasWidth, 5);
 
-  // 绘制标题
+  // ─── Draw Header ───────────────────────────────────────────────────
   ctx.fillStyle = '#ffffff';
-  ctx.font = 'bold 32px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+  ctx.font = `bold 32px ${fontFamily}`;
   ctx.fillText('棱镜对话记录', padding, 60);
 
-  // 绘制元信息背景
+  // Header meta box
   ctx.fillStyle = '#1a1a30';
-  roundRect(ctx, padding, 75, canvas.width - padding * 2, 55, 10);
+  roundRect(ctx, padding, 75, canvasWidth - padding * 2, 55, 10);
   ctx.fill();
 
-  // 绘制元信息
-  ctx.font = '15px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+  ctx.font = `15px ${fontFamily}`;
   ctx.fillStyle = '#a0a0c0';
   ctx.fillText(`📌 ${modeName}`, padding + 15, 100);
   ctx.fillText(`👥 ${personaNames}`, padding + 200, 100);
   ctx.fillText(`💬 ${chatMessages.length} 条消息`, padding + 420, 100);
 
-  // 绘制分隔线
+  // Header divider
   ctx.strokeStyle = '#2a2a4a';
   ctx.lineWidth = 1;
   ctx.beginPath();
   ctx.moveTo(padding, headerHeight);
-  ctx.lineTo(canvas.width - padding, headerHeight);
+  ctx.lineTo(canvasWidth - padding, headerHeight);
   ctx.stroke();
 
-  // 绘制消息
+  // ─── Draw Messages ──────────────────────────────────────────────────
   let yPos = headerHeight + 25;
 
   for (let i = 0; i < chatMessages.length; i++) {
     const msg = chatMessages[i];
     const msgHeight = messageHeights[i];
 
+    // Safety check: if we're too close to the footer area, stop drawing
+    if (yPos + msgHeight > canvasHeight - footerHeight - padding) {
+      // Draw a "truncated" notice and stop
+      ctx.fillStyle = '#2a2a4a';
+      roundRect(ctx, padding, yPos, contentWidth, 40, 8);
+      ctx.fill();
+      ctx.fillStyle = '#8080a0';
+      ctx.font = `14px ${fontFamily}`;
+      ctx.fillText('... 对话记录过长，已截断', padding + 15, yPos + 26);
+      break;
+    }
+
     if (msg.role === 'user') {
-      // 用户消息 - 右对齐浅蓝色背景
+      // User message — right-aligned light blue bubble
+      const bubbleX = canvasWidth / 2 + 10;
+      const bubbleWidth = canvasWidth / 2 - padding - 10;
+
       ctx.fillStyle = '#1e3a5f';
-      roundRect(ctx, canvas.width / 2 + 10, yPos, canvas.width / 2 - padding - 10, msgHeight - 10, 12);
+      roundRect(ctx, bubbleX, yPos, bubbleWidth, msgHeight - 10, 12);
       ctx.fill();
 
       ctx.fillStyle = '#60a5fa';
-      ctx.font = 'bold 13px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
-      ctx.fillText('👤 你', canvas.width - padding - 40, yPos + 22);
+      ctx.font = `bold 13px ${fontFamily}`;
+      ctx.fillText('👤 你', canvasWidth - padding - 40, yPos + 22);
 
       ctx.fillStyle = '#e0e8f0';
-      ctx.font = '15px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
-      const lines = wrapText(ctx, msg.content, contentWidth / 2 - 30);
+      ctx.font = `15px ${fontFamily}`;
+      const lines = wrapTextToLines(ctx, msg.content, bubbleWidth - 30);
       for (let j = 0; j < lines.length; j++) {
-        ctx.fillText(lines[j], canvas.width - padding - contentWidth / 2 + 15, yPos + 48 + j * lineHeight);
+        ctx.fillText(lines[j], bubbleX + 15, yPos + 48 + j * lineHeight);
       }
     } else if (msg.role === 'system') {
-      // 系统消息 - 居中背景
+      // System message — centered purple box
       const contentLines = msg.content.split('\n').filter(l => l.trim());
-      const totalHeight = contentLines.length * lineHeight + 35;
+      const totalHeight = contentLines.length * lineHeight + 40;
 
       ctx.fillStyle = '#2a1f4a';
-      roundRect(ctx, padding, yPos, canvas.width - padding * 2, totalHeight, 12);
+      roundRect(ctx, padding, yPos, contentWidth, totalHeight, 12);
       ctx.fill();
 
       ctx.fillStyle = '#c77dff';
-      ctx.font = 'bold 14px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
-      const title = contentLines[0] || '系统';
-      ctx.fillText(title.slice(0, 40), padding + 15, yPos + 24);
+      ctx.font = `bold 14px ${fontFamily}`;
+      ctx.fillText(contentLines[0]?.slice(0, 40) || '系统', padding + 15, yPos + 24);
 
       ctx.fillStyle = '#c0b0d8';
-      ctx.font = '14px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+      ctx.font = `14px ${fontFamily}`;
       for (let j = 1; j < contentLines.length; j++) {
-        const lines = wrapText(ctx, contentLines[j], canvas.width - padding * 2 - 40);
+        const lines = wrapTextToLines(ctx, contentLines[j], contentWidth - 40);
         for (let k = 0; k < lines.length; k++) {
           ctx.fillText(lines[k], padding + 15, yPos + 48 + (j - 1) * lineHeight + k * lineHeight);
         }
       }
     } else {
-      // AI 消息 - 左对齐
+      // AI agent message — left-aligned with avatar
       const persona = personas.find(p => p.id === msg.personaId);
       const speakerName = persona?.nameZh || 'AI';
 
-      // 绘制头像背景
+      // Avatar circle
       ctx.fillStyle = persona?.gradientFrom || '#4d96ff';
       ctx.beginPath();
       ctx.arc(padding + avatarSize / 2, yPos + avatarSize / 2, avatarSize / 2, 0, Math.PI * 2);
       ctx.fill();
 
-      // 绘制头像文字
       ctx.fillStyle = '#ffffff';
-      ctx.font = 'bold 16px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+      ctx.font = `bold 16px ${fontFamily}`;
       ctx.fillText(speakerName.charAt(0), padding + avatarSize / 2 - 6, yPos + avatarSize / 2 + 5);
 
-      // 绘制名字
+      // Speaker name
       ctx.fillStyle = persona?.accentColor || '#4d96ff';
-      ctx.font = 'bold 14px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+      ctx.font = `bold 14px ${fontFamily}`;
       ctx.fillText(speakerName, padding + avatarSize + 12, yPos + 16);
 
-      // 绘制消息内容
+      // Message content
       ctx.fillStyle = '#e8e8f0';
-      ctx.font = '15px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
-      const lines = wrapText(ctx, msg.content, contentWidth - avatarSize - 20);
+      ctx.font = `15px ${fontFamily}`;
+      const lines = wrapTextToLines(ctx, msg.content, contentWidth - avatarSize - 20);
       for (let j = 0; j < lines.length; j++) {
         ctx.fillText(lines[j], padding + avatarSize + 12, yPos + 40 + j * lineHeight);
       }
@@ -199,27 +238,46 @@ export async function exportChatAsImage(
     yPos += msgHeight + messageSpacing;
   }
 
-  // 绘制底部区域
+  // ─── Draw Footer ───────────────────────────────────────────────────
   const footerY = canvasHeight - footerHeight;
 
-  // 绘制分隔线
+  // Footer background
+  ctx.fillStyle = '#0d0d20';
+  ctx.fillRect(0, footerY, canvasWidth, footerHeight);
+
+  // Footer top border
   ctx.strokeStyle = '#2a2a4a';
+  ctx.lineWidth = 1;
   ctx.beginPath();
-  ctx.moveTo(padding, footerY - 15);
-  ctx.lineTo(canvas.width - padding, footerY - 15);
+  ctx.moveTo(0, footerY);
+  ctx.lineTo(canvasWidth, footerY);
   ctx.stroke();
 
-  // 绘制品牌信息
+  // ── Brand info (left side of footer) ──
   ctx.fillStyle = '#ffffff';
-  ctx.font = 'bold 18px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
-  ctx.fillText('✨ 由「棱镜」导出', padding, footerY + 10);
+  ctx.font = `bold 16px ${fontFamily}`;
+  ctx.fillText('✨ 由「棱镜」导出', padding, footerY + 32);
 
-  ctx.fillStyle = '#8080a0';
-  ctx.font = '14px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
-  ctx.fillText(WEBSITE_URL, padding, footerY + 35);
+  ctx.fillStyle = '#6060a0';
+  ctx.font = `13px ${fontFamily}`;
+  ctx.fillText(WEBSITE_URL, padding, footerY + 55);
 
-  // 绘制二维码
-  const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(WEBSITE_URL)}&margin=5&format=png`;
+  ctx.fillStyle = '#404060';
+  ctx.font = `12px ${fontFamily}`;
+  ctx.fillText(`对话时间：${formatDate(new Date())}`, padding, footerY + 76);
+
+  // ── QR Code (right side of footer) ──
+  const qrSize = 100;
+  const qrX = canvasWidth - padding - qrSize;
+  const qrY = footerY + (footerHeight - qrSize) / 2; // vertically centered in footer
+
+  // White QR border / background
+  ctx.fillStyle = '#ffffff';
+  roundRect(ctx, qrX - 6, qrY - 6, qrSize + 12, qrSize + 12, 6);
+  ctx.fill();
+
+  // Load and draw QR code
+  const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=${qrSize * 2}x${qrSize * 2}&data=${encodeURIComponent(WEBSITE_URL)}&margin=5&format=png`;
   try {
     const qrImage = new Image();
     qrImage.crossOrigin = 'anonymous';
@@ -228,32 +286,19 @@ export async function exportChatAsImage(
       qrImage.onerror = reject;
       qrImage.src = qrCodeUrl;
     });
-
-    const qrX = canvas.width - padding - qrSize;
-    const qrY = footerY - 40;
-
-    // 二维码白色边框
-    ctx.fillStyle = '#ffffff';
-    roundRect(ctx, qrX - 8, qrY - 8, qrSize + 16, qrSize + 16, 8);
-    ctx.fill();
-
-    // 绘制二维码
     ctx.drawImage(qrImage, qrX, qrY, qrSize, qrSize);
   } catch {
-    // 如果二维码加载失败，绘制占位符
-    ctx.fillStyle = '#ffffff';
-    const qrX = canvas.width - padding - qrSize;
-    const qrY = footerY - 40;
-    roundRect(ctx, qrX - 8, qrY - 8, qrSize + 16, qrSize + 16, 8);
-    ctx.fill();
-
+    // Fallback: placeholder if QR loading fails
     ctx.fillStyle = '#0a0a1a';
-    ctx.font = '12px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
-    ctx.fillText('扫码访问', qrX + qrSize / 2 - 30, qrY + qrSize / 2 - 10);
-    ctx.fillText(WEBSITE_URL.slice(8), qrX + 10, qrY + qrSize / 2 + 10);
+    roundRect(ctx, qrX, qrY, qrSize, qrSize, 4);
+    ctx.fill();
+    ctx.fillStyle = '#404060';
+    ctx.font = `11px ${fontFamily}`;
+    ctx.fillText('扫码', qrX + qrSize / 2 - 15, qrY + qrSize / 2 - 5);
+    ctx.fillText('访问', qrX + qrSize / 2 - 15, qrY + qrSize / 2 + 10);
   }
 
-  // 下载图片
+  // ─── Download ───────────────────────────────────────────────────────
   const link = document.createElement('a');
   link.download = `棱镜对话_${formatDateForFile(new Date())}.png`;
   link.href = canvas.toDataURL('image/png');
@@ -273,7 +318,7 @@ export function exportChatAsText(
   const personaNames = personas.map(p => p.nameZh).join('、');
 
   let content = `═══════════════════════════════════════\n`;
-  content += `         🔮 棱镜对话记录\n`;
+  content += `         棱镜对话记录\n`;
   content += `═══════════════════════════════════════\n\n`;
   content += `📌 对话模式：${modeName}\n`;
   content += `👥 参与人物：${personaNames}\n`;
@@ -339,11 +384,10 @@ function roundRect(
 }
 
 /**
- * 辅助函数：自动换行
+ * 辅助函数：自动换行（返回行数组）
  */
-function wrapText(ctx: CanvasRenderingContext2D, text: string, maxWidth: number): string[] {
-  // 移除 markdown 格式符号以获得真实宽度
-  const cleanText = text.replace(/[*_`#\[\]()]/g, '');
+function wrapTextToLines(ctx: CanvasRenderingContext2D, text: string, maxWidth: number): string[] {
+  const cleanText = text.replace(/[*_`#\[\]()>]/g, '');
   const paragraphs = cleanText.split('\n');
   const lines: string[] = [];
 
@@ -372,19 +416,6 @@ function wrapText(ctx: CanvasRenderingContext2D, text: string, maxWidth: number)
   }
 
   return lines.length > 0 ? lines : [''];
-}
-
-/**
- * 辅助函数：计算文本行数
- */
-function countLines(text: string, maxWidth: number): number {
-  const canvas = document.createElement('canvas');
-  const ctx = canvas.getContext('2d');
-  if (!ctx) return 3;
-
-  ctx.font = '15px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
-  const lines = wrapText(ctx, text, maxWidth);
-  return Math.max(lines.length, 1);
 }
 
 /**
