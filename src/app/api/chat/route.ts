@@ -65,11 +65,35 @@ async function persistConversation(
   totalTokens?: number,
   totalCost?: number
 ) {
-  try {
-    const pool = getDbPool();
-    const totalTokensNum = totalTokens || 0;
-    const totalCostNum = totalCost ? parseFloat(String(totalCost)) : 0;
+  const totalTokensNum = totalTokens || 0;
+  const totalCostNum = totalCost ? parseFloat(String(totalCost)) : 0;
 
+  // ── Validate inputs ────────────────────────────────────────────────────────
+  if (!conversationId || typeof conversationId !== 'string') {
+    console.error('[persistConversation] FATAL: invalid conversationId', { conversationId, userId });
+    return null;
+  }
+  if (!userId || typeof userId !== 'string') {
+    console.error('[persistConversation] FATAL: invalid userId', { userId, conversationId });
+    return null;
+  }
+  if (!Array.isArray(messages)) {
+    console.error('[persistConversation] FATAL: messages is not an array', { conversationId });
+    return null;
+  }
+
+  const pool = getDbPool();
+  let poolEnded = false;
+
+  // Helper to safely end the pool
+  const endPool = async () => {
+    if (!poolEnded) {
+      poolEnded = true;
+      try { await pool.end(); } catch { /* ignore */ }
+    }
+  };
+
+  try {
     // ── Upsert conversation ───────────────────────────────────────────────────
     const upsertResult = await pool.query(`
       INSERT INTO conversations (id, "userId", mode, participants, "personaIds",
@@ -86,72 +110,66 @@ async function persistConversation(
     `, [conversationId, userId, mode, JSON.stringify(participantIds), messages.length, totalTokensNum, totalCostNum]);
     console.log(`[persistConversation] upserted conversation ${conversationId}, rowCount=${upsertResult.rowCount}`);
 
-    // ── Insert messages — batch in groups of 50 ─────────────────────────────
-    // Use ON CONFLICT to safely skip duplicates (same message ID already inserted).
-    const BATCH = 50;
+    // ── Insert messages — one at a time for maximum reliability ───────────────
+    // Per-message INSERT avoids PostgreSQL parameter limit issues and ensures
+    // one bad message cannot block the entire batch.
     let totalInserted = 0;
     let totalSkipped = 0;
-    for (let i = 0; i < messages.length; i += BATCH) {
-      const batch = messages.slice(i, i + BATCH);
-      const values: unknown[] = [];
-      const placeholders: string[] = [];
+    let insertErrors = 0;
 
-      // Position within the full messages array, used to compute placeholder offsets
-      batch.forEach((msg, batchIdx) => {
-        const globalIdx = i + batchIdx;
+    for (let i = 0; i < messages.length; i++) {
+      const msg = messages[i];
+      if (!msg || typeof msg !== 'object') {
+        console.warn(`[persistConversation] skip invalid message at index ${i}`);
+        continue;
+      }
+
+      try {
+        const msgId = msg.id || nanoid();
         const resolvedPersonaId = msg.personaId || msg.speakerId || msg.assignedTo || null;
-        const role = msg.role === 'agent' ? 'assistant' : msg.role;
+        const role = msg.role === 'agent' ? 'assistant' : (msg.role || 'user');
         const ts = msg.timestamp ? new Date(msg.timestamp) : new Date();
         const modelUsed = msg.modelUsed || null;
         const tokensInput = msg._usage?.promptTokens || msg.tokensInput || null;
         const tokensOutput = msg._usage?.completionTokens || msg.tokensOutput || null;
         const apiCost = msg.apiCost ? parseFloat(String(msg.apiCost)) : null;
         const metadata = msg.metadata ? JSON.stringify(msg.metadata) : null;
+        const content = typeof msg.content === 'string' ? msg.content : '';
 
-        const offset = globalIdx * 12;
-        placeholders.push(
-          `($${offset + 1}, $${offset + 2}, $${offset + 3}, $${offset + 4}, $${offset + 5}, $${offset + 6}, $${offset + 7}, $${offset + 8}, $${offset + 9}, $${offset + 10}, $${offset + 11}, $${offset + 12})`
-        );
-        values.push(
-          msg.id || nanoid(),
-          conversationId,
-          userId,
-          role,
-          msg.content || '',
-          resolvedPersonaId,
-          modelUsed,
-          tokensInput,
-          tokensOutput,
-          apiCost,
-          metadata,
-          ts
-        );
-      });
+        const result = await pool.query(`
+          INSERT INTO messages (id, "conversationId", "userId", role, content,
+                               "personaId", "modelUsed", "tokensInput", "tokensOutput",
+                               "apiCost", metadata, "createdAt")
+          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+          ON CONFLICT (id) DO NOTHING
+          RETURNING id
+        `, [msgId, conversationId, userId, role, content, resolvedPersonaId, modelUsed, tokensInput, tokensOutput, apiCost, metadata, ts]);
 
-      const insertResult = await pool.query(`
-        INSERT INTO messages (id, "conversationId", "userId", role, content,
-                             "personaId", "modelUsed", "tokensInput", "tokensOutput",
-                             "apiCost", metadata, "createdAt")
-        VALUES ${placeholders.join(', ')}
-        ON CONFLICT (id) DO NOTHING
-        RETURNING id
-      `, values);
-      totalInserted += insertResult.rowCount ?? 0;
-      totalSkipped += batch.length - (insertResult.rowCount ?? 0);
+        if ((result.rowCount ?? 0) > 0) {
+          totalInserted++;
+        } else {
+          totalSkipped++;
+        }
+      } catch (msgErr) {
+        insertErrors++;
+        const errMsg = msgErr instanceof Error ? msgErr.message : String(msgErr);
+        console.warn(`[persistConversation] message[${i}] insert error: ${errMsg}`, { msgId: msg.id, convId: conversationId });
+        // Continue inserting remaining messages — don't let one failure block the batch
+      }
     }
-    console.log(`[persistConversation] messages inserted=${totalInserted} skipped=${totalSkipped} for conv=${conversationId}`);
 
-    await pool.end();
+    console.log(`[persistConversation] messages inserted=${totalInserted} skipped=${totalSkipped} errors=${insertErrors} for conv=${conversationId}`);
+
+    await endPool();
     return { id: conversationId, inserted: totalInserted, skipped: totalSkipped };
   } catch (error) {
-    // Distinguish between conversation upsert failure and message insert failure
-    // so we know exactly where data loss is occurring.
-    const msg = error instanceof Error ? error.message : String(error);
-    const hint = msg.includes('permission') ? ' → DB permission issue — check Neon row-level security or table grants'
-      : msg.includes('relation') && msg.includes('does not exist') ? ' → Table does not exist — run migration to create conversations/messages tables'
-      : msg.includes('connection') || msg.includes('timeout') ? ' → DB connection issue'
+    const errMsg = error instanceof Error ? error.message : String(error);
+    const hint = errMsg.includes('permission') ? ' → DB permission issue'
+      : errMsg.includes('relation') && errMsg.includes('does not exist') ? ' → Table does not exist — run migration'
+      : errMsg.includes('connection') || errMsg.includes('timeout') ? ' → DB connection issue'
       : '';
-    console.error(`[persistConversation] FATAL: ${msg}${hint}`, { userId, conversationId, mode, messageCount: messages.length });
+    console.error(`[persistConversation] FATAL: ${errMsg}${hint}`, { userId, conversationId, mode, messageCount: messages.length });
+    await endPool();
     return null;
   }
 }
