@@ -48,6 +48,7 @@ export interface LocalConversationSnapshot {
   lastMessageAt: string;
   messages?: SyncMessage[];
   snapshotAt: string;
+  mode?: string;
 }
 
 export interface ConflictItem {
@@ -280,6 +281,7 @@ interface ConversationRegistry {
     title?: string;
     tags?: string[];
     lastUpdated: number;
+    mode?: string;
   }>;
 }
 
@@ -306,6 +308,7 @@ function migrateRegistry(old: ConversationRegistry): ConversationRegistry {
       lastUpdated: (data as any).lastUpdated || Date.now(),
       title: (data as any).title || '',
       tags: (data as any).tags || [],
+      mode: (data as any).mode,
     };
   }
   return { version: STORAGE_VERSION, conversations };
@@ -330,6 +333,7 @@ function getOrCreateConversation(
       title: '',
       tags: [],
       lastUpdated: Date.now(),
+      mode: undefined,
     };
   }
   return registry.conversations[conversationKey];
@@ -360,7 +364,7 @@ export function useConversationSync() {
   // ── Push a conversation snapshot ───────────────────────────────────────
 
   /** Call this after every message to push a snapshot to the server */
-  const pushSnapshot = useCallback(async (personaIds: string[], messages: AgentMessage[], title?: string, tags?: string[]) => {
+  const pushSnapshot = useCallback(async (personaIds: string[], messages: AgentMessage[], title?: string, tags?: string[], mode?: string) => {
     const conversationKey = buildConversationKey(personaIds);
     const contentHash = computeContentHash(messages);
 
@@ -375,6 +379,7 @@ export function useConversationSync() {
         ? ((messages[messages.length - 1] as any).timestamp as string || new Date().toISOString())
         : new Date().toISOString(),
       snapshotAt: new Date().toISOString(),
+      mode,
     };
 
     if (!isOnlineRef.current) {
@@ -638,6 +643,7 @@ export async function migrateVisitorConversationsToServer(
         ? ((data.messages[data.messages.length - 1] as any).timestamp as string || new Date().toISOString())
         : new Date().toISOString(),
       snapshotAt: new Date().toISOString(),
+      mode: data.mode,
     };
     snapshots.push(snapshot);
   }
