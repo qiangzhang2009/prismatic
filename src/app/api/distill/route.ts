@@ -19,11 +19,8 @@ export async function GET(req: NextRequest) {
       .map(([id, conf]) => ({
         id,
         overall: conf.overall,
-        starRating: conf.starRating,
-        priority: conf.priority,
         gaps: conf.mainGaps,
         sources: conf.dataSources.map(s => s.type),
-        corpusPath: conf.corpusPath,
         version: conf.version,
       }))
       .sort((a, b) => b.overall - a.overall);
@@ -62,24 +59,22 @@ export async function GET(req: NextRequest) {
       overall: conf.overall,
       gaps: conf.mainGaps,
       dataSources: conf.dataSources,
-      priority: conf.priority,
     });
   }
 
   if (action === 'status') {
     const summary = {
       total: Object.keys(PERSONA_CONFIDENCE).length,
-      highPriority: Object.values(PERSONA_CONFIDENCE).filter(c => c.priority === 'high').length,
       avgOverall: Math.round(
         Object.values(PERSONA_CONFIDENCE).reduce((a, c) => a + c.overall, 0) /
         Object.keys(PERSONA_CONFIDENCE).length
       ),
       starDistribution: {
-        five: Object.values(PERSONA_CONFIDENCE).filter(c => c.starRating === 5).length,
-        four: Object.values(PERSONA_CONFIDENCE).filter(c => c.starRating === 4).length,
-        three: Object.values(PERSONA_CONFIDENCE).filter(c => c.starRating === 3).length,
-        two: Object.values(PERSONA_CONFIDENCE).filter(c => c.starRating === 2).length,
-        one: Object.values(PERSONA_CONFIDENCE).filter(c => c.starRating === 1).length,
+        five: Object.values(PERSONA_CONFIDENCE).filter(c => c.overall >= 90).length,
+        four: Object.values(PERSONA_CONFIDENCE).filter(c => c.overall >= 75 && c.overall < 90).length,
+        three: Object.values(PERSONA_CONFIDENCE).filter(c => c.overall >= 60 && c.overall < 75).length,
+        two: Object.values(PERSONA_CONFIDENCE).filter(c => c.overall >= 45 && c.overall < 60).length,
+        one: Object.values(PERSONA_CONFIDENCE).filter(c => c.overall < 45).length,
       },
     };
 

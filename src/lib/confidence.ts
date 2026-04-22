@@ -157,8 +157,13 @@ export function computeOverall(breakdown: ScoreBreakdown): number {
 // 分数来源：人工评估 + 语料分析（蒸馏管道上线前）
 // 这些数据将在下次蒸馏后被 DB 数据替代
 
-export const PERSONA_CONFIDENCE: Record<string, Omit<ConfidenceScore, 'breakdown' | 'grade' | 'starRating'> & {
+export const PERSONA_CONFIDENCE: Record<string, {
+  overall: number;
   breakdown?: ScoreBreakdown;
+  version: string;
+  source: 'static' | 'db';
+  dataSources: ConfidenceScore['dataSources'];
+  mainGaps: string[];
 }> = {
   'wittgenstein': {
     overall: 72,
