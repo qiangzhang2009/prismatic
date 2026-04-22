@@ -108,7 +108,7 @@ async function persistConversation(
         "totalCost" = EXCLUDED."totalCost",
         "updatedAt" = NOW()
     `, [conversationId, userId, mode, JSON.stringify(participantIds), messages.length, totalTokensNum, totalCostNum]);
-    console.log(`[persistConversation] upserted conversation ${conversationId}, rowCount=${upsertResult.rowCount}`);
+  console.log(`[persistConversation] STEP_upsert_ok conversation=${conversationId}, messages=${messages.length}`);
 
     // ── Insert messages — one at a time for maximum reliability ───────────────
     // Per-message INSERT avoids PostgreSQL parameter limit issues and ensures
@@ -120,7 +120,7 @@ async function persistConversation(
     for (let i = 0; i < messages.length; i++) {
       const msg = messages[i];
       if (!msg || typeof msg !== 'object') {
-        console.warn(`[persistConversation] skip invalid message at index ${i}`);
+        console.warn(`[persistConversation] STEP_msg_skip_invalid index=${i}`);
         continue;
       }
 
@@ -128,7 +128,8 @@ async function persistConversation(
         const msgId = msg.id || nanoid();
         const resolvedPersonaId = msg.personaId || msg.speakerId || msg.assignedTo || null;
         const role = msg.role === 'agent' ? 'assistant' : (msg.role || 'user');
-        const ts = msg.timestamp ? new Date(msg.timestamp) : new Date();
+        const tsRaw = msg.timestamp;
+        const ts = tsRaw instanceof Date ? tsRaw : (tsRaw ? new Date(tsRaw) : new Date());
         const modelUsed = msg.modelUsed || null;
         const tokensInput = msg._usage?.promptTokens || msg.tokensInput || null;
         const tokensOutput = msg._usage?.completionTokens || msg.tokensOutput || null;
@@ -153,22 +154,23 @@ async function persistConversation(
       } catch (msgErr) {
         insertErrors++;
         const errMsg = msgErr instanceof Error ? msgErr.message : String(msgErr);
-        console.warn(`[persistConversation] message[${i}] insert error: ${errMsg}`, { msgId: msg.id, convId: conversationId });
-        // Continue inserting remaining messages — don't let one failure block the batch
+        console.warn(`[persistConversation] STEP_msg_insert_err index=${i} msgId=${msg.id} error=${errMsg}`);
       }
     }
 
-    console.log(`[persistConversation] messages inserted=${totalInserted} skipped=${totalSkipped} errors=${insertErrors} for conv=${conversationId}`);
+    console.log(`[persistConversation] STEP_done messages=${messages.length} inserted=${totalInserted} skipped=${totalSkipped} errors=${insertErrors}`);
 
     await endPool();
     return { id: conversationId, inserted: totalInserted, skipped: totalSkipped };
   } catch (error) {
     const errMsg = error instanceof Error ? error.message : String(error);
+    const errStack = error instanceof Error ? error.stack?.split('\n').slice(0, 3).join(' | ') : '';
     const hint = errMsg.includes('permission') ? ' → DB permission issue'
       : errMsg.includes('relation') && errMsg.includes('does not exist') ? ' → Table does not exist — run migration'
       : errMsg.includes('connection') || errMsg.includes('timeout') ? ' → DB connection issue'
+      : errMsg.includes('unique') || errMsg.includes('duplicate') ? ' → Unique constraint violation'
       : '';
-    console.error(`[persistConversation] FATAL: ${errMsg}${hint}`, { userId, conversationId, mode, messageCount: messages.length });
+    console.error(`[persistConversation] STEP_FATAL error=${errMsg} hint=${hint} stack=${errStack} messages=${messages.length}`);
     await endPool();
     return null;
   }
@@ -1133,6 +1135,7 @@ export async function POST(request: NextRequest) {
       { id: nanoid(), role: 'user', content: message, timestamp: new Date() },
       ...agentResponses,
     ].filter(Boolean);
+    console.log(`[Chat API] allMessages count=${allMessages.length} history=${historyMessages.length} userMsg=1 agent=${agentResponses.length}`);
 
     // Use real token counts from API responses where available
     let totalInputTokens = 0;
