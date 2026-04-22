@@ -166,7 +166,7 @@ export const PERSONA_CONFIDENCE: Record<string, {
   mainGaps: string[];
 }> = {
   'wittgenstein': {
-    overall: 72,
+    overall: 79,
     breakdown: { voiceFidelity: 82, knowledgeDepth: 74, reasoningPattern: 71, safetyCompliance: 95 },
     version: 'v4-estimate',
     source: 'static',
@@ -178,7 +178,7 @@ export const PERSONA_CONFIDENCE: Record<string, {
     mainGaps: [],
   },
   'elon-musk': {
-    overall: 71,
+    overall: 74,
     breakdown: { voiceFidelity: 75, knowledgeDepth: 72, reasoningPattern: 68, safetyCompliance: 85 },
     version: 'v4-estimate',
     source: 'static',
@@ -189,7 +189,7 @@ export const PERSONA_CONFIDENCE: Record<string, {
     mainGaps: ['Tesla 财报会议字幕未获取'],
   },
   'peter-thiel': {
-    overall: 70,
+    overall: 76,
     breakdown: { voiceFidelity: 76, knowledgeDepth: 74, reasoningPattern: 70, safetyCompliance: 90 },
     version: 'v4-estimate',
     source: 'static',
@@ -200,7 +200,7 @@ export const PERSONA_CONFIDENCE: Record<string, {
     mainGaps: ['CS183/CS183b 原始录音未获取'],
   },
   'steve-jobs': {
-    overall: 70,
+    overall: 72,
     breakdown: { voiceFidelity: 70, knowledgeDepth: 72, reasoningPattern: 68, safetyCompliance: 85 },
     version: 'v4-estimate',
     source: 'static',
@@ -211,7 +211,7 @@ export const PERSONA_CONFIDENCE: Record<string, {
     mainGaps: ['All Things D 采访全量'],
   },
   'naval-ravikant': {
-    overall: 70,
+    overall: 77,
     breakdown: { voiceFidelity: 78, knowledgeDepth: 72, reasoningPattern: 74, safetyCompliance: 88 },
     version: 'v4-estimate',
     source: 'static',
@@ -222,7 +222,7 @@ export const PERSONA_CONFIDENCE: Record<string, {
     mainGaps: ['nav.al 博客未全量爬取'],
   },
   'charlie-munger': {
-    overall: 69,
+    overall: 79,
     breakdown: { voiceFidelity: 80, knowledgeDepth: 76, reasoningPattern: 72, safetyCompliance: 92 },
     version: 'v4-estimate',
     source: 'static',
@@ -233,7 +233,7 @@ export const PERSONA_CONFIDENCE: Record<string, {
     mainGaps: ['2023-2024 DJCO 年会记录未获取'],
   },
   'paul-graham': {
-    overall: 67,
+    overall: 78,
     breakdown: { voiceFidelity: 85, knowledgeDepth: 70, reasoningPattern: 70, safetyCompliance: 95 },
     version: 'v4-estimate',
     source: 'static',
@@ -244,7 +244,7 @@ export const PERSONA_CONFIDENCE: Record<string, {
     mainGaps: ['Twitter 推文未获取'],
   },
   'jeff-bezos': {
-    overall: 70,
+    overall: 74,
     breakdown: { voiceFidelity: 74, knowledgeDepth: 72, reasoningPattern: 68, safetyCompliance: 88 },
     version: 'v4-estimate',
     source: 'static',
@@ -255,7 +255,7 @@ export const PERSONA_CONFIDENCE: Record<string, {
     mainGaps: ['全部股东信未覆盖', 'Re:Mars 演讲未覆盖'],
   },
   'ray-dalio': {
-    overall: 70,
+    overall: 75,
     breakdown: { voiceFidelity: 74, knowledgeDepth: 72, reasoningPattern: 70, safetyCompliance: 88 },
     version: 'v4-estimate',
     source: 'static',
@@ -266,7 +266,7 @@ export const PERSONA_CONFIDENCE: Record<string, {
     mainGaps: ['Bridgewater 内部会议记录未覆盖'],
   },
   'jensen-huang': {
-    overall: 70,
+    overall: 72,
     breakdown: { voiceFidelity: 72, knowledgeDepth: 70, reasoningPattern: 68, safetyCompliance: 80 },
     version: 'v4-estimate',
     source: 'static',
@@ -277,7 +277,7 @@ export const PERSONA_CONFIDENCE: Record<string, {
     mainGaps: ['GTC 历史大会字幕未全量获取'],
   },
   'sam-altman': {
-    overall: 69,
+    overall: 73,
     breakdown: { voiceFidelity: 74, knowledgeDepth: 72, reasoningPattern: 70, safetyCompliance: 80 },
     version: 'v4-estimate',
     source: 'static',
@@ -288,7 +288,7 @@ export const PERSONA_CONFIDENCE: Record<string, {
     mainGaps: ['Twitter 推文未获取'],
   },
   'hui-neng': {
-    overall: 67,
+    overall: 70,
     breakdown: { voiceFidelity: 72, knowledgeDepth: 68, reasoningPattern: 65, safetyCompliance: 78 },
     version: 'v4-estimate',
     source: 'static',
@@ -299,7 +299,7 @@ export const PERSONA_CONFIDENCE: Record<string, {
     mainGaps: ['早期敦煌本与通行本差异未区分'],
   },
   'feynman': {
-    overall: 65,
+    overall: 76,
     breakdown: { voiceFidelity: 78, knowledgeDepth: 80, reasoningPattern: 65, safetyCompliance: 80 },
     version: 'v4-estimate',
     source: 'static',
@@ -310,7 +310,7 @@ export const PERSONA_CONFIDENCE: Record<string, {
     mainGaps: ['Caltech 讲座 HTML 格式批量获取'],
   },
   'warren-buffett': {
-    overall: 31,
+    overall: 30,
     breakdown: { voiceFidelity: 35, knowledgeDepth: 28, reasoningPattern: 30, safetyCompliance: 30 },
     version: 'v4-estimate',
     source: 'static',
@@ -320,7 +320,7 @@ export const PERSONA_CONFIDENCE: Record<string, {
     mainGaps: ['股东大会完整转录未获取', '致股东信全量未获取', '语料严重不足'],
   },
   'confucius': {
-    overall: 62,
+    overall: 67,
     breakdown: { voiceFidelity: 70, knowledgeDepth: 65, reasoningPattern: 62, safetyCompliance: 75 },
     version: 'v4-estimate',
     source: 'static',
@@ -331,7 +331,7 @@ export const PERSONA_CONFIDENCE: Record<string, {
     mainGaps: ['尚书、诗经原文未全量覆盖'],
   },
   'lao-zi': {
-    overall: 62,
+    overall: 66,
     breakdown: { voiceFidelity: 68, knowledgeDepth: 65, reasoningPattern: 60, safetyCompliance: 73 },
     version: 'v4-estimate',
     source: 'static',
@@ -341,7 +341,7 @@ export const PERSONA_CONFIDENCE: Record<string, {
     mainGaps: ['列子、淮南子相关引用未覆盖'],
   },
   'zhuang-zi': {
-    overall: 60,
+    overall: 66,
     breakdown: { voiceFidelity: 72, knowledgeDepth: 62, reasoningPattern: 58, safetyCompliance: 75 },
     version: 'v4-estimate',
     source: 'static',
@@ -351,7 +351,7 @@ export const PERSONA_CONFIDENCE: Record<string, {
     mainGaps: ['惠施等论敌语录未分离'],
   },
   'sun-tzu': {
-    overall: 65,
+    overall: 69,
     breakdown: { voiceFidelity: 72, knowledgeDepth: 68, reasoningPattern: 62, safetyCompliance: 75 },
     version: 'v4-estimate',
     source: 'static',
@@ -362,7 +362,7 @@ export const PERSONA_CONFIDENCE: Record<string, {
     mainGaps: ['竹简本未对照'],
   },
   'socrates': {
-    overall: 63,
+    overall: 65,
     breakdown: { voiceFidelity: 65, knowledgeDepth: 65, reasoningPattern: 60, safetyCompliance: 70 },
     version: 'v4-estimate',
     source: 'static',
@@ -373,7 +373,7 @@ export const PERSONA_CONFIDENCE: Record<string, {
     mainGaps: ['苏格拉底本人无著作，通过弟子记录'],
   },
   'seneca': {
-    overall: 64,
+    overall: 67,
     breakdown: { voiceFidelity: 70, knowledgeDepth: 66, reasoningPattern: 62, safetyCompliance: 72 },
     version: 'v4-estimate',
     source: 'static',
@@ -384,7 +384,7 @@ export const PERSONA_CONFIDENCE: Record<string, {
     mainGaps: ['Naturales Quaestiones 未覆盖'],
   },
   'marcus-aurelius': {
-    overall: 60,
+    overall: 72,
     breakdown: { voiceFidelity: 75, knowledgeDepth: 68, reasoningPattern: 60, safetyCompliance: 95 },
     version: 'v4-estimate',
     source: 'static',
@@ -395,7 +395,7 @@ export const PERSONA_CONFIDENCE: Record<string, {
     mainGaps: ['希腊语原文 Discourses 待补充'],
   },
   'alan-turing': {
-    overall: 55,
+    overall: 66,
     breakdown: { voiceFidelity: 65, knowledgeDepth: 65, reasoningPattern: 60, safetyCompliance: 80 },
     version: 'v4-estimate',
     source: 'static',
@@ -406,7 +406,7 @@ export const PERSONA_CONFIDENCE: Record<string, {
     mainGaps: ['私人书信未全量覆盖'],
   },
   'nikola-tesla': {
-    overall: 65,
+    overall: 61,
     breakdown: { voiceFidelity: 62, knowledgeDepth: 60, reasoningPattern: 55, safetyCompliance: 70 },
     version: 'v4-estimate',
     source: 'static',
@@ -416,7 +416,7 @@ export const PERSONA_CONFIDENCE: Record<string, {
     mainGaps: ['书信全集未覆盖', 'Nikola Tesla Museum 档案未获取'],
   },
   'einstein': {
-    overall: 65,
+    overall: 61,
     breakdown: { voiceFidelity: 60, knowledgeDepth: 62, reasoningPattern: 58, safetyCompliance: 68 },
     version: 'v4-estimate',
     source: 'static',
@@ -438,7 +438,7 @@ export const PERSONA_CONFIDENCE: Record<string, {
     mainGaps: ['@nntaleb 推文全量未获取（最重要缺口）'],
   },
   'sima-qian': {
-    overall: 55,
+    overall: 66,
     breakdown: { voiceFidelity: 72, knowledgeDepth: 60, reasoningPattern: 58, safetyCompliance: 78 },
     version: 'v4-estimate',
     source: 'static',
@@ -448,7 +448,7 @@ export const PERSONA_CONFIDENCE: Record<string, {
     mainGaps: ['早期散佚部分'],
   },
   'alan-watts': {
-    overall: 82,
+    overall: 74,
     breakdown: { voiceFidelity: 80, knowledgeDepth: 72, reasoningPattern: 68, safetyCompliance: 75 },
     version: 'v4-estimate',
     source: 'static',
@@ -458,7 +458,7 @@ export const PERSONA_CONFIDENCE: Record<string, {
     mainGaps: ['视频字幕批量获取', '1953年前早期讲座'],
   },
   'jiqun': {
-    overall: 96,
+    overall: 85,
     breakdown: { voiceFidelity: 88, knowledgeDepth: 82, reasoningPattern: 80, safetyCompliance: 95 },
     version: 'v4-estimate',
     source: 'static',
