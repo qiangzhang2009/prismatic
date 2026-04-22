@@ -87,6 +87,8 @@ export function ChatInterface({ className, initialPersona, initialMode }: ChatIn
   const hasCredits = (user?.credits ?? 0) > 0;
   // 有积分用户不受 localStorage 每日限制约束
   const limitReached = !isPaid && !hasCredits && dailyCount >= dailyLimit;
+  // 积分已耗尽（用于显示和弹窗判断）
+  const creditsExhausted = (user?.credits ?? 0) <= 0;
   const dailyRemaining = isPaid ? '∞' : hasCredits ? String(user?.credits ?? 0) : Math.max(0, dailyLimit - dailyCount);
 
   // Priority: URL param > saved state > default (steve-jobs for backwards compat)
@@ -450,6 +452,23 @@ export function ChatInterface({ className, initialPersona, initialMode }: ChatIn
 
       const data = await response.json();
 
+      // Update credits display after successful deduction
+      if (data.creditsRemaining !== undefined) {
+        if (data.creditsRemaining === 0) {
+          // Credits exhausted after this conversation
+          setLimitModalType('credits_exhausted');
+          setShowLimitModal(true);
+        }
+        // Update the user's credits in the Zustand store
+        const { updateUser } = useAuthStore.getState();
+        updateUser({ credits: data.creditsRemaining });
+      }
+
+      // Increment daily counter for non-credits users (so toolbar shows new remaining count immediately)
+      if (!hasCredits && !isPaid) {
+        incrementDailyCount();
+      }
+
       // Store conversation ID for session continuity
       if (data.conversationId) {
         setConversationId(data.conversationId);
@@ -466,7 +485,6 @@ export function ChatInterface({ className, initialPersona, initialMode }: ChatIn
       window._lastMessageSentTime = Date.now();
       const currentTurn = turnCount + 1;
       setTurnCount(currentTurn);
-      incrementDailyCount();
 
       // ── Push snapshot after UI update ────────────────────────────────────────
       // Build the final messages array from the response so pushSnapshot always
@@ -742,12 +760,35 @@ export function ChatInterface({ className, initialPersona, initialMode }: ChatIn
             额度已用完
           </Link>
         ) : hasCredits ? (
-          <div className="flex items-center gap-1.5 bg-prism-blue/10 px-2 py-1 rounded-full">
-            <Zap className="w-3 h-3 text-prism-blue" />
-            <span className="text-xs text-prism-blue font-medium">{user?.credits} 条积分</span>
+          /* 有积分用户：显示积分余额 + 今日免费剩余（两轨并行说明） */
+          <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1 bg-prism-blue/10 px-2 py-1 rounded-full">
+              <Zap className="w-3 h-3 text-prism-blue" />
+              <span className="text-xs text-prism-blue font-medium">{user?.credits} 条积分</span>
+            </div>
+            {dailyCount < dailyLimit && (
+              <div className="flex items-center gap-1 text-text-muted">
+                <span className="text-xs">+ 今日免费 {dailyLimit - dailyCount} 条</span>
+              </div>
+            )}
           </div>
-        ) : dailyRemaining === '∞' ? (
+        ) : isPaid ? (
           <span className="text-xs text-green-400 font-medium">无限制</span>
+        ) : creditsExhausted ? (
+          /* 积分耗尽但每日还有 → 显示每日剩余次数 */
+          <div className="flex items-center gap-1.5">
+            {Number(dailyRemaining) <= 3 ? (
+              <div className="flex items-center gap-1 bg-amber-500/10 px-2 py-1 rounded-full">
+                <div className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
+                <span className="text-xs text-amber-400 font-medium">{dailyRemaining} 条今日</span>
+              </div>
+            ) : (
+              <div className="flex items-center gap-1.5">
+                <span className="text-xs text-green-400 font-medium">{dailyRemaining}</span>
+                <span className="text-xs text-text-muted">/ {dailyLimit} 条今日</span>
+              </div>
+            )}
+          </div>
         ) : Number(dailyRemaining) <= 3 ? (
           <div className="flex items-center gap-1.5 bg-amber-500/10 px-2 py-1 rounded-full">
             <div className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
@@ -758,7 +799,7 @@ export function ChatInterface({ className, initialPersona, initialMode }: ChatIn
         ) : (
           <div className="flex items-center gap-1.5">
             <span className="text-xs text-green-400 font-medium">{dailyRemaining}</span>
-            <span className="text-xs text-text-muted">/ {dailyLimit} 条剩余</span>
+            <span className="text-xs text-text-muted">/ {dailyLimit} 条今日</span>
           </div>
         )}
 

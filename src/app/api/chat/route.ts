@@ -1102,20 +1102,21 @@ export async function POST(request: NextRequest) {
 
     // ── Deduct credits (if user has paid credits) ────────────────────────────
     // Only deduct for FREE users who have credits. Paid users are unlimited.
+    let creditsAfter = userCredits;
     if (userPlan === 'FREE' && userCredits > 0) {
       try {
         const { deductCredits } = await import('@/lib/billing/engine');
-        await deductCredits(userId, 1, {
+        const result = await deductCredits(userId, 1, {
           description: '对话消耗',
           conversationId: convId,
         });
+        creditsAfter = result.newBalance;
       } catch (err) {
-        // Non-critical: log but don't fail the conversation
         console.error('[Chat API] Failed to deduct credits:', err);
       }
     }
 
-    return NextResponse.json(data);
+    return NextResponse.json({ ...data, creditsRemaining: creditsAfter });
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     console.error('[Chat API] Error:', message);
