@@ -20,7 +20,7 @@ import { getPersonasByIds } from '@/lib/personas';
 import { PERSONA_CONFIDENCE } from '@/lib/confidence';
 import { authenticateRequest, getUserById } from '@/lib/user-management';
 import { checkUserDailyLimit } from '@/lib/message-stats';
-import { resolveBillingMode, deductCreditsIfNeeded } from '@/lib/billing/engine';
+import { resolveBillingMode } from '@/lib/billing/engine';
 import { prisma } from '@/lib/prisma';
 import { trackEvent, trackEvents, incrementSessionMessages, trackChatStart, trackChatEnd } from '@/lib/analytics';
 import type { Mode } from '@/lib/types';
@@ -104,12 +104,6 @@ async function persistConversation(
     await prisma.message.createMany({
       data: messageRecords,
       skipDuplicates: true, // 避免重复插入
-    });
-
-    // Update conversation message count (defensive)
-    await prisma.conversation.update({
-      where: { id: conversationId },
-      data: { messageCount: { increment: messages.length } },
     });
 
     return conversation;
@@ -939,16 +933,8 @@ export async function POST(request: NextRequest) {
     }
 
     // ── Billing mode resolution ─────────────────────────────────────────────
-    // API Key (mode A) takes priority; falls back to platform (mode B)
     const billing = await resolveBillingMode(userId);
-
     if (!billing.allowed) {
-      if (billing.reason === 'INSUFFICIENT_CREDITS') {
-        return NextResponse.json({
-          error: '积分余额不足，请联系微信 3740977 充值',
-          code: 'INSUFFICIENT_CREDITS',
-        }, { status: 402 });
-      }
       return NextResponse.json({ error: billing.reason }, { status: 401 });
     }
 
@@ -1005,17 +991,19 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: 'Unknown mode' }, { status: 400 });
     }
 
-    // ── Post-conversation: deduct credits if needed (mode B, FREE plan) ────
-    if (billing.mode === 'B' && billing.creditsToDeduct > 0) {
-      await deductCreditsIfNeeded(userId, billing.creditsToDeduct, {
-        conversationId: convId,
-        description: `对话消耗 (${mode} 模式)`,
-      });
-    }
+    // ── Post-conversation ─────────────────────────────────────────────────────
+    // Extract all messages (including user message and AI responses).
+    // For Solo mode, include the conversation history from the frontend so the
+    // DB row always has the complete message list (avoids duplicate rows).
+    const historyMessages = (body as any).history?.map((h: any, i: number) => ({
+      id: `hist-${i}`,
+      role: 'user' as const,
+      content: h.content,
+      timestamp: new Date(Date.now() - (body as any).history.length - i),
+    })) || [];
 
-    // ── Persistence ────────────────────────────────────────────────────────────
-    // Extract all messages (including user message and AI responses)
     const allMessages = [
+      ...historyMessages,
       { id: nanoid(), role: 'user', content: message, timestamp: new Date() },
       ...(data.messages || data.debate?.turns || data.mission?.taskPlan?.map((t: any) => ({
         id: nanoid(),

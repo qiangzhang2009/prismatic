@@ -9,11 +9,25 @@ export const runtime = 'nodejs';
 import { NextRequest, NextResponse } from 'next/server';
 import { authenticateAdminRequest } from '@/lib/user-management';
 import { Pool } from '@neondatabase/serverless';
+import { getPersonasByIds } from '@/lib/personas';
 
 function getPool() {
   const url = process.env.DATABASE_URL;
   if (!url) throw new Error('DATABASE_URL not set');
   return new Pool({ connectionString: url });
+}
+
+/** Resolve persona IDs (slugs) to display names */
+function resolvePersonaNames(personaIds: string[] | null): Array<{ id: string; name: string }> {
+  if (!personaIds?.length) return [];
+  const personas = getPersonasByIds(personaIds);
+  return personaIds.map(id => {
+    const persona = personas.find(p => p.id === id);
+    return {
+      id,
+      name: persona?.nameZh || persona?.name || id,
+    };
+  });
 }
 
 export async function GET(req: NextRequest) {
@@ -122,8 +136,16 @@ export async function GET(req: NextRequest) {
         email: r['user.email'],
         plan: r['user.plan'],
       } : null,
-      messages: (r.messages || []).slice(0, 50),
+      messages: (r.messages || []).slice(0, 50).map((m: any) => {
+        const persona = resolvePersonaNames(r.personaIds || []).find((p) => p.id === m.personaId);
+        return { ...m, personaName: persona?.name || m.personaId };
+      }),
     }));
+
+    // Attach personas array to each conversation for UI rendering
+    conversations.forEach((c: any, i: number) => {
+      c.personas = resolvePersonaNames(rows.rows[i]?.personaIds || []);
+    });
 
     return NextResponse.json({
       conversations,

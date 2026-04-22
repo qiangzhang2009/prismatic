@@ -28,37 +28,33 @@ export async function GET(request: NextRequest) {
 
     const sql = getSql();
 
-    const [
-      totalUsersResult,
-      newUsersTodayResult,
-      totalMessagesResult,
-      totalConversationsResult,
-      dauResult,
-      mauResult,
-      weekMessagesResult,
-      paidUsersResult,
-      weekCostResult,
-    ] = await Promise.all([
-      sql`SELECT COUNT(*) as cnt FROM users WHERE status = 'ACTIVE'`,
-      sql`SELECT COUNT(*) as cnt FROM users WHERE status = 'ACTIVE' AND "createdAt" >= ${today}`,
-      sql`SELECT COUNT(*) as cnt FROM messages WHERE content != '[message-counted]'`,
-      sql`SELECT COUNT(*) as cnt FROM conversations`,
-      sql`SELECT COUNT(DISTINCT "userId") as cnt FROM messages WHERE "createdAt" >= ${today}`,
-      sql`SELECT COUNT(DISTINCT "userId") as cnt FROM messages WHERE "createdAt" >= ${monthStart}`,
-      sql`SELECT COUNT(*) as cnt FROM messages WHERE "createdAt" >= ${weekStart} AND content != '[message-counted]'`,
-      sql`SELECT COUNT(*) as cnt FROM users WHERE status = 'ACTIVE' AND plan != 'FREE' AND plan IS NOT NULL`,
-      sql`SELECT COALESCE(SUM("apiCost"), 0) as cost FROM messages WHERE "createdAt" >= ${weekStart}`,
+    // Work around Neon/Vercel edge caching: SELECT rows + .length is more reliable
+    // than COUNT(*) on the users table when deployed to Vercel Edge Runtime.
+    const [activeUsers, paidUsersRows, rows] = await Promise.all([
+      sql`SELECT id FROM users WHERE status = 'ACTIVE'`,
+      sql`SELECT id FROM users WHERE status = 'ACTIVE' AND plan != 'FREE' AND plan IS NOT NULL`,
+      sql`
+        SELECT
+          (SELECT COUNT(*) FROM users WHERE "createdAt" >= ${today}) as new_users,
+          (SELECT COUNT(*) FROM messages WHERE content != '[message-counted]') as total_messages,
+          (SELECT COUNT(*) FROM conversations) as total_conversations,
+          (SELECT COUNT(DISTINCT "userId") FROM messages WHERE "createdAt" >= ${today}) as dau,
+          (SELECT COUNT(DISTINCT "userId") FROM messages WHERE "createdAt" >= ${monthStart}) as mau,
+          (SELECT COUNT(*) FROM messages WHERE "createdAt" >= ${weekStart} AND content != '[message-counted]') as week_messages,
+          (SELECT COALESCE(SUM("apiCost"), 0) FROM messages WHERE "createdAt" >= ${weekStart}) as week_cost
+      `,
     ]);
 
-    const totalUsers = parseInt(totalUsersResult[0]?.cnt ?? '0', 10);
-    const newUsersToday = parseInt(newUsersTodayResult[0]?.cnt ?? '0', 10);
-    const totalMessages = parseInt(totalMessagesResult[0]?.cnt ?? '0', 10);
-    const totalConversations = parseInt(totalConversationsResult[0]?.cnt ?? '0', 10);
-    const dau = parseInt(dauResult[0]?.cnt ?? '0', 10);
-    const mau = parseInt(mauResult[0]?.cnt ?? '0', 10);
-    const weekMessages = parseInt(weekMessagesResult[0]?.cnt ?? '0', 10);
-    const paidUsers = parseInt(paidUsersResult[0]?.cnt ?? '0', 10);
-    const totalApiCost = Number(weekCostResult[0]?.cost ?? 0);
+    const totalUsers = activeUsers.length;
+    const paidUsers = paidUsersRows.length;
+    const row = rows[0];
+    const newUsersToday = parseInt(String(row.new_users ?? '0'), 10);
+    const totalMessages = parseInt(String(row.total_messages ?? '0'), 10);
+    const totalConversations = parseInt(String(row.total_conversations ?? '0'), 10);
+    const dau = parseInt(String(row.dau ?? '0'), 10);
+    const mau = parseInt(String(row.mau ?? '0'), 10);
+    const weekMessages = parseInt(String(row.week_messages ?? '0'), 10);
+    const totalApiCost = Number(row.week_cost ?? 0);
 
     const activeRate = totalUsers > 0 ? (dau / totalUsers) * 100 : 0;
     const dauMauRatio = mau > 0 ? (dau / mau) * 100 : 0;

@@ -763,6 +763,14 @@ model DistilledPersona {
   thresholdPassed Boolean @default(false)
   qualityGateSkipped Boolean @default(false)
 
+  // Score breakdown (4 dimensions, computed at distillation time)
+  // voiceFidelity: 表达DNA还原度 (权重 30%)
+  // knowledgeDepth: 知识覆盖深度 (权重 30%)
+  // reasoningPattern: 思维模式一致性 (权重 25%)
+  // safetyCompliance: 安全合规性 (权重 15%)
+  scoreBreakdown  Json    @default("{}")  // ScoreBreakdown object
+  scoreFindings   Json    @default("[]")  // ScoreFinding[] array
+
   // Source corpus summary
   corpusItemCount  Int    @default(0)
   corpusTotalWords Int    @default(0)

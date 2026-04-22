@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, MessageCircle, Zap, KeyRound } from 'lucide-react';
 
-export type LimitModalType = 'daily_limit' | 'insufficient_credits' | 'api_key_required';
+export type LimitModalType = 'daily_limit' | 'api_key_required';
 
 interface LimitReachedModalProps {
   isOpen: boolean;
@@ -62,16 +62,7 @@ export function LimitReachedModal({ isOpen, type = 'daily_limit', onClose, onSet
                     )}
                   </div>
 
-                  {type === 'insufficient_credits' && (
-                    <>
-                      <h2 className="text-lg font-semibold text-text-primary mb-1">积分余额不足</h2>
-                      <p className="text-sm text-text-secondary">
-                        当前积分已用完，请充值后继续对话
-                      </p>
-                    </>
-                  )}
-
-                  {type === 'api_key_required' && (
+                {type === 'api_key_required' && (
                     <>
                       <h2 className="text-lg font-semibold text-text-primary mb-1">需要设置 API Key</h2>
                       <p className="text-sm text-text-secondary">
@@ -98,7 +89,7 @@ export function LimitReachedModal({ isOpen, type = 'daily_limit', onClose, onSet
 
               {/* Content */}
               <div className="px-6 py-5">
-                {(type === 'insufficient_credits' || type === 'daily_limit') && (
+                {type === 'daily_limit' && (
                   <>
                     {/* Subscription options */}
                     <div className="space-y-2 mb-5">
@@ -193,7 +184,7 @@ export function LimitReachedModal({ isOpen, type = 'daily_limit', onClose, onSet
 
               {/* Footer */}
               <div className="px-6 pb-6 space-y-2">
-                {(type === 'insufficient_credits' || type === 'daily_limit') && (
+                {type === 'daily_limit' && (
                   <>
                     <Link
                       href="/subscribe"

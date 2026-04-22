@@ -47,6 +47,8 @@ export interface LocalConversationSnapshot {
   messages?: SyncMessage[];
   /** ISO timestamp when this snapshot was taken on the device */
   snapshotAt: string;
+  /** Conversation mode (solo | prism | roundtable | mission | etc.) */
+  mode?: string;
 }
 
 export interface SyncMessage {
@@ -455,7 +457,8 @@ async function upsertLocalConversation(
       snapshot.title,
       snapshot.tags,
       snapshot.messages,
-      deviceId
+      deviceId,
+      snapshot.mode
     );
   } else if (conversationId && snapshot.messages && snapshot.messages.length > 0) {
     // Update existing conversation with new messages
@@ -503,7 +506,8 @@ async function createServerConversation(
   title: string | undefined,
   tags: string[] | undefined,
   messages: SyncMessage[],
-  deviceId: string
+  deviceId: string,
+  mode: string = 'solo'
 ): Promise<string> {
   const device = await prisma.device.findUnique({ where: { id: deviceId } });
   if (!device) throw new Error('Device not found');
@@ -516,7 +520,7 @@ async function createServerConversation(
       id: conversationId,
       userId: device.userId,
       title: title || null,
-      mode: 'solo',
+      mode,
       participants: personaIds,
       personaIds,
       archived: false,
@@ -776,7 +780,8 @@ export async function migrateVisitorConversations(
           snapshot.title,
           snapshot.tags,
           snapshot.messages,
-          '' // no device for migrated conversations
+          '', // no device for migrated conversations
+          snapshot.mode
         );
 
         await prisma.conversationMigration.create({
