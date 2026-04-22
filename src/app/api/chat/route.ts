@@ -947,13 +947,15 @@ export async function POST(request: NextRequest) {
     // ── Daily usage limit check ──────────────────────────────────────────────
     const user = await getUserById(userId);
     const userPlan = user?.plan ?? 'FREE';
-    const { allowed, current, limit } = await checkUserDailyLimit(userId, userPlan);
+    const userCredits = user?.credits ?? 0;
+    const { allowed, current, limit, reason } = await checkUserDailyLimit(userId, userPlan, userCredits);
     if (!allowed) {
       return NextResponse.json({
         error: `今日对话次数已达上限（${limit}次/天），明天再来探索吧~`,
         code: 'DAILY_LIMIT_REACHED',
         current,
         limit,
+        billingReason: reason,
       }, { status: 429 });
     }
 
@@ -1096,6 +1098,21 @@ export async function POST(request: NextRequest) {
       await incrementSessionMessages(convId);
     } catch (err) {
       console.error('[Chat API] Failed to record message:', err);
+    }
+
+    // ── Deduct credits (if user has paid credits) ────────────────────────────
+    // Only deduct for FREE users who have credits. Paid users are unlimited.
+    if (userPlan === 'FREE' && userCredits > 0) {
+      try {
+        const { deductCredits } = await import('@/lib/billing/engine');
+        await deductCredits(userId, 1, {
+          description: '对话消耗',
+          conversationId: convId,
+        });
+      } catch (err) {
+        // Non-critical: log but don't fail the conversation
+        console.error('[Chat API] Failed to deduct credits:', err);
+      }
     }
 
     return NextResponse.json(data);

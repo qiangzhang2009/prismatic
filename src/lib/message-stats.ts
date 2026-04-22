@@ -15,24 +15,40 @@ if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prismaStats;
 export const USER_DAILY_LIMIT = 10;
 
 // 检查用户是否达到今日对话配额上限
-// FREE 用户：每日限制 10 条，由 localStorage 计数
-// 付费用户（MONTHLY/YEARLY/LIFETIME）：无限制
+//
+// 额度来源（优先级）：
+// 1. 充值积分 > 0 → 使用积分，不扣每日10次限制
+// 2. 付费用户（MONTHLY/YEARLY/LIFETIME）→ 无限制
+// 3. 免费且无积分 → 每日限制 10 条（localStorage 前端计数，server 兜底）
+//
+// 注意：积分与每日免费额度互斥。积分是额外权益，不叠加每日限制。
 export async function checkUserDailyLimit(
   userId: string,
-  plan: SubscriptionPlan = 'FREE'
+  plan: SubscriptionPlan = 'FREE',
+  credits: number = 0
 ): Promise<{
   allowed: boolean;
   current: number;
   limit: number;
+  reason?: string;
 }> {
+  // 优先级 1：付费用户无限制
   if (plan !== 'FREE') {
     return { allowed: true, current: 0, limit: 999999 };
   }
+
+  // 优先级 2：有充值积分 → 不走每日限制，用积分支付
+  if (credits > 0) {
+    return { allowed: true, current: 0, limit: credits, reason: 'using_credits' };
+  }
+
+  // 优先级 3：免费且无积分 → 每日限制
   const current = await getDailyMessageCount(userId);
   return {
     allowed: current < USER_DAILY_LIMIT,
     current,
     limit: USER_DAILY_LIMIT,
+    reason: 'daily_free',
   };
 }
 

@@ -4,7 +4,11 @@
  * 路由逻辑：
  * 1. 用户有有效 API Key → 模式 A（User-Pays），平台零成本
  * 2. 付费用户（MONTHLY/YEARLY/LIFETIME）→ 模式 B 平台代付，无限
- * 3. FREE 用户 → 模式 B，每天限制 10 次（由 checkUserDailyLimit 统一控制）
+ * 3. FREE 用户：
+ *    - 有充值积分 → 模式 B 平台代付，每次对话扣 1 积分
+ *    - 无积分 → 模式 B，每天限制 10 次（前端 localStorage + 后端双重检查）
+ *
+ * 积分与每日免费额度互斥，有积分用户不消耗每日 10 次免费额度。
  */
 import { prisma } from '@/lib/prisma';
 import { decryptApiKey } from '@/lib/encryption';
@@ -55,7 +59,10 @@ export async function resolveBillingMode(userId: string): Promise<BillingDecisio
     }
   }
 
-  // 模式 B：平台代付（FREE 用户的次数限制由 checkUserDailyLimit 统一控制）
+  // 模式 B：平台代付
+  // - 付费用户：无限
+  // - 有充值积分的 FREE 用户：平台代付，每次对话扣 1 积分（由 chat API 调用 deductCredits）
+  // - 无积分 FREE 用户：每日 10 次限制（由 checkUserDailyLimit 控制）
   return {
     mode: 'B',
     provider: 'deepseek',
@@ -107,7 +114,7 @@ export async function addCredits(
 }
 
 /**
- * 扣除用户积分（管理员手动扣除）
+ * 扣除用户积分（对话消耗 / 管理员手动扣除）
  */
 export async function deductCredits(
   userId: string,
@@ -115,6 +122,7 @@ export async function deductCredits(
   options: {
     description: string;
     operatorId?: string;
+    conversationId?: string;
     ipAddress?: string;
   }
 ): Promise<{ success: boolean; newBalance: number }> {

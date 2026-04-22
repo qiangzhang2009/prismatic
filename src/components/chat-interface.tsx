@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Send, Loader2, ChevronDown, Settings, Trash2, X, Download, FileText, Image } from 'lucide-react';
+import { Send, Loader2, ChevronDown, Settings, Trash2, X, Download, FileText, Image, Zap } from 'lucide-react';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { PersonaCard } from '@/components/persona-card';
@@ -84,8 +84,10 @@ export function ChatInterface({ className, initialPersona, initialMode }: ChatIn
   const limits = getFeatureLimit(plan);
   const isPaid = limits.dailyMessages >= 9999;
   const dailyLimit = limits.dailyMessages;
-  const dailyRemaining = isPaid ? '∞' : Math.max(0, dailyLimit - dailyCount);
-  const limitReached = !isPaid && dailyCount >= dailyLimit;
+  const hasCredits = (user?.credits ?? 0) > 0;
+  // 有积分用户不受 localStorage 每日限制约束
+  const limitReached = !isPaid && !hasCredits && dailyCount >= dailyLimit;
+  const dailyRemaining = isPaid ? '∞' : hasCredits ? String(user?.credits ?? 0) : Math.max(0, dailyLimit - dailyCount);
 
   // Priority: URL param > saved state > default (steve-jobs for backwards compat)
   const getInitialPersonaId = () => {
@@ -376,9 +378,9 @@ export function ChatInterface({ className, initialPersona, initialMode }: ChatIn
   const handleSend = async () => {
     if (!input.trim() || isLoading) return;
 
-    // Daily limit check
+    // 每日限制检查：有积分的用户不受 localStorage 每日限制约束
     const { count } = getDailyCount();
-    if (!isPaid && count >= dailyLimit) {
+    if (!isPaid && !hasCredits && count >= dailyLimit) {
       setLimitModalType('daily_limit');
       setShowLimitModal(true);
       return;
@@ -739,6 +741,11 @@ export function ChatInterface({ className, initialPersona, initialMode }: ChatIn
           >
             额度已用完
           </Link>
+        ) : hasCredits ? (
+          <div className="flex items-center gap-1.5 bg-prism-blue/10 px-2 py-1 rounded-full">
+            <Zap className="w-3 h-3 text-prism-blue" />
+            <span className="text-xs text-prism-blue font-medium">{user?.credits} 条积分</span>
+          </div>
         ) : dailyRemaining === '∞' ? (
           <span className="text-xs text-green-400 font-medium">无限制</span>
         ) : Number(dailyRemaining) <= 3 ? (
@@ -1160,7 +1167,7 @@ export function ChatInterface({ className, initialPersona, initialMode }: ChatIn
           <motion.button
             className="btn-primary flex-shrink-0 px-5 py-2.5 flex items-center gap-2"
             onClick={handleSend}
-            disabled={!input.trim() || isLoading || limitReached}
+            disabled={!input.trim() || isLoading}
             whileTap={{ scale: 0.97 }}
           >
             <Send className="w-4 h-4" />
