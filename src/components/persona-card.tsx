@@ -25,7 +25,7 @@ export function PersonaCard({
   selected = false,
   onClick,
   showGradient = true,
-  showDistillBadge,
+  confidence,
 }: PersonaCardProps) {
   const gradient = showGradient
     ? `linear-gradient(135deg, ${persona.gradientFrom}18, ${persona.gradientTo}18)`

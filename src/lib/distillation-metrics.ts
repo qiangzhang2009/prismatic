@@ -155,8 +155,8 @@ export function calculateKnowledgeDepth(
   let sourceCoverage = 70;
   let timeSpanCoverage = 70;
   if (confidence) {
-    sourceCoverage = confidence.sourceVerifiability;
-    timeSpanCoverage = confidence.timeSpan;
+    sourceCoverage = (confidence.dataSources.length / 3) * 50 + 25;
+    timeSpanCoverage = Math.min(100, sourceCoverage + 10);
   }
 
   // 跨域链接数
@@ -409,7 +409,7 @@ export function calculateDistillationScore(
   corpusSample?: string,
   modelUsed: string = 'deepseek-chat'
 ): DistillationScore {
-  const confidence = PERSONA_CONFIDENCE[persona.id];
+  const confidence = PERSONA_CONFIDENCE[persona.id] as ConfidenceScore | undefined;
 
   const { score: voiceScore, metrics: voiceMetrics, findings: voiceFindings } =
     calculateVoiceFidelity(persona, corpusSample);

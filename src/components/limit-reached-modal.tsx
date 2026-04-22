@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, MessageCircle, Zap, KeyRound } from 'lucide-react';
 
-export type LimitModalType = 'daily_limit' | 'api_key_required';
+export type LimitModalType = 'daily_limit' | 'api_key_required' | 'insufficient_credits';
 
 interface LimitReachedModalProps {
   isOpen: boolean;
