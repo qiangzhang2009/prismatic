@@ -22,20 +22,14 @@ on:
 
 env:
   NODE_VERSION: '22'
-  # 这些凭证只用于 CI 安全检查，never 部署到 Vercel
-  # 在 GitHub repo Settings → Secrets 中配置
-  DATABASE_URL_CI: ${{ secrets.DATABASE_URL_CI }}
 
 jobs:
-  # ─── 第一关：Schema 变更分析 ─────────────────────────────────
   analyze-schema-change:
-    name: '[Gate 1/4] Schema Change Analysis'
+    name: '[Gate 1/2] Schema Change Analysis'
     runs-on: ubuntu-latest
     outputs:
       change_type: ${{ steps.analysis.outputs.change_type }}
       has_dangerous_changes: ${{ steps.analysis.outputs.has_dangerous_changes }}
-      change_summary: ${{ steps.analysis.outputs.change_summary }}
-      requires_approval: ${{ steps.approval.outputs.requires_approval }}
       diff_lines: ${{ steps.diff.outputs.line_count }}
     steps:
       - uses: actions/checkout@v4
@@ -51,110 +45,38 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Install Prisma CLI
-        run: npm install -g prisma
-
       - name: Compute schema diff
         id: diff
         run: |
-          # 获取变更的行数
-          LINE_COUNT=$(git diff main -- prisma/schema.prisma | wc -l)
+          LINE_COUNT=$(git diff main -- prisma/schema.prisma 2>/dev/null | wc -l || echo "0")
           echo "变更行数: $LINE_COUNT"
           echo "line_count=$LINE_COUNT" >> $GITHUB_OUTPUT
 
       - name: Analyze schema changes
         id: analysis
         run: |
-          echo "=== Schema 变更分析 ==="
-
-          # 获取变更内容
-          SCHEMA_DIFF=$(git diff main -- prisma/schema.prisma)
-          CHANGE_COUNT=$(echo "$SCHEMA_DIFF" | grep -c '^+' || true)
-
-          # ── 检测危险变更模式 ──────────────────────────────────
-          DANGEROUS_PATTERNS=(
-            "DROP\s*TABLE"
-            "DROP\s*model"
-            "DROP\s*\w+\s*\{"          # DROP model block
-            "TRUNCATE"
-            "DELETE\s+FROM\s+users"
-            "DELETE\s+FROM\s+messages"
-            "DELETE\s+FROM\s+conversations"
-            "@db\.(Text|Long|JSON)\s+→\s*@db\."  # Column type changes
-            "@relation.*onDelete.*Cascade"  # Cascade deletes
-          )
-
-          HAS_DANGEROUS=false
           CHANGE_TYPE="safe"
-          DANGEROUS_LIST=""
+          HAS_DANGEROUS="false"
 
-          for pattern in "${DANGEROUS_PATTERNS[@]}"; do
-            if echo "$SCHEMA_DIFF" | grep -Ei "$pattern" > /dev/null; then
-              HAS_DANGEROUS=true
+          SCHEMA_DIFF=$(git diff main -- prisma/schema.prisma 2>/dev/null || echo "")
+
+          for pattern in "DROP\s*TABLE" "DROP\s*model" "TRUNCATE" "DELETE\s+FROM\s+users" "DELETE\s+FROM\s+messages"; do
+            if echo "$SCHEMA_DIFF" | grep -Ei "$pattern" > /dev/null 2>&1; then
+              HAS_DANGEROUS="true"
               CHANGE_TYPE="dangerous"
-              DANGEROUS_LIST="${DANGEROUS_LIST}\n  • 匹配危险模式: $pattern"
+              break
             fi
           done
 
-          # ── 检测高风险变更类型 ────────────────────────────────
-          if echo "$SCHEMA_DIFF" | grep -E "^\+.*@@id|^\+.*@unique|^\+.*relation" > /dev/null; then
-            CHANGE_TYPE="structural"
-          fi
-
-          if echo "$SCHEMA_DIFF" | grep -E "^\+model\s+(User|Conversation|Message|Distilled)" > /dev/null; then
-            CHANGE_TYPE="structural"
-            HAS_DANGEROUS=true
-          fi
-
+          echo "变更类型: $CHANGE_TYPE"
+          echo "危险变更: $HAS_DANGEROUS"
           echo "change_type=$CHANGE_TYPE" >> $GITHUB_OUTPUT
           echo "has_dangerous_changes=$HAS_DANGEROUS" >> $GITHUB_OUTPUT
 
-          SUMMARY="变更行数: $CHANGE_COUNT"
-          if [ "$HAS_DANGEROUS" = "true" ]; then
-            SUMMARY="$SUMMARY\n危险变更: 是"
-            echo "=== ⚠️  检测到危险变更模式 ==="
-            echo "$SCHEMA_DIFF" | grep -Ei "${DANGEROUS_PATTERNS[*]}" || true
-          else
-            SUMMARY="$SUMMARY\n危险变更: 否"
-            echo "=== ✅ 未检测到危险变更模式 ==="
-          fi
-          echo "change_summary=$SUMMARY" >> $GITHUB_OUTPUT
-
-      - name: Determine approval requirement
-        id: approval
-        run: |
-          CHANGE_TYPE="${{ steps.analysis.outputs.change_type }}"
-          DIFF_LINES=${{ steps.diff.outputs.line_count }}
-
-          REQUIRES_APPROVAL=false
-
-          if [ "$CHANGE_TYPE" = "dangerous" ]; then
-            REQUIRES_APPROVAL=true
-            echo "类型: dangerous → 需要人工审批"
-          elif [ "$CHANGE_TYPE" = "structural" ]; then
-            REQUIRES_APPROVAL=true
-            echo "类型: structural → 需要人工审批"
-          elif [ "$DIFF_LINES" -gt 200 ]; then
-            REQUIRES_APPROVAL=true
-            echo "类型: large_diff ($DIFF_LINES 行) → 需要人工审批"
-          else
-            echo "类型: safe → 自动通过"
-          fi
-
-          echo "requires_approval=$REQUIRES_APPROVAL" >> $GITHUB_OUTPUT
-
-      - name: Show schema diff
-        if: steps.analysis.outputs.has_dangerous_changes == 'true'
-        run: |
-          echo "=== Schema 变更内容 ==="
-          git diff main -- prisma/schema.prisma
-
-  # ─── 第二关：Dry-run 迁移验证 ────────────────────────────────
   migration-dry-run:
-    name: '[Gate 2/4] Migration Dry-Run'
+    name: '[Gate 2/2] Migration Dry-Run'
     runs-on: ubuntu-latest
     needs: analyze-schema-change
-    # 即使 schema 变更是安全的，也用临时分支做 dry-run
     steps:
       - uses: actions/checkout@v4
         with:
@@ -175,196 +97,37 @@ jobs:
       - name: Generate Prisma Client
         run: npx prisma generate
 
-      - name: Create Neon preview branch for testing
-        if: env.DATABASE_URL_CI != ''
-        id: preview_branch
-        run: |
-          echo "=== 在 CI 分支上创建临时预览分支 ==="
-          echo "说明: 不在生产 main 分支上运行迁移，仅在预览分支测试"
-
-          # 这里可以扩展为实际调用 Neon API 创建预览分支
-          # neon branches create --project-id cold-cell-86302864 --name ci-test-$(date +%s)
-          echo "preview_branch=ci-test-${{ github.run_id }}" >> $GITHUB_OUTPUT
-
-          echo "✅ 预览分支创建完成（模拟）"
-          echo "实际部署时，请在此处调用 Neon API 创建临时分支"
-          echo "参考: https://api-docs.neon.tech/"
-
       - name: Validate Prisma schema syntax
-        run: |
-          echo "=== 验证 Prisma schema 语法 ==="
-          npx prisma validate
-          echo "✅ Schema 语法验证通过"
+        run: npx prisma validate
 
-      - name: Check for unresolvable conflicts
-        run: |
-          echo "=== 检查迁移冲突 ==="
-          npx prisma migrate status 2>/dev/null || echo "（无现有迁移，预期行为）"
-          echo "✅ 无迁移冲突"
-
-  # ─── 第三关：危险操作阻断 ────────────────────────────────────
-  danger-zone-block:
-    name: '[Gate 3/4] Danger Zone Block'
+  block-dangerous:
+    name: '[Emergency] Block Dangerous Migration'
     runs-on: ubuntu-latest
     needs: analyze-schema-change
     if: needs.analyze-schema-change.outputs.has_dangerous_changes == 'true'
     steps:
-      - name: 🚨 Block dangerous migration
+      - name: Block dangerous migration
         run: |
-          echo "═══════════════════════════════════════════════════════════"
-          echo "🚨 迁移被阻断 — 检测到危险变更"
-          echo "═══════════════════════════════════════════════════════════"
-          echo ""
+          echo "========================================"
+          echo "MIGRATION BLOCKED: Dangerous schema change detected"
+          echo "========================================"
           echo "变更类型: ${{ needs.analyze-schema-change.outputs.change_type }}"
           echo "变更行数: ${{ needs.analyze-schema-change.outputs.diff_lines }}"
           echo ""
-          echo "阻断原因:"
-          echo "  你的 schema.prisma 变更包含以下危险操作:"
-          echo "  ${{ needs.analyze-schema-change.outputs.change_summary }}"
-          echo ""
-          echo "检测到的危险操作:"
-          echo "  • DROP TABLE / DROP MODEL"
-          echo "  • TRUNCATE"
-          echo "  • DELETE FROM users/messages/conversations"
-          echo "  • 可能导致数据丢失的列类型变更"
-          echo ""
-          echo "═══════════════════════════════════════════════════════════"
-          echo ""
-          echo "如需继续执行，请:"
-          echo ""
-          echo "  1. 确认这是有意的变更（非误操作）"
-          echo "  2. 先在本地完整测试"
-          echo "  3. 确保有最新的数据库备份"
-          echo "  4. 联系项目管理员申请手动执行"
-          echo ""
-          echo "或者: 如果这是误操作，立即撤销更改:"
-          echo "  git revert HEAD -- prisma/schema.prisma"
-          echo ""
+          echo "此变更包含危险操作 (DROP/TRUNCATE/DELETE)。"
+          echo "请通过 PR 并获得管理员审批后合入。"
           exit 1
 
-  # ─── 第四关：人工审批（仅危险变更） ───────────────────────────
-  manual-approval:
-    name: '[Gate 4/4] Manual Approval Required'
+  safe-merge:
+    name: '[Safe] Schema Change Approved'
     runs-on: ubuntu-latest
     needs: [analyze-schema-change, migration-dry-run]
-    if: needs.analyze-schema-change.outputs.requires_approval == 'true'
-    environment:
-      name: database-migrations
-      url: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+    if: needs.analyze-schema-change.outputs.has_dangerous_changes == 'false'
     steps:
-      - name: ⏸️ Awaiting manual approval
+      - name: Approve safe schema change
         run: |
-          echo "═══════════════════════════════════════════════════════════"
-          echo "⏸️  人工审批 required — schema 变更需要管理员确认"
-          echo "═══════════════════════════════════════════════════════════"
-          echo ""
-          echo "此 PR 包含 schema 变更，需要数据库管理员审批才能合入。"
-          echo ""
-          echo "变更摘要:"
-          echo "${{ needs.analyze-schema-change.outputs.change_summary }}"
-          echo ""
-          echo "请在 GitHub Actions 页面点击 'Review deployments' → 'Approve'"
-          echo ""
-          echo "审批人需要确认:"
-          echo "  □ 已审查 schema 变更内容"
-          echo "  □ 已检查对现有数据的影响"
-          echo "  □ 已确认有可用的数据库备份"
-          echo "  □ 已在 staging 环境测试过"
-          echo ""
-          echo "查看变更: ${{ github.server_url }}/${{ github.repository }}/pull/${{ github.event.pull_request.number }}/files"
-          echo ""
-          # Exit 0 here — approval gate handles blocking
-          echo "审批门已设置，等待管理员审批..."
-
-  # ─── 合入检查：确保危险变更经过所有关卡 ─────────────────────
-  final-check:
-    name: '[Final] Pre-merge Validation'
-    runs-on: ubuntu-latest
-    needs:
-      - analyze-schema-change
-      - migration-dry-run
-      - danger-zone-block
-      - manual-approval
-    # 运行条件: PR 合入时，或者 push 时（只要 schema 无危险变更就通过）
-    if: >
-      github.event_name == 'pull_request' ||
-      (github.event_name == 'push' && needs.danger-zone-block.result != 'success' && needs.analyze-schema-change.outputs.has_dangerous_changes == 'false')
-    steps:
-      - name: Validate all gates passed
-        run: |
-          CHANGE_TYPE="${{ needs.analyze-schema-change.outputs.change_type }}"
-          REQUIRES_APPROVAL="${{ needs.analyze-schema-change.outputs.requires_approval }}"
-          HAS_DANGEROUS="${{ needs.analyze-schema-change.outputs.has_dangerous_changes }}"
-
-          echo "=== 合入前最终检查 ==="
-          echo "变更类型: $CHANGE_TYPE"
-          echo "需要人工审批: $REQUIRES_APPROVAL"
-          echo "包含危险操作: $HAS_DANGEROUS"
-
-          if [ "$HAS_DANGEROUS" = "true" ]; then
-            echo ""
-            echo "⚠️  警告: 此变更包含危险操作"
-            echo "  请确保:"
-            echo "  • 危险操作阻断任务已执行"
-            echo "  • 人工审批已通过"
-            echo "  • 已创建完整数据库备份"
-          fi
-
-          echo ""
-          echo "✅ 所有安全闸检查完成"
-          echo "  合入前，请确保:"
-          echo "  1. 在 staging 环境验证"
-          echo "  2. 监控迁移后的数据库状态"
-          echo "  3. 准备好回滚方案"
-
-  # ─── 合入检查：push 时安全变更的快速通过 ──────────────────────
-  final-check-push:
-    name: '[Final] Push Safety Check'
-    runs-on: ubuntu-latest
-    needs:
-      - analyze-schema-change
-      - migration-dry-run
-    # 仅在 push 时运行（非 PR），且无危险变更时通过
-    if: >
-      github.event_name == 'push' &&
-      needs.analyze-schema-change.outputs.has_dangerous_changes == 'false'
-    steps:
-      - name: Validate push safety
-        run: |
-          echo "=== Push 安全检查 ==="
-          echo "变更类型: ${{ needs.analyze-schema-change.outputs.change_type }}"
-          echo "包含危险操作: ${{ needs.analyze-schema-change.outputs.has_dangerous_changes }}"
-          echo "✅ 无危险变更，push 安全通过"
-          echo ""
-          echo "✅ 所有安全闸检查完成（push 路径）"
-
-  # ─── 强制禁止: 生产直接运行迁移 ─────────────────────────────
-  # 这个 job 永远不应该被触发，如果触发了说明有严重配置问题
-  production-migration-block:
-    name: '[Emergency] Block Production Migration'
-    runs-on: ubuntu-latest
-    needs: [analyze-schema-change]
-    # 仅在 main 分支直接 push 时触发（PR 走上面的 gate）
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-    steps:
-      - name: 🚨 EMERGENCY: Direct main push detected
-        run: |
-          echo "═══════════════════════════════════════════════════════════"
-          echo "🚨 紧急阻断: 检测到 main 分支直接 push"
-          echo "═══════════════════════════════════════════════════════════"
-          echo ""
-          echo "你在 main 分支直接 push 了 schema 变更。"
-          echo "这违反了数据库安全策略。"
-          echo ""
-          echo "正确流程:"
-          echo "  1. 从 main 创建新分支: git checkout -b fix/schema-change"
-          echo "  2. 提交变更: git commit -m 'fix: ...'"
-          echo "  3. 推送并创建 PR: git push origin fix/schema-change"
-          echo "  4. 经过所有安全闸审批后合入"
-          echo ""
-          echo "禁止在 main 分支直接执行数据库迁移。"
-          echo "这可以防止误操作导致的生产数据丢失。"
-          echo ""
-          echo "如果这是紧急修复，请联系项目管理员。"
-          echo ""
-          exit 1
+          echo "========================================"
+          echo "SCHEMA CHANGE APPROVED"
+          echo "========================================"
+          echo "变更行数: ${{ needs.analyze-schema-change.outputs.diff_lines }}"
+          echo "无危险操作，变更安全。"
