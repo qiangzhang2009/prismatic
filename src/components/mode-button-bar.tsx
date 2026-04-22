@@ -94,14 +94,18 @@ interface ModeButtonBarProps {
   onPickerOpen: (open: boolean) => void;
   /** @deprecated No longer needed — all 8 modes are always visible */
   onModePickerOpen?: () => void;
+  /** Minimum participants for the current mode */
+  minParticipants?: number;
 }
 
 export function ModeButtonBar({
   mode,
   onModeChange,
   selectedIds,
+  onTogglePersona,
   pickerOpen,
   onPickerOpen,
+  minParticipants = 1,
 }: ModeButtonBarProps) {
   const selectedPersonas = getPersonasByIds(selectedIds);
 
@@ -208,7 +212,6 @@ export function ModeButtonBar({
 
       {/* ── Persona row ──────────────────────────────────────────── */}
       <div className="px-4 py-2 border-t border-border-subtle flex items-center gap-3 overflow-x-auto scrollbar-none">
-        <span className="text-[11px] text-text-muted flex-shrink-0">人物</span>
         <button
           className={cn(
             'flex items-center gap-2 text-xs transition-colors px-2 py-1 rounded-lg flex-shrink-0',
@@ -218,31 +221,60 @@ export function ModeButtonBar({
           )}
           onClick={() => onPickerOpen(!pickerOpen)}
         >
-          <div className="flex -space-x-1">
-            {selectedPersonas.slice(0, 3).map((p) => (
+          <span className="text-[11px]">人物</span>
+          <ChevronDown className={cn('w-3.5 h-3.5 transition-transform', pickerOpen ? 'rotate-180' : '')} />
+        </button>
+
+        {/* Selected personas — individual chips with name + X */}
+        <div className="flex items-center gap-2 overflow-x-auto scrollbar-none">
+          {selectedPersonas.map((p) => {
+            const isLast = selectedIds[selectedIds.length - 1] === p.id;
+            const canDeselect = selectedIds.length > minParticipants;
+            return (
               <div
                 key={p.id}
-                className="w-5 h-5 rounded-full border-2 border-bg-base flex items-center justify-center text-[9px] font-bold text-white"
-                style={{ background: `linear-gradient(135deg, ${p.gradientFrom}, ${p.gradientTo})` }}
+                className="flex items-center gap-1.5 pl-1 pr-1.5 py-1 rounded-full border flex-shrink-0 text-xs transition-all"
+                style={{
+                  borderColor: `${p.accentColor}50`,
+                  background: `${p.accentColor}10`,
+                }}
               >
-                {p.nameZh?.slice(0, 1)}
+                <div
+                  className="w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-bold text-white flex-shrink-0"
+                  style={{ background: `linear-gradient(135deg, ${p.gradientFrom}, ${p.gradientTo})` }}
+                >
+                  {p.nameZh?.slice(0, 1)}
+                </div>
+                <span style={{ color: p.accentColor }} className="font-medium whitespace-nowrap">
+                  {p.nameZh}
+                </span>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (canDeselect) {
+                      onTogglePersona(p.id);
+                    }
+                  }}
+                  disabled={!canDeselect}
+                  title={canDeselect ? `移除 ${p.nameZh}` : '至少需要保留 1 人'}
+                  className={cn(
+                    'w-4 h-4 rounded-full flex items-center justify-center flex-shrink-0 transition-all',
+                    canDeselect
+                      ? 'text-text-muted hover:text-red-400 hover:bg-red-500/10 cursor-pointer'
+                      : 'text-text-muted/30 cursor-not-allowed'
+                  )}
+                >
+                  <X className="w-3 h-3" />
+                </button>
               </div>
-            ))}
-            {selectedIds.length > 3 && (
-              <div className="w-5 h-5 rounded-full border-2 border-bg-base bg-bg-elevated flex items-center justify-center text-[9px] font-bold text-text-muted">
-                +{selectedIds.length - 3}
-              </div>
-            )}
-          </div>
-          <span className="text-text-muted">
-            {selectedIds.length}人
-          </span>
-          {pickerOpen ? (
-            <X className="w-3.5 h-3.5" />
-          ) : (
-            <ChevronDown className="w-3.5 h-3.5" />
-          )}
-        </button>
+            );
+          })}
+        </div>
+
+        {/* Total count badge */}
+        <span className="text-[11px] text-text-muted flex-shrink-0 ml-1">
+          共{selectedIds.length}人
+        </span>
       </div>
     </div>
   );
