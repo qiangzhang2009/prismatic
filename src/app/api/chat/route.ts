@@ -1184,6 +1184,7 @@ export async function POST(request: NextRequest) {
     totalCost = cost;
 
     // Persist conversation and messages
+    console.log(`[Chat API] ABOUT_TO_CALL persistConversation userId=${userId} convId=${convId} mode=${mode} messages=${allMessages.length}`);
     const persistResult = await persistConversation(
       userId,
       convId,
@@ -1193,6 +1194,7 @@ export async function POST(request: NextRequest) {
       totalInputTokens + totalOutputTokens,
       cost
     );
+    console.log(`[Chat API] persistConversation RETURNED result=${JSON.stringify(persistResult)}`);
     if (!persistResult) {
       console.warn(`[Chat API] persistConversation returned null for conv=${convId}, mode=${mode}, messages=${allMessages.length} — data NOT saved to DB`);
     }
