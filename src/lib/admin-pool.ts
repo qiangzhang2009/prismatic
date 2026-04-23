@@ -80,7 +80,8 @@ export async function adminListUsers(opts: {
     let gender: string | null = null;
     let province: string | null = null;
     try {
-      const prefs = typeof r.preferences === 'string' ? JSON.parse(r.preferences) : (r.preferences || {});
+      const raw = typeof r.preferences === 'string' ? JSON.parse(r.preferences) : (r.preferences || {});
+      const prefs = typeof raw === 'string' ? JSON.parse(raw) : raw;
       gender = prefs.gender || null;
       province = prefs.province || null;
     } catch { /* ignore */ }
@@ -121,7 +122,8 @@ export async function adminGetUser(id: string) {
   let gender: string | null = null;
   let province: string | null = null;
   try {
-    const prefs = typeof r.preferences === 'string' ? JSON.parse(r.preferences) : (r.preferences || {});
+    const raw = typeof r.preferences === 'string' ? JSON.parse(r.preferences) : (r.preferences || {});
+    const prefs = typeof raw === 'string' ? JSON.parse(raw) : raw;
     gender = prefs.gender || null;
     province = prefs.province || null;
   } catch { /* ignore */ }
@@ -213,8 +215,8 @@ export async function adminListConversations(opts: {
 
   if (userId) { conditions.push(`c."userId" = $${p++}`); params.push(userId); }
   if (mode) { conditions.push(`c.mode = $${p++}`); params.push(mode); }
-  if (dateFrom) { conditions.push(`c."createdAt" >= $${p++}`); params.push(new Date(dateFrom)); }
-  if (dateTo) { conditions.push(`c."createdAt" <= $${p++}`); params.push(new Date(dateTo + 'T23:59:59Z')); }
+  if (dateFrom) { conditions.push(`c."updatedAt" >= $${p++}`); params.push(new Date(dateFrom)); }
+  if (dateTo) { conditions.push(`c."updatedAt" <= $${p++}`); params.push(new Date(dateTo + 'T23:59:59Z')); }
   if (search) {
     conditions.push(`EXISTS (SELECT 1 FROM messages m WHERE m."conversationId" = c.id AND LOWER(m.content) LIKE LOWER($${p++}))`);
     params.push(`%${search}%`);
@@ -285,7 +287,7 @@ export async function adminListConversations(opts: {
       email: r['user.email'],
       plan: r['user.plan'],
     } : null,
-    messages: (r.messages || []).slice(0, 50),
+    messages: (r.messages || []).slice(0, 500),
   }));
 
   return { conversations, total, page, pageSize, totalPages: Math.ceil(total / pageSize) };
@@ -303,8 +305,8 @@ export async function adminConversationsByUser(opts: {
   let p = 1;
 
   if (mode) { conditions.push(`c.mode = $${p++}`); params.push(mode); }
-  if (dateFrom) { conditions.push(`c."createdAt" >= $${p++}`); params.push(new Date(dateFrom)); }
-  if (dateTo) { conditions.push(`c."createdAt" <= $${p++}`); params.push(new Date(dateTo + 'T23:59:59Z')); }
+  if (dateFrom) { conditions.push(`c."updatedAt" >= $${p++}`); params.push(new Date(dateFrom)); }
+  if (dateTo) { conditions.push(`c."updatedAt" <= $${p++}`); params.push(new Date(dateTo + 'T23:59:59Z')); }
   if (search) {
     conditions.push(`EXISTS (SELECT 1 FROM messages m WHERE m."conversationId" = c.id AND LOWER(m.content) LIKE LOWER($${p++}))`);
     params.push(`%${search}%`);
@@ -324,7 +326,7 @@ export async function adminConversationsByUser(opts: {
     FROM conversations c
     LEFT JOIN users u ON u.id = c."userId"
     ${where}
-    ORDER BY c."createdAt" DESC
+    ORDER BY c."updatedAt" DESC
     LIMIT 1000
   `;
 

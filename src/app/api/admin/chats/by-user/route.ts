@@ -2,7 +2,7 @@
  * Admin: Conversation list grouped by user
  * GET /api/admin/chats/by-user
  *
- * Returns conversations grouped by userId, with per-user stats.
+ * Returns conversations grouped by userId, with per-user stats and full message history.
  * Uses @neondatabase/serverless Pool to avoid Prisma Edge runtime incompatibility.
  */
 export const runtime = 'nodejs';
@@ -10,11 +10,21 @@ export const runtime = 'nodejs';
 import { NextRequest, NextResponse } from 'next/server';
 import { authenticateAdminRequest } from '@/lib/user-management';
 import { Pool } from '@neondatabase/serverless';
+import { getPersonasByIds } from '@/lib/personas';
 
 function getPool() {
   const url = process.env.DATABASE_URL;
   if (!url) throw new Error('DATABASE_URL not set');
   return new Pool({ connectionString: url });
+}
+
+function resolvePersonaNames(personaIds: string[] | null): Array<{ id: string; name: string }> {
+  if (!personaIds?.length) return [];
+  const personas = getPersonasByIds(personaIds);
+  return personaIds.map(id => {
+    const persona = personas.find(p => p.id === id);
+    return { id, name: persona?.nameZh || persona?.name || id };
+  });
 }
 
 export async function GET(req: NextRequest) {
@@ -44,8 +54,8 @@ export async function GET(req: NextRequest) {
     let p = 1;
 
     if (mode) { conditions.push(`c.mode = $${p++}`); params.push(mode); }
-    if (dateFrom) { conditions.push(`c."createdAt" >= $${p++}`); params.push(new Date(dateFrom)); }
-    if (dateTo) { conditions.push(`c."createdAt" <= $${p++}`); params.push(new Date(dateTo + 'T23:59:59Z')); }
+    if (dateFrom) { conditions.push(`c."updatedAt" >= $${p++}`); params.push(new Date(dateFrom)); }
+    if (dateTo) { conditions.push(`c."updatedAt" <= $${p++}`); params.push(new Date(dateTo + 'T23:59:59Z')); }
     if (search) {
       conditions.push(`EXISTS (SELECT 1 FROM messages m WHERE m."conversationId" = c.id AND LOWER(m.content) LIKE LOWER($${p++}))`);
       params.push(`%${search}%`);
@@ -58,12 +68,27 @@ export async function GET(req: NextRequest) {
 
     const where = conditions.length ? `WHERE ${conditions.join(' AND ')}` : '';
 
+    // LATERAL join to include full message history for each conversation
     const q = `
-      SELECT c.*, u.id as "user.id", u.name as "user.name", u.email as "user.email",
+      SELECT c.id, c."userId", c.title, c.mode, c.participants, c.tags,
+             c."messageCount", c."totalTokens", c."totalCost", c."personaIds",
+             c."createdAt", c."updatedAt",
+             u.id as "user.id", u.name as "user.name", u.email as "user.email",
              u.plan as "user.plan", u."apiKeyEncrypted" as "user.apiKeyEncrypted",
-             u."apiKeyStatus" as "user.apiKeyStatus"
+             u."apiKeyStatus" as "user.apiKeyStatus",
+             msgs.data as messages
       FROM conversations c
       LEFT JOIN users u ON u.id = c."userId"
+      LEFT JOIN LATERAL (
+        SELECT json_agg(json_build_object(
+          'id', m.id, 'role', m.role, 'content', m.content,
+          'personaId', m."personaId", 'tokensInput', m."tokensInput",
+          'tokensOutput', m."tokensOutput", 'apiCost', m."apiCost",
+          'modelUsed', m."modelUsed", 'createdAt', m."createdAt",
+          'metadata', m.metadata
+        ) ORDER BY m."createdAt" DESC) as data
+        FROM messages m WHERE m."conversationId" = c.id
+      ) msgs ON true
       ${where}
       ORDER BY c."updatedAt" DESC
       LIMIT 1000
@@ -75,7 +100,8 @@ export async function GET(req: NextRequest) {
 
     // Group by userId
     const userMap: Record<string, {
-      user: Record<string, unknown> | null; conversations: Record<string, unknown>[];
+      user: Record<string, unknown> | null;
+      conversations: Record<string, unknown>[];
       totalMessages: number; totalCost: number; totalTokens: number;
       convCount: number; lastActivity: string;
     }> = {};
@@ -94,8 +120,39 @@ export async function GET(req: NextRequest) {
           convCount: 0, lastActivity: '',
         };
       }
+
+      // Attach persona names and full messages to each conversation
+      const convPersonas = resolvePersonaNames(r.personaIds || []);
       const hasApiKey = r['user.apiKeyEncrypted'] && r['user.apiKeyStatus'] === 'valid';
-      userMap[uid].conversations.push({ ...r, billingMode: hasApiKey ? 'A' : 'B' });
+      const messages = (r.messages || []).map((m: any) => {
+        const persona = convPersonas.find(p => p.id === m.personaId);
+        let msgMode = r.mode;
+        if (m.metadata != null) {
+          try {
+            const parsed = typeof m.metadata === 'string' ? JSON.parse(m.metadata) : m.metadata;
+            if (parsed && typeof parsed === 'object' && parsed.mode) msgMode = parsed.mode;
+          } catch { /* ignore malformed metadata */ }
+        }
+        return { ...m, personaName: persona?.name || m.personaId, msgMode };
+      });
+
+      userMap[uid].conversations.push({
+        id: r.id,
+        title: r.title,
+        mode: r.mode,
+        participants: r.participants,
+        tags: r.tags,
+        messageCount: r.messageCount,
+        totalTokens: r.totalTokens,
+        totalCost: r.totalCost,
+        personaIds: r.personaIds,
+        createdAt: r.createdAt,
+        updatedAt: r.updatedAt,
+        billingMode: hasApiKey ? 'A' : 'B',
+        personas: convPersonas,
+        messages,
+      });
+
       userMap[uid].totalMessages += r.messageCount || 0;
       userMap[uid].totalCost += Number(r.totalCost || 0);
       userMap[uid].totalTokens += r.totalTokens || 0;

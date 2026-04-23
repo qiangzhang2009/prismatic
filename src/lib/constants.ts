@@ -158,6 +158,18 @@ export const DOMAINS = {
   risk: { label: '风险管理', labelEn: 'Risk' },
   history: { label: '历史', labelEn: 'History' },
   literature: { label: '文学', labelEn: 'Literature' },
+  business: { label: '商业', labelEn: 'Business' },
+  economics: { label: '经济学', labelEn: 'Economics' },
+  stoicism: { label: '斯多葛主义', labelEn: 'Stoicism' },
+  psychology: { label: '心理学', labelEn: 'Psychology' },
+  'zen-buddhism': { label: '禅宗', labelEn: 'Zen Buddhism' },
+  spirituality: { label: '灵性', labelEn: 'Spirituality' },
+  AI: { label: '人工智能', labelEn: 'AI' },
+  engineering: { label: '工程', labelEn: 'Engineering' },
+  ethics: { label: '伦理学', labelEn: 'Ethics' },
+  fiction: { label: '文学创作', labelEn: 'Fiction' },
+  medicine: { label: '医学', labelEn: 'Medicine' },
+  semiconductor: { label: '半导体', labelEn: 'Semiconductor' },
 } as const;
 
 // Color palette for personas

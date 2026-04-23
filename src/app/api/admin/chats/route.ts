@@ -60,8 +60,8 @@ export async function GET(req: NextRequest) {
 
     if (userId) { conditions.push(`c."userId" = $${p++}`); params.push(userId); }
     if (mode) { conditions.push(`c.mode = $${p++}`); params.push(mode); }
-    if (dateFrom) { conditions.push(`c."createdAt" >= $${p++}`); params.push(new Date(dateFrom)); }
-    if (dateTo) { conditions.push(`c."createdAt" <= $${p++}`); params.push(new Date(dateTo + 'T23:59:59Z')); }
+    if (dateFrom) { conditions.push(`c."updatedAt" >= $${p++}`); params.push(new Date(dateFrom)); }
+    if (dateTo) { conditions.push(`c."updatedAt" <= $${p++}`); params.push(new Date(dateTo + 'T23:59:59Z')); }
     if (search) {
       conditions.push(`EXISTS (SELECT 1 FROM messages m WHERE m."conversationId" = c.id AND LOWER(m.content) LIKE LOWER($${p++}))`);
       params.push(`%${search}%`);
@@ -96,8 +96,9 @@ export async function GET(req: NextRequest) {
           'id', m.id, 'role', m.role, 'content', m.content,
           'personaId', m."personaId", 'tokensInput', m."tokensInput",
           'tokensOutput', m."tokensOutput", 'apiCost', m."apiCost",
-          'modelUsed', m."modelUsed", 'createdAt', m."createdAt"
-        ) ORDER BY m."createdAt" ASC) as data
+          'modelUsed', m."modelUsed", 'createdAt', m."createdAt",
+          'metadata', m.metadata
+        ) ORDER BY m."createdAt" DESC) as data
         FROM messages m WHERE m."conversationId" = c.id
       ) msgs ON true
       ${where}
@@ -136,9 +137,17 @@ export async function GET(req: NextRequest) {
         email: r['user.email'],
         plan: r['user.plan'],
       } : null,
-      messages: (r.messages || []).slice(0, 50).map((m: any) => {
+      messages: (r.messages || []).slice(0, 500).map((m: any) => {
         const persona = resolvePersonaNames(r.personaIds || []).find((p) => p.id === m.personaId);
-        return { ...m, personaName: persona?.name || m.personaId };
+        // Extract mode from message metadata JSON (written by persistConversation)
+        let msgMode = r.mode;
+        if (m.metadata != null) {
+          try {
+            const parsed = typeof m.metadata === 'string' ? JSON.parse(m.metadata) : m.metadata;
+            if (parsed && typeof parsed === 'object' && parsed.mode) msgMode = parsed.mode;
+          } catch { /* ignore malformed metadata */ }
+        }
+        return { ...m, personaName: persona?.name || m.personaId, msgMode };
       }),
     }));
 

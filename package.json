@@ -11,31 +11,23 @@
     "start": "next start",
     "lint": "next lint",
     "type-check": "tsc --noEmit",
-
     "-- DANGER: Read docs/DATABASE_SAFETY.md before running any db:* command --": "",
     "-- Safe migration path --": "",
     "db:status": "prisma migrate status",
     "db:validate": "prisma validate",
     "db:generate": "prisma generate",
-
     "-- Safe (no data loss): Only adds new tables/columns --": "",
     "db:push": "ts-node -e \"console.log('⚠️  db:push is for DEVELOPMENT only. Use db:migrate:safe for production.');console.log('If you are sure, run: npx prisma db push');process.exit(1);\" || npx prisma db push --skip-generate",
-
     "-- Safe migration (production): Runs pending migrations with safety checks --": "",
     "db:migrate:safe": "ts-node scripts/pre-migration-hook.ts && npx prisma migrate deploy",
-
     "-- Backup: Creates a timestamped backup before any changes --": "",
     "db:backup": "node scripts/backup-workflow.js",
-
     "-- Backup + status: Full pre-change check --": "",
     "db:check": "npm run db:backup && npm run db:status",
-
     "-- RLS setup: Run once after initial deployment --": "",
     "db:rls:setup": "ts-node scripts/setup-rls.ts",
-
     "-- DANGEROUS: Only for local development reset --": "",
     "db:reset": "ts-node -e \"console.log('⚠️  WARNING: This will DELETE ALL local data!');console.log('For production reset, use db:migrate:safe + manual restore.');process.exit(1);\"",
-
     "-- Never add --accept-data-loss to any command --": "",
     "test": "vitest"
   },
@@ -68,6 +60,7 @@
     "d3": "^7.9.0",
     "date-fns": "^3.6.0",
     "framer-motion": "^11.1.9",
+    "html2canvas": "^1.4.1",
     "jsonwebtoken": "^9.0.3",
     "lucide-react": "^0.378.0",
     "nanoid": "^5.0.7",

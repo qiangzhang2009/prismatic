@@ -49,16 +49,18 @@ function getSql() {
 function getGender(user: any): 'male' | 'female' | null {
   if (!user.preferences) return null;
   try {
-    const prefs = typeof user.preferences === 'string' ? JSON.parse(user.preferences) : user.preferences;
-    return prefs.gender as 'male' | 'female' | null;
+    const raw = typeof user.preferences === 'string' ? JSON.parse(user.preferences) : user.preferences;
+    const prefs = typeof raw === 'string' ? JSON.parse(raw) : raw;
+    return prefs?.gender as 'male' | 'female' | null;
   } catch { return null; }
 }
 
 function getProvince(user: any): string | null {
   if (!user.preferences) return null;
   try {
-    const prefs = typeof user.preferences === 'string' ? JSON.parse(user.preferences) : user.preferences;
-    return prefs.province as string | null;
+    const raw = typeof user.preferences === 'string' ? JSON.parse(user.preferences) : user.preferences;
+    const prefs = typeof raw === 'string' ? JSON.parse(raw) : raw;
+    return prefs?.province as string | null;
   } catch { return null; }
 }
 
@@ -662,10 +664,17 @@ export async function updateUserProfile(userId: string, data: {
     if (data.name !== undefined) prismaData.name = data.name;
     if (data.gender !== undefined || data.province !== undefined) {
       const existing = await prisma.user.findUnique({ where: { id: userId } });
-      const prefs = existing?.preferences ? JSON.parse(existing.preferences as string) : {};
+      let prefs: any = {};
+      try {
+        if (existing?.preferences) {
+          prefs = typeof existing.preferences === 'string'
+            ? JSON.parse(existing.preferences as string)
+            : existing.preferences;
+        }
+      } catch { /* use empty object */ }
       if (data.gender !== undefined) prefs.gender = data.gender;
       if (data.province !== undefined) prefs.province = data.province;
-      prismaData.preferences = JSON.stringify(prefs);
+      prismaData.preferences = prefs;
     }
     await prisma.user.update({
       where: { id: userId },
@@ -834,10 +843,17 @@ export async function updateUserAdmin(
   if (updates.status !== undefined) prismaData.status = updates.status;
   if (updates.gender !== undefined || updates.province !== undefined) {
     const existingUser = await prisma.user.findUnique({ where: { id: userId } });
-    const prefs = existingUser?.preferences ? JSON.parse(existingUser.preferences as string) : {};
+    let prefs: any = {};
+    try {
+      if (existingUser?.preferences) {
+        prefs = typeof existingUser.preferences === 'string'
+          ? JSON.parse(existingUser.preferences as string)
+          : existingUser.preferences;
+      }
+    } catch { /* use empty object */ }
     if (updates.gender !== undefined) prefs.gender = updates.gender;
     if (updates.province !== undefined) prefs.province = updates.province;
-    prismaData.preferences = JSON.stringify(prefs);
+    prismaData.preferences = prefs;
   }
 
   console.log('[updateUserAdmin] prismaData to update:', JSON.stringify(prismaData));

@@ -38,7 +38,7 @@ export async function GET(req: NextRequest) {
              COALESCE(SUM(c."messageCount"), 0) as "msgCount",
              COALESCE(SUM(c."totalCost"::numeric), 0) as "costSum"
       FROM conversations c
-      WHERE c."createdAt" >= $1
+      WHERE c."updatedAt" >= $1
       GROUP BY c."userId"
       ORDER BY "convCount" DESC
       LIMIT 200

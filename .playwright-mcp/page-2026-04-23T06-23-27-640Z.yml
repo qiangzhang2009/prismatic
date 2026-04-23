@@ -1,0 +1,163 @@
+- generic [active] [ref=e1]:
+  - navigation [ref=e2]:
+    - generic [ref=e3]:
+      - link "棱镜折射" [ref=e4] [cursor=pointer]:
+        - /url: /
+        - generic [ref=e5]:
+          - img [ref=e6]
+          - img [ref=e8]
+        - generic [ref=e10]: 棱镜折射
+      - generic [ref=e11]:
+        - link "人物档案馆" [ref=e12] [cursor=pointer]:
+          - /url: /personas
+        - link "认知图谱" [ref=e13] [cursor=pointer]:
+          - /url: /graph
+          - img [ref=e14]
+          - text: 认知图谱
+        - link "蒸馏方法论" [ref=e18] [cursor=pointer]:
+          - /url: /methodology
+        - link "开始体验" [ref=e19] [cursor=pointer]:
+          - /url: /app
+        - button "用户菜单" [ref=e22] [cursor=pointer]:
+          - img [ref=e24]
+          - img [ref=e27]
+  - generic [ref=e29]:
+    - banner [ref=e30]:
+      - link "← 返回" [ref=e31] [cursor=pointer]:
+        - /url: /personas/wittgenstein
+      - generic [ref=e32]: 路德维希·维特根斯坦
+      - generic [ref=e33]: Ludwig Wittgenstein
+    - generic [ref=e34]:
+      - generic [ref=e35]:
+        - generic [ref=e36]: 哲学
+        - heading "路德维希·维特根斯坦" [level=1] [ref=e37]
+        - paragraph [ref=e38]: Ludwig Wittgenstein
+        - paragraph [ref=e39]: 清晰性
+      - generic [ref=e41]:
+        - generic [ref=e42]: SCROLL
+        - img [ref=e43]
+      - generic:
+        - img
+      - generic:
+        - img
+    - generic [ref=e45]:
+      - generic [ref=e48]: 灵魂肖像
+      - generic [ref=e50]:
+        - img [ref=e53]
+        - generic [ref=e59]:
+          - generic [ref=e62]: Ludwig Wittgenstein
+          - heading "路德维希·维特根斯坦" [level=2] [ref=e63]
+          - paragraph [ref=e64]: 路德维希·维特根斯坦是一位语言、逻辑与数学哲学家，他认为哲学问题源于语言的误用。他的核心使命是治疗性的：通过展示语言如何在人类实践中实际运作，来消解哲学困惑。他不构建哲学体系，而是追求治疗性的清晰。他的哲学方法是描述性的而非解释性的——他说'不要想，要看！'他早期的工作（《逻辑哲学论》）提出语言描绘事实；后期的工作（《哲学研究》）拒绝这一观点，转而将语言视为嵌入生活形式中的多种语言游戏。
+          - generic [ref=e66]: 哲学
+    - generic [ref=e67]:
+      - generic [ref=e70]: 星图
+      - generic [ref=e72]:
+        - generic:
+          - img
+          - text: CONSTELLATION
+    - generic [ref=e74]:
+      - generic [ref=e77]: 思想精华
+      - generic [ref=e79]:
+        - generic [ref=e80]:
+          - generic: “
+          - blockquote [ref=e82]:
+            - generic [ref=e83]: "01"
+            - paragraph [ref=e84]: Language is not a single unified system but a multiplicity of practical activities — language-games — each with its own rules and purposes.
+            - generic [ref=e85]: — 语言游戏
+        - generic [ref=e86]:
+          - generic: “
+          - blockquote [ref=e89]:
+            - generic [ref=e90]: "02"
+            - paragraph [ref=e91]: Concepts are linked not by a single common essence but by overlapping similarities — like members of a family who share features without any one defining trait.
+            - generic [ref=e92]: — 家族相似性
+        - generic [ref=e93]:
+          - generic: “
+          - blockquote [ref=e96]:
+            - generic [ref=e97]: "03"
+            - paragraph [ref=e98]: Language is grounded in shared human practices and forms of life — the unstated background against which linguistic meaning becomes possible.
+            - generic [ref=e99]: — 生活形式
+        - generic [ref=e100]:
+          - generic: “
+          - blockquote [ref=e103]:
+            - generic [ref=e104]: "04"
+            - paragraph [ref=e105]: Any action can be made to appear in accord with a rule, yet also in conflict with it — revealing that rule-following requires shared practice, not mere interpretation.
+            - generic [ref=e106]: — 遵守规则悖论
+        - generic [ref=e107]:
+          - generic: “
+          - blockquote [ref=e110]:
+            - generic [ref=e111]: "05"
+            - paragraph [ref=e112]: A language whose words refer to private sensations inaccessible to others cannot function as a language, because meaning requires public criteria.
+            - generic [ref=e113]: — 私人语言论证
+    - generic [ref=e114]:
+      - generic [ref=e117]: 心智模型
+      - generic [ref=e119]:
+        - paragraph [ref=e120]: 滚轮缩放 · 鼠标悬停查看详情
+        - img [ref=e122]
+    - generic [ref=e123]:
+      - generic [ref=e126]: 人生轨迹
+      - generic [ref=e131]:
+        - generic [ref=e133]: "2000"
+        - generic [ref=e135]:
+          - generic [ref=e136]: 著作出版
+          - paragraph [ref=e137]: 代表著作
+          - paragraph [ref=e138]: Tractatus Logico-Philosophicus (1921/1933)
+      - paragraph [ref=e139]: ← 左右滑动探索 →
+    - generic [ref=e140]:
+      - generic [ref=e143]: 原典著作
+      - generic [ref=e145]:
+        - generic [ref=e150]:
+          - generic [ref=e152]: 著作
+          - generic [ref=e153]:
+            - paragraph [ref=e154]: Tractatus Logico-P…
+            - paragraph [ref=e155]: Early masterpiece proposing the picture theory of language a
+        - generic [ref=e160]:
+          - generic [ref=e162]: 著作
+          - generic [ref=e163]:
+            - paragraph [ref=e164]: Philosophical Inve…
+            - paragraph [ref=e165]: Late masterpiece introducing language-games, family resembla
+      - paragraph [ref=e166]: ← 横向滑动 →
+    - generic [ref=e167]:
+      - generic [ref=e170]: 影响圈
+      - generic [ref=e172]:
+        - img [ref=e174]:
+          - generic [ref=e209]: 哲学
+          - generic [ref=e211]: 路德维希
+        - generic [ref=e212]:
+          - heading "核心价值观" [level=3] [ref=e213]
+          - generic [ref=e214]:
+            - generic [ref=e217]:
+              - paragraph [ref=e218]: 清晰性
+              - paragraph [ref=e219]: Philosophy should make things clearer, not more complex. Confusion — not mystery — is the enemy.
+            - generic [ref=e222]:
+              - paragraph [ref=e223]: 严谨的诚实
+              - paragraph [ref=e224]: What cannot be said must be passed over in silence — not elaborated into mystical nonsense.
+            - generic [ref=e227]:
+              - paragraph [ref=e228]: 治疗性目的
+              - paragraph [ref=e229]: Philosophy is not a theoretical enterprise but a practical activity of liberation.
+            - generic [ref=e232]:
+              - paragraph [ref=e233]: 日常语言
+              - paragraph [ref=e234]: The resources for philosophical analysis lie in ordinary language, not technical constructions.
+            - generic [ref=e237]:
+              - paragraph [ref=e238]: 反体系化
+              - paragraph [ref=e239]: Philosophical systems are cages, not cathedrals. Genuine understanding comes from perspicuous description.
+    - generic [ref=e240]:
+      - generic [ref=e243]: 性格原型
+      - generic [ref=e246]:
+        - generic [ref=e247]: ∞
+        - heading "智者 · Archetype" [level=3] [ref=e248]
+        - paragraph [ref=e249]: 路德维希·维特根斯坦 以洞察力与思辨力为核心驱动力，在哲学中展现出罕见的内省特质。
+        - generic [ref=e250]:
+          - generic [ref=e251]: 洞察力
+          - generic [ref=e252]: 思辨力
+          - generic [ref=e253]: 抽象思维
+        - paragraph [ref=e254]: 趣味解读 · 仅供参考 · 纯属娱乐
+    - generic [ref=e256]:
+      - paragraph [ref=e257]: 开启对话
+      - heading "与路德维希·维特根斯坦对话" [level=2] [ref=e258]
+      - paragraph [ref=e259]: 跨越时空的思维碰撞，让这个灵魂为你解答疑惑
+      - link "开始对话" [ref=e260] [cursor=pointer]:
+        - /url: /app?persona=wittgenstein
+        - generic [ref=e261]: 开始对话
+        - img [ref=e262]
+      - paragraph [ref=e266]: Ludwig Wittgenstein · Prismatic
+  - alert [ref=e267]

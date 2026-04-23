@@ -8,6 +8,11 @@
 import { motion } from 'framer-motion';
 import type { Persona } from '@/lib/types';
 import type { PersonaScrollTheme } from '@/lib/persona-scroll-themes';
+import { DOMAINS } from '@/lib/constants';
+
+function domainLabel(key: string): string {
+  return DOMAINS[key as keyof typeof DOMAINS]?.label ?? key;
+}
 
 interface Props {
   persona: Persona;
@@ -319,7 +324,7 @@ export function SoulPortrait({ persona, theme }: Props) {
                   letterSpacing: '0.05em',
                 }}
               >
-                {d}
+                {domainLabel(d)}
               </span>
             ))}
           </div>

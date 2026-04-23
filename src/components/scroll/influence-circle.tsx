@@ -7,6 +7,11 @@
 import { motion } from 'framer-motion';
 import type { Persona } from '@/lib/types';
 import type { PersonaScrollTheme } from '@/lib/persona-scroll-themes';
+import { DOMAINS } from '@/lib/constants';
+
+function domainLabel(key: string): string {
+  return DOMAINS[key as keyof typeof DOMAINS]?.label ?? key;
+}
 
 interface Props {
   persona: Persona;
@@ -137,7 +142,7 @@ export function InfluenceCircle({ persona, theme }: Props) {
                     viewport={{ once: true }}
                     transition={{ duration: 0.4, delay: 0.8 + i * 0.1 }}
                   >
-                    {domain.length > 6 ? domain.slice(0, 5) + '…' : domain}
+                    {(() => { const label = domainLabel(domain); return label.length > 6 ? label.slice(0, 5) + '…' : label; })()}
                   </motion.text>
                 </g>
               );

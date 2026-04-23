@@ -526,6 +526,9 @@ async function createServerConversation(
       archived: false,
       tags: tags || [],
       messageCount: messages.length,
+      updatedAt: messages.length > 0
+        ? (messages[messages.length - 1].timestamp ? new Date(messages[messages.length - 1].timestamp as string) : new Date())
+        : new Date(),
     },
   });
 

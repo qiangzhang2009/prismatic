@@ -53,41 +53,63 @@ const CODE_PERSONA_MAP = new Map<string, any>(
   PERSONA_LIST.map(p => [p.slug, p])
 );
 
-// Cast DB persona to Persona — DB personas have the display fields needed by PersonaCard
-// When DB mentalModels is empty but code has data, use code data instead.
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function dbToPersona(db: DistilledPersona): any {
-  const score = personaScore(db.slug, db.finalScore);
-  const domainStr = db.domain ?? 'philosophy';
-  const domains = domainStr.includes(',') ? domainStr.split(',') as Domain[] : [domainStr as Domain];
-  const color = getDomainGradient(domains);
+  // Cast DB persona to Persona — DB personas have the display fields needed by PersonaCard
+  // When DB mentalModels is empty but code has data, use code data instead.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  function dbToPersona(db: DistilledPersona): any {
+    const score = personaScore(db.slug, db.finalScore);
+    const domainStr = db.domain ?? 'philosophy';
+    const domains = domainStr.includes(',') ? domainStr.split(',') as Domain[] : [domainStr as Domain];
+    const color = getDomainGradient(domains);
 
-  // If DB mentalModels is empty but code persona has them, use code data
-  const codePersona = CODE_PERSONA_MAP.get(db.slug);
-  const dbHasMentalModels = Array.isArray(db.mentalModels) && db.mentalModels.length > 0;
-  const rawMentalModels = dbHasMentalModels ? db.mentalModels : (codePersona?.mentalModels ?? []);
+    // If DB mentalModels is empty but code persona has them, use code data
+    const codePersona = CODE_PERSONA_MAP.get(db.slug);
+    const dbHasMentalModels = Array.isArray(db.mentalModels) && db.mentalModels.length > 0;
+    const rawMentalModels = dbHasMentalModels ? db.mentalModels : (codePersona?.mentalModels ?? []);
 
-  const mentalModels = rawMentalModels;
+    const mentalModels = rawMentalModels;
 
-  return {
-    id: db.slug,
-    slug: db.slug,
-    name: unquote(db.name) || db.slug,
-    nameZh: decodeUnicodeEscapes(unquote(db.namezh)) || unquote(db.name) || db.slug,
-    nameEn: unquote(db.nameen) || unquote(db.name) || db.slug,
-    domain: domains,
-    tagline: unquote(db.tagline) ?? '',
-    taglineZh: (decodeUnicodeEscapes(unquote(db.taglineZh)) || decodeUnicodeEscapes(unquote(db.tagline)) || ''),
-    brief: unquote(db.brief) ?? '',
-    briefZh: (decodeUnicodeEscapes(unquote(db.briefZh)) || decodeUnicodeEscapes(unquote(db.brief)) || ''),
-    accentColor: color.from,
-    gradientFrom: color.from,
-    gradientTo: color.to,
-    avatar: unquote(db.avatar) ?? '',
-    mentalModels,
-    _score: score,
-  };
-}
+    // Use codePersona data as fallback for display fields when DB has placeholder/default values
+    const dbTagline = unquote(db.tagline) ?? '';
+    const dbTaglineZh = decodeUnicodeEscapes(unquote(db.taglineZh)) ?? '';
+    const dbBrief = unquote(db.brief) ?? '';
+    const dbBriefZh = decodeUnicodeEscapes(unquote(db.briefZh)) ?? '';
+    const dbAccent = (unquote(db.accentColor) as string) || '#6366f1';
+    const dbGradientFrom = (unquote(db.gradientFrom) as string) || '#6366f1';
+    const dbGradientTo = (unquote(db.gradientTo) as string) || '#8b5cf6';
+
+    // Code persona display fields take priority when DB has placeholder values
+    // Only flag very short (1-2 char) standalone Chinese words as placeholders
+    const isPlaceholder = (v: string) =>
+      !v || (v.length <= 2 && /^[\u4e00-\u9fa5]+$/.test(v));
+
+    const tagline = !isPlaceholder(dbTagline) ? dbTagline : ( codePersona?.tagline ?? dbTagline);
+    const taglineZh = !isPlaceholder(dbTaglineZh) ? dbTaglineZh : ( codePersona?.taglineZh ?? dbTaglineZh);
+    const brief = !isPlaceholder(dbBrief) ? dbBrief : ( codePersona?.brief ?? dbBrief);
+    const briefZh = !isPlaceholder(dbBriefZh) ? dbBriefZh : ( codePersona?.briefZh ?? dbBriefZh);
+    const accentColor = !isPlaceholder(dbAccent) ? dbAccent : ( codePersona?.accentColor ?? dbAccent);
+    const gradientFrom = !isPlaceholder(dbGradientFrom) ? dbGradientFrom : ( codePersona?.gradientFrom ?? dbGradientFrom);
+    const gradientTo = !isPlaceholder(dbGradientTo) ? dbGradientTo : ( codePersona?.gradientTo ?? dbGradientTo);
+
+    return {
+      id: db.slug,
+      slug: db.slug,
+      name: unquote(db.name) || db.slug,
+      nameZh: decodeUnicodeEscapes(unquote(db.namezh)) || unquote(db.name) || db.slug,
+      nameEn: unquote(db.nameen) || unquote(db.name) || db.slug,
+      domain: domains,
+      tagline,
+      taglineZh,
+      brief,
+      briefZh,
+      accentColor,
+      gradientFrom,
+      gradientTo,
+      avatar: unquote(db.avatar) ?? '',
+      mentalModels,
+      _score: score,
+    };
+  }
 
 export default function PersonasPage() {
   const [selectedDomain, setSelectedDomain] = useState<Domain | 'all'>('all');
@@ -96,12 +118,9 @@ export default function PersonasPage() {
   const [showSortMenu, setShowSortMenu] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  // Merged list: computed once after DB data arrives, no flicker
+  // Merged list: initialized empty; DB fetch populates it in useEffect
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [mergedPersonas, setMergedPersonas] = useState<any[]>(PERSONA_LIST.map(p => ({
-    ...p,
-    _score: PERSONA_CONFIDENCE[p.id]?.overall ?? 0,
-  })));
+  const [mergedPersonas, setMergedPersonas] = useState<any[]>([]);
 
   useEffect(() => {
     fetch('/api/persona-library?sortBy=score&limit=100')

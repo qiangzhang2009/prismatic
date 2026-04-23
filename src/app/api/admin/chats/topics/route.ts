@@ -33,7 +33,7 @@ export async function GET(req: NextRequest) {
     const pool = getPool();
 
     const [countResult, convResult] = await Promise.all([
-      pool.query(`SELECT COUNT(*) as cnt FROM conversations WHERE "createdAt" >= $1 AND "messageCount" >= 2`, [startDate]),
+      pool.query(`SELECT COUNT(*) as cnt FROM conversations WHERE "updatedAt" >= $1 AND "messageCount" >= 2`, [startDate]),
       pool.query(`
         SELECT c.id, c.mode, c."createdAt",
                msgs.data as messages
@@ -42,7 +42,7 @@ export async function GET(req: NextRequest) {
           SELECT json_agg(json_build_object('content', m.content) ORDER BY m."createdAt" ASC) as data
           FROM messages m WHERE m."conversationId" = c.id
         ) msgs ON true
-        WHERE c."createdAt" >= $1 AND c."messageCount" >= 2
+        WHERE c."updatedAt" >= $1 AND c."messageCount" >= 2
         ORDER BY c."messageCount" DESC
         LIMIT 500
       `, [startDate]),

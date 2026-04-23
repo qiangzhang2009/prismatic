@@ -157,11 +157,13 @@ export default function GraphPage() {
   const containerRef = useRef<HTMLDivElement>(null);
   const { nodes, edges } = useMemo(() => buildGraph(), []);
 
-  // Auto-fit on mount
+  // Auto-fit on mount — use container dimensions for reliable mobile support
   useEffect(() => {
     const fit = () => {
-      const vw = window.innerWidth, vh = window.innerHeight - 64;
-      const padding = 70;
+      const rect = containerRef.current?.getBoundingClientRect();
+      const vw = rect?.width ?? window.innerWidth;
+      const vh = rect?.height ?? (window.innerHeight - 64);
+      const padding = Math.min(vw, vh) * 0.12;
       const maxR = Math.max(...nodes.map((n) => Math.hypot(n.x, n.y) + n.r), 360);
       const fittedScale = Math.min((vw - padding * 2) / (maxR * 2), (vh - padding) / (maxR * 2), 1.1);
       setScale(fittedScale);
@@ -169,8 +171,17 @@ export default function GraphPage() {
       setIsLoaded(true);
     };
     const t = setTimeout(fit, 80);
+
+    // Respond to container size changes (mobile keyboard, address bar, etc.)
+    const ro = new ResizeObserver(fit);
+    if (containerRef.current) ro.observe(containerRef.current);
+
     window.addEventListener('resize', fit);
-    return () => { clearTimeout(t); window.removeEventListener('resize', fit); };
+    return () => {
+      clearTimeout(t);
+      ro.disconnect();
+      window.removeEventListener('resize', fit);
+    };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -225,8 +236,10 @@ export default function GraphPage() {
   const zoomIn = () => setScale((s) => Math.min(3, s * 1.25));
   const zoomOut = () => setScale((s) => Math.max(0.3, s / 1.25));
   const resetView = () => {
-    const vw = window.innerWidth, vh = window.innerHeight - 64;
-    const padding = 70;
+    const rect = containerRef.current?.getBoundingClientRect();
+    const vw = rect?.width ?? window.innerWidth;
+    const vh = rect?.height ?? (window.innerHeight - 64);
+    const padding = Math.min(vw, vh) * 0.12;
     const maxR = Math.max(...nodes.map((n) => Math.hypot(n.x, n.y) + n.r), 360);
     setScale(Math.min((vw - padding * 2) / (maxR * 2), (vh - padding) / (maxR * 2), 1.1));
     setOffset({ x: vw / 2, y: vh / 2 });
@@ -323,7 +336,7 @@ export default function GraphPage() {
         onTouchEnd={handleTouchEnd}
         onClick={() => setSelectedNode(null)}
       >
-        <svg className="w-full h-full" style={{ transform: `scale(${scale})`, transformOrigin: '0 0' }}>
+        <svg className="w-full h-full" style={{ transform: `scale(${scale})`, transformOrigin: 'center center' }}>
           <defs>
             {nodes.filter((n) => n.type === 'persona').map((n) => (
               <radialGradient key={`rg-${n.id}`} id={`grad-${n.id}`} cx="35%" cy="28%" r="68%">

@@ -178,7 +178,7 @@ function getAllLocalSnapshots(messagesMap: Map<string, { messages: AgentMessage[
 
   messagesMap.forEach((conversationData, conversationKey) => {
     const { messages, title, tags } = conversationData;
-    if (messages.length === 0) return;
+    if (!messages || messages.length === 0) return;
 
     // Extract persona IDs from conversationKey (e.g. "confucius-wittgenstein" → ["confucius", "wittgenstein"])
     const personaIds = conversationKey.split('-');
@@ -629,7 +629,7 @@ export async function migrateVisitorConversationsToServer(
   const snapshots: LocalConversationSnapshot[] = [];
 
   for (const [conversationKey, data] of Object.entries(registry.conversations)) {
-    if (data.messages.length === 0) continue;
+    if (!data.messages || data.messages.length === 0) continue;
 
     const personaIds = conversationKey.split('-');
 

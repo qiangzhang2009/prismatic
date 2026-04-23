@@ -39,9 +39,10 @@ export async function GET(
     let gender: string | null = null;
     let province: string | null = null;
     try {
-      const prefs = typeof user.preferences === 'string'
+      const raw = typeof user.preferences === 'string'
         ? JSON.parse(user.preferences)
         : (user.preferences || {});
+      const prefs = typeof raw === 'string' ? JSON.parse(raw) : raw;
       gender = prefs.gender || null;
       province = prefs.province || null;
     } catch { /* ignore parse errors */ }
@@ -109,9 +110,10 @@ export async function PUT(
       let prefs: any = {};
       try {
         if (existing?.preferences) {
-          prefs = typeof existing.preferences === 'string'
+          const raw = typeof existing.preferences === 'string'
             ? JSON.parse(existing.preferences)
             : existing.preferences;
+          prefs = typeof raw === 'string' ? JSON.parse(raw) : raw;
         }
       } catch { /* use empty object */ }
       if (gender !== undefined) prefs.gender = gender;
@@ -137,9 +139,10 @@ export async function PUT(
     let genderVal: string | null = null;
     let provinceVal: string | null = null;
     try {
-      const prefs = typeof updated.preferences === 'string'
+      const raw = typeof updated.preferences === 'string'
         ? JSON.parse(updated.preferences)
         : (updated.preferences || {});
+      const prefs = typeof raw === 'string' ? JSON.parse(raw) : raw;
       genderVal = prefs.gender || null;
       provinceVal = prefs.province || null;
     } catch { /* ignore */ }

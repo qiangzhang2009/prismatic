@@ -9,6 +9,11 @@ import { motion, useScroll, useTransform } from 'framer-motion';
 import { useRef } from 'react';
 import type { Persona } from '@/lib/types';
 import type { PersonaScrollTheme } from '@/lib/persona-scroll-themes';
+import { DOMAINS } from '@/lib/constants';
+
+function domainLabel(key: string): string {
+  return DOMAINS[key as keyof typeof DOMAINS]?.label ?? key;
+}
 
 interface Props {
   persona: Persona;
@@ -102,7 +107,7 @@ export function OpeningSection({ persona, theme }: Props) {
               fontFamily: theme.fontDisplay,
             }}
           >
-            {persona.domain[0] ?? 'Thought Leader'}
+            {domainLabel(persona.domain[0] ?? 'Thought Leader')}
           </span>
         </motion.div>
 

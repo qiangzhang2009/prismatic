@@ -34,14 +34,16 @@ export async function GET(
 
     const gender = (() => {
       try {
-        const p = typeof user.preferences === 'string' ? JSON.parse(user.preferences as string) : user.preferences;
+        const raw = typeof user.preferences === 'string' ? JSON.parse(user.preferences as string) : user.preferences;
+        const p = typeof raw === 'string' ? JSON.parse(raw) : raw;
         return p?.gender || null;
       } catch { return null; }
     })() as 'male' | 'female' | null;
 
     const province = (() => {
       try {
-        const p = typeof user.preferences === 'string' ? JSON.parse(user.preferences as string) : user.preferences;
+        const raw = typeof user.preferences === 'string' ? JSON.parse(user.preferences as string) : user.preferences;
+        const p = typeof raw === 'string' ? JSON.parse(raw) : raw;
         return p?.province || null;
       } catch { return null; }
     })() as string | null;

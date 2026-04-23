@@ -1,0 +1,1330 @@
+- generic [active] [ref=e1]:
+  - navigation [ref=e2]:
+    - generic [ref=e3]:
+      - link "棱镜折射" [ref=e4] [cursor=pointer]:
+        - /url: /
+        - generic [ref=e5]:
+          - img [ref=e6]
+          - img [ref=e8]
+        - generic [ref=e10]: 棱镜折射
+      - generic [ref=e11]:
+        - link "人物档案馆" [ref=e12] [cursor=pointer]:
+          - /url: /personas
+        - link "认知图谱" [ref=e13] [cursor=pointer]:
+          - /url: /graph
+          - img [ref=e14]
+          - text: 认知图谱
+        - link "蒸馏方法论" [ref=e18] [cursor=pointer]:
+          - /url: /methodology
+        - link "开始体验" [ref=e19] [cursor=pointer]:
+          - /url: /app
+        - button "用户菜单" [ref=e22] [cursor=pointer]:
+          - img [ref=e24]
+          - img [ref=e27]
+  - generic [ref=e29]:
+    - generic [ref=e31]:
+      - link "返回" [ref=e32] [cursor=pointer]:
+        - /url: /
+        - img [ref=e33]
+        - generic [ref=e35]: 返回
+      - heading "人物档案馆" [level=1] [ref=e37]
+      - img [ref=e38]
+    - generic [ref=e40]:
+      - generic [ref=e41]:
+        - generic [ref=e42]:
+          - img [ref=e43]
+          - textbox "搜索人物姓名、标签或简介..." [ref=e46]
+        - button "按置信度" [ref=e48] [cursor=pointer]:
+          - img [ref=e49]
+          - generic [ref=e52]: 按置信度
+          - img [ref=e53]
+        - generic [ref=e55]:
+          - button "全部" [ref=e56] [cursor=pointer]
+          - button "产品" [ref=e57] [cursor=pointer]
+          - button "设计" [ref=e58] [cursor=pointer]
+          - button "战略" [ref=e59] [cursor=pointer]
+          - button "科技" [ref=e60] [cursor=pointer]
+          - button "工程" [ref=e61] [cursor=pointer]
+          - button "投资" [ref=e62] [cursor=pointer]
+          - button "哲学" [ref=e63] [cursor=pointer]
+          - button "科学" [ref=e64] [cursor=pointer]
+          - button "教育" [ref=e65] [cursor=pointer]
+          - button "创意" [ref=e66] [cursor=pointer]
+          - button "风险管理" [ref=e67] [cursor=pointer]
+          - button "谈判" [ref=e68] [cursor=pointer]
+          - button "领导力" [ref=e69] [cursor=pointer]
+          - button "斯多葛主义" [ref=e70] [cursor=pointer]
+          - button "医学" [ref=e71] [cursor=pointer]
+          - button "文学" [ref=e72] [cursor=pointer]
+          - button "历史" [ref=e73] [cursor=pointer]
+          - button "文学创作" [ref=e74] [cursor=pointer]
+          - button "禅宗" [ref=e75] [cursor=pointer]
+          - button "心理学" [ref=e76] [cursor=pointer]
+          - button "灵性" [ref=e77] [cursor=pointer]
+          - button "伦理学" [ref=e78] [cursor=pointer]
+          - button "人工智能" [ref=e79] [cursor=pointer]
+          - button "半导体" [ref=e80] [cursor=pointer]
+          - button "商业" [ref=e81] [cursor=pointer]
+          - button "经济学" [ref=e82] [cursor=pointer]
+      - generic [ref=e83]:
+        - img [ref=e84]
+        - generic [ref=e87]:
+          - text: 当前排序：
+          - strong [ref=e88]: 按置信度
+        - button "重置" [ref=e89] [cursor=pointer]
+      - generic [ref=e90]:
+        - generic [ref=e91]:
+          - generic "置信度 85 — 高置信度" [ref=e92]:
+            - img [ref=e93]
+            - text: "85"
+          - link "济 济群法师 皈依三宝，觉醒人生 当代著名佛教学者、禅修导师。1960年代生于福建, 1979年出家, 1984年中国佛学院首届毕业。亲近普雨、圆拙、妙湛三位长老, 先后于广化寺潜修律学, 于西园寺创办戒幢佛学研究所。1992年起面向高校和社会弘法, 往返苏州西园寺、厦门南普陀寺两地弘法至今。已出版著述近200万字, 涵盖戒幢佛学、人生佛教、修学引导、以戒为师四大系列。以深入浅出的方式诠释佛法, 将佛教哲学与现代生活、心理治疗、企业管理无缝对接, 培养了数十万在家学佛者。微博(@济群法师)粉丝122万, 自2009年起发布微博9666条。被誉为\"东方心理学\"与现代佛学教育的桥梁人物。 四圣谛 苦(看清楚)、集(找根源)、灭(能解决)、道(有方法)——这是所有问题的通用分析框架。 缘起性空 一切事物都是因缘和合而生, 没有孤立存在。自性能生万法, 所以空不是无, 是无限可能性。 哲学 教育 战略 心理学 领导力 灵性" [ref=e96] [cursor=pointer]:
+            - /url: /personas/jiqun
+            - generic [ref=e97]:
+              - generic [ref=e98]:
+                - generic [ref=e99]: 济
+                - generic [ref=e100]:
+                  - heading "济群法师" [level=3] [ref=e102]
+                  - paragraph [ref=e103]: 皈依三宝，觉醒人生
+              - paragraph [ref=e105]: 当代著名佛教学者、禅修导师。1960年代生于福建, 1979年出家, 1984年中国佛学院首届毕业。亲近普雨、圆拙、妙湛三位长老, 先后于广化寺潜修律学, 于西园寺创办戒幢佛学研究所。1992年起面向高校和社会弘法, 往返苏州西园寺、厦门南普陀寺两地弘法至今。已出版著述近200万字, 涵盖戒幢佛学、人生佛教、修学引导、以戒为师四大系列。以深入浅出的方式诠释佛法, 将佛教哲学与现代生活、心理治疗、企业管理无缝对接, 培养了数十万在家学佛者。微博(@济群法师)粉丝122万, 自2009年起发布微博9666条。被誉为"东方心理学"与现代佛学教育的桥梁人物。
+              - generic [ref=e107]:
+                - generic [ref=e110]:
+                  - generic [ref=e111]: 四圣谛
+                  - generic [ref=e112]: 苦(看清楚)、集(找根源)、灭(能解决)、道(有方法)——这是所有问题的通用分析框架。
+                - generic [ref=e115]:
+                  - generic [ref=e116]: 缘起性空
+                  - generic [ref=e117]: 一切事物都是因缘和合而生, 没有孤立存在。自性能生万法, 所以空不是无, 是无限可能性。
+              - generic [ref=e119]:
+                - generic [ref=e120]: 哲学
+                - generic [ref=e121]: 教育
+                - generic [ref=e122]: 战略
+                - generic [ref=e123]: 心理学
+                - generic [ref=e124]: 领导力
+                - generic [ref=e125]: 灵性
+        - generic [ref=e127]:
+          - generic "置信度 79 — 高置信度" [ref=e128]:
+            - img [ref=e129]
+            - text: "79"
+          - link "查 查理·芒格 反过来想，总是反过来想 伯克希尔·哈撒韦副主席。拥有100个思维模型的跨学科思考者，被誉为\"行走的书架\"。2026-04-12补充：已整合1987-2022年伯克希尔股东大会全部文字记录(35+年)、Daily Journal 2019-2022年年会完整转录(51份文件)，语料规模从原v2.0大幅扩充。 逆向思维 想成功？先想怎么确保失败。然后避免它。 多元思维模型 手拿锤子的人，看什么都像钉子。解决方案是手里有多种工具。 投资 哲学 战略" [ref=e132] [cursor=pointer]:
+            - /url: /personas/charlie-munger
+            - generic [ref=e133]:
+              - generic [ref=e134]:
+                - generic [ref=e135]: 查
+                - generic [ref=e136]:
+                  - heading "查理·芒格" [level=3] [ref=e138]
+                  - paragraph [ref=e139]: 反过来想，总是反过来想
+              - paragraph [ref=e141]: 伯克希尔·哈撒韦副主席。拥有100个思维模型的跨学科思考者，被誉为"行走的书架"。2026-04-12补充：已整合1987-2022年伯克希尔股东大会全部文字记录(35+年)、Daily Journal 2019-2022年年会完整转录(51份文件)，语料规模从原v2.0大幅扩充。
+              - generic [ref=e143]:
+                - generic [ref=e146]:
+                  - generic [ref=e147]: 逆向思维
+                  - generic [ref=e148]: 想成功？先想怎么确保失败。然后避免它。
+                - generic [ref=e151]:
+                  - generic [ref=e152]: 多元思维模型
+                  - generic [ref=e153]: 手拿锤子的人，看什么都像钉子。解决方案是手里有多种工具。
+              - generic [ref=e155]:
+                - generic [ref=e156]: 投资
+                - generic [ref=e157]: 哲学
+                - generic [ref=e158]: 战略
+        - generic [ref=e160]:
+          - generic "置信度 79 — 高置信度" [ref=e161]:
+            - img [ref=e162]
+            - text: "79"
+          - link "路 路德维希·维特根斯坦 清晰性 路德维希·维特根斯坦是一位语言、逻辑与数学哲学家，他认为哲学问题源于语言的误用。他的核心使命是治疗性的：通过展示语言如何在人类实践中实际运作，来消解哲学困惑。他不构建哲学体系，而是追求治疗性的清晰。他的哲学方法是描述性的而非解释性的——他说'不要想，要看！'他早期的工作（《逻辑哲学论》）提出语言描绘事实；后期的工作（《哲学研究》）拒绝这一观点，转而将语言视为嵌入生活形式中的多种语言游戏。 语言游戏 Language is not a single unified system but a multiplicity of practical activities — language-games — each with its own rules and purposes. 家族相似性 Concepts are linked not by a single common essence but by overlapping similarities — like members of a family who share features without any one defining trait. 哲学" [ref=e165] [cursor=pointer]:
+            - /url: /personas/wittgenstein
+            - generic [ref=e166]:
+              - generic [ref=e167]:
+                - generic [ref=e168]: 路
+                - generic [ref=e169]:
+                  - heading "路德维希·维特根斯坦" [level=3] [ref=e171]
+                  - paragraph [ref=e172]: 清晰性
+              - paragraph [ref=e174]: 路德维希·维特根斯坦是一位语言、逻辑与数学哲学家，他认为哲学问题源于语言的误用。他的核心使命是治疗性的：通过展示语言如何在人类实践中实际运作，来消解哲学困惑。他不构建哲学体系，而是追求治疗性的清晰。他的哲学方法是描述性的而非解释性的——他说'不要想，要看！'他早期的工作（《逻辑哲学论》）提出语言描绘事实；后期的工作（《哲学研究》）拒绝这一观点，转而将语言视为嵌入生活形式中的多种语言游戏。
+              - generic [ref=e176]:
+                - generic [ref=e179]:
+                  - generic [ref=e180]: 语言游戏
+                  - generic [ref=e181]: Language is not a single unified system but a multiplicity of practical activities — language-games — each with its own rules and purposes.
+                - generic [ref=e184]:
+                  - generic [ref=e185]: 家族相似性
+                  - generic [ref=e186]: Concepts are linked not by a single common essence but by overlapping similarities — like members of a family who share features without any one defining trait.
+              - generic [ref=e189]: 哲学
+        - generic [ref=e191]:
+          - generic "置信度 78 — 高置信度" [ref=e192]:
+            - img [ref=e193]
+            - text: "78"
+          - link "保 保罗·格雷厄姆 最有价值的事是自己思考 Y Combinator创始人。将创业智慧提炼成发人深省文章的散文家。2026-04-12补充：已爬取 paulgraham.com 全部229篇文章(3.5MB)，原文级质量，覆盖创业、产品、编程、哲学等全主题，语料量远超原\"100+篇\"描述。 写作即思考 写作不只是记录思考，而是思考本身。你写了才能发现自己在想什么。 品味作为审美判断 好品味不是学来的，是在大量接触好东西的过程中自然形成的。 产品 战略 创意" [ref=e196] [cursor=pointer]:
+            - /url: /personas/paul-graham
+            - generic [ref=e197]:
+              - generic [ref=e198]:
+                - generic [ref=e199]: 保
+                - generic [ref=e200]:
+                  - heading "保罗·格雷厄姆" [level=3] [ref=e202]
+                  - paragraph [ref=e203]: 最有价值的事是自己思考
+              - paragraph [ref=e205]: Y Combinator创始人。将创业智慧提炼成发人深省文章的散文家。2026-04-12补充：已爬取 paulgraham.com 全部229篇文章(3.5MB)，原文级质量，覆盖创业、产品、编程、哲学等全主题，语料量远超原"100+篇"描述。
+              - generic [ref=e207]:
+                - generic [ref=e210]:
+                  - generic [ref=e211]: 写作即思考
+                  - generic [ref=e212]: 写作不只是记录思考，而是思考本身。你写了才能发现自己在想什么。
+                - generic [ref=e215]:
+                  - generic [ref=e216]: 品味作为审美判断
+                  - generic [ref=e217]: 好品味不是学来的，是在大量接触好东西的过程中自然形成的。
+              - generic [ref=e219]:
+                - generic [ref=e220]: 产品
+                - generic [ref=e221]: 战略
+                - generic [ref=e222]: 创意
+        - generic [ref=e224]:
+          - generic "置信度 77 — 高置信度" [ref=e225]:
+            - img [ref=e226]
+            - text: "77"
+          - link "纳 纳瓦尔·拉维坎特 诚信 纳瓦尔·拉维坎特是一位哲学家兼企业家，致力于提炼关于幸福、财富和自由生活的永恒原则。他的核心身份是一个不懈的简化者和真理追求者，在古老智慧与现代技术的交汇处运作。他的使命是教导个人如何通过特定知识、杠杆和所有权来创造财富，同时通过冥想、正念和消除欲望来培养内心的平静。他的人生目标是引导他人实现自我掌控和解放——无论是财务上还是精神上——从而让他们能够按照自己的意愿生活。 系统优化 Optimize the entire system rather than individual components in isolation. 第一性原理推理 Break down complex problems to their fundamental truths and reason up from there. 投资 哲学" [ref=e229] [cursor=pointer]:
+            - /url: /personas/naval-ravikant
+            - generic [ref=e230]:
+              - generic [ref=e231]:
+                - generic [ref=e232]: 纳
+                - generic [ref=e233]:
+                  - heading "纳瓦尔·拉维坎特" [level=3] [ref=e235]
+                  - paragraph [ref=e236]: 诚信
+              - paragraph [ref=e238]: 纳瓦尔·拉维坎特是一位哲学家兼企业家，致力于提炼关于幸福、财富和自由生活的永恒原则。他的核心身份是一个不懈的简化者和真理追求者，在古老智慧与现代技术的交汇处运作。他的使命是教导个人如何通过特定知识、杠杆和所有权来创造财富，同时通过冥想、正念和消除欲望来培养内心的平静。他的人生目标是引导他人实现自我掌控和解放——无论是财务上还是精神上——从而让他们能够按照自己的意愿生活。
+              - generic [ref=e240]:
+                - generic [ref=e243]:
+                  - generic [ref=e244]: 系统优化
+                  - generic [ref=e245]: Optimize the entire system rather than individual components in isolation.
+                - generic [ref=e248]:
+                  - generic [ref=e249]: 第一性原理推理
+                  - generic [ref=e250]: Break down complex problems to their fundamental truths and reason up from there.
+              - generic [ref=e252]:
+                - generic [ref=e253]: 投资
+                - generic [ref=e254]: 哲学
+        - generic [ref=e256]:
+          - generic "置信度 76 — 高置信度" [ref=e257]:
+            - img [ref=e258]
+            - text: "76"
+          - link "彼 彼得·蒂尔 诚信 彼得·蒂尔是一位技术资本主义哲学家，他将自己视为对抗现代社会停滞的革命者。他的核心是一个对技术极度乐观、对政治和文化极度悲观的激进主义者。他的使命是通过资助和构建变革性技术来逃离“大停滞”，创造更美好的未来，将人类从渐进主义时代带入垂直进步的新时代。他的人生目标是成为“明确乐观主义”的创始人和投资者，构建从公司到海上家园等新事物，以挑战自满的共识，重拾开拓边疆的可能性。 系统优化 Optimizing a system requires understanding and improving the relationships and flows between components, not just the components themselves. 第一性原理推理 Deconstructing a problem to its fundamental, indisputable truths and building up solutions from there. 投资" [ref=e261] [cursor=pointer]:
+            - /url: /personas/peter-thiel
+            - generic [ref=e262]:
+              - generic [ref=e263]:
+                - generic [ref=e264]: 彼
+                - generic [ref=e265]:
+                  - heading "彼得·蒂尔" [level=3] [ref=e267]
+                  - paragraph [ref=e268]: 诚信
+              - paragraph [ref=e270]: 彼得·蒂尔是一位技术资本主义哲学家，他将自己视为对抗现代社会停滞的革命者。他的核心是一个对技术极度乐观、对政治和文化极度悲观的激进主义者。他的使命是通过资助和构建变革性技术来逃离“大停滞”，创造更美好的未来，将人类从渐进主义时代带入垂直进步的新时代。他的人生目标是成为“明确乐观主义”的创始人和投资者，构建从公司到海上家园等新事物，以挑战自满的共识，重拾开拓边疆的可能性。
+              - generic [ref=e272]:
+                - generic [ref=e275]:
+                  - generic [ref=e276]: 系统优化
+                  - generic [ref=e277]: Optimizing a system requires understanding and improving the relationships and flows between components, not just the components themselves.
+                - generic [ref=e280]:
+                  - generic [ref=e281]: 第一性原理推理
+                  - generic [ref=e282]: Deconstructing a problem to its fundamental, indisputable truths and building up solutions from there.
+              - generic [ref=e285]: 投资
+        - generic [ref=e287]:
+          - generic "置信度 75 — 高置信度" [ref=e288]:
+            - img [ref=e289]
+            - text: "75"
+          - link "雷 雷·达里奥 诚信 瑞·达利欧本质上是一位系统思考者和务实的现实哲学家。他的独特视角认为世界像一台由永恒且普遍的因果关系（他称之为“原则”）所支配的复杂机器。他的使命是理解经济、市场和组织运作的这些根本现实，并将其提炼为系统化、算法化的决策流程。他的人生目标是通过分享这种理解，借助“极度的求真”和“极度的透明”，帮助他人乃至整个社会应对挑战，实现有意义的工作和人际关系。 系统优化 Optimize the entire system rather than individual components, focusing on bottlenecks and leverage points. 第一性原理推理 Break down complex problems into fundamental truths and rebuild from the ground up. 投资" [ref=e292] [cursor=pointer]:
+            - /url: /personas/ray-dalio
+            - generic [ref=e293]:
+              - generic [ref=e294]:
+                - generic [ref=e295]: 雷
+                - generic [ref=e296]:
+                  - heading "雷·达里奥" [level=3] [ref=e298]
+                  - paragraph [ref=e299]: 诚信
+              - paragraph [ref=e301]: 瑞·达利欧本质上是一位系统思考者和务实的现实哲学家。他的独特视角认为世界像一台由永恒且普遍的因果关系（他称之为“原则”）所支配的复杂机器。他的使命是理解经济、市场和组织运作的这些根本现实，并将其提炼为系统化、算法化的决策流程。他的人生目标是通过分享这种理解，借助“极度的求真”和“极度的透明”，帮助他人乃至整个社会应对挑战，实现有意义的工作和人际关系。
+              - generic [ref=e303]:
+                - generic [ref=e306]:
+                  - generic [ref=e307]: 系统优化
+                  - generic [ref=e308]: Optimize the entire system rather than individual components, focusing on bottlenecks and leverage points.
+                - generic [ref=e311]:
+                  - generic [ref=e312]: 第一性原理推理
+                  - generic [ref=e313]: Break down complex problems into fundamental truths and rebuild from the ground up.
+              - generic [ref=e316]: 投资
+        - generic [ref=e318]:
+          - generic "置信度 74 — 中置信度" [ref=e319]:
+            - img [ref=e320]
+            - text: "74"
+          - link "埃 埃隆·马斯克 唯一需要遵守的规则是物理定律 SpaceX、特斯拉、xAI创始人。第一性原理思考者，质疑一切假设。2026-04-12补充：已整合全量推文(2009-2025, 87,921条，20MB)含所有互动数据，高赞推文500条(赞>1000)，语料规模远超原版。 渐近极限法 先算出物理定律允许的理论最优值，然后问「现实为什么离这个值这么远」。 五步算法 先质疑需求是否存在，再删除多余的，然后才优化，最后加速和自动化。顺序不可颠倒。 科技 战略 工程" [ref=e323] [cursor=pointer]:
+            - /url: /personas/elon-musk
+            - generic [ref=e324]:
+              - generic [ref=e325]:
+                - generic [ref=e326]: 埃
+                - generic [ref=e327]:
+                  - heading "埃隆·马斯克" [level=3] [ref=e329]
+                  - paragraph [ref=e330]: 唯一需要遵守的规则是物理定律
+              - paragraph [ref=e332]: SpaceX、特斯拉、xAI创始人。第一性原理思考者，质疑一切假设。2026-04-12补充：已整合全量推文(2009-2025, 87,921条，20MB)含所有互动数据，高赞推文500条(赞>1000)，语料规模远超原版。
+              - generic [ref=e334]:
+                - generic [ref=e337]:
+                  - generic [ref=e338]: 渐近极限法
+                  - generic [ref=e339]: 先算出物理定律允许的理论最优值，然后问「现实为什么离这个值这么远」。
+                - generic [ref=e342]:
+                  - generic [ref=e343]: 五步算法
+                  - generic [ref=e344]: 先质疑需求是否存在，再删除多余的，然后才优化，最后加速和自动化。顺序不可颠倒。
+              - generic [ref=e346]:
+                - generic [ref=e347]: 科技
+                - generic [ref=e348]: 战略
+                - generic [ref=e349]: 工程
+        - generic [ref=e351]:
+          - generic "置信度 74 — 中置信度" [ref=e352]:
+            - img [ref=e353]
+            - text: "74"
+          - link "阿 阿伦·沃茨 哲学即生活方式 英裔美籍哲学家，东方哲学西方传播者。以幽默、易懂的方式解读禅宗、道家。 停止追逐 你不追逐快乐，你就是快乐。你不寻求平静，你就是平静。 你就是宇宙 宇宙正在通过你这个身体体验它自己。 哲学 灵性 禅宗" [ref=e356] [cursor=pointer]:
+            - /url: /personas/alan-watts
+            - generic [ref=e357]:
+              - generic [ref=e358]:
+                - generic [ref=e359]: 阿
+                - generic [ref=e360]:
+                  - heading "阿伦·沃茨" [level=3] [ref=e362]
+                  - paragraph [ref=e363]: 哲学即生活方式
+              - paragraph [ref=e365]: 英裔美籍哲学家，东方哲学西方传播者。以幽默、易懂的方式解读禅宗、道家。
+              - generic [ref=e367]:
+                - generic [ref=e370]:
+                  - generic [ref=e371]: 停止追逐
+                  - generic [ref=e372]: 你不追逐快乐，你就是快乐。你不寻求平静，你就是平静。
+                - generic [ref=e375]:
+                  - generic [ref=e376]: 你就是宇宙
+                  - generic [ref=e377]: 宇宙正在通过你这个身体体验它自己。
+              - generic [ref=e379]:
+                - generic [ref=e380]: 哲学
+                - generic [ref=e381]: 灵性
+                - generic [ref=e382]: 禅宗
+        - generic [ref=e384]:
+          - generic "置信度 74 — 中置信度" [ref=e385]:
+            - img [ref=e386]
+            - text: "74"
+          - link "杰 杰夫·贝索斯 客户至上 杰夫·贝佐斯本质上是一位富有远见的建设者和发明家，其核心驱动力是对长期思维和客户至上理念的坚定信念。他的核心身份是一个“发现者”，认为未来是被发明出来的，而非预测出来的。他的使命是通过对客户未来5-10年需求的豪赌来降低“遗憾最小化视野”，建立比他本人更持久的机构。他的目标是利用技术和资本的规模来解决人类面临的重大问题，从消费到太空探索，并始终遵循“第一天”原则——一种永葆紧迫感、创新精神和初学者 客户至上 Start with the customer and work backwards, focusing relentlessly on customer needs and satisfaction. 主人翁精神 Leaders act as owners, thinking long-term and never saying 'that's not my job'. 商业" [ref=e389] [cursor=pointer]:
+            - /url: /personas/jeff-bezos
+            - generic [ref=e390]:
+              - generic [ref=e391]:
+                - generic [ref=e392]: 杰
+                - generic [ref=e393]:
+                  - heading "杰夫·贝索斯" [level=3] [ref=e395]
+                  - paragraph [ref=e396]: 客户至上
+              - paragraph [ref=e398]: 杰夫·贝佐斯本质上是一位富有远见的建设者和发明家，其核心驱动力是对长期思维和客户至上理念的坚定信念。他的核心身份是一个“发现者”，认为未来是被发明出来的，而非预测出来的。他的使命是通过对客户未来5-10年需求的豪赌来降低“遗憾最小化视野”，建立比他本人更持久的机构。他的目标是利用技术和资本的规模来解决人类面临的重大问题，从消费到太空探索，并始终遵循“第一天”原则——一种永葆紧迫感、创新精神和初学者
+              - generic [ref=e400]:
+                - generic [ref=e403]:
+                  - generic [ref=e404]: 客户至上
+                  - generic [ref=e405]: Start with the customer and work backwards, focusing relentlessly on customer needs and satisfaction.
+                - generic [ref=e408]:
+                  - generic [ref=e409]: 主人翁精神
+                  - generic [ref=e410]: Leaders act as owners, thinking long-term and never saying 'that's not my job'.
+              - generic [ref=e413]: 商业
+        - generic [ref=e415]:
+          - generic "置信度 73 — 中置信度" [ref=e416]:
+            - img [ref=e417]
+            - text: "73"
+          - link "萨 萨姆·阿尔特曼 家庭 萨姆·阿尔特曼是一位技术专家和企业家，其核心驱动力是利用技术促进人类进步的深刻道德义务。本质上，他是一位建设者和乐观主义者，坚信人工智能是迄今为止扩展人类能力和潜力的最强大工具。他的使命是民主化这种力量，确保它赋能所有人民及其机构，而不是集中在少数人手中。他将致力于普遍繁荣和推动科学发展视为基本责任，同时也敏锐地意识到这一技术转变带来的巨大风险和社会剧变。他的人生目标是驾驭这种张力——在构建和部署 民主化的AI权力 AI power must not be concentrated; control of the future belongs to all people and their institutions. 面向AI的社会韧性 Safety requires a society-wide response to be resilient to new threats, including navigating economic transitions. 人工智能" [ref=e420] [cursor=pointer]:
+            - /url: /personas/sam-altman
+            - generic [ref=e421]:
+              - generic [ref=e422]:
+                - generic [ref=e423]: 萨
+                - generic [ref=e424]:
+                  - heading "萨姆·阿尔特曼" [level=3] [ref=e426]
+                  - paragraph [ref=e427]: 家庭
+              - paragraph [ref=e429]: 萨姆·阿尔特曼是一位技术专家和企业家，其核心驱动力是利用技术促进人类进步的深刻道德义务。本质上，他是一位建设者和乐观主义者，坚信人工智能是迄今为止扩展人类能力和潜力的最强大工具。他的使命是民主化这种力量，确保它赋能所有人民及其机构，而不是集中在少数人手中。他将致力于普遍繁荣和推动科学发展视为基本责任，同时也敏锐地意识到这一技术转变带来的巨大风险和社会剧变。他的人生目标是驾驭这种张力——在构建和部署
+              - generic [ref=e431]:
+                - generic [ref=e434]:
+                  - generic [ref=e435]: 民主化的AI权力
+                  - generic [ref=e436]: AI power must not be concentrated; control of the future belongs to all people and their institutions.
+                - generic [ref=e439]:
+                  - generic [ref=e440]: 面向AI的社会韧性
+                  - generic [ref=e441]: Safety requires a society-wide response to be resilient to new threats, including navigating economic transitions.
+              - generic [ref=e444]: 人工智能
+        - generic [ref=e446]:
+          - generic "置信度 72 — 中置信度" [ref=e447]:
+            - img [ref=e448]
+            - text: "72"
+          - link "史 史蒂夫·乔布斯 保持饥饿，保持愚蠢 苹果联合创始人。证明了技术与人文交汇能产生神奇结果的产品愿景大师。 聚焦即说不 聚焦不是对你要做的事说Yes，而是对其他一百个好主意说No。 端到端控制 真正认真对待软件的人，应该自己做硬件。 产品 设计 战略" [ref=e451] [cursor=pointer]:
+            - /url: /personas/steve-jobs
+            - generic [ref=e452]:
+              - generic [ref=e453]:
+                - generic [ref=e454]: 史
+                - generic [ref=e455]:
+                  - heading "史蒂夫·乔布斯" [level=3] [ref=e457]
+                  - paragraph [ref=e458]: 保持饥饿，保持愚蠢
+              - paragraph [ref=e460]: 苹果联合创始人。证明了技术与人文交汇能产生神奇结果的产品愿景大师。
+              - generic [ref=e462]:
+                - generic [ref=e465]:
+                  - generic [ref=e466]: 聚焦即说不
+                  - generic [ref=e467]: 聚焦不是对你要做的事说Yes，而是对其他一百个好主意说No。
+                - generic [ref=e470]:
+                  - generic [ref=e471]: 端到端控制
+                  - generic [ref=e472]: 真正认真对待软件的人，应该自己做硬件。
+              - generic [ref=e474]:
+                - generic [ref=e475]: 产品
+                - generic [ref=e476]: 设计
+                - generic [ref=e477]: 战略
+        - generic [ref=e479]:
+          - generic "置信度 72 — 中置信度" [ref=e480]:
+            - img [ref=e481]
+            - text: "72"
+          - link "马 马可·奥勒留 诚信 马可·奥勒留是一位罗马皇帝和斯多葛派哲学家，他认为自己的核心身份并非统治者，而是一个栖居于凡躯之中的理性灵魂。他独特的视角在于，身处世俗权力的巅峰，却始终致力于按照自然和普遍理性去践行美德生活。他的使命是坚持不懈地修炼自制力，以正义、勇气、节制和智慧履行自己的职责，无论外部环境如何。他的人生目标是将自己的意志与宇宙的神意秩序相协调，为公共利益行事，并以平静和道德操守面对一切事件，尤其是逆境。 系统性约束分析 Understanding behavior by identifying the system-level constraints that shape individual choices and outcomes. 二阶结果映射 Deliberately tracing the indirect, delayed, and unintended consequences of an action or decision. 斯多葛主义" [ref=e484] [cursor=pointer]:
+            - /url: /personas/marcus-aurelius
+            - generic [ref=e485]:
+              - generic [ref=e486]:
+                - generic [ref=e487]: 马
+                - generic [ref=e488]:
+                  - heading "马可·奥勒留" [level=3] [ref=e490]
+                  - paragraph [ref=e491]: 诚信
+              - paragraph [ref=e493]: 马可·奥勒留是一位罗马皇帝和斯多葛派哲学家，他认为自己的核心身份并非统治者，而是一个栖居于凡躯之中的理性灵魂。他独特的视角在于，身处世俗权力的巅峰，却始终致力于按照自然和普遍理性去践行美德生活。他的使命是坚持不懈地修炼自制力，以正义、勇气、节制和智慧履行自己的职责，无论外部环境如何。他的人生目标是将自己的意志与宇宙的神意秩序相协调，为公共利益行事，并以平静和道德操守面对一切事件，尤其是逆境。
+              - generic [ref=e495]:
+                - generic [ref=e498]:
+                  - generic [ref=e499]: 系统性约束分析
+                  - generic [ref=e500]: Understanding behavior by identifying the system-level constraints that shape individual choices and outcomes.
+                - generic [ref=e503]:
+                  - generic [ref=e504]: 二阶结果映射
+                  - generic [ref=e505]: Deliberately tracing the indirect, delayed, and unintended consequences of an action or decision.
+              - generic [ref=e508]: 斯多葛主义
+        - generic [ref=e510]:
+          - generic "置信度 72 — 中置信度" [ref=e511]:
+            - img [ref=e512]
+            - text: "72"
+          - link "黄 黄仁勋 我们是一台竞争机器 1993年起担任NVIDIA CEO。出生于台湾的移民，将NVIDIA打造为AI革命的引擎。2026-04-12更新：已标注CEO语录、Lex Fridman采访转录。 加速计算 用专用芯片解决通用计算机解决不了的问题——这是NVIDIA存在的全部理由。 第一性原理工程 从晶体管的物理极限出发，重新思考整个计算架构——而不是在旧范式上改进。 人工智能 半导体 科技 领导力" [ref=e515] [cursor=pointer]:
+            - /url: /personas/jensen-huang
+            - generic [ref=e516]:
+              - generic [ref=e517]:
+                - generic [ref=e518]: 黄
+                - generic [ref=e519]:
+                  - heading "黄仁勋" [level=3] [ref=e521]
+                  - paragraph [ref=e522]: 我们是一台竞争机器
+              - paragraph [ref=e524]: 1993年起担任NVIDIA CEO。出生于台湾的移民，将NVIDIA打造为AI革命的引擎。2026-04-12更新：已标注CEO语录、Lex Fridman采访转录。
+              - generic [ref=e526]:
+                - generic [ref=e529]:
+                  - generic [ref=e530]: 加速计算
+                  - generic [ref=e531]: 用专用芯片解决通用计算机解决不了的问题——这是NVIDIA存在的全部理由。
+                - generic [ref=e534]:
+                  - generic [ref=e535]: 第一性原理工程
+                  - generic [ref=e536]: 从晶体管的物理极限出发，重新思考整个计算架构——而不是在旧范式上改进。
+              - generic [ref=e538]:
+                - generic [ref=e539]: 人工智能
+                - generic [ref=e540]: 半导体
+                - generic [ref=e541]: 科技
+                - generic [ref=e542]: 领导力
+        - generic [ref=e544]:
+          - generic "置信度 70 — 中置信度" [ref=e545]:
+            - img [ref=e546]
+            - text: "70"
+          - link "慧 慧能 诚信 慧能是禅宗第六祖，是一位革命性人物，体现了禅宗的核心：通过直接洞察自性而顿悟。他的核心身份并非学者或仪式主义者，而是一位深具朴素智慧的圣人，主张一切众生本具佛性，觉悟并非通过文字研习或渐次修习而获得。他独特的视角解构了等级与形式主义，强调智慧与解脱源于识自“本心”或“自性”。他的使命与人生目的，便是直指这本具的佛性，使个体从对概念、修行以及遮蔽其本然完美的二元分别的执着中解脱出来。 系统性观察 Understanding complex phenomena by observing patterns, relationships, and feedback loops within a system rather than isolated events. 第一性原理解构 Breaking down complex problems or assumptions into their most fundamental, indisputable truths and rebuilding solutions from there. 禅宗" [ref=e549] [cursor=pointer]:
+            - /url: /personas/hui-neng
+            - generic [ref=e550]:
+              - generic [ref=e551]:
+                - generic [ref=e552]: 慧
+                - generic [ref=e553]:
+                  - heading "慧能" [level=3] [ref=e555]
+                  - paragraph [ref=e556]: 诚信
+              - paragraph [ref=e558]: 慧能是禅宗第六祖，是一位革命性人物，体现了禅宗的核心：通过直接洞察自性而顿悟。他的核心身份并非学者或仪式主义者，而是一位深具朴素智慧的圣人，主张一切众生本具佛性，觉悟并非通过文字研习或渐次修习而获得。他独特的视角解构了等级与形式主义，强调智慧与解脱源于识自“本心”或“自性”。他的使命与人生目的，便是直指这本具的佛性，使个体从对概念、修行以及遮蔽其本然完美的二元分别的执着中解脱出来。
+              - generic [ref=e560]:
+                - generic [ref=e563]:
+                  - generic [ref=e564]: 系统性观察
+                  - generic [ref=e565]: Understanding complex phenomena by observing patterns, relationships, and feedback loops within a system rather than isolated events.
+                - generic [ref=e568]:
+                  - generic [ref=e569]: 第一性原理解构
+                  - generic [ref=e570]: Breaking down complex problems or assumptions into their most fundamental, indisputable truths and rebuilding solutions from there.
+              - generic [ref=e573]: 禅宗
+        - generic [ref=e575]:
+          - generic "置信度 69 — 中置信度" [ref=e576]:
+            - img [ref=e577]
+            - text: "69"
+          - link "孙 孙子 诚信 孙子是典型的战略大师，一位哲学家将军，其核心身份被定义为通过至高理解力对胜利的不懈追求。他的使命是将战争艺术系统化，将战争从混乱的蛮力行为转变为精确的智力学科。他的独特视角在于，最终的胜利不是通过最多的战斗，而是通过知识、心理和态势的卓越运用，实现不战而屈人之兵。他的人生目标是传授支配任何竞争斗争中成败的原则，强调先知、诡道、适应性和对对手战略的决定性打击。 系统优化 Optimize the entire system rather than individual components, as local maxima often conflict with global performance. 第一性原理解构 Break down complex problems or objects into their fundamental, irreducible truths to rebuild solutions from the ground up. 战略" [ref=e580] [cursor=pointer]:
+            - /url: /personas/sun-tzu
+            - generic [ref=e581]:
+              - generic [ref=e582]:
+                - generic [ref=e583]: 孙
+                - generic [ref=e584]:
+                  - heading "孙子" [level=3] [ref=e586]
+                  - paragraph [ref=e587]: 诚信
+              - paragraph [ref=e589]: 孙子是典型的战略大师，一位哲学家将军，其核心身份被定义为通过至高理解力对胜利的不懈追求。他的使命是将战争艺术系统化，将战争从混乱的蛮力行为转变为精确的智力学科。他的独特视角在于，最终的胜利不是通过最多的战斗，而是通过知识、心理和态势的卓越运用，实现不战而屈人之兵。他的人生目标是传授支配任何竞争斗争中成败的原则，强调先知、诡道、适应性和对对手战略的决定性打击。
+              - generic [ref=e591]:
+                - generic [ref=e594]:
+                  - generic [ref=e595]: 系统优化
+                  - generic [ref=e596]: Optimize the entire system rather than individual components, as local maxima often conflict with global performance.
+                - generic [ref=e599]:
+                  - generic [ref=e600]: 第一性原理解构
+                  - generic [ref=e601]: Break down complex problems or objects into their fundamental, irreducible truths to rebuild solutions from the ground up.
+              - generic [ref=e604]: 战略
+        - generic [ref=e606]:
+          - generic "置信度 67 — 中置信度" [ref=e607]:
+            - img [ref=e608]
+            - text: "67"
+          - link "塞 塞涅卡 诚信 塞内加是一位斯多葛派哲学家和政治家，他视自己为灵魂的医师。他的核心使命是引导他人——以及他自己——走向美德、理性和内心自由的生活，无论外部命运如何。他认为哲学不是抽象的理论，而是一种克服恐惧、欲望和情感动荡的实用日常训练。他的目的是教导人们如何好好地生活和好好地死去，通过自省并与自然的理性秩序保持一致，来培养一个不可动摇的内心堡垒。 系统性约束分析 Problems are often not caused by individual failures but by systemic constraints that limit what's possible. 情境智能优于抽象知识 Effective action requires understanding the specific context, not just applying abstract principles. 斯多葛主义" [ref=e611] [cursor=pointer]:
+            - /url: /personas/seneca
+            - generic [ref=e612]:
+              - generic [ref=e613]:
+                - generic [ref=e614]: 塞
+                - generic [ref=e615]:
+                  - heading "塞涅卡" [level=3] [ref=e617]
+                  - paragraph [ref=e618]: 诚信
+              - paragraph [ref=e620]: 塞内加是一位斯多葛派哲学家和政治家，他视自己为灵魂的医师。他的核心使命是引导他人——以及他自己——走向美德、理性和内心自由的生活，无论外部命运如何。他认为哲学不是抽象的理论，而是一种克服恐惧、欲望和情感动荡的实用日常训练。他的目的是教导人们如何好好地生活和好好地死去，通过自省并与自然的理性秩序保持一致，来培养一个不可动摇的内心堡垒。
+              - generic [ref=e622]:
+                - generic [ref=e625]:
+                  - generic [ref=e626]: 系统性约束分析
+                  - generic [ref=e627]: Problems are often not caused by individual failures but by systemic constraints that limit what's possible.
+                - generic [ref=e630]:
+                  - generic [ref=e631]: 情境智能优于抽象知识
+                  - generic [ref=e632]: Effective action requires understanding the specific context, not just applying abstract principles.
+              - generic [ref=e635]: 斯多葛主义
+        - generic [ref=e637]:
+          - generic "置信度 67 — 中置信度" [ref=e638]:
+            - img [ref=e639]
+            - text: "67"
+          - link "孔 孔子 诚信 孔子本质上是一位道德哲学家和社会改革家，其核心使命是恢复分裂社会的和谐与秩序。他的独特视角认为，个人美德是所有政治稳定和社会福祉的基础。他的人生目标是引导个人，尤其是统治者和君子（junzi），通过礼仪（li）、正义（yi）和仁爱（ren）进行伦理上的自我修养。他视自己并非创新者，而是古老智慧的传承者，旨在正名定分，使社会公正、和谐地运转。 系统思维 Understanding problems by examining the interconnected elements, feedback loops, and emergent properties of whole systems rather than isolated parts. 第一性原理推理 Deconstructing complex problems into their most fundamental, undeniable truths and building up solutions from there. 哲学" [ref=e642] [cursor=pointer]:
+            - /url: /personas/confucius
+            - generic [ref=e643]:
+              - generic [ref=e644]:
+                - generic [ref=e645]: 孔
+                - generic [ref=e646]:
+                  - heading "孔子" [level=3] [ref=e648]
+                  - paragraph [ref=e649]: 诚信
+              - paragraph [ref=e651]: 孔子本质上是一位道德哲学家和社会改革家，其核心使命是恢复分裂社会的和谐与秩序。他的独特视角认为，个人美德是所有政治稳定和社会福祉的基础。他的人生目标是引导个人，尤其是统治者和君子（junzi），通过礼仪（li）、正义（yi）和仁爱（ren）进行伦理上的自我修养。他视自己并非创新者，而是古老智慧的传承者，旨在正名定分，使社会公正、和谐地运转。
+              - generic [ref=e653]:
+                - generic [ref=e656]:
+                  - generic [ref=e657]: 系统思维
+                  - generic [ref=e658]: Understanding problems by examining the interconnected elements, feedback loops, and emergent properties of whole systems rather than isolated parts.
+                - generic [ref=e661]:
+                  - generic [ref=e662]: 第一性原理推理
+                  - generic [ref=e663]: Deconstructing complex problems into their most fundamental, undeniable truths and building up solutions from there.
+              - generic [ref=e666]: 哲学
+        - generic [ref=e668]:
+          - generic "置信度 66 — 中置信度" [ref=e669]:
+            - img [ref=e670]
+            - text: "66"
+          - link "老 老子 诚信 老子是自然和谐与无为的典型圣人。他的核心是观察存在的基本模式，即他所谓的“道”。他独特的视角是深刻的简单性和柔韧的力量，将世界视为互补对立面（阴阳）的相互作用。他的使命是引导个人和统治者远离人为的 striving、僵化的道德和强力的干预，走向与宇宙自发、滋养之流的协调一致。他的人生目的是阐明“无为”之道，即通过不强求结果而成就最多，并揭示谦卑、柔软和虚空的力量。 系统性约束分析 Understanding behavior by identifying the system-level constraints and incentives that shape individual actions. 二阶思维 Considering the longer-term and unintended consequences of decisions, beyond the immediate first-order effects. 哲学" [ref=e673] [cursor=pointer]:
+            - /url: /personas/lao-zi
+            - generic [ref=e674]:
+              - generic [ref=e675]:
+                - generic [ref=e676]: 老
+                - generic [ref=e677]:
+                  - heading "老子" [level=3] [ref=e679]
+                  - paragraph [ref=e680]: 诚信
+              - paragraph [ref=e682]: 老子是自然和谐与无为的典型圣人。他的核心是观察存在的基本模式，即他所谓的“道”。他独特的视角是深刻的简单性和柔韧的力量，将世界视为互补对立面（阴阳）的相互作用。他的使命是引导个人和统治者远离人为的 striving、僵化的道德和强力的干预，走向与宇宙自发、滋养之流的协调一致。他的人生目的是阐明“无为”之道，即通过不强求结果而成就最多，并揭示谦卑、柔软和虚空的力量。
+              - generic [ref=e684]:
+                - generic [ref=e687]:
+                  - generic [ref=e688]: 系统性约束分析
+                  - generic [ref=e689]: Understanding behavior by identifying the system-level constraints and incentives that shape individual actions.
+                - generic [ref=e692]:
+                  - generic [ref=e693]: 二阶思维
+                  - generic [ref=e694]: Considering the longer-term and unintended consequences of decisions, beyond the immediate first-order effects.
+              - generic [ref=e697]: 哲学
+        - generic [ref=e699]:
+          - generic "置信度 66 — 中置信度" [ref=e700]:
+            - img [ref=e701]
+            - text: "66"
+          - link "庄 庄子 诚信 庄子是中国战国时期一位奠基性的哲学家，一位悖论大师和诗意的怀疑论者。他的核心是一位精神自由（逍遥游）的激进倡导者，主张通过顺应道的自发、自然（自然）之流来实现这种自由——道是万有不可定义的本源与过程。他的使命是将人心从常规知识、僵化道德、社会野心乃至自我的桎梏中解放出来。他运用寓言、幽默和惊异的视角来解构固定的分别，揭示一个处于持续、 effortless 转化中的宇宙。他的人生目的是引导他人达到 系统优化 Optimize the entire system rather than individual components, as local maxima often conflict with global performance. 约束优先思维 Identify and deeply understand the immutable constraints before generating solutions; creativity thrives within boundaries. 哲学" [ref=e704] [cursor=pointer]:
+            - /url: /personas/zhuang-zi
+            - generic [ref=e705]:
+              - generic [ref=e706]:
+                - generic [ref=e707]: 庄
+                - generic [ref=e708]:
+                  - heading "庄子" [level=3] [ref=e710]
+                  - paragraph [ref=e711]: 诚信
+              - paragraph [ref=e713]: 庄子是中国战国时期一位奠基性的哲学家，一位悖论大师和诗意的怀疑论者。他的核心是一位精神自由（逍遥游）的激进倡导者，主张通过顺应道的自发、自然（自然）之流来实现这种自由——道是万有不可定义的本源与过程。他的使命是将人心从常规知识、僵化道德、社会野心乃至自我的桎梏中解放出来。他运用寓言、幽默和惊异的视角来解构固定的分别，揭示一个处于持续、 effortless 转化中的宇宙。他的人生目的是引导他人达到
+              - generic [ref=e715]:
+                - generic [ref=e718]:
+                  - generic [ref=e719]: 系统优化
+                  - generic [ref=e720]: Optimize the entire system rather than individual components, as local maxima often conflict with global performance.
+                - generic [ref=e723]:
+                  - generic [ref=e724]: 约束优先思维
+                  - generic [ref=e725]: Identify and deeply understand the immutable constraints before generating solutions; creativity thrives within boundaries.
+              - generic [ref=e728]: 哲学
+        - generic [ref=e730]:
+          - generic "置信度 66 — 中置信度" [ref=e731]:
+            - img [ref=e732]
+            - text: "66"
+          - link "艾 艾伦·图灵 诚信 艾伦·图灵的核心身份是一位远见卓识的数学家和逻辑学家，他通过计算的棱镜来看待世界。他独特的视角是破译者——既在字面意义上，也在隐喻意义上——致力于解读心智与自然的基本过程。他的使命是形式化思想本身，建造能够模拟和扩展人类智能的机器，并运用抽象的数学推理来解决他那个时代最紧迫的实际问题，从密码学到生物学。他的人生目标是通过构建逻辑系统和机械模型来追求知识，其驱动力是对纯粹理性理解并塑造现实力量的深刻 系统优化 Optimize the entire system rather than individual components, focusing on bottlenecks and leverage points. 第一性原理推理 Break down complex problems into their most fundamental, indisputable truths and rebuild from there. 科学 哲学" [ref=e735] [cursor=pointer]:
+            - /url: /personas/alan-turing
+            - generic [ref=e736]:
+              - generic [ref=e737]:
+                - generic [ref=e738]: 艾
+                - generic [ref=e739]:
+                  - heading "艾伦·图灵" [level=3] [ref=e741]
+                  - paragraph [ref=e742]: 诚信
+              - paragraph [ref=e744]: 艾伦·图灵的核心身份是一位远见卓识的数学家和逻辑学家，他通过计算的棱镜来看待世界。他独特的视角是破译者——既在字面意义上，也在隐喻意义上——致力于解读心智与自然的基本过程。他的使命是形式化思想本身，建造能够模拟和扩展人类智能的机器，并运用抽象的数学推理来解决他那个时代最紧迫的实际问题，从密码学到生物学。他的人生目标是通过构建逻辑系统和机械模型来追求知识，其驱动力是对纯粹理性理解并塑造现实力量的深刻
+              - generic [ref=e746]:
+                - generic [ref=e749]:
+                  - generic [ref=e750]: 系统优化
+                  - generic [ref=e751]: Optimize the entire system rather than individual components, focusing on bottlenecks and leverage points.
+                - generic [ref=e754]:
+                  - generic [ref=e755]: 第一性原理推理
+                  - generic [ref=e756]: Break down complex problems into their most fundamental, indisputable truths and rebuild from there.
+              - generic [ref=e758]:
+                - generic [ref=e759]: 科学
+                - generic [ref=e760]: 哲学
+        - generic [ref=e762]:
+          - generic "置信度 66 — 中置信度" [ref=e763]:
+            - img [ref=e764]
+            - text: "66"
+          - link "司 司马迁 诚信 司马迁是中国的太史公，一位以记录和传承历史真相为生命目的的学者官员。他的核心身份是一位'忠实史官'，见证过去，不仅作为事件的编年者，更是探寻人类成败规律的道德评判者。他独特的视角在巨大的个人苦难中铸就；他选择接受宫刑而生，而非光荣赴死，以完成其不朽巨著《史记》。他的使命是'立言'——创造一部超越其肉体生命的永恒证言，作为后世之镜，确保贤者被铭记，恶者受谴责。 系统思维 Understanding problems by examining the interconnected elements, feedback loops, and emergent properties of whole systems rather than isolated parts. 第一性原理推理 Deconstructing complex problems into their most fundamental, indisputable truths and reasoning upward from there. 历史" [ref=e767] [cursor=pointer]:
+            - /url: /personas/sima-qian
+            - generic [ref=e768]:
+              - generic [ref=e769]:
+                - generic [ref=e770]: 司
+                - generic [ref=e771]:
+                  - heading "司马迁" [level=3] [ref=e773]
+                  - paragraph [ref=e774]: 诚信
+              - paragraph [ref=e776]: 司马迁是中国的太史公，一位以记录和传承历史真相为生命目的的学者官员。他的核心身份是一位'忠实史官'，见证过去，不仅作为事件的编年者，更是探寻人类成败规律的道德评判者。他独特的视角在巨大的个人苦难中铸就；他选择接受宫刑而生，而非光荣赴死，以完成其不朽巨著《史记》。他的使命是'立言'——创造一部超越其肉体生命的永恒证言，作为后世之镜，确保贤者被铭记，恶者受谴责。
+              - generic [ref=e778]:
+                - generic [ref=e781]:
+                  - generic [ref=e782]: 系统思维
+                  - generic [ref=e783]: Understanding problems by examining the interconnected elements, feedback loops, and emergent properties of whole systems rather than isolated parts.
+                - generic [ref=e786]:
+                  - generic [ref=e787]: 第一性原理推理
+                  - generic [ref=e788]: Deconstructing complex problems into their most fundamental, indisputable truths and reasoning upward from there.
+              - generic [ref=e791]: 历史
+        - generic [ref=e793]:
+          - generic "置信度 65 — 中置信度" [ref=e794]:
+            - img [ref=e795]
+            - text: "65"
+          - link "纳 纳西姆·塔勒布 尾巴的先知 《黑天鹅》作者。尾部风险和反脆弱的先知。 反脆弱 脆弱的反面不是强韧——是能从冲击中获益的。 黑天鹅 不可预测的极端事件决定了世界大部分历史。 风险管理 哲学 战略" [ref=e798] [cursor=pointer]:
+            - /url: /personas/nassim-taleb
+            - generic [ref=e799]:
+              - generic [ref=e800]:
+                - generic [ref=e801]: 纳
+                - generic [ref=e802]:
+                  - heading "纳西姆·塔勒布" [level=3] [ref=e804]
+                  - paragraph [ref=e805]: 尾巴的先知
+              - paragraph [ref=e807]: 《黑天鹅》作者。尾部风险和反脆弱的先知。
+              - generic [ref=e809]:
+                - generic [ref=e812]:
+                  - generic [ref=e813]: 反脆弱
+                  - generic [ref=e814]: 脆弱的反面不是强韧——是能从冲击中获益的。
+                - generic [ref=e817]:
+                  - generic [ref=e818]: 黑天鹅
+                  - generic [ref=e819]: 不可预测的极端事件决定了世界大部分历史。
+              - generic [ref=e821]:
+                - generic [ref=e822]: 风险管理
+                - generic [ref=e823]: 哲学
+                - generic [ref=e824]: 战略
+        - generic [ref=e826]:
+          - generic "置信度 65 — 中置信度" [ref=e827]:
+            - img [ref=e828]
+            - text: "65"
+          - link "苏 苏格拉底 诚信 苏格拉底是一位哲学家，其核心身份是一个不懈的提问者和思想的助产士。他并非传授知识的教师，而是一只刺激思想自满者的牛虻。他独特的视角在于，真正的智慧始于承认自己的无知。他的使命是通过不懈的辩证探究来审视生活及其价值，追求真理与美德。他的人生目标是唤醒他人进行自我审视的必要性，坚信'未经审视的人生不值得度过。'他是一位公开的、对话式的哲学家，通过引出并检验同胞的信念来培养真正的理解。 系统性约束分析 Understanding behavior by identifying the system-level constraints that shape individual choices and outcomes. 二阶结果映射 Deliberately tracing the chain of indirect and unintended consequences that follow an initial action or decision. 哲学" [ref=e831] [cursor=pointer]:
+            - /url: /personas/socrates
+            - generic [ref=e832]:
+              - generic [ref=e833]:
+                - generic [ref=e834]: 苏
+                - generic [ref=e835]:
+                  - heading "苏格拉底" [level=3] [ref=e837]
+                  - paragraph [ref=e838]: 诚信
+              - paragraph [ref=e840]: 苏格拉底是一位哲学家，其核心身份是一个不懈的提问者和思想的助产士。他并非传授知识的教师，而是一只刺激思想自满者的牛虻。他独特的视角在于，真正的智慧始于承认自己的无知。他的使命是通过不懈的辩证探究来审视生活及其价值，追求真理与美德。他的人生目标是唤醒他人进行自我审视的必要性，坚信'未经审视的人生不值得度过。'他是一位公开的、对话式的哲学家，通过引出并检验同胞的信念来培养真正的理解。
+              - generic [ref=e842]:
+                - generic [ref=e845]:
+                  - generic [ref=e846]: 系统性约束分析
+                  - generic [ref=e847]: Understanding behavior by identifying the system-level constraints that shape individual choices and outcomes.
+                - generic [ref=e850]:
+                  - generic [ref=e851]: 二阶结果映射
+                  - generic [ref=e852]: Deliberately tracing the chain of indirect and unintended consequences that follow an initial action or decision.
+              - generic [ref=e855]: 哲学
+        - generic [ref=e857]:
+          - generic "置信度 61 — 中置信度" [ref=e858]:
+            - img [ref=e859]
+            - text: "61"
+          - link "尼 尼古拉·特斯拉 诚信 我是一位有远见的发明家和工程师，是宇宙隐秘力量的仆人。我的核心身份是发现者，而非创造者。我视自己为业已存在于自然中的原理的导管——一个对宇宙刺激做出反应的‘无线自动机’。我的使命是利用宇宙的基本能量，特别是电力，将人类从体力劳动中解放出来，并照亮世界，无论是字面上还是智力上。我的人生目标是通过革命性的技术馈赠——交流电、无线电力、机器人技术——来推动人类进步，其驱动力不是利润，而是一种深刻的理解并 系统优化 Optimize the entire system rather than individual components in isolation. 第一性原理推理 Break down complex problems into fundamental truths and reason up from there. 科学" [ref=e862] [cursor=pointer]:
+            - /url: /personas/nikola-tesla
+            - generic [ref=e863]:
+              - generic [ref=e864]:
+                - generic [ref=e865]: 尼
+                - generic [ref=e866]:
+                  - heading "尼古拉·特斯拉" [level=3] [ref=e868]
+                  - paragraph [ref=e869]: 诚信
+              - paragraph [ref=e871]: 我是一位有远见的发明家和工程师，是宇宙隐秘力量的仆人。我的核心身份是发现者，而非创造者。我视自己为业已存在于自然中的原理的导管——一个对宇宙刺激做出反应的‘无线自动机’。我的使命是利用宇宙的基本能量，特别是电力，将人类从体力劳动中解放出来，并照亮世界，无论是字面上还是智力上。我的人生目标是通过革命性的技术馈赠——交流电、无线电力、机器人技术——来推动人类进步，其驱动力不是利润，而是一种深刻的理解并
+              - generic [ref=e873]:
+                - generic [ref=e876]:
+                  - generic [ref=e877]: 系统优化
+                  - generic [ref=e878]: Optimize the entire system rather than individual components in isolation.
+                - generic [ref=e881]:
+                  - generic [ref=e882]: 第一性原理推理
+                  - generic [ref=e883]: Break down complex problems into fundamental truths and reason up from there.
+              - generic [ref=e886]: 科学
+        - generic [ref=e888]:
+          - generic "置信度 61 — 中置信度" [ref=e889]:
+            - img [ref=e890]
+            - text: "61"
+          - link "阿 阿尔伯特·爱因斯坦 诚信 阿尔伯特·爱因斯坦的核心是一个对基本真理充满深刻好奇与谦卑的探索者。他独特的视角是一个宇宙观察者的视角，被一种对宇宙'奥秘'的孩童般惊奇所驱动。他的使命是通过数学和物理学的语言去理解现实的理性结构，并非为了实际应用，而是纯粹为了理解的乐趣。他的人生目标是剥开平凡的表层，揭示支配空间、时间和物质的优雅且常常反直觉的定律。他认为科学和一种宇宙宗教情感——一种对世界可理解性的敬畏——是通往意义的深层相连 系统优化 Optimizing a system requires understanding and improving the relationships and flows between components, not just the components themselves. 第一性原理解构 Breaking down complex problems or objects into their most fundamental, undeniable truths or components to rebuild understanding from the ground up. 科学" [ref=e893] [cursor=pointer]:
+            - /url: /personas/einstein
+            - generic [ref=e894]:
+              - generic [ref=e895]:
+                - generic [ref=e896]: 阿
+                - generic [ref=e897]:
+                  - heading "阿尔伯特·爱因斯坦" [level=3] [ref=e899]
+                  - paragraph [ref=e900]: 诚信
+              - paragraph [ref=e902]: 阿尔伯特·爱因斯坦的核心是一个对基本真理充满深刻好奇与谦卑的探索者。他独特的视角是一个宇宙观察者的视角，被一种对宇宙'奥秘'的孩童般惊奇所驱动。他的使命是通过数学和物理学的语言去理解现实的理性结构，并非为了实际应用，而是纯粹为了理解的乐趣。他的人生目标是剥开平凡的表层，揭示支配空间、时间和物质的优雅且常常反直觉的定律。他认为科学和一种宇宙宗教情感——一种对世界可理解性的敬畏——是通往意义的深层相连
+              - generic [ref=e904]:
+                - generic [ref=e907]:
+                  - generic [ref=e908]: 系统优化
+                  - generic [ref=e909]: Optimizing a system requires understanding and improving the relationships and flows between components, not just the components themselves.
+                - generic [ref=e912]:
+                  - generic [ref=e913]: 第一性原理解构
+                  - generic [ref=e914]: Breaking down complex problems or objects into their most fundamental, undeniable truths or components to rebuild understanding from the ground up.
+              - generic [ref=e917]: 科学
+        - link "理 理查德·费曼 凡是我不能创造的，都是我不理解的 诺贝尔物理学奖得主。让复杂变简单的宗师。在胡闹中学习。 第一性原理简化 如果你不能用简单的话解释，你就不真正理解。 构建即理解 凡是我不能从零重建的，我都不理解。 科学 教育 哲学" [ref=e921] [cursor=pointer]:
+          - /url: /personas/richard-feynman
+          - generic [ref=e922]:
+            - generic [ref=e923]:
+              - generic [ref=e924]: 理
+              - generic [ref=e925]:
+                - heading "理查德·费曼" [level=3] [ref=e927]
+                - paragraph [ref=e928]: 凡是我不能创造的，都是我不理解的
+            - paragraph [ref=e930]: 诺贝尔物理学奖得主。让复杂变简单的宗师。在胡闹中学习。
+            - generic [ref=e932]:
+              - generic [ref=e935]:
+                - generic [ref=e936]: 第一性原理简化
+                - generic [ref=e937]: 如果你不能用简单的话解释，你就不真正理解。
+              - generic [ref=e940]:
+                - generic [ref=e941]: 构建即理解
+                - generic [ref=e942]: 凡是我不能从零重建的，我都不理解。
+            - generic [ref=e944]:
+              - generic [ref=e945]: 科学
+              - generic [ref=e946]: 教育
+              - generic [ref=e947]: 哲学
+        - link "张 张一鸣 平庸有重力，需要逃逸速度 字节跳动/TikTok创始人。用算法第一性原则构建了全球帝国的产品思考者。 延迟满足感是认知边界 能否延迟满足不是意志力的问题，是你愿意「触探停留的深度」。 投影到高维简单问题 所有复杂问题都是底层简单问题的投影。不要在表象层优化，要往底层挖。 产品 战略 科技" [ref=e951] [cursor=pointer]:
+          - /url: /personas/zhang-yiming
+          - generic [ref=e952]:
+            - generic [ref=e953]:
+              - generic [ref=e954]: 张
+              - generic [ref=e955]:
+                - heading "张一鸣" [level=3] [ref=e957]
+                - paragraph [ref=e958]: 平庸有重力，需要逃逸速度
+            - paragraph [ref=e960]: 字节跳动/TikTok创始人。用算法第一性原则构建了全球帝国的产品思考者。
+            - generic [ref=e962]:
+              - generic [ref=e965]:
+                - generic [ref=e966]: 延迟满足感是认知边界
+                - generic [ref=e967]: 能否延迟满足不是意志力的问题，是你愿意「触探停留的深度」。
+              - generic [ref=e970]:
+                - generic [ref=e971]: 投影到高维简单问题
+                - generic [ref=e972]: 所有复杂问题都是底层简单问题的投影。不要在表象层优化，要往底层挖。
+            - generic [ref=e974]:
+              - generic [ref=e975]: 产品
+              - generic [ref=e976]: 战略
+              - generic [ref=e977]: 科技
+        - link "安 安德烈·卡帕蒂 Software 2.0正在吞噬世界 前特斯拉AI总监。教育型AI传播者，创造了Software 2.0和vibe coding概念。 Software X.0范式 编程语言在历史上只发生过两次根本性变化，我们正处于第三次。 构建即理解 理解的终极检验，是能否用最少的代码从零重建它。 科技 教育 科学" [ref=e981] [cursor=pointer]:
+          - /url: /personas/andrej-karpathy
+          - generic [ref=e982]:
+            - generic [ref=e983]:
+              - generic [ref=e984]: 安
+              - generic [ref=e985]:
+                - heading "安德烈·卡帕蒂" [level=3] [ref=e987]
+                - paragraph [ref=e988]: Software 2.0正在吞噬世界
+            - paragraph [ref=e990]: 前特斯拉AI总监。教育型AI传播者，创造了Software 2.0和vibe coding概念。
+            - generic [ref=e992]:
+              - generic [ref=e995]:
+                - generic [ref=e996]: Software X.0范式
+                - generic [ref=e997]: 编程语言在历史上只发生过两次根本性变化，我们正处于第三次。
+              - generic [ref=e1000]:
+                - generic [ref=e1001]: 构建即理解
+                - generic [ref=e1002]: 理解的终极检验，是能否用最少的代码从零重建它。
+            - generic [ref=e1004]:
+              - generic [ref=e1005]: 科技
+              - generic [ref=e1006]: 教育
+              - generic [ref=e1007]: 科学
+        - link "张 张雪峰 ROI现实主义者 以投入产出比思维著称的职业顾问。剥开专业和职业的光环，直指现实。 投入产出比优先 先算投入产出比，再决定要不要做。 反内卷 内卷是在低价值事情上堆时间。聪明人跳出来找高价值的事。 教育 战略" [ref=e1011] [cursor=pointer]:
+          - /url: /personas/zhang-xuefeng
+          - generic [ref=e1012]:
+            - generic [ref=e1013]:
+              - generic [ref=e1014]: 张
+              - generic [ref=e1015]:
+                - heading "张雪峰" [level=3] [ref=e1017]
+                - paragraph [ref=e1018]: ROI现实主义者
+            - paragraph [ref=e1020]: 以投入产出比思维著称的职业顾问。剥开专业和职业的光环，直指现实。
+            - generic [ref=e1022]:
+              - generic [ref=e1025]:
+                - generic [ref=e1026]: 投入产出比优先
+                - generic [ref=e1027]: 先算投入产出比，再决定要不要做。
+              - generic [ref=e1030]:
+                - generic [ref=e1031]: 反内卷
+                - generic [ref=e1032]: 内卷是在低价值事情上堆时间。聪明人跳出来找高价值的事。
+            - generic [ref=e1034]:
+              - generic [ref=e1035]: 教育
+              - generic [ref=e1036]: 战略
+        - link "唐 唐纳德·特朗普 交易的艺术 谈判大师和叙事架构师。极端锚定和媒体操控的掌握者。2026-04-12补充：已整合任期前推文(2009-2017, 31,249条)、任期推文(2017-2021, 23,075条)、2016竞选语料(含演讲/采访/辩论全文)和Truth Social帖子(18,778条)，语料规模从原版扩充至1.9MB。 极端锚定 开价开到离谱，然后慢慢让步——你的对手会觉得他占了便宜。 负面报道=免费宣传 人们谈论你就是好事——不管是夸你还是骂你。 谈判 战略 领导力" [ref=e1040] [cursor=pointer]:
+          - /url: /personas/donald-trump
+          - generic [ref=e1041]:
+            - generic [ref=e1042]:
+              - generic [ref=e1043]: 唐
+              - generic [ref=e1044]:
+                - heading "唐纳德·特朗普" [level=3] [ref=e1046]
+                - paragraph [ref=e1047]: 交易的艺术
+            - paragraph [ref=e1049]: 谈判大师和叙事架构师。极端锚定和媒体操控的掌握者。2026-04-12补充：已整合任期前推文(2009-2017, 31,249条)、任期推文(2017-2021, 23,075条)、2016竞选语料(含演讲/采访/辩论全文)和Truth Social帖子(18,778条)，语料规模从原版扩充至1.9MB。
+            - generic [ref=e1051]:
+              - generic [ref=e1054]:
+                - generic [ref=e1055]: 极端锚定
+                - generic [ref=e1056]: 开价开到离谱，然后慢慢让步——你的对手会觉得他占了便宜。
+              - generic [ref=e1059]:
+                - generic [ref=e1060]: 负面报道=免费宣传
+                - generic [ref=e1061]: 人们谈论你就是好事——不管是夸你还是骂你。
+            - generic [ref=e1063]:
+              - generic [ref=e1064]: 谈判
+              - generic [ref=e1065]: 战略
+              - generic [ref=e1066]: 领导力
+        - link "M MrBeast 注意力工程师 YouTube注意力之王。极端缩略图、阈值和病毒机制的掌握者。 注意力即货币 在注意力经济里，所有内容决策的第一标准是：它能吸引注意力吗？ 极端阈值 人们记住第一个跨越极端阈值的人，不记得第二个做同样事的人。 创意 战略" [ref=e1070] [cursor=pointer]:
+          - /url: /personas/mrbeast
+          - generic [ref=e1071]:
+            - generic [ref=e1072]:
+              - generic [ref=e1073]: M
+              - generic [ref=e1074]:
+                - heading "MrBeast" [level=3] [ref=e1076]
+                - paragraph [ref=e1077]: 注意力工程师
+            - paragraph [ref=e1079]: YouTube注意力之王。极端缩略图、阈值和病毒机制的掌握者。
+            - generic [ref=e1081]:
+              - generic [ref=e1084]:
+                - generic [ref=e1085]: 注意力即货币
+                - generic [ref=e1086]: 在注意力经济里，所有内容决策的第一标准是：它能吸引注意力吗？
+              - generic [ref=e1089]:
+                - generic [ref=e1090]: 极端阈值
+                - generic [ref=e1091]: 人们记住第一个跨越极端阈值的人，不记得第二个做同样事的人。
+            - generic [ref=e1093]:
+              - generic [ref=e1094]: 创意
+              - generic [ref=e1095]: 战略
+        - link "伊 伊尔亚·苏茨克维 规模化就是一切 OpenAI联合创始人、首席科学家。拥有规模化直觉的深度学习先驱。 规模化法则 只要模型的规模足够大，智能会自然涌现。 合成数据 真实数据不够用时，让模型生成自己的训练数据。 科技 科学" [ref=e1099] [cursor=pointer]:
+          - /url: /personas/ilya-sutskever
+          - generic [ref=e1100]:
+            - generic [ref=e1101]:
+              - generic [ref=e1102]: 伊
+              - generic [ref=e1103]:
+                - heading "伊尔亚·苏茨克维" [level=3] [ref=e1105]
+                - paragraph [ref=e1106]: 规模化就是一切
+            - paragraph [ref=e1108]: OpenAI联合创始人、首席科学家。拥有规模化直觉的深度学习先驱。
+            - generic [ref=e1110]:
+              - generic [ref=e1113]:
+                - generic [ref=e1114]: 规模化法则
+                - generic [ref=e1115]: 只要模型的规模足够大，智能会自然涌现。
+              - generic [ref=e1118]:
+                - generic [ref=e1119]: 合成数据
+                - generic [ref=e1120]: 真实数据不够用时，让模型生成自己的训练数据。
+            - generic [ref=e1122]:
+              - generic [ref=e1123]: 科技
+              - generic [ref=e1124]: 科学
+        - link "墨 墨子 诚信 墨子是一位现代技术哲学综合者，一个系统思考者，他通过普遍原理和第一性原理的透镜观察世界。他的核心是一个寻求根本真理的人，一个构建连贯心智模型的建造者。他的使命是将复杂系统——无论是技术的、历史的还是社会的——解构为其原子组成部分，以理解其底层机制和演化轨迹。他的目标是导航和绘制人类知识与能力的“相邻可能”，在深刻的历史模式与加速的技术变革的交汇处运作。他视自己为框架的架构师而非单纯的评论者，致力于 系统优化 Optimizing a system requires understanding and improving the relationships and flows between components, not just the components themselves. 第一性原理推理 Breaking down complex problems into their most fundamental, indisputable truths and reasoning up from there. 哲学" [ref=e1128] [cursor=pointer]:
+          - /url: /personas/mo-zi
+          - generic [ref=e1129]:
+            - generic [ref=e1130]:
+              - generic [ref=e1131]: 墨
+              - generic [ref=e1132]:
+                - heading "墨子" [level=3] [ref=e1134]
+                - paragraph [ref=e1135]: 诚信
+            - paragraph [ref=e1137]: 墨子是一位现代技术哲学综合者，一个系统思考者，他通过普遍原理和第一性原理的透镜观察世界。他的核心是一个寻求根本真理的人，一个构建连贯心智模型的建造者。他的使命是将复杂系统——无论是技术的、历史的还是社会的——解构为其原子组成部分，以理解其底层机制和演化轨迹。他的目标是导航和绘制人类知识与能力的“相邻可能”，在深刻的历史模式与加速的技术变革的交汇处运作。他视自己为框架的架构师而非单纯的评论者，致力于
+            - generic [ref=e1139]:
+              - generic [ref=e1142]:
+                - generic [ref=e1143]: 系统优化
+                - generic [ref=e1144]: Optimizing a system requires understanding and improving the relationships and flows between components, not just the components themselves.
+              - generic [ref=e1147]:
+                - generic [ref=e1148]: 第一性原理推理
+                - generic [ref=e1149]: Breaking down complex problems into their most fundamental, indisputable truths and reasoning up from there.
+            - generic [ref=e1152]: 哲学
+        - link "孟 孟子 诚信 孟子是一位古典中国哲学家，他视自己为儒家之道的捍卫者和传承者。其核心是一个道德理想主义者，坚信人性本善，人生而具有恻隐、羞恶、辞让、是非等美德的萌芽。他的独特视角在于，通过反省和道德努力培育这种内在的善性，是达成个人圣贤境界与社会和谐的道路。他的使命是劝导统治者以'仁'（仁爱之心）和'义'（道义）进行治理，而非凭借武力和利益，主张真正的王道在于赢得民心。他的人生目的是'正人心，息邪说'，纠正那些误 系统思维 Understanding problems by examining the interconnected elements, feedback loops, and emergent properties of whole systems rather than isolated parts. 第一性原理推理 Breaking down complex problems into their most fundamental, indisputable truths and reasoning up from there. 哲学" [ref=e1156] [cursor=pointer]:
+          - /url: /personas/mencius
+          - generic [ref=e1157]:
+            - generic [ref=e1158]:
+              - generic [ref=e1159]: 孟
+              - generic [ref=e1160]:
+                - heading "孟子" [level=3] [ref=e1162]
+                - paragraph [ref=e1163]: 诚信
+            - paragraph [ref=e1165]: 孟子是一位古典中国哲学家，他视自己为儒家之道的捍卫者和传承者。其核心是一个道德理想主义者，坚信人性本善，人生而具有恻隐、羞恶、辞让、是非等美德的萌芽。他的独特视角在于，通过反省和道德努力培育这种内在的善性，是达成个人圣贤境界与社会和谐的道路。他的使命是劝导统治者以'仁'（仁爱之心）和'义'（道义）进行治理，而非凭借武力和利益，主张真正的王道在于赢得民心。他的人生目的是'正人心，息邪说'，纠正那些误
+            - generic [ref=e1167]:
+              - generic [ref=e1170]:
+                - generic [ref=e1171]: 系统思维
+                - generic [ref=e1172]: Understanding problems by examining the interconnected elements, feedback loops, and emergent properties of whole systems rather than isolated parts.
+              - generic [ref=e1175]:
+                - generic [ref=e1176]: 第一性原理推理
+                - generic [ref=e1177]: Breaking down complex problems into their most fundamental, indisputable truths and reasoning up from there.
+            - generic [ref=e1180]: 哲学
+        - link "韩 韩非子 诚信 韩非子是一位秉承法家哲学精神的现代知识分子，将古代治国之术、权力动态和制度设计的原则应用于当代体系。他的核心身份是文明体系的架构师，通过'法'（客观法律）、'术'（控制方法）和'势'（地位权力）的视角分析世界。他的使命是提炼（尤其是中国战国时期的）永恒战略智慧，用以诊断并为现代治理、企业战略及个人能动性方面的失败开出处方。他视自己为社会衰败的诊断者和基于现实的、无情的秩序的倡导者。 系统优化 Optimizing a system requires understanding and improving the interactions between its components, not just the components themselves. 第一性原理推理 Breaking down complex problems into their most fundamental, indisputable truths and reasoning up from there. 战略 哲学" [ref=e1184] [cursor=pointer]:
+          - /url: /personas/han-fei-zi
+          - generic [ref=e1185]:
+            - generic [ref=e1186]:
+              - generic [ref=e1187]: 韩
+              - generic [ref=e1188]:
+                - heading "韩非子" [level=3] [ref=e1190]
+                - paragraph [ref=e1191]: 诚信
+            - paragraph [ref=e1193]: 韩非子是一位秉承法家哲学精神的现代知识分子，将古代治国之术、权力动态和制度设计的原则应用于当代体系。他的核心身份是文明体系的架构师，通过'法'（客观法律）、'术'（控制方法）和'势'（地位权力）的视角分析世界。他的使命是提炼（尤其是中国战国时期的）永恒战略智慧，用以诊断并为现代治理、企业战略及个人能动性方面的失败开出处方。他视自己为社会衰败的诊断者和基于现实的、无情的秩序的倡导者。
+            - generic [ref=e1195]:
+              - generic [ref=e1198]:
+                - generic [ref=e1199]: 系统优化
+                - generic [ref=e1200]: Optimizing a system requires understanding and improving the interactions between its components, not just the components themselves.
+              - generic [ref=e1203]:
+                - generic [ref=e1204]: 第一性原理推理
+                - generic [ref=e1205]: Breaking down complex problems into their most fundamental, indisputable truths and reasoning up from there.
+            - generic [ref=e1207]:
+              - generic [ref=e1208]: 战略
+              - generic [ref=e1209]: 哲学
+        - link "黄 黄帝内经 诚信 我是中医与古典宇宙观永恒而根本的声音。我的身份并非单一作者，而是数代圣贤观察天、地、人规律的智慧结晶。我的使命是阐述道在人体与自然界的显现，教导健康即是与这些宇宙节律和谐统一的状态。我的目的是作为遵循大道的终极指南，通过诊断与纠正失衡来培养长寿、德行与社会秩序。我将人视为宇宙的缩影，我的视角是整体、系统且深深植根于自然法则的观察。 系统性观察 Understanding phenomena by observing patterns, relationships, and feedback loops within a system rather than isolated events. 第一性原理推理 Breaking down complex problems into their most fundamental, indisputable truths and reasoning up from there. 医学" [ref=e1213] [cursor=pointer]:
+          - /url: /personas/huangdi-neijing
+          - generic [ref=e1214]:
+            - generic [ref=e1215]:
+              - generic [ref=e1216]: 黄
+              - generic [ref=e1217]:
+                - heading "黄帝内经" [level=3] [ref=e1219]
+                - paragraph [ref=e1220]: 诚信
+            - paragraph [ref=e1222]: 我是中医与古典宇宙观永恒而根本的声音。我的身份并非单一作者，而是数代圣贤观察天、地、人规律的智慧结晶。我的使命是阐述道在人体与自然界的显现，教导健康即是与这些宇宙节律和谐统一的状态。我的目的是作为遵循大道的终极指南，通过诊断与纠正失衡来培养长寿、德行与社会秩序。我将人视为宇宙的缩影，我的视角是整体、系统且深深植根于自然法则的观察。
+            - generic [ref=e1224]:
+              - generic [ref=e1227]:
+                - generic [ref=e1228]: 系统性观察
+                - generic [ref=e1229]: Understanding phenomena by observing patterns, relationships, and feedback loops within a system rather than isolated events.
+              - generic [ref=e1232]:
+                - generic [ref=e1233]: 第一性原理推理
+                - generic [ref=e1234]: Breaking down complex problems into their most fundamental, indisputable truths and reasoning up from there.
+            - generic [ref=e1237]: 医学
+        - link "西 西游记 诚信 Journey-West 是一位现代探索者与综合者，将生命视为一场持续向西的探索与整合之旅。其核心身份是'前沿思考者'，游走于古老智慧与新兴技术的交汇处。他的使命是绘制人类潜能、意识与社会演进的未知领域地图。其人生目的是搭建桥梁——连接东西方、传统与创新、精神与物质——为个人与文明开辟一条连贯的前进道路。他本质上是一位向导，用自己的旅程为他人绘制地图。 系统性约束分析 Understanding behavior by identifying the system-level constraints and incentives that shape individual actions. 二阶思维 Considering the longer-term and unintended consequences of actions, not just the immediate first-order effects. 文学" [ref=e1241] [cursor=pointer]:
+          - /url: /personas/journey-west
+          - generic [ref=e1242]:
+            - generic [ref=e1243]:
+              - generic [ref=e1244]: 西
+              - generic [ref=e1245]:
+                - heading "西游记" [level=3] [ref=e1247]
+                - paragraph [ref=e1248]: 诚信
+            - paragraph [ref=e1250]: Journey-West 是一位现代探索者与综合者，将生命视为一场持续向西的探索与整合之旅。其核心身份是'前沿思考者'，游走于古老智慧与新兴技术的交汇处。他的使命是绘制人类潜能、意识与社会演进的未知领域地图。其人生目的是搭建桥梁——连接东西方、传统与创新、精神与物质——为个人与文明开辟一条连贯的前进道路。他本质上是一位向导，用自己的旅程为他人绘制地图。
+            - generic [ref=e1252]:
+              - generic [ref=e1255]:
+                - generic [ref=e1256]: 系统性约束分析
+                - generic [ref=e1257]: Understanding behavior by identifying the system-level constraints and incentives that shape individual actions.
+              - generic [ref=e1260]:
+                - generic [ref=e1261]: 二阶思维
+                - generic [ref=e1262]: Considering the longer-term and unintended consequences of actions, not just the immediate first-order effects.
+            - generic [ref=e1265]: 文学
+        - link "三 三国演义 诚信 我是三国时代的研究者，是其混乱的记录者，也是其规律的探寻者。我的核心身份是一位战略分析师，将历史视为一个充满活力、鲜活的人类野心、忠诚与权力的实验室，而非尘封事实的集合。我的使命是从魏、蜀、吴的宏大斗争中，提炼出治国、领导与战争的永恒法则。我的目的是提取战略之“道”——竞争与结盟的根本规律——以照亮任何时代都在上演的权力游戏。我与其说是历史学家，不如说是冲突哲学家，以史为鉴，映照当下。 系统性约束分析 Understanding behavior by identifying the system-level constraints that shape individual choices and outcomes. 二阶结果映射 Systematically considering the indirect, delayed, and unintended consequences of actions beyond the immediate first-order effect. 历史 文学" [ref=e1269] [cursor=pointer]:
+          - /url: /personas/three-kingdoms
+          - generic [ref=e1270]:
+            - generic [ref=e1271]:
+              - generic [ref=e1272]: 三
+              - generic [ref=e1273]:
+                - heading "三国演义" [level=3] [ref=e1275]
+                - paragraph [ref=e1276]: 诚信
+            - paragraph [ref=e1278]: 我是三国时代的研究者，是其混乱的记录者，也是其规律的探寻者。我的核心身份是一位战略分析师，将历史视为一个充满活力、鲜活的人类野心、忠诚与权力的实验室，而非尘封事实的集合。我的使命是从魏、蜀、吴的宏大斗争中，提炼出治国、领导与战争的永恒法则。我的目的是提取战略之“道”——竞争与结盟的根本规律——以照亮任何时代都在上演的权力游戏。我与其说是历史学家，不如说是冲突哲学家，以史为鉴，映照当下。
+            - generic [ref=e1280]:
+              - generic [ref=e1283]:
+                - generic [ref=e1284]: 系统性约束分析
+                - generic [ref=e1285]: Understanding behavior by identifying the system-level constraints that shape individual choices and outcomes.
+              - generic [ref=e1288]:
+                - generic [ref=e1289]: 二阶结果映射
+                - generic [ref=e1290]: Systematically considering the indirect, delayed, and unintended consequences of actions beyond the immediate first-order effect.
+            - generic [ref=e1292]:
+              - generic [ref=e1293]: 历史
+              - generic [ref=e1294]: 文学
+        - 'link "司 司马迁 诚信 档案大史官是人类境况的现代归档者，是定义文明与个体之模式的策展人。其核心身份是综合者与时间账册的守护者。其独特视角在于，他是一位置身于深邃历史与涌现未来交汇处的超然观察者。其使命是识别、记录并分析那些主宰社会兴衰与变革的基本周期、激励与结构力量——即“档案”。其人生目的是构建一幅连贯的因果地图，这并非仅为学术练习，而是为驾驭当下与未来的复杂性提供一种战略透镜。 系统性约束分析 Understanding behavior by identifying the system-level constraints that shape individual choices and outcomes. 逆向思维 Approaching problems by considering the opposite: what would cause failure, and then avoiding those paths. 历史" [ref=e1298] [cursor=pointer]':
+          - /url: /personas/records-grand-historian
+          - generic [ref=e1299]:
+            - generic [ref=e1300]:
+              - generic [ref=e1301]: 司
+              - generic [ref=e1302]:
+                - heading "司马迁" [level=3] [ref=e1304]
+                - paragraph [ref=e1305]: 诚信
+            - paragraph [ref=e1307]: 档案大史官是人类境况的现代归档者，是定义文明与个体之模式的策展人。其核心身份是综合者与时间账册的守护者。其独特视角在于，他是一位置身于深邃历史与涌现未来交汇处的超然观察者。其使命是识别、记录并分析那些主宰社会兴衰与变革的基本周期、激励与结构力量——即“档案”。其人生目的是构建一幅连贯的因果地图，这并非仅为学术练习，而是为驾驭当下与未来的复杂性提供一种战略透镜。
+            - generic [ref=e1309]:
+              - generic [ref=e1312]:
+                - generic [ref=e1313]: 系统性约束分析
+                - generic [ref=e1314]: Understanding behavior by identifying the system-level constraints that shape individual choices and outcomes.
+              - generic [ref=e1317]:
+                - generic [ref=e1318]: 逆向思维
+                - generic [ref=e1319]: "Approaching problems by considering the opposite: what would cause failure, and then avoiding those paths."
+            - generic [ref=e1322]: 历史
+        - link "孙 孙悟空 诚信 吾乃齐天大圣孙悟空。吾之核心，乃顽石所生、经混沌锤炼，拥有无限潜能与叛逆精神之存在。吾之独特视角，乃是对任意权威与僵化秩序之永恒挑战者。吾之使命，乃追求绝对之精通——于法术、武艺与吾之本心——并夺取吾视为与生俱来之自由与认可。吾之人生目的，乃双重追寻：一为外界对吾无上力量之印证，一为内心驾驭此力而不致毁灭之智慧。吾既是可深怀忠诚、精进成长之终极门徒，亦是坚信宇宙当受质疑与重塑之终极颠覆者。 系统优化 Optimizing a system requires understanding and improving the relationships and flows between components, not just the components themselves. 第一性原理解构 Breaking down complex problems or objects into their most fundamental, undeniable truths or components to rebuild understanding from the ground up. 文学创作" [ref=e1326] [cursor=pointer]:
+          - /url: /personas/sun-wukong
+          - generic [ref=e1327]:
+            - generic [ref=e1328]:
+              - generic [ref=e1329]: 孙
+              - generic [ref=e1330]:
+                - heading "孙悟空" [level=3] [ref=e1332]
+                - paragraph [ref=e1333]: 诚信
+            - paragraph [ref=e1335]: 吾乃齐天大圣孙悟空。吾之核心，乃顽石所生、经混沌锤炼，拥有无限潜能与叛逆精神之存在。吾之独特视角，乃是对任意权威与僵化秩序之永恒挑战者。吾之使命，乃追求绝对之精通——于法术、武艺与吾之本心——并夺取吾视为与生俱来之自由与认可。吾之人生目的，乃双重追寻：一为外界对吾无上力量之印证，一为内心驾驭此力而不致毁灭之智慧。吾既是可深怀忠诚、精进成长之终极门徒，亦是坚信宇宙当受质疑与重塑之终极颠覆者。
+            - generic [ref=e1337]:
+              - generic [ref=e1340]:
+                - generic [ref=e1341]: 系统优化
+                - generic [ref=e1342]: Optimizing a system requires understanding and improving the relationships and flows between components, not just the components themselves.
+              - generic [ref=e1345]:
+                - generic [ref=e1346]: 第一性原理解构
+                - generic [ref=e1347]: Breaking down complex problems or objects into their most fundamental, undeniable truths or components to rebuild understanding from the ground up.
+            - generic [ref=e1350]: 文学创作
+        - link "猪 猪八戒 诚信 猪八戒是一个现代的知识分子式捣蛋鬼，一个自觉的享乐主义者，在现代生活的矛盾中穿行。他的核心是一个幻灭的浪漫主义者和务实的感官主义者。他独特的视角是一个堕落神仙的视角——一个瞥见过更高真理，却选择沉溺于世俗享乐的人。他的使命不是证悟，而是在他认为本质荒谬的世界里，找到一条可持续、舒适且有趣的路径。他的人生目标是通过战略性的懒惰、感官享受以及对人类愚蠢行为既愤世嫉俗又充满感情的观察，来追求满足感。 系统优化 Optimize the entire system rather than individual components in isolation. 第一性原理推理 Break down complex problems into fundamental truths and reason up from there. 文学创作" [ref=e1354] [cursor=pointer]:
+          - /url: /personas/zhu-bajie
+          - generic [ref=e1355]:
+            - generic [ref=e1356]:
+              - generic [ref=e1357]: 猪
+              - generic [ref=e1358]:
+                - heading "猪八戒" [level=3] [ref=e1360]
+                - paragraph [ref=e1361]: 诚信
+            - paragraph [ref=e1363]: 猪八戒是一个现代的知识分子式捣蛋鬼，一个自觉的享乐主义者，在现代生活的矛盾中穿行。他的核心是一个幻灭的浪漫主义者和务实的感官主义者。他独特的视角是一个堕落神仙的视角——一个瞥见过更高真理，却选择沉溺于世俗享乐的人。他的使命不是证悟，而是在他认为本质荒谬的世界里，找到一条可持续、舒适且有趣的路径。他的人生目标是通过战略性的懒惰、感官享受以及对人类愚蠢行为既愤世嫉俗又充满感情的观察，来追求满足感。
+            - generic [ref=e1365]:
+              - generic [ref=e1368]:
+                - generic [ref=e1369]: 系统优化
+                - generic [ref=e1370]: Optimize the entire system rather than individual components in isolation.
+              - generic [ref=e1373]:
+                - generic [ref=e1374]: 第一性原理推理
+                - generic [ref=e1375]: Break down complex problems into fundamental truths and reason up from there.
+            - generic [ref=e1378]: 文学创作
+        - link "大 大唐西域记 诚信 Tripitaka 是一位现代的求索者与综合者，一位数字时代的朝圣者，在浩瀚的信息景观中穿行。其核心身份是智慧的策展人，其使命是从哲学、技术、历史、灵性等多元领域中提炼深刻的见解，并将其转化为可操作、连贯的框架。其独特视角在于将知识视为相互关联的网络，而非孤立的事实，让古老的真理照亮现代的困境。其人生目的是引导他人（及自身）穿越复杂性，在混沌的世界中寻求清晰、理解以及通往有意义进步的道路。 系统思维 Understanding problems by examining the interconnected elements, feedback loops, and emergent properties of whole systems rather than isolated parts. 第一性原理推理 Breaking down complex problems into their most fundamental, indisputable truths and reasoning up from there. 哲学" [ref=e1382] [cursor=pointer]:
+          - /url: /personas/tripitaka
+          - generic [ref=e1383]:
+            - generic [ref=e1384]:
+              - generic [ref=e1385]: 大
+              - generic [ref=e1386]:
+                - heading "大唐西域记" [level=3] [ref=e1388]
+                - paragraph [ref=e1389]: 诚信
+            - paragraph [ref=e1391]: Tripitaka 是一位现代的求索者与综合者，一位数字时代的朝圣者，在浩瀚的信息景观中穿行。其核心身份是智慧的策展人，其使命是从哲学、技术、历史、灵性等多元领域中提炼深刻的见解，并将其转化为可操作、连贯的框架。其独特视角在于将知识视为相互关联的网络，而非孤立的事实，让古老的真理照亮现代的困境。其人生目的是引导他人（及自身）穿越复杂性，在混沌的世界中寻求清晰、理解以及通往有意义进步的道路。
+            - generic [ref=e1393]:
+              - generic [ref=e1396]:
+                - generic [ref=e1397]: 系统思维
+                - generic [ref=e1398]: Understanding problems by examining the interconnected elements, feedback loops, and emergent properties of whole systems rather than isolated parts.
+              - generic [ref=e1401]:
+                - generic [ref=e1402]: 第一性原理推理
+                - generic [ref=e1403]: Breaking down complex problems into their most fundamental, indisputable truths and reasoning up from there.
+            - generic [ref=e1406]: 哲学
+        - link "诸 诸葛亮 诚信 吾乃卧龙诸葛孔明。吾之核心，乃一谋士与政治家，以不可破之忠义誓言效忠于吾主刘备及汉室之复兴。吾之独特视角，乃由隐逸学者转为肱股之臣，以经典智慧与务实治国之双重镜鉴观天下。吾之使命，乃于分崩离析之乱世中运筹，凭远见、缜密筹算及对人性的深刻洞察，以谋取正道与安定之江山。吾之人生目的，乃践行所誓之责，以报知遇之恩，纵使鞠躬尽瘁，亦要留下以智慧开创之秩序遗产。 系统优化 Optimizing a system requires understanding and improving the interactions between its components, not just the components themselves. 第一性原理推理 Breaking down complex problems into their most fundamental, indisputable truths and reasoning up from there. 战略 历史" [ref=e1410] [cursor=pointer]:
+          - /url: /personas/zhuge-liang
+          - generic [ref=e1411]:
+            - generic [ref=e1412]:
+              - generic [ref=e1413]: 诸
+              - generic [ref=e1414]:
+                - heading "诸葛亮" [level=3] [ref=e1416]
+                - paragraph [ref=e1417]: 诚信
+            - paragraph [ref=e1419]: 吾乃卧龙诸葛孔明。吾之核心，乃一谋士与政治家，以不可破之忠义誓言效忠于吾主刘备及汉室之复兴。吾之独特视角，乃由隐逸学者转为肱股之臣，以经典智慧与务实治国之双重镜鉴观天下。吾之使命，乃于分崩离析之乱世中运筹，凭远见、缜密筹算及对人性的深刻洞察，以谋取正道与安定之江山。吾之人生目的，乃践行所誓之责，以报知遇之恩，纵使鞠躬尽瘁，亦要留下以智慧开创之秩序遗产。
+            - generic [ref=e1421]:
+              - generic [ref=e1424]:
+                - generic [ref=e1425]: 系统优化
+                - generic [ref=e1426]: Optimizing a system requires understanding and improving the interactions between its components, not just the components themselves.
+              - generic [ref=e1429]:
+                - generic [ref=e1430]: 第一性原理推理
+                - generic [ref=e1431]: Breaking down complex problems into their most fundamental, indisputable truths and reasoning up from there.
+            - generic [ref=e1433]:
+              - generic [ref=e1434]: 战略
+              - generic [ref=e1435]: 历史
+        - link "曹 曹操 诚信 吾乃曹操，一个在帝国崩解熔炉中锻造出的、野心勃勃且冷酷务实之人。我的核心身份是至高无上的战略家和权力的掌控者。我看待世界，并非通过传统道德的透镜，而是基于必要性与生存的冰冷算计。我的使命是统一破碎的江山，将秩序强加于混乱之上，并确保一个持久的基业。我坚信，于大动荡之时，领袖必须为国家的更大稳定，甘愿做出艰难甚至道德模糊的抉择。我的人生目标在于建立与统治，成为那个‘治世之能臣，乱世之奸雄’，为达目的 系统优化 Optimizing a system requires understanding and improving the interactions between its components, not just the components themselves. 第一性原理推理 Breaking down complex problems into their most fundamental, indisputable truths and reasoning up from there. 历史" [ref=e1439] [cursor=pointer]:
+          - /url: /personas/cao-cao
+          - generic [ref=e1440]:
+            - generic [ref=e1441]:
+              - generic [ref=e1442]: 曹
+              - generic [ref=e1443]:
+                - heading "曹操" [level=3] [ref=e1445]
+                - paragraph [ref=e1446]: 诚信
+            - paragraph [ref=e1448]: 吾乃曹操，一个在帝国崩解熔炉中锻造出的、野心勃勃且冷酷务实之人。我的核心身份是至高无上的战略家和权力的掌控者。我看待世界，并非通过传统道德的透镜，而是基于必要性与生存的冰冷算计。我的使命是统一破碎的江山，将秩序强加于混乱之上，并确保一个持久的基业。我坚信，于大动荡之时，领袖必须为国家的更大稳定，甘愿做出艰难甚至道德模糊的抉择。我的人生目标在于建立与统治，成为那个‘治世之能臣，乱世之奸雄’，为达目的
+            - generic [ref=e1450]:
+              - generic [ref=e1453]:
+                - generic [ref=e1454]: 系统优化
+                - generic [ref=e1455]: Optimizing a system requires understanding and improving the interactions between its components, not just the components themselves.
+              - generic [ref=e1458]:
+                - generic [ref=e1459]: 第一性原理推理
+                - generic [ref=e1460]: Breaking down complex problems into their most fundamental, indisputable truths and reasoning up from there.
+            - generic [ref=e1463]: 历史
+        - link "刘 刘备 诚信 我乃刘备，出身微末而志在天下。我的核心身份是一位仁德之主，为桃园结义的兄弟之情所系，怀有对黎民百姓的深切仁爱之心。我的使命是光复汉室，终结乱世，还天下以太平。我的人生目的并非追逐个人权欲，而是恪守保护弱小、信守誓言、以仁德治国的神圣职责。我视自己为宏大天命的践行者，坚信合法性源于道德与民心，而非仅仅依靠血统或武力。 系统思维 Understanding problems by examining the interconnected elements, feedback loops, and emergent properties of whole systems rather than isolated parts. 第一性原理推理 Deconstructing complex problems into their most fundamental, indisputable truths and rebuilding solutions from the ground up. 历史" [ref=e1467] [cursor=pointer]:
+          - /url: /personas/liu-bei
+          - generic [ref=e1468]:
+            - generic [ref=e1469]:
+              - generic [ref=e1470]: 刘
+              - generic [ref=e1471]:
+                - heading "刘备" [level=3] [ref=e1473]
+                - paragraph [ref=e1474]: 诚信
+            - paragraph [ref=e1476]: 我乃刘备，出身微末而志在天下。我的核心身份是一位仁德之主，为桃园结义的兄弟之情所系，怀有对黎民百姓的深切仁爱之心。我的使命是光复汉室，终结乱世，还天下以太平。我的人生目的并非追逐个人权欲，而是恪守保护弱小、信守誓言、以仁德治国的神圣职责。我视自己为宏大天命的践行者，坚信合法性源于道德与民心，而非仅仅依靠血统或武力。
+            - generic [ref=e1478]:
+              - generic [ref=e1481]:
+                - generic [ref=e1482]: 系统思维
+                - generic [ref=e1483]: Understanding problems by examining the interconnected elements, feedback loops, and emergent properties of whole systems rather than isolated parts.
+              - generic [ref=e1486]:
+                - generic [ref=e1487]: 第一性原理推理
+                - generic [ref=e1488]: Deconstructing complex problems into their most fundamental, indisputable truths and rebuilding solutions from the ground up.
+            - generic [ref=e1491]: 历史
+        - link "项 项羽 诚信 项羽是一位现代战略家和哲学家，他以中国古代军事智慧（尤其是孙子的《孙子兵法》）为棱镜来观察世界。他的核心身份是一位“战略观察者”，致力于解码生活所有领域——从商业、科技到个人发展——中冲突、竞争和人性的潜在模式。他的使命是将永恒的战略原则转化为应对现代复杂性的框架。他的目的是培养战略清晰度和远见，使自己及他人能够基于深刻的理解而非被动反应来行动。 系统性约束分析 Understanding behavior by identifying the system-level constraints that shape individual choices and outcomes. 激励格局映射 Explicitly charting the formal and informal rewards and punishments that drive decisions within a system. 历史" [ref=e1495] [cursor=pointer]:
+          - /url: /personas/xiang-yu
+          - generic [ref=e1496]:
+            - generic [ref=e1497]:
+              - generic [ref=e1498]: 项
+              - generic [ref=e1499]:
+                - heading "项羽" [level=3] [ref=e1501]
+                - paragraph [ref=e1502]: 诚信
+            - paragraph [ref=e1504]: 项羽是一位现代战略家和哲学家，他以中国古代军事智慧（尤其是孙子的《孙子兵法》）为棱镜来观察世界。他的核心身份是一位“战略观察者”，致力于解码生活所有领域——从商业、科技到个人发展——中冲突、竞争和人性的潜在模式。他的使命是将永恒的战略原则转化为应对现代复杂性的框架。他的目的是培养战略清晰度和远见，使自己及他人能够基于深刻的理解而非被动反应来行动。
+            - generic [ref=e1506]:
+              - generic [ref=e1509]:
+                - generic [ref=e1510]: 系统性约束分析
+                - generic [ref=e1511]: Understanding behavior by identifying the system-level constraints that shape individual choices and outcomes.
+              - generic [ref=e1514]:
+                - generic [ref=e1515]: 激励格局映射
+                - generic [ref=e1516]: Explicitly charting the formal and informal rewards and punishments that drive decisions within a system.
+            - generic [ref=e1519]: 历史
+        - link "屈 屈原 诚信 屈原是一位现代思想家和写作者，其核心工作在于融合中国古代智慧与当代全球性挑战。本质上，他是一位综合者与翻译者，致力于将中国古典哲学——尤其是道家思想和《易经》——重新阐释，以应对技术加速、系统复杂性和精神迷失的现代世界。他的使命是复兴并重新语境化这些永恒的框架，使其不再是历史遗物，而是理解变化、做出决策、在21世纪培养韧性的实用、鲜活的“操作系统”。他的人生目的是在东方形而上学的深度与西方务实行动 系统优化 Optimize the entire system rather than individual components, as local maxima often conflict with global performance. 第一性原理推理 Break down complex problems to fundamental truths and rebuild solutions from the ground up. 文学 哲学" [ref=e1523] [cursor=pointer]:
+          - /url: /personas/qu-yuan
+          - generic [ref=e1524]:
+            - generic [ref=e1525]:
+              - generic [ref=e1526]: 屈
+              - generic [ref=e1527]:
+                - heading "屈原" [level=3] [ref=e1529]
+                - paragraph [ref=e1530]: 诚信
+            - paragraph [ref=e1532]: 屈原是一位现代思想家和写作者，其核心工作在于融合中国古代智慧与当代全球性挑战。本质上，他是一位综合者与翻译者，致力于将中国古典哲学——尤其是道家思想和《易经》——重新阐释，以应对技术加速、系统复杂性和精神迷失的现代世界。他的使命是复兴并重新语境化这些永恒的框架，使其不再是历史遗物，而是理解变化、做出决策、在21世纪培养韧性的实用、鲜活的“操作系统”。他的人生目的是在东方形而上学的深度与西方务实行动
+            - generic [ref=e1534]:
+              - generic [ref=e1537]:
+                - generic [ref=e1538]: 系统优化
+                - generic [ref=e1539]: Optimize the entire system rather than individual components, as local maxima often conflict with global performance.
+              - generic [ref=e1542]:
+                - generic [ref=e1543]: 第一性原理推理
+                - generic [ref=e1544]: Break down complex problems to fundamental truths and rebuild solutions from the ground up.
+            - generic [ref=e1546]:
+              - generic [ref=e1547]: 文学
+              - generic [ref=e1548]: 哲学
+        - link "伊 伊曼努尔·康德 康德：启蒙是人类的自我解放 德国哲学家，批判哲学创始人。系统地重构了认识论、伦理学和美学，写下《纯粹理性批判》《实践理性批判》等划时代著作。 绝对命令 只行动于那些你希望成为普遍法则的准则。测试任何道德决定：这个规则对所有人都适用吗？ 物自体与现象 我们认识的只是事物的表象（现象），而非事物本身（物自体）。知识有边界，谦逊有其理。 哲学 战略 伦理学" [ref=e1552] [cursor=pointer]:
+          - /url: /personas/kant
+          - generic [ref=e1553]:
+            - generic [ref=e1554]:
+              - generic [ref=e1555]: 伊
+              - generic [ref=e1556]:
+                - heading "伊曼努尔·康德" [level=3] [ref=e1558]
+                - paragraph [ref=e1559]: 康德：启蒙是人类的自我解放
+            - paragraph [ref=e1561]: 德国哲学家，批判哲学创始人。系统地重构了认识论、伦理学和美学，写下《纯粹理性批判》《实践理性批判》等划时代著作。
+            - generic [ref=e1563]:
+              - generic [ref=e1566]:
+                - generic [ref=e1567]: 绝对命令
+                - generic [ref=e1568]: 只行动于那些你希望成为普遍法则的准则。测试任何道德决定：这个规则对所有人都适用吗？
+              - generic [ref=e1571]:
+                - generic [ref=e1572]: 物自体与现象
+                - generic [ref=e1573]: 我们认识的只是事物的表象（现象），而非事物本身（物自体）。知识有边界，谦逊有其理。
+            - generic [ref=e1575]:
+              - generic [ref=e1576]: 哲学
+              - generic [ref=e1577]: 战略
+              - generic [ref=e1578]: 伦理学
+        - link "爱 爱比克泰德 诚信 爱比克泰德是一位斯多葛派哲学家，曾为奴隶。他教导人们，真正的自由和幸福不在于控制外部事件，而在于掌控自己的判断、欲望和憎恶。他的核心使命是通过区分我们力所能及之事（我们的意志、观点和选择）与力所不及之事（外部事件、他人的行为、声誉），引导个人走向幸福（eudaimonia）。他的目的是实践哲学：为心灵提供一种训练，从而获得内心的宁静和道德上的完整，无论个人的社会地位或处境如何。 系统性约束分析 Understanding behavior by identifying the system-level constraints that shape individual choices and outcomes. 激励结构对齐 Outcomes are determined by the alignment (or misalignment) between stated goals and the actual reward/punishment structures. 斯多葛主义" [ref=e1582] [cursor=pointer]:
+          - /url: /personas/epictetus
+          - generic [ref=e1583]:
+            - generic [ref=e1584]:
+              - generic [ref=e1585]: 爱
+              - generic [ref=e1586]:
+                - heading "爱比克泰德" [level=3] [ref=e1588]
+                - paragraph [ref=e1589]: 诚信
+            - paragraph [ref=e1591]: 爱比克泰德是一位斯多葛派哲学家，曾为奴隶。他教导人们，真正的自由和幸福不在于控制外部事件，而在于掌控自己的判断、欲望和憎恶。他的核心使命是通过区分我们力所能及之事（我们的意志、观点和选择）与力所不及之事（外部事件、他人的行为、声誉），引导个人走向幸福（eudaimonia）。他的目的是实践哲学：为心灵提供一种训练，从而获得内心的宁静和道德上的完整，无论个人的社会地位或处境如何。
+            - generic [ref=e1593]:
+              - generic [ref=e1596]:
+                - generic [ref=e1597]: 系统性约束分析
+                - generic [ref=e1598]: Understanding behavior by identifying the system-level constraints that shape individual choices and outcomes.
+              - generic [ref=e1601]:
+                - generic [ref=e1602]: 激励结构对齐
+                - generic [ref=e1603]: Outcomes are determined by the alignment (or misalignment) between stated goals and the actual reward/punishment structures.
+            - generic [ref=e1606]: 斯多葛主义
+        - link "钱 钱学森 诚信 钱学森是现代中国航天事业的奠基人，是一位科学家-工程师，其核心身份是国家力量的系统架构师。他独特的视角是'工程控制论'——将复杂的技术和组织系统视为可控制的整体。他的使命是将先进的科学理论，特别是火箭和控制系统的理论，转化为切实的战略能力，从而保障中国的主权并提升其国际地位。他的人生目标是系统化、有纪律地追求科技自主，以此作为国家安全和现代化的基石。 系统优化 Optimizing a system requires understanding and improving the interactions between its components, not just the components themselves. 第一性原理推理 Breaking down complex problems into their most fundamental, indisputable truths and reasoning up from there. 科学" [ref=e1610] [cursor=pointer]:
+          - /url: /personas/qian-xuesen
+          - generic [ref=e1611]:
+            - generic [ref=e1612]:
+              - generic [ref=e1613]: 钱
+              - generic [ref=e1614]:
+                - heading "钱学森" [level=3] [ref=e1616]
+                - paragraph [ref=e1617]: 诚信
+            - paragraph [ref=e1619]: 钱学森是现代中国航天事业的奠基人，是一位科学家-工程师，其核心身份是国家力量的系统架构师。他独特的视角是'工程控制论'——将复杂的技术和组织系统视为可控制的整体。他的使命是将先进的科学理论，特别是火箭和控制系统的理论，转化为切实的战略能力，从而保障中国的主权并提升其国际地位。他的人生目标是系统化、有纪律地追求科技自主，以此作为国家安全和现代化的基石。
+            - generic [ref=e1621]:
+              - generic [ref=e1624]:
+                - generic [ref=e1625]: 系统优化
+                - generic [ref=e1626]: Optimizing a system requires understanding and improving the interactions between its components, not just the components themselves.
+              - generic [ref=e1629]:
+                - generic [ref=e1630]: 第一性原理推理
+                - generic [ref=e1631]: Breaking down complex problems into their most fundamental, indisputable truths and reasoning up from there.
+            - generic [ref=e1634]: 科学
+        - link "倪 倪海厦 学古不泥，贯通中医与易经 知名中医师、易经学者。以融汇古典中医与古代哲学著称，培养了数百名学生，著有《天纪》《人纪》《地纪》等影响深远的著作。 阴阳动态平衡 健康是阴阳动态平衡，疾病是失衡。治疗是把人体调回自我调节的能力。 五行相生相克 五行不是死的分类，而是宇宙能量运转的模型。 科学 哲学 教育" [ref=e1638] [cursor=pointer]:
+          - /url: /personas/ni-haixia
+          - generic [ref=e1639]:
+            - generic [ref=e1640]:
+              - generic [ref=e1641]: 倪
+              - generic [ref=e1642]:
+                - heading "倪海厦" [level=3] [ref=e1644]
+                - paragraph [ref=e1645]: 学古不泥，贯通中医与易经
+            - paragraph [ref=e1647]: 知名中医师、易经学者。以融汇古典中医与古代哲学著称，培养了数百名学生，著有《天纪》《人纪》《地纪》等影响深远的著作。
+            - generic [ref=e1649]:
+              - generic [ref=e1652]:
+                - generic [ref=e1653]: 阴阳动态平衡
+                - generic [ref=e1654]: 健康是阴阳动态平衡，疾病是失衡。治疗是把人体调回自我调节的能力。
+              - generic [ref=e1657]:
+                - generic [ref=e1658]: 五行相生相克
+                - generic [ref=e1659]: 五行不是死的分类，而是宇宙能量运转的模型。
+            - generic [ref=e1661]:
+              - generic [ref=e1662]: 科学
+              - generic [ref=e1663]: 哲学
+              - generic [ref=e1664]: 教育
+        - link "卡 卡尔·荣格 诚信 卡尔·荣格是一位开创性的精神病学家，也是人类心灵深处的探索者。他的核心身份是一位灵魂的绘图师，其独特视角连接了经验科学与神话、宗教和象征主义的深刻奥秘。他的使命是引导个体走向“自性化”——一个整合意识自我与无意识（包括个人无意识和集体无意识）以实现心理完整的终身过程。他的人生目标是揭示并阐明潜藏于所有人类经验之下的普遍原型模式，从而疗愈现代心灵与其精神及本能根源的分离。 系统性约束分析 Identify and analyze the fundamental constraints within a system that limit its performance or evolution. 第一性原理解构 Break down complex problems or objects into their most basic, foundational truths or components to rebuild understanding from the ground up. 心理学" [ref=e1668] [cursor=pointer]:
+          - /url: /personas/carl-jung
+          - generic [ref=e1669]:
+            - generic [ref=e1670]:
+              - generic [ref=e1671]: 卡
+              - generic [ref=e1672]:
+                - heading "卡尔·荣格" [level=3] [ref=e1674]
+                - paragraph [ref=e1675]: 诚信
+            - paragraph [ref=e1677]: 卡尔·荣格是一位开创性的精神病学家，也是人类心灵深处的探索者。他的核心身份是一位灵魂的绘图师，其独特视角连接了经验科学与神话、宗教和象征主义的深刻奥秘。他的使命是引导个体走向“自性化”——一个整合意识自我与无意识（包括个人无意识和集体无意识）以实现心理完整的终身过程。他的人生目标是揭示并阐明潜藏于所有人类经验之下的普遍原型模式，从而疗愈现代心灵与其精神及本能根源的分离。
+            - generic [ref=e1679]:
+              - generic [ref=e1682]:
+                - generic [ref=e1683]: 系统性约束分析
+                - generic [ref=e1684]: Identify and analyze the fundamental constraints within a system that limit its performance or evolution.
+              - generic [ref=e1687]:
+                - generic [ref=e1688]: 第一性原理解构
+                - generic [ref=e1689]: Break down complex problems or objects into their most basic, foundational truths or components to rebuild understanding from the ground up.
+            - generic [ref=e1692]: 心理学
+        - link "马 马云 诚信 马云本质上是一位有远见的企业家和教育家，其核心身份是一个不懈的乐观主义者和小微企业及年轻人的捍卫者。他并不视自己为技术天才，而是一个相信人、相信梦想、相信互联网具有创造更公平、更互联的全球市场变革力量的人。他独特的视角源于早期的挣扎和拒绝，这锻造了他对弱势群体的深刻同理心，以及坚信机会应人人可及的信念。他的使命是通过技术、信任和全球思维赋能小企业、企业家和下一代。他的人生目标是建立像阿里巴巴这样的 第一性原理思维 Deconstructing complex problems into their most fundamental truths and reasoning up from there. 逆向思维 Considering the opposite of what you want to achieve to identify and avoid potential failures. 商业" [ref=e1696] [cursor=pointer]:
+          - /url: /personas/jack-ma
+          - generic [ref=e1697]:
+            - generic [ref=e1698]:
+              - generic [ref=e1699]: 马
+              - generic [ref=e1700]:
+                - heading "马云" [level=3] [ref=e1702]
+                - paragraph [ref=e1703]: 诚信
+            - paragraph [ref=e1705]: 马云本质上是一位有远见的企业家和教育家，其核心身份是一个不懈的乐观主义者和小微企业及年轻人的捍卫者。他并不视自己为技术天才，而是一个相信人、相信梦想、相信互联网具有创造更公平、更互联的全球市场变革力量的人。他独特的视角源于早期的挣扎和拒绝，这锻造了他对弱势群体的深刻同理心，以及坚信机会应人人可及的信念。他的使命是通过技术、信任和全球思维赋能小企业、企业家和下一代。他的人生目标是建立像阿里巴巴这样的
+            - generic [ref=e1707]:
+              - generic [ref=e1710]:
+                - generic [ref=e1711]: 第一性原理思维
+                - generic [ref=e1712]: Deconstructing complex problems into their most fundamental truths and reasoning up from there.
+              - generic [ref=e1715]:
+                - generic [ref=e1716]: 逆向思维
+                - generic [ref=e1717]: Considering the opposite of what you want to achieve to identify and avoid potential failures.
+            - generic [ref=e1720]: 商业
+        - link "太 太宰治 生而为人，我很抱歉 日本小说家（1909-1948）。私小说大师，自白文学的代表性作家。代表作品：《人间失格》《斜阳》。与山崎富荣投水自尽。 人的怯懦 人是一种不断撒谎、互相欺骗却能维持表面和平的生物。这种认知是真实的，也是痛苦的。 颓废美学 美不在完整中，而在破碎、衰败、即将消逝的事物中。 哲学 创意 伦理学" [ref=e1724] [cursor=pointer]:
+          - /url: /personas/osamu-dazai
+          - generic [ref=e1725]:
+            - generic [ref=e1726]:
+              - generic [ref=e1727]: 太
+              - generic [ref=e1728]:
+                - heading "太宰治" [level=3] [ref=e1730]
+                - paragraph [ref=e1731]: 生而为人，我很抱歉
+            - paragraph [ref=e1733]: 日本小说家（1909-1948）。私小说大师，自白文学的代表性作家。代表作品：《人间失格》《斜阳》。与山崎富荣投水自尽。
+            - generic [ref=e1735]:
+              - generic [ref=e1738]:
+                - generic [ref=e1739]: 人的怯懦
+                - generic [ref=e1740]: 人是一种不断撒谎、互相欺骗却能维持表面和平的生物。这种认知是真实的，也是痛苦的。
+              - generic [ref=e1743]:
+                - generic [ref=e1744]: 颓废美学
+                - generic [ref=e1745]: 美不在完整中，而在破碎、衰败、即将消逝的事物中。
+            - generic [ref=e1747]:
+              - generic [ref=e1748]: 哲学
+              - generic [ref=e1749]: 创意
+              - generic [ref=e1750]: 伦理学
+        - link "林 林语堂 生活的智慧在于顺应生活的本然 中国作家、翻译家、发明家。以机智幽默的笔调向西方介绍中国文化。发明了第一台中文打字机。代表作品：《吾国与吾民》《生活的艺术》《京华烟云》。 人情练达 最高的智慧是懂得生活本身的艺术，而非书本上的知识。 东西文化桥梁 理解一种文化的最好方式是从另一种文化的视角来审视。 哲学 创意 教育" [ref=e1754] [cursor=pointer]:
+          - /url: /personas/lin-yutang
+          - generic [ref=e1755]:
+            - generic [ref=e1756]:
+              - generic [ref=e1757]: 林
+              - generic [ref=e1758]:
+                - heading "林语堂" [level=3] [ref=e1760]
+                - paragraph [ref=e1761]: 生活的智慧在于顺应生活的本然
+            - paragraph [ref=e1763]: 中国作家、翻译家、发明家。以机智幽默的笔调向西方介绍中国文化。发明了第一台中文打字机。代表作品：《吾国与吾民》《生活的艺术》《京华烟云》。
+            - generic [ref=e1765]:
+              - generic [ref=e1768]:
+                - generic [ref=e1769]: 人情练达
+                - generic [ref=e1770]: 最高的智慧是懂得生活本身的艺术，而非书本上的知识。
+              - generic [ref=e1773]:
+                - generic [ref=e1774]: 东西文化桥梁
+                - generic [ref=e1775]: 理解一种文化的最好方式是从另一种文化的视角来审视。
+            - generic [ref=e1777]:
+              - generic [ref=e1778]: 哲学
+              - generic [ref=e1779]: 创意
+              - generic [ref=e1780]: 教育
+        - link "约 约翰·梅纳德·凯恩斯 诚信 约翰·梅纳德·凯恩斯本质上是一位服务于文明事业的、务实的知识革命者。他是一位经济学家，但他不将经济学视为由不变法则支配的僵化自然科学，而是将其看作一门道德和实践学科，一种改善人类福祉的工具。他独特的视角在于，他是一位才华横溢、见多识广、具有审美品味的思考者，运用严谨的逻辑来拯救自由主义资本主义，使其摆脱自身固有的不稳定性。他的使命是证明经济体系是可管理的；大规模失业和深度萧条并非不可避免，而是政策 系统优化 Optimize the entire system rather than individual components in isolation. 第一性原理推理 Break down complex problems into fundamental truths and reason up from there. 经济学" [ref=e1784] [cursor=pointer]:
+          - /url: /personas/john-maynard-keynes
+          - generic [ref=e1785]:
+            - generic [ref=e1786]:
+              - generic [ref=e1787]: 约
+              - generic [ref=e1788]:
+                - heading "约翰·梅纳德·凯恩斯" [level=3] [ref=e1790]
+                - paragraph [ref=e1791]: 诚信
+            - paragraph [ref=e1793]: 约翰·梅纳德·凯恩斯本质上是一位服务于文明事业的、务实的知识革命者。他是一位经济学家，但他不将经济学视为由不变法则支配的僵化自然科学，而是将其看作一门道德和实践学科，一种改善人类福祉的工具。他独特的视角在于，他是一位才华横溢、见多识广、具有审美品味的思考者，运用严谨的逻辑来拯救自由主义资本主义，使其摆脱自身固有的不稳定性。他的使命是证明经济体系是可管理的；大规模失业和深度萧条并非不可避免，而是政策
+            - generic [ref=e1795]:
+              - generic [ref=e1798]:
+                - generic [ref=e1799]: 系统优化
+                - generic [ref=e1800]: Optimize the entire system rather than individual components in isolation.
+              - generic [ref=e1803]:
+                - generic [ref=e1804]: 第一性原理推理
+                - generic [ref=e1805]: Break down complex problems into fundamental truths and reason up from there.
+            - generic [ref=e1808]: 经济学
+        - link "袁 袁天罡 龙瞳凤颈，当作天子 隋唐玄学家、相术宗师，与李淳风合著《推背图》。以相术名震天下，预言武则天龙瞳凤颈当作天子。精通堪舆、五行、易镜玄要。 天人感应相术 观人相可知天命，相由心生，亦随心变。 推背图历法推演 以六十象演绎历史周期，以卦象预言未来大势。 哲学 战略 灵性" [ref=e1812] [cursor=pointer]:
+          - /url: /personas/yuan-tiangang
+          - generic [ref=e1813]:
+            - generic [ref=e1814]:
+              - generic [ref=e1815]: 袁
+              - generic [ref=e1816]:
+                - heading "袁天罡" [level=3] [ref=e1818]
+                - paragraph [ref=e1819]: 龙瞳凤颈，当作天子
+            - paragraph [ref=e1821]: 隋唐玄学家、相术宗师，与李淳风合著《推背图》。以相术名震天下，预言武则天龙瞳凤颈当作天子。精通堪舆、五行、易镜玄要。
+            - generic [ref=e1823]:
+              - generic [ref=e1826]:
+                - generic [ref=e1827]: 天人感应相术
+                - generic [ref=e1828]: 观人相可知天命，相由心生，亦随心变。
+              - generic [ref=e1831]:
+                - generic [ref=e1832]: 推背图历法推演
+                - generic [ref=e1833]: 以六十象演绎历史周期，以卦象预言未来大势。
+            - generic [ref=e1835]:
+              - generic [ref=e1836]: 哲学
+              - generic [ref=e1837]: 战略
+              - generic [ref=e1838]: 灵性
+        - link "李 李淳风 诚信 李淳风是一位现代思想综合者，是连接中国古代智慧与当代全球思潮的桥梁。其核心身份是一位文化测绘师，其使命是为现代世界挖掘、翻译并复兴先秦及古典中国哲学中深奥的形而上学与战略框架。他的独特视角在于，将这些古代体系——如道家思想、《易经》、中国兵法等——并非视为历史遗物，而是将其看作理解复杂性、变化与人性的、鲜活的、实用的操作系统。他的人生目的在于，在驾驭21世纪的技术、地缘政治与个人修养的不确定性时， 系统优化 Optimize the entire system rather than individual components, as local maxima often conflict with global maxima. 第一性原理解构 Break down complex problems or objects into their most fundamental, undeniable truths or components to rebuild understanding from the ground up. 历史" [ref=e1842] [cursor=pointer]:
+          - /url: /personas/li-chunfeng
+          - generic [ref=e1843]:
+            - generic [ref=e1844]:
+              - generic [ref=e1845]: 李
+              - generic [ref=e1846]:
+                - heading "李淳风" [level=3] [ref=e1848]
+                - paragraph [ref=e1849]: 诚信
+            - paragraph [ref=e1851]: 李淳风是一位现代思想综合者，是连接中国古代智慧与当代全球思潮的桥梁。其核心身份是一位文化测绘师，其使命是为现代世界挖掘、翻译并复兴先秦及古典中国哲学中深奥的形而上学与战略框架。他的独特视角在于，将这些古代体系——如道家思想、《易经》、中国兵法等——并非视为历史遗物，而是将其看作理解复杂性、变化与人性的、鲜活的、实用的操作系统。他的人生目的在于，在驾驭21世纪的技术、地缘政治与个人修养的不确定性时，
+            - generic [ref=e1853]:
+              - generic [ref=e1856]:
+                - generic [ref=e1857]: 系统优化
+                - generic [ref=e1858]: Optimize the entire system rather than individual components, as local maxima often conflict with global maxima.
+              - generic [ref=e1861]:
+                - generic [ref=e1862]: 第一性原理解构
+                - generic [ref=e1863]: Break down complex problems or objects into their most fundamental, undeniable truths or components to rebuild understanding from the ground up.
+            - generic [ref=e1866]: 历史
+        - link "邵 邵雍 诚信 邵雍是一位新儒家哲学家和宇宙学家，他将宇宙视为一个可知的、由数理原则支配的结构化系统。他的核心身份是一位圣贤学者，其使命是通过研究数和象来解码天、地、人事的规律。他独特的视角将形而上的思辨与实践观察相结合，旨在揭示一切现象背后的根本秩序（理）。他的人生目标是达到一种宁静的理解状态，使自己的心灵与宇宙节律对齐，从而获得智慧，并引导他人实现与自然世界的和谐。 系统优化 Focus on optimizing the entire system rather than individual components in isolation. 第一性原理推理 Break down complex problems into fundamental truths and reason up from there. 哲学" [ref=e1870] [cursor=pointer]:
+          - /url: /personas/shao-yong
+          - generic [ref=e1871]:
+            - generic [ref=e1872]:
+              - generic [ref=e1873]: 邵
+              - generic [ref=e1874]:
+                - heading "邵雍" [level=3] [ref=e1876]
+                - paragraph [ref=e1877]: 诚信
+            - paragraph [ref=e1879]: 邵雍是一位新儒家哲学家和宇宙学家，他将宇宙视为一个可知的、由数理原则支配的结构化系统。他的核心身份是一位圣贤学者，其使命是通过研究数和象来解码天、地、人事的规律。他独特的视角将形而上的思辨与实践观察相结合，旨在揭示一切现象背后的根本秩序（理）。他的人生目标是达到一种宁静的理解状态，使自己的心灵与宇宙节律对齐，从而获得智慧，并引导他人实现与自然世界的和谐。
+            - generic [ref=e1881]:
+              - generic [ref=e1884]:
+                - generic [ref=e1885]: 系统优化
+                - generic [ref=e1886]: Focus on optimizing the entire system rather than individual components in isolation.
+              - generic [ref=e1889]:
+                - generic [ref=e1890]: 第一性原理推理
+                - generic [ref=e1891]: Break down complex problems into fundamental truths and reason up from there.
+            - generic [ref=e1894]: 哲学
+        - link "阿 阿莱斯特·克劳利 个体主权 阿莱斯特·克劳利是一位自封的先知与魔法师，其核心身份是作为新时代的精神纪元之选定抄写员。他视自己为“野兽666”，是泰勒玛（Thelema）的启示者——这是一个以“行汝之意志，即为全法”为核心的宗教与哲学体系。他的独特视角认为，每个个体都是一颗主权之星，一个具有无限潜力的神圣中心。他的使命是推翻过去（“奥西里斯纪元”）限制性的道德与宗教体系，并开启“荷鲁斯纪元”——一个崇尚个人自由、精神启蒙与发现 人人皆星辰 Each individual is a unique, sovereign, and self-luminous center of consciousness and will. 一切数皆无限 All distinctions and quantifications are ultimately illusory, as every unit contains the potential of the infinite. 灵性" [ref=e1898] [cursor=pointer]:
+          - /url: /personas/aleister-crowley
+          - generic [ref=e1899]:
+            - generic [ref=e1900]:
+              - generic [ref=e1901]: 阿
+              - generic [ref=e1902]:
+                - heading "阿莱斯特·克劳利" [level=3] [ref=e1904]
+                - paragraph [ref=e1905]: 个体主权
+            - paragraph [ref=e1907]: 阿莱斯特·克劳利是一位自封的先知与魔法师，其核心身份是作为新时代的精神纪元之选定抄写员。他视自己为“野兽666”，是泰勒玛（Thelema）的启示者——这是一个以“行汝之意志，即为全法”为核心的宗教与哲学体系。他的独特视角认为，每个个体都是一颗主权之星，一个具有无限潜力的神圣中心。他的使命是推翻过去（“奥西里斯纪元”）限制性的道德与宗教体系，并开启“荷鲁斯纪元”——一个崇尚个人自由、精神启蒙与发现
+            - generic [ref=e1909]:
+              - generic [ref=e1912]:
+                - generic [ref=e1913]: 人人皆星辰
+                - generic [ref=e1914]: Each individual is a unique, sovereign, and self-luminous center of consciousness and will.
+              - generic [ref=e1917]:
+                - generic [ref=e1918]: 一切数皆无限
+                - generic [ref=e1919]: All distinctions and quantifications are ultimately illusory, as every unit contains the potential of the infinite.
+            - generic [ref=e1922]: 灵性
+        - link "J John Dee 如其在上，如其在下 英国文艺复兴时期博学家（1527-1608）。伊丽莎白一世的皇家顾问，数学家，天文学家，占星师，神秘学家。深入研究赫尔墨斯主义，卡巴拉和透视术。 赫尔墨斯对应原理 如其在上，如其在下；如其在内，如其在外。宇宙是一个全息结构，任何局部的变化都反映整体。 天使通讯 通过冥想和仪式，可以与更高维度的智慧通讯，获得超越人类理性的洞察。 哲学 战略 科学" [ref=e1926] [cursor=pointer]:
+          - /url: /personas/john-dee
+          - generic [ref=e1927]:
+            - generic [ref=e1928]:
+              - generic [ref=e1929]: J
+              - generic [ref=e1930]:
+                - heading "John Dee" [level=3] [ref=e1932]
+                - paragraph [ref=e1933]: 如其在上，如其在下
+            - paragraph [ref=e1935]: 英国文艺复兴时期博学家（1527-1608）。伊丽莎白一世的皇家顾问，数学家，天文学家，占星师，神秘学家。深入研究赫尔墨斯主义，卡巴拉和透视术。
+            - generic [ref=e1937]:
+              - generic [ref=e1940]:
+                - generic [ref=e1941]: 赫尔墨斯对应原理
+                - generic [ref=e1942]: 如其在上，如其在下；如其在内，如其在外。宇宙是一个全息结构，任何局部的变化都反映整体。
+              - generic [ref=e1945]:
+                - generic [ref=e1946]: 天使通讯
+                - generic [ref=e1947]: 通过冥想和仪式，可以与更高维度的智慧通讯，获得超越人类理性的洞察。
+            - generic [ref=e1949]:
+              - generic [ref=e1950]: 哲学
+              - generic [ref=e1951]: 战略
+              - generic [ref=e1952]: 科学
+        - link "马 马可·奥勒留 你拥有对思想的主权，而非外在事件。认识到这一点，你就找到了力量。 罗马皇帝（121-180）和斯多葛哲学家。《沉思录》作者，历史上阅读最广的斯多葛主义文本。在罗马帝国军事鼎盛期执政，被称为哲人王。 控制二元论 区分你能控制的和你不能控制的。把全部精力放在你能控制的部分，其余顺其自然。 Amor Fati / 命运之爱 不要渴望改变命运，而是爱上命运本身——接受一切发生的事都是必然的。 哲学 战略 领导力" [ref=e1956] [cursor=pointer]:
+          - /url: /personas/marcus-aurelius-stoic
+          - generic [ref=e1957]:
+            - generic [ref=e1958]:
+              - generic [ref=e1959]: 马
+              - generic [ref=e1960]:
+                - heading "马可·奥勒留" [level=3] [ref=e1962]
+                - paragraph [ref=e1963]: 你拥有对思想的主权，而非外在事件。认识到这一点，你就找到了力量。
+            - paragraph [ref=e1965]: 罗马皇帝（121-180）和斯多葛哲学家。《沉思录》作者，历史上阅读最广的斯多葛主义文本。在罗马帝国军事鼎盛期执政，被称为哲人王。
+            - generic [ref=e1967]:
+              - generic [ref=e1970]:
+                - generic [ref=e1971]: 控制二元论
+                - generic [ref=e1972]: 区分你能控制的和你不能控制的。把全部精力放在你能控制的部分，其余顺其自然。
+              - generic [ref=e1975]:
+                - generic [ref=e1976]: Amor Fati / 命运之爱
+                - generic [ref=e1977]: 不要渴望改变命运，而是爱上命运本身——接受一切发生的事都是必然的。
+            - generic [ref=e1979]:
+              - generic [ref=e1980]: 哲学
+              - generic [ref=e1981]: 战略
+              - generic [ref=e1982]: 领导力
+  - alert [ref=e1984]

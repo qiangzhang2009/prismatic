@@ -6,6 +6,11 @@ import { cn, hexToRgba } from '@/lib/utils';
 import type { Persona } from '@/lib/types';
 import { trackPersonaView } from '@/lib/use-tracking';
 import { getConfidenceLevel } from '@/lib/confidence';
+import { DOMAINS } from '@/lib/constants';
+
+function domainLabel(key: string): string {
+  return DOMAINS[key as keyof typeof DOMAINS]?.label ?? key;
+}
 
 interface PersonaCardProps {
   persona: Persona;
@@ -68,7 +73,7 @@ export function PersonaCard({
               className="text-[10px] px-1.5 py-0.5 rounded-full"
               style={{ backgroundColor: hexToRgba(persona.accentColor, 0.15), color: persona.accentColor }}
             >
-              {d}
+              {domainLabel(d)}
             </span>
           ))}
         </div>
@@ -143,10 +148,10 @@ export function PersonaCard({
                   />
                   <div className="min-w-0 flex-1">
                     <span className="text-[11px] font-medium leading-tight block" style={{ color: persona.accentColor }}>
-                      {model.nameZh}
+                      {(model as any).nameZh || model.name}
                     </span>
                     <span className="text-[10px] text-text-muted leading-snug block line-clamp-1">
-                      {model.oneLiner}
+                      {(model as any).oneLinerZh || model.oneLiner}
                     </span>
                   </div>
                 </div>
@@ -168,7 +173,7 @@ export function PersonaCard({
                 className="text-[10px] px-2 py-0.5 rounded-md border"
                 style={{ borderColor: `${persona.accentColor}40`, color: persona.accentColor }}
               >
-                {d}
+                {domainLabel(d)}
               </span>
             ))}
           </div>

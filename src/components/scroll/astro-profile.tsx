@@ -8,6 +8,11 @@
 import { motion } from 'framer-motion';
 import type { Persona } from '@/lib/types';
 import type { PersonaScrollTheme } from '@/lib/persona-scroll-themes';
+import { DOMAINS } from '@/lib/constants';
+
+function domainLabel(key: string): string {
+  return DOMAINS[key as keyof typeof DOMAINS]?.label ?? key;
+}
 
 interface Props {
   persona: Persona;
@@ -68,7 +73,7 @@ function deriveArchetype(persona: Persona): { title: string; desc: string; trait
   const key = Object.keys(map).find(k => domain.includes(k)) ?? 'default';
   const entry = map[key];
   const traits = entry.traitGroups[0].slice(0, 3);
-  const desc = `${persona.nameZh} 以${entry.traitGroups[0].slice(0, 2).join('与')}为核心驱动力，在${domain || '跨界领域'}中展现出罕见的${entry.traitGroups[1][0]}特质。`;
+  const desc = `${persona.nameZh} 以${entry.traitGroups[0].slice(0, 2).join('与')}为核心驱动力，在${domainLabel(domain) || '跨界领域'}中展现出罕见的${entry.traitGroups[1][0]}特质。`;
 
   return { title: entry.title, desc, traits, symbol: entry.symbol };
 }

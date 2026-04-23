@@ -901,7 +901,7 @@ function AssetsSection() {
   };
 
   const params = useMemo(() => new URLSearchParams({
-    page: String(page), pageSize: '20',
+    page: String(page), pageSize: '100',
     ...(search && { search }),
     ...(billingMode && { billingMode }),
     ...(mode && { mode }),
@@ -912,13 +912,15 @@ function AssetsSection() {
   const { data: convData, isLoading: convLoading, refetch, isError: convError } = useQuery({
     queryKey: ['admin', 'chats', params.toString()],
     queryFn: () => fetch(`/api/admin/chats?${params}`, { credentials: 'include' }).then(r => r.json()),
-    staleTime: 1000 * 30,
+    staleTime: 0,
+    refetchOnWindowFocus: true,
   });
 
   const { data: userChatsData, isLoading: userChatsLoading, refetch: refetchUserChats } = useQuery({
     queryKey: ['admin', 'chats', 'by-user', params.toString()],
     queryFn: () => fetch(`/api/admin/chats/by-user?${params}`, { credentials: 'include' }).then(r => r.json()),
-    staleTime: 1000 * 30,
+    staleTime: 0,
+    refetchOnWindowFocus: true,
   });
 
   const convs = convData?.conversations || [];
@@ -1085,8 +1087,43 @@ function ConversationCard({ conv }: { conv: any }) {
   const [expanded, setExpanded] = useState(false);
 
   const msgs = conv.messages || [];
-  const previewMsgs = msgs.slice(0, 3);
+  const previewMsgs = msgs.slice(0, 3);   // now DESC, so first 3 = newest
   const hasMore = msgs.length > 3;
+
+  // Derive per-message mode: prefer message-level mode (from metadata), fall back to conv.mode
+  const msgsWithMode = msgs.map((m: any) => ({
+    ...m,
+    effectiveMode: m.msgMode || conv.mode || 'solo',
+  }));
+
+  // Build "segments" — groups of consecutive messages with the same mode.
+  // Each segment has { mode, messages[], startIdx }.
+  const segments: Array<{ mode: string; messages: typeof msgsWithMode; startIdx: number }> = [];
+  for (let i = 0; i < msgsWithMode.length; i++) {
+    const m = msgsWithMode[i];
+    if (segments.length === 0 || segments[segments.length - 1].mode !== m.effectiveMode) {
+      segments.push({ mode: m.effectiveMode, messages: [m], startIdx: i });
+    } else {
+      segments[segments.length - 1].messages.push(m);
+    }
+  }
+
+  const MODE_LABELS: Record<string, string> = {
+    solo: 'Solo 对话', prism: '多视角折射', roundtable: '圆桌讨论',
+    mission: '任务协作', epoch: '关公战秦琼', council: '顾问团议事',
+    oracle: '预言家', fiction: '故事共创',
+  };
+
+  const MODE_COLORS: Record<string, string> = {
+    solo: 'bg-blue-900/40 text-blue-300 border-blue-800/40',
+    prism: 'bg-violet-900/40 text-violet-300 border-violet-800/40',
+    roundtable: 'bg-amber-900/40 text-amber-300 border-amber-800/40',
+    mission: 'bg-emerald-900/40 text-emerald-300 border-emerald-800/40',
+    epoch: 'bg-red-900/40 text-red-300 border-red-800/40',
+    council: 'bg-cyan-900/40 text-cyan-300 border-cyan-800/40',
+    oracle: 'bg-purple-900/40 text-purple-300 border-purple-800/40',
+    fiction: 'bg-pink-900/40 text-pink-300 border-pink-800/40',
+  };
 
   return (
     <div className="bg-gray-900/80 border border-gray-800 rounded-2xl overflow-hidden hover:border-gray-700 transition-all">
@@ -1098,7 +1135,9 @@ function ConversationCard({ conv }: { conv: any }) {
         <div className="flex items-center gap-3 flex-wrap flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-shrink-0">
             <span className="text-xs text-gray-500">{fmtDate(conv.updatedAt)}</span>
-            <span className="text-xs px-2 py-0.5 rounded-full bg-gray-800 text-gray-400">{conv.mode}</span>
+            <span className={`text-xs px-2 py-0.5 rounded-full border ${MODE_COLORS[conv.mode] || 'bg-gray-800 text-gray-400 border-gray-700'}`}>
+              {MODE_LABELS[conv.mode] || conv.mode}
+            </span>
             <span className={`text-xs px-2 py-0.5 rounded-full ${conv.billingMode === 'A' ? 'bg-blue-900/30 text-blue-400' : 'bg-green-900/30 text-green-400'}`}>
               {conv.billingMode === 'A' ? 'API Key' : '平台代付'}
             </span>
@@ -1131,7 +1170,7 @@ function ConversationCard({ conv }: { conv: any }) {
         </div>
       </button>
 
-      {/* Expanded messages */}
+      {/* Expanded messages — grouped by mode segment */}
       <AnimatePresence>
         {expanded && (
           <motion.div
@@ -1141,38 +1180,58 @@ function ConversationCard({ conv }: { conv: any }) {
             transition={{ duration: 0.2 }}
             className="overflow-hidden border-t border-gray-800/50"
           >
-            <div className="px-5 py-4 space-y-2 max-h-[60vh] overflow-y-auto">
-              {msgs.map((msg: any) => {
-                const isUser = msg.role === 'user' || msg.role === 'human';
-                const isAssistant = msg.role === 'assistant' || msg.role === 'ai';
-                const bgClass = isUser ? 'bg-blue-900/10 border-blue-800/30' :
-                  isAssistant ? 'bg-purple-900/10 border-purple-800/30' :
-                  'bg-gray-800/50 border-gray-700/50';
-                const roleLabel = isUser ? '用户' : isAssistant ? 'AI' : msg.role;
-
-                return (
-                  <div key={msg.id} className={`rounded-xl p-3 border ${bgClass}`}>
-                    <div className="flex items-center gap-2 mb-1.5">
-                      <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${
-                        isUser ? 'bg-blue-500/20 text-blue-400' :
-                        isAssistant ? 'bg-purple-500/20 text-purple-400' :
-                        'bg-gray-700 text-gray-400'
-                      }`}>
-                        {roleLabel}
-                      </span>
-                      {msg.personaName && (
-                        <span className="text-[10px] text-gray-500">→ {msg.personaName}</span>
-                      )}
-                      {msg.totalTokens !== undefined && (
-                        <span className="text-[10px] text-gray-600 ml-auto">{msg.totalTokens} tokens</span>
-                      )}
-                    </div>
-                    <p className="text-sm text-gray-200 leading-relaxed whitespace-pre-wrap break-words">
-                      {msg.content || <span className="text-gray-600 italic">[无内容]</span>}
-                    </p>
+            <div className="px-5 py-4 space-y-3 max-h-[60vh] overflow-y-auto">
+              {segments.map((seg, si) => (
+                <div key={`${seg.mode}-${si}`}>
+                  {/* Always show mode label — helps identify what kind of interaction this was */}
+                  <div className="flex items-center gap-2 mb-2 mt-2 first:mt-0">
+                    <span className={`text-[10px] px-2 py-0.5 rounded-full border font-medium ${MODE_COLORS[seg.mode] || 'bg-gray-800 text-gray-400 border-gray-700'}`}>
+                      {MODE_LABELS[seg.mode] || seg.mode}
+                    </span>
+                    <span className="text-[10px] text-gray-600">{seg.messages.length} 条消息</span>
+                    {si < segments.length - 1 && (
+                      <div className="flex-1 h-px bg-gradient-to-r from-gray-700 to-transparent ml-2" />
+                    )}
                   </div>
-                );
-              })}
+
+                  {/* Messages in this segment */}
+                  <div className="space-y-2">
+                    {seg.messages.map((msg: any) => {
+                      const isUser = msg.role === 'user' || msg.role === 'human';
+                      const isAssistant = msg.role === 'assistant' || msg.role === 'ai';
+                      const bgClass = isUser ? 'bg-blue-900/10 border-blue-800/30' :
+                        isAssistant ? 'bg-purple-900/10 border-purple-800/30' :
+                        'bg-gray-800/50 border-gray-700/50';
+                      const roleLabel = isUser ? '用户' : isAssistant ? 'AI' : msg.role;
+
+                      return (
+                        <div key={msg.id} className={`rounded-xl p-3 border ${bgClass}`}>
+                          <div className="flex items-center gap-2 mb-1.5 flex-wrap">
+                            <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${
+                              isUser ? 'bg-blue-500/20 text-blue-400' :
+                              isAssistant ? 'bg-purple-500/20 text-purple-400' :
+                              'bg-gray-700 text-gray-400'
+                            }`}>
+                              {roleLabel}
+                            </span>
+                            {msg.personaName && (
+                              <span className="text-[10px] text-gray-500">→ {msg.personaName}</span>
+                            )}
+                            {(msg.tokensInput !== undefined || msg.tokensOutput !== undefined) && (
+                              <span className="text-[10px] text-gray-600 ml-auto">
+                                {msg.tokensInput ?? 0}+{msg.tokensOutput ?? 0} tok
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-sm text-gray-200 leading-relaxed whitespace-pre-wrap break-words">
+                            {msg.content || <span className="text-gray-600 italic">[无内容]</span>}
+                          </p>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              ))}
             </div>
           </motion.div>
         )}
@@ -1182,10 +1241,18 @@ function ConversationCard({ conv }: { conv: any }) {
       {!expanded && previewMsgs.length > 0 && (
         <div className="px-5 pb-3 -mt-1">
           <div className="space-y-1">
-            {previewMsgs.map((msg: any) => {
+            {previewMsgs.map((msg: any, i: number) => {
               const isUser = msg.role === 'user' || msg.role === 'human';
+              const effMode = msg.msgMode || conv.mode || 'solo';
+              const segIndex = segments.findIndex(s => s.messages.includes(msg));
+              const isFirstInSeg = segIndex >= 0 && segments[segIndex].messages[0] === msg;
               return (
                 <div key={msg.id} className="text-xs text-gray-500 flex items-start gap-2 pl-4 border-l border-gray-800">
+                  {isFirstInSeg && (
+                    <span className={`text-[9px] px-1 py-0.5 rounded-full border flex-shrink-0 mt-0.5 ${MODE_COLORS[effMode] || 'bg-gray-800 text-gray-400 border-gray-700'}`}>
+                      {MODE_LABELS[effMode] || effMode}
+                    </span>
+                  )}
                   <span className={isUser ? 'text-blue-400' : 'text-purple-400'}>{isUser ? 'U' : 'AI'}</span>
                   <span className="truncate flex-1">{msg.content}</span>
                 </div>

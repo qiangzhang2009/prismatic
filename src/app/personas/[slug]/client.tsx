@@ -33,6 +33,7 @@ import {
 import type { Persona } from '@/lib/types';
 import type { ScoreBreakdown } from '@/lib/types';
 import { cn } from '@/lib/utils';
+import { DOMAINS } from '@/lib/constants';
 import {
   CONFIDENCE_DIMENSIONS,
   getPersonaConfidence,
@@ -83,7 +84,9 @@ function MentalModelCard({ model, accentColor, personaId }: { model: Persona['me
             <h4 className="font-medium text-sm">{model.nameZh}</h4>
             <span className="text-xs text-text-muted">{model.name}</span>
           </div>
-          <p className="text-sm text-text-secondary line-clamp-2">{model.oneLiner}</p>
+          <p className="text-sm text-text-secondary line-clamp-2">
+            {(model as any).oneLinerZh || (model as any).applicationZh || model.oneLiner}
+          </p>
         </div>
         <div className="flex-shrink-0 text-text-muted">
           {expanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
@@ -125,7 +128,7 @@ function MentalModelCard({ model, accentColor, personaId }: { model: Persona['me
                   className="text-xs px-2 py-0.5 rounded-md border"
                   style={{ borderColor: `${accentColor}40`, color: accentColor }}
                 >
-                  {d}
+                  {DOMAINS[d as keyof typeof DOMAINS]?.label ?? d}
                 </span>
               ))}
             </div>
@@ -159,7 +162,7 @@ function DecisionHeuristicCard({ h, accentColor }: { h: Persona['decisionHeurist
         <span className="font-medium text-sm">{h.nameZh}</span>
         <span className="text-xs text-text-muted">{h.name}</span>
       </div>
-      <p className="text-xs text-text-secondary">{h.description}</p>
+      <p className="text-xs text-text-secondary">{(h as any).descriptionZh || h.description}</p>
       {expanded && (
         <p className="text-xs text-text-muted mt-2 pt-2 border-t border-border-subtle">
           应用于：{h.application}
@@ -244,11 +247,11 @@ export function PersonaDetailClient({ persona, colors }: Props) {
                     className="text-xs px-2.5 py-0.5 rounded-full border"
                     style={{ borderColor: `${colors.accent}40`, color: colors.accent }}
                   >
-                    {d}
+                    {DOMAINS[d as keyof typeof DOMAINS]?.label ?? d}
                   </span>
                 ))}
                 <span className="text-xs px-2.5 py-0.5 rounded-full bg-bg-elevated text-text-muted border border-border-subtle">
-                  v{persona.version}
+                  {(persona as any).distillVersion || persona.version}
                 </span>
               </div>
 
@@ -302,7 +305,7 @@ export function PersonaDetailClient({ persona, colors }: Props) {
           <div className="mt-4 flex items-center gap-4 text-xs text-text-muted">
             <span>研究日期：{persona.researchDate}</span>
             <span>·</span>
-            <span>版本：v{persona.version}</span>
+            <span>版本：{(persona as any).distillVersion || persona.version}</span>
             <span>·</span>
             <span>心智模型：{persona.mentalModels.length}个</span>
           </div>

@@ -624,7 +624,91 @@ export function ChatInterface({ className, initialPersona, initialMode }: ChatIn
           trackChatMessage(primaryPersona3.id, mode, currentTurn, aiLatencyMs, data.model || 'claude');
         }
         setTimeout(pushCurrentSnapshot, 0);
+        return;
       }
+
+      // ── Council: Advisory Board ───────────────────────────────────────────────
+      // mode === 'council' returns data.advice (array of {advice, personaId, personaName})
+      // and data.consensus (object with content)
+      if (mode === 'council' && data.advice) {
+        for (const item of data.advice) {
+          setMessages((prev) => [
+            ...prev,
+            {
+              id: nanoid(),
+              personaId: item.personaId ?? item.personaName ?? selectedPersonas[0]?.id,
+              role: 'agent',
+              content: item.advice,
+              timestamp: new Date(item.timestamp ?? Date.now()),
+            },
+          ]);
+        }
+        if (data.consensus?.content) {
+          setMessages((prev) => [
+            ...prev,
+            {
+              id: nanoid(),
+              personaId: 'system',
+              role: 'system',
+              content: `🏛️ 顾问团共识\n\n${data.consensus.content}`,
+              timestamp: new Date(data.consensus.timestamp ?? Date.now()),
+            },
+          ]);
+        }
+        const primaryPersona4 = selectedPersonas[0];
+        if (primaryPersona4) {
+          trackChatMessage(primaryPersona4.id, mode, currentTurn, aiLatencyMs, data.model || 'claude');
+        }
+        setTimeout(pushCurrentSnapshot, 0);
+        return;
+      }
+
+      // ── Oracle: Future Prediction ─────────────────────────────────────────────
+      // mode === 'oracle' returns data.diagnosis (initial diagnosis from oracle)
+      // and the LLM response (raw content) embedded in diagnosis.content
+      if (mode === 'oracle' && data.diagnosis) {
+        setMessages((prev) => [
+          ...prev,
+          {
+            id: nanoid(),
+            personaId: data.diagnosis.personaId ?? selectedPersonas[0]?.id,
+            role: 'agent',
+            content: data.diagnosis.content,
+            timestamp: new Date(data.diagnosis.timestamp ?? Date.now()),
+          },
+        ]);
+        const primaryPersona5 = selectedPersonas[0];
+        if (primaryPersona5) {
+          trackChatMessage(primaryPersona5.id, mode, currentTurn, aiLatencyMs, data.model || 'claude');
+        }
+        setTimeout(pushCurrentSnapshot, 0);
+        return;
+      }
+
+      // ── Fiction: Collaborative Storytelling ────────────────────────────────────
+      // mode === 'fiction' returns data.turns (array of {speakerId, speakerName, content})
+      // and data.meta (speakerCount, premise)
+      if (mode === 'fiction' && data.turns) {
+        for (const turn of data.turns) {
+          setMessages((prev) => [
+            ...prev,
+            {
+              id: nanoid(),
+              personaId: turn.speakerId ?? selectedPersonas[0]?.id,
+              role: 'agent',
+              content: `【${turn.speakerName ?? ''}】\n\n${turn.content}`,
+              timestamp: new Date(turn.timestamp ?? Date.now()),
+            },
+          ]);
+        }
+        const primaryPersona6 = selectedPersonas[0];
+        if (primaryPersona6) {
+          trackChatMessage(primaryPersona6.id, mode, currentTurn, aiLatencyMs, data.model || 'claude');
+        }
+        setTimeout(pushCurrentSnapshot, 0);
+        return;
+      }
+
       // ── Solo + fallback: push snapshot after UI update ──────────────────────
       setTimeout(pushCurrentSnapshot, 0);
     } catch (error) {
