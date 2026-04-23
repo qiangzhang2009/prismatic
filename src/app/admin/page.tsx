@@ -882,8 +882,15 @@ function AssetsSection() {
   const [dateTo, setDateTo] = useState('');
   const [page, setPage] = useState(1);
 
-  // Quick date buttons: set dateFrom to N days ago, dateTo to today
+  // Quick date buttons: set dateFrom to N days ago, dateTo to today; 0 = no limit (all time)
   const applyQuickDate = (days: number) => {
+    if (days === 0) {
+      // All time: no date filters
+      setDateFrom('');
+      setDateTo('');
+      setPage(1);
+      return;
+    }
     const to = new Date();
     to.setHours(23, 59, 59, 999);
     const from = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
@@ -953,6 +960,10 @@ function AssetsSection() {
         <div className="flex items-center gap-3">
           <span className="text-xs text-gray-500">{total} 条对话</span>
           <div className="flex items-center gap-1 bg-gray-900/50 border border-gray-800 rounded-lg p-1">
+            <button key={0} onClick={() => applyQuickDate(0)}
+              className="px-2.5 py-1 rounded text-xs font-medium transition-colors bg-gray-800 text-gray-300 hover:bg-gray-700">
+              全部
+            </button>
             {[7, 14, 30, 90].map(d => (
               <button key={d} onClick={() => applyQuickDate(d)}
                 className="px-2.5 py-1 rounded text-xs font-medium transition-colors bg-gray-800 text-gray-300 hover:bg-gray-700">
@@ -969,7 +980,7 @@ function AssetsSection() {
           {dim === 'overview' && <AssetOverview key="overview" convData={convData} />}
           {dim === 'cost' && <AssetCostAnalysis key="cost" days={30} />}
           {dim === 'topics' && <AssetTopics key="topics" days={30} />}
-          {dim === 'personas' && <AssetPersonas key="personas" days={30} />}
+          {dim === 'personas' && <AssetPersonas key="personas" days={0} />}
           {dim === 'behavior' && <AssetBehavior key="behavior" days={30} />}
           {dim === 'userchats' && <AssetUserChats key="userchats" userChatsData={userChatsData} isLoading={userChatsLoading} onRefresh={refetchUserChats} />}
         </AnimatePresence>
@@ -1086,7 +1097,7 @@ function ConversationCard({ conv }: { conv: any }) {
       >
         <div className="flex items-center gap-3 flex-wrap flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-shrink-0">
-            <span className="text-xs text-gray-500">{fmtDate(conv.createdAt)}</span>
+            <span className="text-xs text-gray-500">{fmtDate(conv.updatedAt)}</span>
             <span className="text-xs px-2 py-0.5 rounded-full bg-gray-800 text-gray-400">{conv.mode}</span>
             <span className={`text-xs px-2 py-0.5 rounded-full ${conv.billingMode === 'A' ? 'bg-blue-900/30 text-blue-400' : 'bg-green-900/30 text-green-400'}`}>
               {conv.billingMode === 'A' ? 'API Key' : '平台代付'}
@@ -1429,7 +1440,7 @@ function AssetTopics({ days }: { days: number }) {
 function AssetPersonas({ days }: { days: number }) {
   const { data, isLoading } = useQuery({
     queryKey: ['admin', 'chats', 'personas', days],
-    queryFn: () => fetch(`/api/admin/chats/personas?days=${days}`, { credentials: 'include' }).then(r => r.json()),
+    queryFn: () => fetch(`/api/admin/chats/personas?days=${days || ''}`, { credentials: 'include' }).then(r => r.json()),
     staleTime: 1000 * 60 * 5,
   });
 
@@ -1462,9 +1473,9 @@ function AssetPersonas({ days }: { days: number }) {
   return (
     <div className="space-y-4">
       <div>
-        <h4 className="text-sm font-semibold text-white">人物互动分析 · 近 {days} 天</h4>
+        <h4 className="text-sm font-semibold text-white">人物互动分析{days === 0 ? ' · 全部时间' : ` · 近 ${days} 天`}</h4>
         <p className="text-xs text-gray-500 mt-0.5">
-          基于对话参与者统计（conversations.participants），统计每个角色参与了多少次对话、消息数及 Token 消耗。
+          基于对话参与者统计（conversations.participants / personaIds），统计每个角色参与了多少次对话、消息数及 Token 消耗。
         </p>
       </div>
 
@@ -1794,7 +1805,7 @@ function AssetUserChats({ userChatsData, isLoading, onRefresh }: {
                           <div key={conv.id} className="bg-gray-900/60 border border-gray-700/40 rounded-lg px-3 py-2">
                             <div className="flex items-center justify-between gap-2 flex-wrap">
                               <div className="flex items-center gap-2 flex-wrap">
-                                <span className="text-[10px] text-gray-500">{fmtDate(conv.createdAt)}</span>
+                                <span className="text-[10px] text-gray-500">{fmtDate(conv.updatedAt)}</span>
                                 <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-gray-800 text-gray-400">{conv.mode}</span>
                                 <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${conv.billingMode === 'A' ? 'bg-blue-900/30 text-blue-400' : 'bg-green-900/30 text-green-400'}`}>
                                   {conv.billingMode === 'A' ? 'API Key' : '平台代付'}
