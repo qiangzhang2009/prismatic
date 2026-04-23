@@ -112,6 +112,23 @@ async function persistConversation(
       // title is skipped (NULL), so we insert NULL at position 5 to keep params aligned.
       // PostgreSQL text[] columns need ARRAY[...]::text[] syntax, NOT JSON.
       // E.g. "{'steve-jobs','einstein'}" — the surrounding braces are part of the syntax.
+      // ── Conversation ownership guard ─────────────────────────────────────────────
+      // Prevent cross-user contamination: if an existing conversation belongs to
+      // a DIFFERENT user, generate a new conversationId for this user instead
+      // of overwriting the other user's conversation record.
+      const existingConv = await client.query(
+        `SELECT "userId" FROM conversations WHERE id = $1 LIMIT 1`,
+        [conversationId]
+      );
+      const existingOwner = existingConv.rows[0]?.userId;
+      const actualConvId = (existingOwner && existingOwner !== userId)
+        ? nanoid()  // hijacked conversationId — create a new one for this user
+        : conversationId;
+
+      if (actualConvId !== conversationId) {
+        console.warn(`[persistConversation] conversationId=${conversationId} owned by ${existingOwner}, creating new id=${actualConvId} for userId=${userId}`);
+      }
+
       const participantArray = participantIds.length > 0
         ? '{' + participantIds.map(p => '"' + p.replace(/"/g, '\\"') + '"').join(',') + '}'
         : '{}';
@@ -121,6 +138,7 @@ async function persistConversation(
         VALUES ($1, $2, NULL, $3, $4::text[], false, '{}'::text[],
                 $5, $6, $7, $4::text[], NOW(), NOW())
         ON CONFLICT (id) DO UPDATE SET
+          "userId" = CASE WHEN "userId" = $2 THEN EXCLUDED."userId" ELSE "userId" END,
           mode = EXCLUDED.mode,
           participants = EXCLUDED.participants,
           "personaIds" = EXCLUDED."personaIds",
@@ -128,7 +146,7 @@ async function persistConversation(
           "totalTokens" = EXCLUDED."totalTokens",
           "totalCost" = EXCLUDED."totalCost",
           "updatedAt" = NOW()
-      `, [conversationId, userId, mode, participantArray, messages.length, totalTokensNum, totalCostNum]);
+      `, [actualConvId, userId, mode, participantArray, messages.length, totalTokensNum, totalCostNum]);
       console.log(`[persistConversation] STEP_upsert_ok conversation=${conversationId}, messages=${messages.length}`);
 
       // ── Insert messages in a single batch ──────────────────────────────────────
@@ -187,7 +205,7 @@ async function persistConversation(
           //             tokensInput, tokensOutput, apiCost, metadata, createdAt
           rows.push(`($${paramIdx++}, $${paramIdx++}, $${paramIdx++}, $${paramIdx++}, $${paramIdx++}, $${paramIdx++}, $${paramIdx++}, $${paramIdx++}, $${paramIdx++}, $${paramIdx++}, $${paramIdx++}, $${paramIdx++})`);
           params.push(
-            msg.id, conversationId, userId, msg.role, msg.content,
+            msg.id, actualConvId, userId, msg.role, msg.content,
             msg.personaId, msg.modelUsed, msg.tokensInput, msg.tokensOutput,
             msg.apiCost, msg.metadata, msg.ts
           );
@@ -206,12 +224,18 @@ async function persistConversation(
         totalSkipped = validMessages.length - totalInserted;
       }
 
-      console.log(`[persistConversation] STEP_done conversation=${conversationId} messages=${messages.length} inserted=${totalInserted} skipped=${totalSkipped}`);
+      console.log(`[persistConversation] STEP_done conversation=${actualConvId} messages=${messages.length} inserted=${totalInserted} skipped=${totalSkipped}`);
+
+      // ── Set updatedAt to last message timestamp (fixes admin list ordering) ──
+      const lastTs = validMessages.length > 0
+        ? new Date(Math.max(...validMessages.map(m => m.ts.getTime())))
+        : new Date();
+      await client.query(`UPDATE conversations SET "updatedAt" = $1 WHERE id = $2`, [lastTs, actualConvId]);
 
       await client.query('COMMIT');
       client.release();
       await endPool();
-      return { id: conversationId, inserted: totalInserted, skipped: totalSkipped };
+      return { id: actualConvId, inserted: totalInserted, skipped: totalSkipped };
     } catch (innerErr) {
       await client.query('ROLLBACK').catch(() => {});
       client.release();
@@ -1133,8 +1157,18 @@ export async function POST(request: NextRequest) {
     // Mission: data.mission.taskPlan + data.mission.results (task plan + individual contributions)
     // Council: data.advice (advisory responses)
     // Oracle: data.advice (predictions)
+    // Oracle diagnosis response — must be added to agentResponses so it gets persisted
+    // Oracle: data.advice (predictions)
     // Fiction: data.turns (story turns)
     const agentResponses: any[] = [];
+
+    if (data.diagnosis) {
+      agentResponses.push({
+        ...data.diagnosis,
+        role: 'agent',
+        timestamp: data.diagnosis.timestamp || new Date().toISOString(),
+      });
+    }
 
     // Solo / Prism responses — ensure role is always set
     if (Array.isArray(data.messages)) {
@@ -1193,12 +1227,21 @@ export async function POST(request: NextRequest) {
       })));
     }
 
+    // Tag each message with the current mode so we can show which mode
+    // produced which messages in the admin conversation viewer.
+    // Metadata is stored as JSON in the messages.metadata column.
     const allMessages = [
-      ...historyMessages,
-      { id: nanoid(), role: 'user', content: message, timestamp: new Date() },
-      ...agentResponses,
+      ...historyMessages.map((m: any) => ({
+        ...m,
+        metadata: JSON.stringify({ ...(typeof m.metadata === 'object' ? m.metadata : {}), mode }),
+      })),
+      { id: nanoid(), role: 'user', content: message, timestamp: new Date(), metadata: JSON.stringify({ mode }) },
+      ...agentResponses.map((m: any) => ({
+        ...m,
+        metadata: JSON.stringify({ ...(typeof m.metadata === 'object' ? m.metadata : {}), mode }),
+      })),
     ].filter(Boolean);
-    console.log(`[Chat API] allMessages count=${allMessages.length} history=${historyMessages.length} userMsg=1 agent=${agentResponses.length}`);
+    console.log(`[Chat API] allMessages count=${allMessages.length} history=${historyMessages.length} userMsg=1 agent=${agentResponses.length} mode=${mode}`);
 
     // Use real token counts from API responses where available
     let totalInputTokens = 0;
