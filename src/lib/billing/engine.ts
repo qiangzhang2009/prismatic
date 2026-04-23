@@ -11,6 +11,7 @@
  * 积分与每日免费额度互斥，有积分用户不消耗每日 10 次免费额度。
  */
 import { neon } from '@neondatabase/serverless';
+import { prisma } from '@/lib/prisma';
 import { decryptApiKey } from '@/lib/encryption';
 
 export type BillingMode = 'A' | 'B';
