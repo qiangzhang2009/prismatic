@@ -26,11 +26,13 @@ const DEMO_ACCOUNTS = [
 // with the same password and get in normally. This gives a seamless recovery UX
 // at zero cost — the account is restored on first successful login attempt.
 const RESTORED_ACCOUNTS = [
-  { email: 'dengyihao@163.com',        name: 'DYH' },
-  { email: 'm13560256090@163.com',     name: '陈俊豪' },
-  { email: 'xiaoyao_lzx@163.com',      name: '逍遥' },
-  { email: 'liuyuxin2002@163.com',     name: '刘宇欣' },
-  { email: 'fengerzhi@163.com',        name: '冯二狗' },
+  { email: '164539079@qq.com',      name: 'Rinkon' },
+  { email: 'wuxiang@163.com',       name: 'shondianyuan' },
+  { email: 'rachelhou_yt@163.com',  name: 'Rachel' },
+  { email: '50043741@aq.com',       name: 'coolnetboy' },
+  { email: '0309@163.com',           name: 'Leoaibo' },
+  { email: '505883403@qq.com',      name: '格格' },
+  { email: '84003180@qq.com',       name: '童文思' },
   { email: 'johnzhangfuture@gmail.com', name: 'John' },
 ];
 
