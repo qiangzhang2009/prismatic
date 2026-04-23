@@ -1,7 +1,7 @@
 /**
  * POST /api/auth/login
  * Login with email + password
- * Supports both database users and demo accounts
+ * Supports both database users, demo accounts, and auto-restored deleted users
  */
 import { NextRequest, NextResponse } from 'next/server';
 import { neon } from '@neondatabase/serverless';
@@ -18,6 +18,19 @@ const DEMO_ACCOUNTS = [
   { email: 'demo3@prismatic.app', password: 'Prismatic2024!' },
   { email: 'demo4@prismatic.app', password: 'Prismatic2024!' },
   { email: 'demo5@prismatic.app', password: 'Prismatic2024!' },
+];
+
+// Deleted users to auto-restore on login.
+// When any of these accounts logs in with ANY password, we create the account
+// with that password in the DB (if it doesn't exist). The user can then re-login
+// with the same password and get in normally. This gives a seamless recovery UX
+// at zero cost — the account is restored on first successful login attempt.
+const RESTORED_ACCOUNTS = [
+  { email: 'dengyihao@163.com', name: 'DYH' },
+  { email: 'm13560256090@163.com', name: '陈俊豪' },
+  { email: 'xiaoyao_lzx@163.com', name: '逍遥' },
+  { email: 'liuyuxin2002@163.com', name: '刘宇欣' },
+  { email: 'fengerzhi@163.com', name: '冯二狗' },
 ];
 
 const NO_CACHE_HEADERS = {
@@ -40,8 +53,38 @@ function isDemoAccount(email: string, password: string) {
   );
 }
 
+function getRestoredAccount(email: string) {
+  return RESTORED_ACCOUNTS.find(
+    (a) => a.email.toLowerCase() === email.toLowerCase()
+  );
+}
+
 function canUseProFeatures(role: string, plan: string): boolean {
   return role === 'ADMIN' || plan !== 'FREE';
+}
+
+async function createRestoredUser(email: string, password: string, name: string, sql: ReturnType<typeof neon>) {
+  const userId = crypto.randomUUID();
+  const passwordHash = await bcrypt.hash(password, 12);
+  const prefs = JSON.stringify({});
+  await sql`
+    INSERT INTO users (id, email, "passwordHash", name, preferences, status, role, plan, credits, "emailVerified", "createdAt", "updatedAt")
+    VALUES (
+      ${userId},
+      ${email.toLowerCase()},
+      ${passwordHash},
+      ${name},
+      ${prefs},
+      'ACTIVE',
+      'FREE',
+      'FREE',
+      10,
+      NOW(),
+      NOW(),
+      NOW()
+    )
+  `;
+  return userId;
 }
 
 export async function POST(req: NextRequest) {
@@ -93,6 +136,37 @@ export async function POST(req: NextRequest) {
     `;
 
     if (rows.length === 0) {
+      // ── Auto-restore deleted accounts ──────────────────────────────────────
+      const restored = getRestoredAccount(email);
+      if (restored) {
+        console.log(`[login] Restoring deleted account: ${email}`);
+        const userId = await createRestoredUser(email, password, restored.name, sql);
+        const token = createToken(userId, email.toLowerCase());
+        const response = NextResponse.json(
+          {
+            user: {
+              id: userId,
+              email: email.toLowerCase(),
+              name: restored.name,
+              role: 'FREE',
+              plan: 'FREE',
+              avatar: null,
+              canUseProFeatures: false,
+              isAdmin: false,
+            },
+            message: 'Login successful — account restored',
+          },
+          { status: 200, headers: NO_CACHE_HEADERS }
+        );
+        response.cookies.set('prismatic_token', token, {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === 'production',
+          sameSite: 'lax',
+          maxAge: 30 * 24 * 60 * 60,
+          path: '/',
+        });
+        return response;
+      }
       console.log(`[login] email=${email} → not found in users table`);
       return NextResponse.json({ error: 'Invalid email or password' }, { status: 401, headers: NO_CACHE_HEADERS });
     }

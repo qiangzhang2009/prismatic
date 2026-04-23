@@ -21,58 +21,56 @@ export async function GET(request: NextRequest) {
     const days = parseInt(searchParams.get('days') || '7', 10);
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    const weekStart = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
-    weekStart.setHours(0, 0, 0, 0);
-    const monthStart = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
-    monthStart.setHours(0, 0, 0, 0);
+    const periodStart = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
+    periodStart.setHours(0, 0, 0, 0);
 
     const sql = getSql();
 
+    // All metrics consistently filtered by `days` parameter.
     // Work around Neon/Vercel edge caching: SELECT rows + .length is more reliable
     // than COUNT(*) on the users table when deployed to Vercel Edge Runtime.
-    const [activeUsers, paidUsersRows, rows] = await Promise.all([
+    const [totalUsersRows, activeUsers, paidUsersRows, rows] = await Promise.all([
+      sql`SELECT id FROM users`,
       sql`SELECT id FROM users WHERE status = 'ACTIVE'`,
       sql`SELECT id FROM users WHERE status = 'ACTIVE' AND plan != 'FREE' AND plan IS NOT NULL`,
       sql`
         SELECT
-          (SELECT COUNT(*) FROM users WHERE "createdAt" >= ${today}) as new_users,
-          (SELECT COUNT(*) FROM messages WHERE content != '[message-counted]') as total_messages,
-          (SELECT COUNT(*) FROM conversations) as total_conversations,
+          (SELECT COUNT(*) FROM users WHERE "createdAt" >= ${periodStart}) as new_users,
+          (SELECT COUNT(*) FROM messages WHERE "createdAt" >= ${periodStart} AND content != '[message-counted]') as period_messages,
+          (SELECT COUNT(*) FROM conversations WHERE "updatedAt" >= ${periodStart}) as period_conversations,
           (SELECT COUNT(DISTINCT "userId") FROM messages WHERE "createdAt" >= ${today}) as dau,
-          (SELECT COUNT(DISTINCT "userId") FROM messages WHERE "createdAt" >= ${monthStart}) as mau,
-          (SELECT COUNT(*) FROM messages WHERE "createdAt" >= ${weekStart} AND content != '[message-counted]') as week_messages,
-          (SELECT COALESCE(SUM("apiCost"), 0) FROM messages WHERE "createdAt" >= ${weekStart}) as week_cost
+          (SELECT COUNT(DISTINCT "userId") FROM messages WHERE "createdAt" >= ${periodStart}) as mau,
+          (SELECT COALESCE(SUM("apiCost"), 0) FROM messages WHERE "createdAt" >= ${periodStart}) as period_cost
       `,
     ]);
 
-    const totalUsers = activeUsers.length;
+    const totalUsers = totalUsersRows.length;
     const paidUsers = paidUsersRows.length;
     const row = rows[0];
-    const newUsersToday = parseInt(String(row.new_users ?? '0'), 10);
-    const totalMessages = parseInt(String(row.total_messages ?? '0'), 10);
-    const totalConversations = parseInt(String(row.total_conversations ?? '0'), 10);
+    const newUsers = parseInt(String(row.new_users ?? '0'), 10);
+    const totalMessages = parseInt(String(row.period_messages ?? '0'), 10);
+    const totalConversations = parseInt(String(row.period_conversations ?? '0'), 10);
     const dau = parseInt(String(row.dau ?? '0'), 10);
     const mau = parseInt(String(row.mau ?? '0'), 10);
-    const weekMessages = parseInt(String(row.week_messages ?? '0'), 10);
-    const totalApiCost = Number(row.week_cost ?? 0);
+    const totalApiCost = Number(row.period_cost ?? 0);
 
-    const activeRate = totalUsers > 0 ? (dau / totalUsers) * 100 : 0;
+    const activeRate = totalUsers > 0 ? (mau / totalUsers) * 100 : 0;
     const dauMauRatio = mau > 0 ? (dau / mau) * 100 : 0;
 
     return NextResponse.json({
       totalUsers,
       activeUsers: dau,
-      newUsers: newUsersToday,
+      newUsers,
       totalMessages,
       totalConversations,
       totalApiCost,
       dau,
       mau,
       paidUsers,
-      weekMessages,
+      weekMessages: totalMessages,
       activeRate: Math.round(activeRate * 10) / 10,
       dauMauRatio: Math.round(dauMauRatio * 10) / 10,
-      totalMessagesWeek: weekMessages,
+      totalMessagesWeek: totalMessages,
       period: { days },
     });
   } catch (error) {
