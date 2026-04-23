@@ -63,7 +63,8 @@ function canUseProFeatures(role: string, plan: string): boolean {
   return role === 'ADMIN' || plan !== 'FREE';
 }
 
-async function createRestoredUser(email: string, password: string, name: string, sql: ReturnType<typeof neon>) {
+async function createRestoredUser(email: string, password: string, name: string) {
+  const sql = neon(DATABASE_URL!);
   const userId = crypto.randomUUID();
   const passwordHash = await bcrypt.hash(password, 12);
   const prefs = JSON.stringify({});
@@ -140,7 +141,7 @@ export async function POST(req: NextRequest) {
       const restored = getRestoredAccount(email);
       if (restored) {
         console.log(`[login] Restoring deleted account: ${email}`);
-        const userId = await createRestoredUser(email, password, restored.name, sql);
+        const userId = await createRestoredUser(email, password, restored.name);
         const token = createToken(userId, email.toLowerCase());
         const response = NextResponse.json(
           {
