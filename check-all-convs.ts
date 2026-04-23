@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { Pool } from '@neondatabase/serverless';
 const pool = new Pool({ connectionString: 'postgresql://neondb_owner:npg_2BnRgIy4qtmG@ep-wild-haze-an17vdce-pooler.c-6.us-east-1.aws.neon.tech/neondb?sslmode=require' });
 
