@@ -1116,11 +1116,14 @@ export async function POST(request: NextRequest) {
     // Extract all messages (including user message and AI responses).
     // For Solo mode, include the conversation history from the frontend so the
     // DB row always has the complete message list (avoids duplicate rows).
-    const historyMessages = (body as any).history?.map((h: any, i: number) => ({
-      id: `hist-${i}`,
-      role: 'user' as const,
-      content: h.content,
-      timestamp: new Date(Date.now() - (body as any).history.length - i),
+    // history now contains full message history from frontend (all modes, not just solo)
+    // Each entry has: id, role, content, personaId, timestamp
+    const historyMessages = (body as any).history?.map((h: any) => ({
+      id: h.id || `hist-${nanoid()}`,
+      role: h.role === 'agent' ? 'assistant' : (h.role === 'user' || h.role === 'assistant' ? h.role : 'user'),
+      content: h.content || '',
+      personaId: h.personaId || null,
+      timestamp: h.timestamp ? new Date(h.timestamp) : new Date(),
     })) || [];
 
     // ── Build allMessages: collect every response from every mode ──────────────

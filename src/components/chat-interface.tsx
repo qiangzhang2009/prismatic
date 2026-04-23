@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Send, Loader2, ChevronDown, Settings, Trash2, X, Download, FileText, Image, Zap } from 'lucide-react';
+import { Send, Loader2, ChevronDown, Settings, Trash2, X, Download, FileText, Image, Zap, CheckSquare, Calendar } from 'lucide-react';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { PersonaCard } from '@/components/persona-card';
@@ -20,6 +20,7 @@ import { nanoid } from 'nanoid';
 import { trackChatStart, trackChatMessage } from '@/lib/use-tracking';
 import { LimitReachedModal, type LimitModalType } from '@/components/limit-reached-modal';
 import { exportChatAsImage, exportChatAsText } from '@/lib/export-chat';
+import { ExportPanel } from '@/components/export-panel';
 
 const STORAGE_KEY = 'prismatic-chat-state';
 const DAILY_LIMIT_KEY = 'prismatic-daily-messages';
@@ -132,6 +133,7 @@ export function ChatInterface({ className, initialPersona, initialMode }: ChatIn
   const [showExportMenu, setShowExportMenu] = useState(false);
   const exportMenuRef = useRef<HTMLDivElement>(null);
   const [isExporting, setIsExporting] = useState(false);
+  const [showExportPanel, setShowExportPanel] = useState(false);
 
   // Persona picker filter state
   const [pickerTab, setPickerTab] = useState<string>('all');
@@ -417,11 +419,15 @@ export function ChatInterface({ className, initialPersona, initialMode }: ChatIn
           participantIds: selectedIds,
           message: input.trim(),
           conversationId: conversationId || undefined,
-          // Pass history for solo mode (deep questioning continuity)
-          history: mode === 'solo' ? messages.slice(-8).map(m => ({
+          // Send full message history so all messages are persisted to DB
+          // (previously only sent for solo mode)
+          history: messages.map(m => ({
+            id: m.id,
             content: m.content,
-            response: m.role === 'agent' ? m.content : undefined,
-          })) : undefined,
+            role: m.role,
+            personaId: m.personaId,
+            timestamp: m.timestamp,
+          })),
         }),
       });
 
@@ -727,21 +733,28 @@ export function ChatInterface({ className, initialPersona, initialMode }: ChatIn
                   >
                     <div className="px-5 py-4 border-b border-border-subtle">
                       <p className="text-sm font-semibold text-text-primary">导出对话记录</p>
-                      <p className="text-xs text-text-muted mt-0.5">选择导出格式</p>
+                      <p className="text-xs text-text-muted mt-0.5">选择消息并导出</p>
                     </div>
+                    <button
+                      className="w-full flex items-center gap-3 px-5 py-4 text-sm text-text-primary hover:bg-bg-surface transition-colors"
+                      onClick={() => { setShowExportMenu(false); setShowExportPanel(true); }}
+                    >
+                      <CheckSquare className="w-4 h-4 text-prism-blue" />
+                      选择消息导出
+                    </button>
                     <button
                       className="w-full flex items-center gap-3 px-5 py-4 text-sm text-text-primary hover:bg-bg-surface transition-colors"
                       onClick={() => { handleExportAsImage(); setShowExportMenu(false); }}
                     >
                       <Image className="w-4 h-4 text-prism-blue" />
-                      导出为图片
+                      导出全部为图片
                     </button>
                     <button
                       className="w-full flex items-center gap-3 px-5 py-4 text-sm text-text-primary hover:bg-bg-surface transition-colors"
                       onClick={() => { handleExportAsText(); setShowExportMenu(false); }}
                     >
                       <FileText className="w-4 h-4 text-prism-purple" />
-                      导出为文本
+                      导出全部为文本
                     </button>
                   </motion.div>
                 </motion.div>
@@ -1249,6 +1262,16 @@ export function ChatInterface({ className, initialPersona, initialMode }: ChatIn
         type={limitModalType}
         onClose={() => setShowLimitModal(false)}
         onSetApiKey={() => { setShowLimitModal(false); router.push('/settings'); }}
+      />
+
+      {/* ── Export Panel ───────────────────────────────────── */}
+      <ExportPanel
+        open={showExportPanel}
+        onClose={() => setShowExportPanel(false)}
+        messages={messages}
+        mode={mode}
+        selectedPersonaIds={selectedIds}
+        personaNames={selectedPersonas.map((p) => p.nameZh).join('、')}
       />
     </div>
   );
