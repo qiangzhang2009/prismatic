@@ -65,7 +65,7 @@ export async function GET(req: NextRequest) {
       FROM conversations c
       LEFT JOIN users u ON u.id = c."userId"
       ${where}
-      ORDER BY c."createdAt" DESC
+      ORDER BY c."updatedAt" DESC
       LIMIT 1000
     `;
 

@@ -101,7 +101,7 @@ export async function GET(req: NextRequest) {
         FROM messages m WHERE m."conversationId" = c.id
       ) msgs ON true
       ${where}
-      ORDER BY c."createdAt" DESC
+      ORDER BY c."updatedAt" DESC
       LIMIT $${p++} OFFSET $${p++}
     `;
 
