@@ -1,74 +1,69 @@
 'use client';
 
 /**
- * Synced Conversations List — /conversations
+ * User Conversations List — /conversations
  *
- * Shows all conversations for the current user from the local registry,
- * organized by device and last update time.
- * Includes search, filter by persona, and conflict resolution entry.
+ * Shows all conversations for the authenticated user from the database.
+ * Grouped by date, supports search and persona filtering.
  */
 
 import { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  Search, Clock, MessageSquare, Smartphone, Monitor, RefreshCw,
-  AlertTriangle, ChevronRight, Filter, X, Bot, Trash2,
-  ArrowUpDown, Wifi, WifiOff,
+  Search, MessageSquare, RefreshCw, ChevronRight, X,
+  ArrowUpDown, Wifi, WifiOff, Bot,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuthStore } from '@/lib/auth-store';
-import { getPersonasByIds } from '@/lib/personas';
+import { getPersonasByIds, PERSONA_LIST } from '@/lib/personas';
 
 interface ConversationEntry {
   id: string;
-  conversationKey: string;
+  mode: string;
   personaIds: string[];
-  localTitle?: string;
-  localTags?: string[];
-  localMessageCount: number;
-  contentHash: string;
-  lastLocalUpdateAt: string;
-  deviceId: string;
-  deviceName?: string;
-  syncedConversationId?: string;
+  messageCount: number;
+  totalTokens: number;
+  totalCost: number;
+  createdAt: string;
+  updatedAt: string;
+  firstContent?: string;
+  lastContent?: string;
 }
 
-interface ConversationRegistry {
-  version: number;
-  deviceId: string;
-  lastSyncedAt?: string;
-  conversations: ConversationEntry[];
-  syncToken?: string;
-}
-
-const REGISTRY_KEY = 'prismatic-conversation-registry';
-
-function loadRegistry(): ConversationRegistry | null {
-  try {
-    const raw = localStorage.getItem(REGISTRY_KEY);
-    if (!raw) return null;
-    return JSON.parse(raw);
-  } catch {
-    return null;
-  }
-}
-
-type SortBy = 'time' | 'messageCount' | 'persona';
-type FilterState = 'all' | 'synced' | 'unsynced' | 'conflict';
+type SortBy = 'time' | 'messageCount';
 
 export default function ConversationsPage() {
   const router = useRouter();
   const { user } = useAuthStore();
-  const [registry, setRegistry] = useState<ConversationRegistry | null>(null);
+  const [conversations, setConversations] = useState<ConversationEntry[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState('');
   const [sortBy, setSortBy] = useState<SortBy>('time');
-  const [filterState, setFilterState] = useState<FilterState>('all');
   const [selectedPersona, setSelectedPersona] = useState<string>('all');
   const [isOnline, setIsOnline] = useState(true);
 
+  const fetchConversations = async () => {
+    if (!user) return;
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await fetch('/api/conversations?pageSize=100', {
+        credentials: 'include',
+      });
+      if (!res.ok) throw new Error('Failed to load');
+      const data = await res.json();
+      setConversations(data.conversations || []);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : '加载失败');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    setRegistry(loadRegistry());
+    if (user) fetchConversations();
     setIsOnline(navigator.onLine);
     const onOnline = () => setIsOnline(true);
     const onOffline = () => setIsOnline(false);
@@ -78,77 +73,69 @@ export default function ConversationsPage() {
       window.removeEventListener('online', onOnline);
       window.removeEventListener('offline', onOffline);
     };
-  }, []);
+  }, [user]);
 
-  // Reload registry on visibility change (sync may have updated it)
+  // Reload on visibility change
   useEffect(() => {
     const handler = () => {
-      setRegistry(loadRegistry());
+      if (document.visibilityState === 'visible') fetchConversations();
     };
     document.addEventListener('visibilitychange', handler);
     return () => document.removeEventListener('visibilitychange', handler);
+  }, [user]);
+
+  // Build persona map for display
+  const personaMap = useMemo(() => {
+    const map: Record<string, { nameZh: string; accentColor: string; gradientFrom: string; gradientTo: string }> = {};
+    for (const p of PERSONA_LIST) {
+      map[p.id] = { nameZh: p.nameZh, accentColor: p.accentColor, gradientFrom: p.gradientFrom, gradientTo: p.gradientTo };
+    }
+    return map;
   }, []);
 
   const filteredAndSorted = useMemo(() => {
-    if (!registry) return [];
+    let items = [...conversations];
 
-    let items = [...registry.conversations];
-
-    // Filter by search
     if (search.trim()) {
       const q = search.toLowerCase();
       items = items.filter((c) => {
-        const personas = getPersonasByIds(c.personaIds);
-        const nameMatch = personas.some(
-          (p) => p.nameZh.includes(q) || p.name.toLowerCase().includes(q)
-        );
-        const titleMatch = c.localTitle?.toLowerCase().includes(q);
-        const tagMatch = c.localTags?.some((t) => t.toLowerCase().includes(q));
-        return nameMatch || titleMatch || tagMatch;
+        const nameMatch = c.personaIds.some((id) => {
+          const p = personaMap[id];
+          return p?.nameZh?.toLowerCase().includes(q);
+        });
+        const contentMatch = c.firstContent?.toLowerCase().includes(q)
+          || c.lastContent?.toLowerCase().includes(q);
+        return nameMatch || contentMatch;
       });
     }
 
-    // Filter by state
-    if (filterState === 'synced') {
-      items = items.filter((c) => c.syncedConversationId);
-    } else if (filterState === 'unsynced') {
-      items = items.filter((c) => !c.syncedConversationId);
-    }
-
-    // Filter by persona
     if (selectedPersona !== 'all') {
       items = items.filter((c) => c.personaIds.includes(selectedPersona));
     }
 
-    // Sort
     items.sort((a, b) => {
       if (sortBy === 'time') {
-        return new Date(b.lastLocalUpdateAt).getTime() - new Date(a.lastLocalUpdateAt).getTime();
+        return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
       }
-      if (sortBy === 'messageCount') {
-        return b.localMessageCount - a.localMessageCount;
-      }
-      return 0;
+      return b.messageCount - a.messageCount;
     });
 
     return items;
-  }, [registry, search, sortBy, filterState, selectedPersona]);
+  }, [conversations, search, sortBy, selectedPersona, personaMap]);
 
-  // Group by date
   const grouped = useMemo(() => {
     const groups: { label: string; items: ConversationEntry[] }[] = [];
     const now = new Date();
     const today = now.toDateString();
     const yesterday = new Date(now.getTime() - 86400000).toDateString();
     const thisWeek = new Date(now.getTime() - 7 * 86400000);
-    const thisMonth = new Date(now.getTime() - 30 * 86400000);
 
     const buckets: Record<string, ConversationEntry[]> = {
       '今天': [], '昨天': [], '本周': [], '更早': [],
     };
 
     for (const item of filteredAndSorted) {
-      const d = new Date(item.lastLocalUpdateAt);
+      const d = new Date(item.updatedAt);
       const dateStr = d.toDateString();
       if (dateStr === today) buckets['今天'].push(item);
       else if (dateStr === yesterday) buckets['昨天'].push(item);
@@ -164,17 +151,16 @@ export default function ConversationsPage() {
   }, [filteredAndSorted]);
 
   const handleConversationClick = (conv: ConversationEntry) => {
-    // Navigate to the chat with this persona combo
     const primaryId = conv.personaIds[0] ?? 'steve-jobs';
     router.push(`/?persona=${primaryId}&mode=solo`);
   };
 
-  const allPersonas = useMemo(() => {
-    if (!registry) return [];
+  // Collect all unique persona IDs from conversations
+  const allPersonaIds = useMemo(() => {
     const ids = new Set<string>();
-    registry.conversations.forEach((c) => c.personaIds.forEach((id) => ids.add(id)));
-    return Array.from(ids).map((id) => getPersonasByIds([id])[0]).filter(Boolean);
-  }, [registry]);
+    conversations.forEach((c) => c.personaIds.forEach((id) => ids.add(id)));
+    return Array.from(ids);
+  }, [conversations]);
 
   if (!user) {
     return (
@@ -204,7 +190,7 @@ export default function ConversationsPage() {
             <div>
               <h1 className="text-2xl font-bold text-text-primary">对话记录</h1>
               <p className="text-sm text-text-muted mt-0.5">
-                {registry ? `${registry.conversations.length} 个对话 · 设备 ${registry.deviceId.slice(0, 8)}` : '加载中...'}
+                {loading ? '加载中...' : `${conversations.length} 个对话`}
               </p>
             </div>
             <div className="flex items-center gap-2">
@@ -214,11 +200,11 @@ export default function ConversationsPage() {
                 </span>
               )}
               <button
-                onClick={() => setRegistry(loadRegistry())}
+                onClick={fetchConversations}
                 className="w-8 h-8 rounded-full bg-bg-surface hover:bg-bg-elevated border border-border-subtle flex items-center justify-center text-text-muted hover:text-text-primary transition-colors"
                 title="刷新"
               >
-                <RefreshCw className="w-4 h-4" />
+                <RefreshCw className={cn('w-4 h-4', loading && 'animate-spin')} />
               </button>
             </div>
           </div>
@@ -245,31 +231,6 @@ export default function ConversationsPage() {
 
           {/* Filters */}
           <div className="flex items-center gap-2 overflow-x-auto scrollbar-none pb-1">
-            {/* State filter */}
-            {([
-              ['all', '全部'],
-              ['synced', '已同步'],
-              ['unsynced', '未同步'],
-            ] as [FilterState, string][]).map(([value, label]) => (
-              <button
-                key={value}
-                onClick={() => setFilterState(value)}
-                className={cn(
-                  'flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-colors whitespace-nowrap',
-                  filterState === value
-                    ? 'bg-prism-purple/15 text-prism-purple border border-prism-purple/30'
-                    : 'bg-bg-surface text-text-muted border border-border-subtle hover:text-text-primary'
-                )}
-              >
-                {value === 'synced' && <Wifi className="w-3 h-3" />}
-                {value === 'unsynced' && <WifiOff className="w-3 h-3" />}
-                {label}
-              </button>
-            ))}
-
-            <div className="w-px h-4 bg-border-subtle mx-1" />
-
-            {/* Sort */}
             {([
               ['time', '最近'],
               ['messageCount', '消息数'],
@@ -291,24 +252,41 @@ export default function ConversationsPage() {
 
             <div className="w-px h-4 bg-border-subtle mx-1" />
 
-            {/* Persona filter */}
             <select
               value={selectedPersona}
               onChange={(e) => setSelectedPersona(e.target.value)}
               className="text-xs bg-bg-surface text-text-muted border border-border-subtle rounded-full px-3 py-1.5 focus:outline-none focus:border-prism-purple"
             >
               <option value="all">全部人物</option>
-              {allPersonas.map((p) => (
-                <option key={p.id} value={p.id}>{p.nameZh}</option>
-              ))}
+              {allPersonaIds.map((id) => {
+                const p = personaMap[id];
+                return p ? (
+                  <option key={id} value={id}>{p.nameZh}</option>
+                ) : null;
+              })}
             </select>
           </div>
         </div>
       </div>
 
-      {/* Conversation list */}
+      {/* Content */}
       <div className="max-w-3xl mx-auto px-4 py-4">
-        {grouped.length === 0 ? (
+        {loading && conversations.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-20">
+            <RefreshCw className="w-6 h-6 text-text-muted animate-spin mb-3" />
+            <p className="text-sm text-text-muted">加载中...</p>
+          </div>
+        ) : error ? (
+          <div className="flex flex-col items-center justify-center py-20 text-center">
+            <p className="text-sm text-red-400 mb-3">{error}</p>
+            <button
+              onClick={fetchConversations}
+              className="px-4 py-2 rounded-lg bg-bg-surface border border-border-subtle text-sm text-text-primary hover:bg-bg-elevated"
+            >
+              重试
+            </button>
+          </div>
+        ) : grouped.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 text-center">
             <div className="w-16 h-16 rounded-2xl bg-bg-surface flex items-center justify-center mb-4">
               <MessageSquare className="w-8 h-8 text-text-muted" />
@@ -336,9 +314,10 @@ export default function ConversationsPage() {
                 <div className="space-y-1.5">
                   <AnimatePresence>
                     {items.map((conv, idx) => {
-                      const personas = getPersonasByIds(conv.personaIds);
-                      const title = conv.localTitle || personas.map((p) => p.nameZh).join(' × ');
-                      const tags = conv.localTags ?? [];
+                      const personas = conv.personaIds
+                        .map((id) => personaMap[id])
+                        .filter(Boolean);
+                      const title = personas.map((p) => p.nameZh).join(' × ') || '对话';
 
                       return (
                         <motion.div
@@ -355,9 +334,9 @@ export default function ConversationsPage() {
                             <div className="flex items-start gap-3 px-4 py-3.5 rounded-xl hover:bg-bg-surface/60 transition-colors">
                               {/* Persona avatars */}
                               <div className="flex -space-x-1.5 flex-shrink-0">
-                                {personas.slice(0, 3).map((p) => (
+                                {personas.slice(0, 3).map((p, i) => (
                                   <div
-                                    key={p.id}
+                                    key={i}
                                     className="w-8 h-8 rounded-full flex items-center justify-center text-[10px] font-bold text-white border-2 border-bg-base"
                                     style={{
                                       background: `linear-gradient(135deg, ${p.gradientFrom}, ${p.gradientTo})`,
@@ -371,45 +350,31 @@ export default function ConversationsPage() {
                                     +{personas.length - 3}
                                   </div>
                                 )}
+                                {personas.length === 0 && (
+                                  <div className="w-8 h-8 rounded-full bg-bg-elevated border-2 border-bg-base flex items-center justify-center">
+                                    <Bot className="w-4 h-4 text-text-muted" />
+                                  </div>
+                                )}
                               </div>
 
                               {/* Content */}
                               <div className="flex-1 min-w-0">
-                                <div className="flex items-center gap-2 mb-0.5">
-                                  <p className="text-sm font-medium text-text-primary truncate group-hover:text-prism-purple transition-colors">
-                                    {title}
-                                  </p>
-                                  {!conv.syncedConversationId && (
-                                    <WifiOff className="w-3 h-3 text-amber-400 flex-shrink-0" />
-                                  )}
-                                </div>
-                                <div className="flex items-center gap-2 flex-wrap">
-                                  {tags.slice(0, 3).map((tag) => (
-                                    <span
-                                      key={tag}
-                                      className="text-[11px] text-text-muted bg-bg-surface px-1.5 py-0.5 rounded"
-                                    >
-                                      #{tag}
-                                    </span>
-                                  ))}
-                                </div>
+                                <p className="text-sm font-medium text-text-primary truncate group-hover:text-prism-purple transition-colors mb-0.5">
+                                  {title}
+                                </p>
+                                <p className="text-xs text-text-muted truncate">
+                                  {conv.lastContent || conv.firstContent || '新对话'}
+                                </p>
                               </div>
 
                               {/* Meta */}
                               <div className="flex flex-col items-end gap-1 flex-shrink-0">
                                 <div className="flex items-center gap-1 text-[11px] text-text-muted">
                                   <MessageSquare className="w-3 h-3" />
-                                  {conv.localMessageCount}
-                                </div>
-                                <div className="flex items-center gap-1 text-[11px] text-text-muted">
-                                  {conv.deviceId === registry?.deviceId ? (
-                                    <Monitor className="w-3 h-3" />
-                                  ) : (
-                                    <Smartphone className="w-3 h-3" />
-                                  )}
+                                  {conv.messageCount}
                                 </div>
                                 <span className="text-[11px] text-text-muted">
-                                  {formatRelative(conv.lastLocalUpdateAt)}
+                                  {formatRelative(conv.updatedAt)}
                                 </span>
                               </div>
 
@@ -428,32 +393,29 @@ export default function ConversationsPage() {
       </div>
 
       {/* Stats footer */}
-      {registry && registry.conversations.length > 0 && (
+      {!loading && conversations.length > 0 && (
         <div className="max-w-3xl mx-auto px-4 pb-8">
           <div className="rounded-2xl border border-border-subtle bg-bg-surface/40 p-4">
             <div className="grid grid-cols-3 gap-4 text-center">
               <div>
-                <p className="text-xl font-bold text-text-primary">{registry.conversations.length}</p>
+                <p className="text-xl font-bold text-text-primary">{conversations.length}</p>
                 <p className="text-xs text-text-muted">总对话数</p>
               </div>
               <div>
                 <p className="text-xl font-bold text-green-400">
-                  {registry.conversations.filter((c) => c.syncedConversationId).length}
+                  {conversations.reduce((s, c) => s + (c.messageCount || 0), 0)}
                 </p>
-                <p className="text-xs text-text-muted">已同步</p>
+                <p className="text-xs text-text-muted">总消息数</p>
               </div>
               <div>
-                <p className="text-xl font-bold text-amber-400">
-                  {registry.conversations.filter((c) => !c.syncedConversationId).length}
+                <p className="text-xl font-bold text-prism-purple">
+                  {conversations.length > 0
+                    ? formatRelative(conversations[0].updatedAt)
+                    : '—'}
                 </p>
-                <p className="text-xs text-text-muted">待同步</p>
+                <p className="text-xs text-text-muted">最近对话</p>
               </div>
             </div>
-            {registry.lastSyncedAt && (
-              <p className="text-xs text-text-muted text-center mt-3">
-                最后同步: {new Date(registry.lastSyncedAt).toLocaleString('zh-CN')}
-              </p>
-            )}
           </div>
         </div>
       )}

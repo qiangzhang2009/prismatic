@@ -176,8 +176,8 @@ function getDeviceInfo() {
 function getAllLocalSnapshots(messagesMap: Map<string, { messages: AgentMessage[]; title?: string; tags?: string[] }>): LocalConversationSnapshot[] {
   const snapshots: LocalConversationSnapshot[] = [];
 
-  messagesMap.forEach((data, conversationKey) => {
-    const { messages, title, tags } = data;
+  messagesMap.forEach((conversationData, conversationKey) => {
+    const { messages, title, tags } = conversationData;
     if (messages.length === 0) return;
 
     // Extract persona IDs from conversationKey (e.g. "confucius-wittgenstein" → ["confucius", "wittgenstein"])
@@ -560,7 +560,7 @@ export function useConversationSync() {
       window.removeEventListener('online', handleOnline);
       window.removeEventListener('offline', handleOffline);
     };
-  }, [flushOfflineQueue_, runFullSync]);
+  }, []); // Intentionally empty: use refs for callbacks to avoid stale closures
 
   // ── App focus listener (incremental sync) ────────────────────────────
 
@@ -574,16 +574,17 @@ export function useConversationSync() {
 
     document.addEventListener('visibilitychange', handleVisibility);
     return () => document.removeEventListener('visibilitychange', handleVisibility);
-  }, [runFullSync]);
+  }, []); // Intentionally empty: runFullSync is stable via refs
 
   // ── Periodic background sync (every 5 minutes) ──────────────────────
 
   useEffect(() => {
     syncIntervalRef.current = setInterval(() => {
       if (isOnlineRef.current && !syncInProgressRef.current) {
-        // Only push, don't pull (to keep it lightweight)
+        // Re-read registry from localStorage to get the latest state
+        const reg = loadRegistry();
         const allSnapshots = getAllLocalSnapshots(
-          new Map(Object.entries(registryRef.current.conversations))
+          new Map(Object.entries(reg.conversations))
         );
         if (allSnapshots.length > 0) {
           fetch('/api/sync/push', {
@@ -598,7 +599,7 @@ export function useConversationSync() {
     return () => {
       if (syncIntervalRef.current) clearInterval(syncIntervalRef.current);
     };
-  }, [deviceId, runFullSync]);
+  }, []); // Intentionally empty: reads fresh state from localStorage directly
 
   return {
     syncState,

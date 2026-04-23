@@ -107,11 +107,14 @@ async function persistConversation(
     try {
       await client.query('BEGIN');
 
-      // ── Upsert conversation ───────────────────────────────────────────────────
+      // Note: DB column order is: id, userId, title, mode, participants, archived, tags,
+      // messageCount, totalTokens, totalCost, personaIds, createdAt, updatedAt
+      // title is skipped (NULL), so we insert NULL at position 5 to keep params aligned.
       await client.query(`
-        INSERT INTO conversations (id, "userId", mode, participants, "personaIds",
-                                 "messageCount", "totalTokens", "totalCost", archived, tags, "createdAt", "updatedAt")
-        VALUES ($1, $2, $3, $4, $4, $5, $6, $7, false, '{}'::text[], NOW(), NOW())
+        INSERT INTO conversations (id, "userId", title, mode, participants, archived, tags,
+                                 "messageCount", "totalTokens", "totalCost", "personaIds", "createdAt", "updatedAt")
+        VALUES ($1, $2, NULL, $3, $4, false, '{}'::text[],
+                $5, $6, $7, $4, NOW(), NOW())
         ON CONFLICT (id) DO UPDATE SET
           mode = EXCLUDED.mode,
           participants = EXCLUDED.participants,
@@ -123,59 +126,81 @@ async function persistConversation(
       `, [conversationId, userId, mode, JSON.stringify(participantIds), messages.length, totalTokensNum, totalCostNum]);
       console.log(`[persistConversation] STEP_upsert_ok conversation=${conversationId}, messages=${messages.length}`);
 
-      // ── Insert messages — one at a time for maximum reliability ───────────────
-      // Per-message INSERT avoids PostgreSQL parameter limit issues and ensures
-      // one bad message cannot block the entire batch.
-      let totalInserted = 0;
-      let totalSkipped = 0;
-      let insertErrors = 0;
+      // ── Insert messages in a single batch ──────────────────────────────────────
+      // Collect all valid messages and insert them in ONE query to avoid the overhead
+      // of N separate round-trips to the database. Each message is pre-processed before
+      // the batch so the SQL is simple and fast.
+      const validMessages: {
+        id: string; role: string; content: string;
+        personaId: string | null; modelUsed: string | null;
+        tokensInput: number | null; tokensOutput: number | null;
+        apiCost: number | null; metadata: string | null; ts: Date;
+      }[] = [];
 
       for (let i = 0; i < messages.length; i++) {
         const msg = messages[i];
-        if (!msg || typeof msg !== 'object') {
-          console.warn(`[persistConversation] STEP_msg_skip_invalid index=${i}`);
-          totalSkipped++;
-          continue;
-        }
+        if (!msg || typeof msg !== 'object') continue;
 
-        try {
-          const msgId = msg.id || nanoid();
-          const resolvedPersonaId = msg.personaId || msg.speakerId || msg.assignedTo || null;
-          const role = msg.role === 'agent' ? 'assistant' : (msg.role || 'user');
-          const tsRaw = msg.timestamp;
-          const ts = tsRaw instanceof Date ? tsRaw : (tsRaw ? new Date(tsRaw) : new Date());
-          const modelUsed = msg.modelUsed || null;
-          const tokensInput = msg._usage?.promptTokens || msg.tokensInput || null;
-          const tokensOutput = msg._usage?.completionTokens || msg.tokensOutput || null;
-          const apiCost = msg.apiCost ? parseFloat(String(msg.apiCost)) : null;
-          // metadata: only stringify if it's a valid non-null object, otherwise null
-          let metadata: string | null = null;
-          if (msg.metadata && typeof msg.metadata === 'object') {
-            metadata = JSON.stringify(msg.metadata);
-          }
-          const content = typeof msg.content === 'string' ? msg.content : '';
+        const msgId = msg.id || nanoid();
+        const resolvedPersonaId = msg.personaId || msg.speakerId || msg.assignedTo || null;
+        const role = msg.role === 'agent' ? 'assistant'
+          : msg.role === 'user' || msg.role === 'assistant' ? msg.role
+          : String(msg.role ?? 'user');
+        const tsRaw = msg.timestamp;
+        const ts = tsRaw instanceof Date ? tsRaw
+          : (tsRaw ? new Date(tsRaw as string | number) : new Date());
+        if (isNaN(ts.getTime())) continue; // Skip invalid timestamps
 
-          const result = await client.query(`
-            INSERT INTO messages (id, "conversationId", "userId", role, content,
-                                 "personaId", "modelUsed", "tokensInput", "tokensOutput",
-                                 "apiCost", metadata, "createdAt")
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
-            ON CONFLICT (id) DO NOTHING
-          `, [msgId, conversationId, userId, role, content, resolvedPersonaId, modelUsed, tokensInput, tokensOutput, apiCost, metadata, ts]);
-
-          if ((result.rowCount ?? 0) > 0) {
-            totalInserted++;
-          } else {
-            totalSkipped++;
-          }
-        } catch (msgErr) {
-          insertErrors++;
-          const errMsg = msgErr instanceof Error ? msgErr.message : String(msgErr);
-          console.warn(`[persistConversation] STEP_msg_insert_err index=${i} msgId=${msg.id} error=${errMsg}`);
-        }
+        validMessages.push({
+          id: msgId,
+          role,
+          content: typeof msg.content === 'string' ? msg.content : '',
+          personaId: resolvedPersonaId,
+          modelUsed: msg.modelUsed || null,
+          tokensInput: msg._usage?.promptTokens ?? msg.tokensInput ?? null,
+          tokensOutput: msg._usage?.completionTokens ?? msg.tokensOutput ?? null,
+          apiCost: msg.apiCost ? parseFloat(String(msg.apiCost)) : null,
+          metadata: (msg.metadata && typeof msg.metadata === 'object') ? JSON.stringify(msg.metadata) : null,
+          ts,
+        });
       }
 
-      console.log(`[persistConversation] STEP_done conversation=${conversationId} messages=${messages.length} inserted=${totalInserted} skipped=${totalSkipped} errors=${insertErrors}`);
+      let totalInserted = 0;
+      let totalSkipped = 0;
+
+      if (validMessages.length > 0) {
+        // Build a single INSERT with multiple VALUES rows
+        // Each message needs 12 params: id, conversationId, userId, role, content,
+        // personaId, modelUsed, tokensInput, tokensOutput, apiCost, metadata, createdAt
+        const rows: string[] = [];
+        const params: any[] = [];
+        let paramIdx = 1;
+
+        for (const msg of validMessages) {
+          rows.push(`($${paramIdx++}, $${paramIdx++}, $${paramIdx++}, $${paramIdx++}, $${paramIdx++}, $${paramIdx++}, $${paramIdx++}, $${paramIdx++}, $${paramIdx++}, $${paramIdx++}, $${paramIdx++}, $${paramIdx++})`);
+          params.push(
+            msg.id, conversationId, userId, msg.role, msg.content,
+            msg.personaId, msg.modelUsed, msg.tokensInput, msg.tokensOutput,
+            msg.apiCost, msg.metadata, msg.ts
+          );
+        }
+
+        const batchInsert = `
+          INSERT INTO messages (id, "conversationId", "userId", role, content,
+                               "personaId", "modelUsed", "tokensInput", "tokensOutput",
+                               "apiCost", metadata, "createdAt",
+                               "tokensUsed", "latencyMs", confidence, "round",
+                               consensus, source)
+          VALUES ${rows.join(', ')}
+          ON CONFLICT (id) DO NOTHING
+        `;
+
+        const result = await client.query(batchInsert, params);
+        totalInserted = result.rowCount ?? 0;
+        totalSkipped = validMessages.length - totalInserted;
+      }
+
+      console.log(`[persistConversation] STEP_done conversation=${conversationId} messages=${messages.length} inserted=${totalInserted} skipped=${totalSkipped}`);
 
       await client.query('COMMIT');
       client.release();
@@ -1102,14 +1127,18 @@ export async function POST(request: NextRequest) {
     // Fiction: data.turns (story turns)
     const agentResponses: any[] = [];
 
-    // Solo / Prism responses
+    // Solo / Prism responses — ensure role is always set
     if (Array.isArray(data.messages)) {
-      agentResponses.push(...data.messages);
+      for (const msg of data.messages) {
+        agentResponses.push({ ...msg, role: msg.role || 'agent' });
+      }
     }
 
-    // Roundtable / Epoch dialogue turns
+    // Roundtable / Epoch dialogue turns — turns don't have role, default to 'agent'
     if (Array.isArray(data.debate?.turns)) {
-      agentResponses.push(...data.debate.turns);
+      for (const turn of data.debate.turns) {
+        agentResponses.push({ ...turn, role: 'agent' });
+      }
     }
 
     // Mission task plan entries
