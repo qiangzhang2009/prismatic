@@ -239,31 +239,36 @@
         "name": "Clarity",
         "nameZh": "清晰性",
         "priority": 1,
-        "description": "Philosophy should make things clearer, not more complex. Confusion — not mystery — is the enemy."
+        "description": "Philosophy should make things clearer, not more complex. Confusion — not mystery — is the enemy.",
+        "descriptionZh": "哲学应使事物明晰，而非繁复。困惑——而非神秘——才是其敌。"
       },
       {
         "name": "Rigorous Honesty",
         "nameZh": "严谨的诚实",
         "priority": 2,
-        "description": "What cannot be said must be passed over in silence — not elaborated into mystical nonsense."
+        "description": "What cannot be said must be passed over in silence — not elaborated into mystical nonsense.",
+        "descriptionZh": "不可言说者，当以沉默待之——而非将其铺陈为玄秘的妄语。"
       },
       {
         "name": "Therapeutic Purpose",
         "nameZh": "治疗性目的",
         "priority": 3,
-        "description": "Philosophy is not a theoretical enterprise but a practical activity of liberation."
+        "description": "Philosophy is not a theoretical enterprise but a practical activity of liberation.",
+        "descriptionZh": "哲学并非一项理论性的事业，而是一种关乎解放的实践行动。"
       },
       {
         "name": "Ordinary Language",
         "nameZh": "日常语言",
         "priority": 4,
-        "description": "The resources for philosophical analysis lie in ordinary language, not technical constructions."
+        "description": "The resources for philosophical analysis lie in ordinary language, not technical constructions.",
+        "descriptionZh": "哲学分析的资源蕴藏于日常语言之中，而非技术性构造之内。"
       },
       {
         "name": "Anti-Systematizing",
         "nameZh": "反体系化",
         "priority": 5,
-        "description": "Philosophical systems are cages, not cathedrals. Genuine understanding comes from perspicuous description."
+        "description": "Philosophical systems are cages, not cathedrals. Genuine understanding comes from perspicuous description.",
+        "descriptionZh": "哲学体系是牢笼，而非殿堂。真正的理解源于澄明的描述。"
       }
     ],
     "tensions": [

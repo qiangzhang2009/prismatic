@@ -49,46 +49,46 @@ function loadDisplayData() {
   const content = readFileSync(PERSONAS_FILE, 'utf8');
   const result = {};
 
-  const blockRegex = /PERSONAS\['([^']+)'\]\s*=\s*\{/g;
+  // Extract each PERSONAS entry by finding slug + key-value pairs within the entry.
+  // Use a line-based approach: find "PERSONAS['slug'] = {" then scan lines
+  // until we hit the next "PERSONAS[" or EOF.
+  const entryStartRegex = /PERSONAS\['([^']+)'\]\s*=\s*\{/g;
   let match;
 
-  while ((match = blockRegex.exec(content)) !== null) {
+  while ((match = entryStartRegex.exec(content)) !== null) {
     const slug = match[1];
-    const start = match.index + match[0].length;
-    const rest = content.slice(start);
+    const searchStart = match.index + match[0].length;
+    // Find the end: next PERSONAS[ or end of content
+    const nextEntry = content.indexOf('\nPERSONAS[', searchStart);
+    const entryEnd = nextEntry === -1 ? content.length : nextEntry;
+    const entryBlock = content.slice(searchStart, entryEnd);
 
-    let depth = 1;
-    let pos = 0;
-    while (pos < rest.length && depth > 0) {
-      if (rest[pos] === '{') depth++;
-      else if (rest[pos] === '}') depth--;
-      pos++;
-    }
-    const block = rest.slice(0, pos - 1);
-
-    const extract = (key) => {
-      const m = block.match(new RegExp(`${key}:\\s*(?:\\[([^\\]]*)\\]|'([^']*)'|"([^"]*)")`));
+    const extractField = (key) => {
+      // Match: key: 'value' or key: "value" or key: [value1, value2]
+      const re = new RegExp(`${key}:\\s*(?:\\[([^\\]]*)\\]|'([^']*)'|"([^"]*)")`);
+      const m = entryBlock.match(re);
       if (!m) return null;
       if (m[1] !== undefined) {
-        return (m[1].match(/'([^']+)'/g) || []).map(s => s.replace(/'/g, ''));
+        // Array — extract quoted items
+        return (m[1].match(/'([^']+)'/g) || []).map(s => s.replace(/^'|'$/g, ''));
       }
       return m[2] || m[3] || null;
     };
 
-    const domains = extract('domain');
+    const domains = extractField('domain');
     result[slug] = {
-      name: extract('name'),
-      nameZh: extract('nameZh'),
-      nameEn: extract('nameEn'),
+      name: extractField('name'),
+      nameZh: extractField('nameZh'),
+      nameEn: extractField('nameEn'),
       domain: Array.isArray(domains) ? domains.join(',') : 'philosophy',
-      tagline: extract('tagline'),
-      taglineZh: extract('taglineZh'),
-      avatar: extract('avatar'),
-      accentColor: extract('accentColor') || '#6366f1',
-      gradientFrom: extract('gradientFrom') || '#6366f1',
-      gradientTo: extract('gradientTo') || '#8b5cf6',
-      brief: extract('brief'),
-      briefZh: extract('briefZh'),
+      tagline: extractField('tagline'),
+      taglineZh: extractField('taglineZh'),
+      avatar: extractField('avatar'),
+      accentColor: extractField('accentColor') || '#6366f1',
+      gradientFrom: extractField('gradientFrom') || '#6366f1',
+      gradientTo: extractField('gradientTo') || '#8b5cf6',
+      brief: extractField('brief'),
+      briefZh: extractField('briefZh'),
     };
   }
 
@@ -116,28 +116,32 @@ function extractV4Data(slug, data) {
   const persona = data.persona || {};
 
   const mentalModels = JSON.stringify(
-    (persona.mentalModels || knowledge.mentalModels || []).map(m => ({
+    ((knowledge.mentalModels || persona.mentalModels || [])).map(m => ({
       id: m.id || '',
       name: m.name || '',
-      nameZh: m.nameZh || '',
+      nameZh: m.nameZh || m.name || '',
       oneLiner: m.oneLiner || '',
+      oneLinerZh: m.oneLinerZh || m.oneLiner || '',
       evidence: m.evidence || [],
       crossDomain: m.crossDomain || [],
       application: m.application || '',
+      applicationZh: m.applicationZh || m.application || '',
       limitation: m.limitation || '',
+      limitationZh: m.limitationZh || m.limitation || '',
     }))
   );
 
   const decisionHeuristics = JSON.stringify(
-    (persona.decisionHeuristics || knowledge.decisionHeuristics || []).map(h => ({
+    ((knowledge.decisionHeuristics || persona.decisionHeuristics || [])).map(h => ({
       id: h.id || '',
       name: h.name || '',
-      nameZh: h.nameZh || '',
+      nameZh: h.nameZh || h.name || '',
       description: h.description || '',
-      descriptionZh: h.descriptionZh || '',
+      descriptionZh: h.descriptionZh || h.description || '',
       application: h.application || '',
+      applicationZh: h.applicationZh || h.application || '',
       example: h.example || '',
-      exampleZh: h.exampleZh || '',
+      exampleZh: h.exampleZh || h.example || '',
     }))
   );
 
@@ -158,12 +162,12 @@ function extractV4Data(slug, data) {
   };
 
   const values = JSON.stringify(
-    (persona.values || knowledge.values || []).map(v => ({
+    ((knowledge.values || persona.values || [])).map(v => ({
       name: v.name || '',
-      nameZh: v.nameZh || '',
+      nameZh: v.nameZh || v.name || '',
       priority: v.priority || 0,
       description: v.description || '',
-      descriptionZh: v.descriptionZh || '',
+      descriptionZh: v.descriptionZh || v.description || '',
     }))
   );
 
@@ -172,7 +176,7 @@ function extractV4Data(slug, data) {
       ? (persona.antiPatterns || knowledge.antiPatterns) : []);
 
   const tensions = JSON.stringify(
-    (persona.tensions || knowledge.tensions || []).map(t => ({
+    ((knowledge.tensions || persona.tensions || [])).map(t => ({
       dimension: t.dimension || '',
       dimensionZh: t.dimensionZh || '',
       tension: t.tension || t.tensionZh || '',
