@@ -26,11 +26,12 @@ const DEMO_ACCOUNTS = [
 // with the same password and get in normally. This gives a seamless recovery UX
 // at zero cost — the account is restored on first successful login attempt.
 const RESTORED_ACCOUNTS = [
-  { email: 'dengyihao@163.com', name: 'DYH' },
-  { email: 'm13560256090@163.com', name: '陈俊豪' },
-  { email: 'xiaoyao_lzx@163.com', name: '逍遥' },
-  { email: 'liuyuxin2002@163.com', name: '刘宇欣' },
-  { email: 'fengerzhi@163.com', name: '冯二狗' },
+  { email: 'dengyihao@163.com',        name: 'DYH' },
+  { email: 'm13560256090@163.com',     name: '陈俊豪' },
+  { email: 'xiaoyao_lzx@163.com',      name: '逍遥' },
+  { email: 'liuyuxin2002@163.com',     name: '刘宇欣' },
+  { email: 'fengerzhi@163.com',        name: '冯二狗' },
+  { email: 'johnzhangfuture@gmail.com', name: 'John' },
 ];
 
 const NO_CACHE_HEADERS = {
@@ -179,6 +180,42 @@ export async function POST(req: NextRequest) {
     const pwHash = String(user.passwordHash || '');
 
     if (!pwHash) {
+      // User exists but has no password set (e.g. restored via seed script).
+      // If they're in the restored list, auto-save their password and log them in.
+      const restored = getRestoredAccount(email);
+      if (restored) {
+        console.log(`[login] Saving password for restored user: ${email}`);
+        const newHash = await bcrypt.hash(password, 12);
+        await sql`
+          UPDATE users SET "passwordHash" = ${newHash}, "updatedAt" = NOW()
+          WHERE id = ${user.id}
+        `;
+        const token = createToken(user.id, user.email || email.toLowerCase());
+        const response = NextResponse.json(
+          {
+            user: {
+              id: user.id,
+              email: user.email,
+              name: user.name || restored.name,
+              role: user.role || 'FREE',
+              plan: user.plan || 'FREE',
+              avatar: user.avatar,
+              canUseProFeatures: canUseProFeatures(user.role || 'FREE', user.plan || 'FREE'),
+              isAdmin: user.role === 'ADMIN',
+            },
+            message: 'Login successful',
+          },
+          { status: 200, headers: NO_CACHE_HEADERS }
+        );
+        response.cookies.set('prismatic_token', token, {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === 'production',
+          sameSite: 'lax',
+          maxAge: 30 * 24 * 60 * 60,
+          path: '/',
+        });
+        return response;
+      }
       console.log(`[login] email=${email} → no password hash set`);
       return NextResponse.json({ error: 'Invalid email or password' }, { status: 401, headers: NO_CACHE_HEADERS });
     }
