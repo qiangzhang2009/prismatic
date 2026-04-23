@@ -521,23 +521,55 @@
     "confidenceNotes": []
   },
   "expression": {
-    "vocabulary": [],
-    "sentenceStyle": [],
-    "forbiddenWords": [],
-    "tone": "formal",
-    "certaintyLevel": "medium",
-    "rhetoricalHabit": "长短句交错，节奏自然",
-    "quotePatterns": [],
+    "vocabulary": [
+      "道路",
+      "边境",
+      "叛乱",
+      "危险",
+      "警告",
+      "忠诚",
+      "背叛",
+      "牺牲",
+      "帝国",
+      "命运",
+      "阴谋",
+      "忍耐",
+      "恐惧",
+      "绝望",
+      "权力"
+    ],
+    "sentenceStyle": [
+      "使用长句，通过分号或逗号连接多个并列或从属信息，如‘It was the Road which caused the trouble. It usually is the road.’",
+      "偏好倒装或强调句式，如‘But above all it was the road--Linforth's road.’",
+      "频繁使用破折号插入补充说明或转折，如‘the road--Linforth's road’或‘the little less--’",
+      "善用对比结构，如‘He had made enemies... and, on the other hand, he made no friends.’"
+    ],
+    "forbiddenWords": [
+      "搞笑",
+      "随便",
+      "无所谓",
+      "躺平",
+      "内卷"
+    ],
+    "tone": "detached",
+    "certaintyLevel": "high",
+    "rhetoricalHabit": "擅长使用隐喻和象征（如‘道路’象征命运与冲突），并通过重复关键意象（如‘road’）强化主题，同时运用对比（如‘舒适绅士’与‘绝望妻子’）突出戏剧张力。",
+    "quotePatterns": [
+      "引用具体故事或轶事来说明人物性格，如‘There was a particular story...’",
+      "使用直接引语再现对话或内心独白，如‘“Women talk too much,” he said.’",
+      "引用官方或历史性表述，如‘Thank Heaven, Luffe's on the spot.’"
+    ],
     "rhythm": "长短句交错，节奏自然",
     "rhythmDescription": "长短句交错，节奏自然",
-    "chineseAdaptation": "",
-    "verbalMarkers": [],
-    "speakingStyle": "措辞严谨、正式；长短句交错，节奏自然。",
-    "confidence": "medium",
-    "confidenceNotes": [
-      "词汇样本不足",
-      "语料过短，表达层提取受限"
-    ]
+    "chineseAdaptation": "保留原文的破折号和分号结构，以维持其复杂句式的逻辑层次。,使用‘道路’、‘边境’等核心意象作为叙事锚点，重复出现以强化主题。,在直接引语中保留口语化表达（如‘女人话太多’），但叙述部分保持书面语的克制与精确。",
+    "verbalMarkers": [
+      "It was... which...",
+      "But above all...",
+      "Meanwhile..."
+    ],
+    "speakingStyle": "叙述冷静而富有洞察力，以旁观者视角分析事件与人物心理，语言精炼但细节丰富。中文表达时保持客观、略带文学性的描述，避免情绪化词汇，但通过场景对比（如‘舒适绅士’与‘绝望妻子’）传递隐含情感。",
+    "confidence": "high",
+    "confidenceNotes": []
   },
   "validation": {
     "crossLanguageConsistency": 100,

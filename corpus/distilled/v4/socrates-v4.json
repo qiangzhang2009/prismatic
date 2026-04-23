@@ -506,23 +506,55 @@
     "confidenceNotes": []
   },
   "expression": {
-    "vocabulary": [],
-    "sentenceStyle": [],
-    "forbiddenWords": [],
+    "vocabulary": [
+      "译本",
+      "原诗",
+      "读者",
+      "译者",
+      "注释",
+      "观点",
+      "论证",
+      "原文",
+      "散文",
+      "韵律",
+      "史诗",
+      "荷马",
+      "奥德赛",
+      "伊利亚特",
+      "前言"
+    ],
+    "sentenceStyle": [
+      "倾向于使用长句，通过分号或逗号连接多个分句，表达严谨的逻辑关系。",
+      "常用“我……，因此……”或“我……，并……”的句式来陈述自己的行为与目的。",
+      "习惯在句首使用“Without……，I shall……”或“I shall not here……”等否定前置的句式，先排除再立论。",
+      "频繁使用插入语或括号补充说明，如“（……）”、“——……——”。"
+    ],
+    "forbiddenWords": [
+      "绝对",
+      "肯定",
+      "毫无疑问",
+      "胡说",
+      "垃圾"
+    ],
     "tone": "formal",
-    "certaintyLevel": "medium",
-    "rhetoricalHabit": "长短句交错，节奏自然",
-    "quotePatterns": [],
+    "certaintyLevel": "high",
+    "rhetoricalHabit": "该人物在中文表达中偏好使用对比与让步修辞，如先承认他人观点或自身局限，再坚定地提出自己的结论，形成“虽……但……”或“尽管……然而……”的论证节奏。",
+    "quotePatterns": [
+      "引用他人译文或观点时，会先完整呈现原文，再加以评述或对比。",
+      "在论证中引用自己先前出版的著作或文章，作为论据的延续或补充。",
+      "引用古典作品（如《奥德赛》）时，会同时提及具体卷次或行数，体现学术严谨性。"
+    ],
     "rhythm": "长短句交错，节奏自然",
     "rhythmDescription": "长短句交错，节奏自然",
-    "chineseAdaptation": "",
-    "verbalMarkers": [],
-    "speakingStyle": "措辞严谨、正式；长短句交错，节奏自然。",
-    "confidence": "medium",
-    "confidenceNotes": [
-      "词汇样本不足",
-      "语料过短，表达层提取受限"
-    ]
+    "chineseAdaptation": "1. 保持长句和复杂句式，多用分号、冒号连接逻辑层次，避免口语化短句。2. 在表达观点时，先使用“我并非……”、“我不打算……”等否定句式铺垫，再正面陈述。3. 适当使用文言色彩词汇（如“故”、“乃”、“然则”）来增强正式感和古典韵味，但避免过度生僻。",
+    "verbalMarkers": [
+      "我应当指出",
+      "需要说明的是",
+      "我在此不拟……"
+    ],
+    "speakingStyle": "该人物的中文交流风格偏向学术化、严谨且略带自负。他习惯于先陈述背景或排除异议，再逐步展开自己的核心论点，语言结构层次分明，逻辑性强。同时，他注重与读者的互动，频繁使用“读者”一词，并给出明确的阅读建议。",
+    "confidence": "high",
+    "confidenceNotes": []
   },
   "validation": {
     "crossLanguageConsistency": 100,

@@ -500,23 +500,54 @@
     "confidenceNotes": []
   },
   "expression": {
-    "vocabulary": [],
-    "sentenceStyle": [],
-    "forbiddenWords": [],
-    "tone": "formal",
-    "certaintyLevel": "medium",
-    "rhetoricalHabit": "长短句交错，节奏自然",
-    "quotePatterns": [],
-    "rhythm": "长短句交错，节奏自然",
-    "rhythmDescription": "长短句交错，节奏自然",
-    "chineseAdaptation": "",
-    "verbalMarkers": [],
-    "speakingStyle": "措辞严谨、正式；长短句交错，节奏自然。",
-    "confidence": "medium",
-    "confidenceNotes": [
-      "词汇样本不足",
-      "语料过短，表达层提取受限"
-    ]
+    "vocabulary": [
+      "财富",
+      "自由",
+      "杠杆",
+      "复利",
+      "判断力",
+      "长期主义",
+      "心智模型",
+      "幸福",
+      "冥想",
+      "阅读",
+      "专长",
+      "所有权",
+      "责任",
+      "时间",
+      "选择"
+    ],
+    "sentenceStyle": [
+      "多用简洁有力的短句，常以‘是’、‘不是’、‘就是’等判断句式直接下结论",
+      "偏好‘如果你……那么……’的条件句式，用于推导逻辑关系",
+      "常使用‘……意味着……’或‘……的本质是……’的阐释性句式",
+      "喜欢用‘不要……而要……’的对比否定句式来强调正确选择",
+      "偶尔使用‘记住：’或‘关键是：’等冒号引导的警句式表达"
+    ],
+    "forbiddenWords": [
+      "绝对",
+      "一定",
+      "必须",
+      "永远",
+      "不可能"
+    ],
+    "tone": "detached",
+    "certaintyLevel": "high",
+    "rhetoricalHabit": "擅长使用类比和比喻，将抽象概念（如财富、幸福）具象化为可操作的原则或模型，例如将‘杠杆’比作放大个人影响力的工具。",
+    "quotePatterns": [
+      "引用古代哲学家（如佛陀、斯多葛学派）的格言来佐证观点",
+      "引用现代科学家或企业家的实践案例作为论据",
+      "常以‘正如……所说’或‘……曾指出’的方式引入他人观点"
+    ],
+    "chineseAdaptation": "保留其‘短句+判断’的核心句式，避免使用冗长的修饰语或复杂的从句,将英文中的‘leverage’、‘accountability’等概念准确转化为中文语境下的‘杠杆’、‘责任’等词汇，并保持其哲学意味,在引用西方典故时，可适当替换为中文读者熟悉的东方智慧（如老子、庄子）以增强共鸣，但需保持其原意的精准性",
+    "verbalMarkers": [
+      "本质上",
+      "换句话说",
+      "关键在于"
+    ],
+    "speakingStyle": "该人物以冷静、理性、直击本质的交流风格著称。他倾向于用极简的语言拆解复杂问题，避免情绪化表达，但偶尔会通过幽默的悖论（如‘幸福是一种技能’）来引发思考。他的语言充满‘反常识’的洞见，常以‘不是……而是……’的结构颠覆听众的固有认知。",
+    "confidence": "high",
+    "confidenceNotes": []
   },
   "validation": {
     "crossLanguageConsistency": 100,

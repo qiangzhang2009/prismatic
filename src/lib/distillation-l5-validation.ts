@@ -210,13 +210,13 @@ function fuseExpression(
 
   return {
     // Target language fields — use primary
-    vocabulary: primary.vocabulary.length > 0 ? primary.vocabulary : primary.vocabulary,
-    sentenceStyle: primary.sentenceStyle,
+    vocabulary: primary.vocabulary.length > 0 ? primary.vocabulary : (secondary.vocabulary ?? []),
+    sentenceStyle: primary.sentenceStyle.length > 0 ? primary.sentenceStyle : (secondary.sentenceStyle ?? []),
     forbiddenWords: primary.forbiddenWords,
 
     // Cross-language fields — use intersection or more distinctive
     tone: primary.tone === secondary.tone ? primary.tone
-      : (primary.certaintyLevel !== secondary.certaintyLevel ? primary.tone : primary.tone),
+      : (primary.confidence === 'high' ? primary.tone : secondary.tone),
     certaintyLevel: primary.certaintyLevel === secondary.certaintyLevel
       ? primary.certaintyLevel
       : 'medium',
@@ -244,6 +244,62 @@ function fuseExpression(
       ...primary.confidenceNotes,
       ...(secondary.confidence !== primary.confidence ? secondary.confidenceNotes : []),
     ],
+  };
+}
+
+// ─── Bilingual Completeness Validation ─────────────────────────────────────────────
+
+export interface BilingualCompletenessResult {
+  passed: boolean;
+  issues: string[];
+  warnings: string[];
+}
+
+export function validateBilingualCompleteness(
+  knowledge: KnowledgeLayer,
+  expression: ExpressionLayer
+): BilingualCompletenessResult {
+  const issues: string[] = [];
+  const warnings: string[] = [];
+
+  // P0: expressionDNA must be non-empty — this is critical for conversation style
+  if (!expression.vocabulary || expression.vocabulary.length === 0) {
+    issues.push('expressionDNA.vocabulary 为空 — 无法生成有风格的对话');
+  }
+  if (!expression.sentenceStyle || expression.sentenceStyle.length === 0) {
+    issues.push('expressionDNA.sentenceStyle 为空 — 无法复现句式习惯');
+  }
+  if (!expression.forbiddenWords || expression.forbiddenWords.length === 0) {
+    warnings.push('expressionDNA.forbiddenWords 为空 — 可能影响风格安全性');
+  }
+
+  // P1: all mentalModels must have Chinese oneLiner
+  for (const mm of knowledge.mentalModels) {
+    if (!mm.oneLinerZh) {
+      issues.push(`mentalModel "${mm.nameZh || mm.name}" 缺少 oneLinerZh`);
+    }
+    if (!mm.applicationZh) {
+      warnings.push(`mentalModel "${mm.nameZh || mm.name}" 缺少 applicationZh`);
+    }
+  }
+
+  // P2: strengths/blindspots must have Chinese versions
+  if (!knowledge.strengthsZh || knowledge.strengthsZh.length === 0) {
+    issues.push('strengthsZh 为空 — 中文优势描述缺失');
+  }
+  if (!knowledge.blindspotsZh || knowledge.blindspotsZh.length === 0) {
+    issues.push('blindspotsZh 为空 — 中文盲点描述缺失');
+  }
+
+  // P2: identity must have Chinese version
+  if (!knowledge.identityPromptZh || knowledge.identityPromptZh.length < 30) {
+    warnings.push('identityPromptZh 过短或为空 — 中文身份描述缺失');
+  }
+
+  return {
+    passed: issues.length === 0,
+    issues,
+    warnings,
   };
 }
 

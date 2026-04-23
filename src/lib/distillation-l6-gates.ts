@@ -22,6 +22,7 @@ import {
   PERSONA_TYPE_WEIGHTS_V4 as WEIGHTS,
   CORPUS_HEALTH_THRESHOLDS,
 } from './distillation-v4-types';
+import { validateBilingualCompleteness } from './distillation-l5-validation';
 import type {
   DistillationScore as LegacyScore,
 } from './types';
@@ -150,6 +151,14 @@ export function evaluateGate2(
     (expression.tone ? 15 : 0) +
     (expression.certaintyLevel ? 15 : 0)
   );
+
+  // V5: Bilingual completeness check — all *_Zh fields must be present
+  const bilingualCheck = validateBilingualCompleteness(knowledge, expression);
+  if (!bilingualCheck.passed) {
+    issues.push(...bilingualCheck.issues.map(i => `中文完整性: ${i}`));
+    autoFixableFindings.push('distill_chinese_completeness:backfill');
+  }
+  issues.push(...bilingualCheck.warnings.map(w => `中文完整性(警告): ${w}`));
 
   let result: GateResult = 'pass';
   const criticalIssues = issues.filter(i =>
@@ -298,6 +307,19 @@ export function diagnoseFailure(
   // Gate 2 failure
   if (gate2.result === 'fail') {
     const missing = gate2.autoFixableFindings.join(', ');
+
+    // V5: Chinese completeness failure → trigger translation backfill
+    if (missing.includes('distill_chinese_completeness')) {
+      return {
+        rootCause: 'translation_loss',
+        diagnosis: `中文完整性检查未通过。${gate2.issues.filter(i => i.includes('中文完整性')).join('; ')}`,
+        fixActions: [
+          'backfill_chinese_fields_via_translation',
+          're_distill_expression_layer',
+          ...gate2.suggestions,
+        ],
+      };
+    }
 
     if (gate2.knowledgeLayerScore < 40) {
       return {

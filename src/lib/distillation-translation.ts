@@ -6,6 +6,7 @@
  * - Knowledge layer (identityPrompt, mentalModels, values, etc.)
  * - Trilingual concept mapping
  * - Translation quality assessment
+ * - Backfill of missing Chinese fields for existing personas
  */
 
 import type {
@@ -13,7 +14,14 @@ import type {
   SupportedLanguage,
   KnowledgeLayer,
   ExtractedMentalModel,
+  ExtractedDecisionHeuristic,
+  ExtractedValue,
+  ExtractedTension,
+  ExtractedHonestBoundary,
 } from './distillation-v4-types';
+import type { LLMProvider } from './llm';
+
+// ─── Known Concept Dictionaries ─────────────────────────────────────────────
 
 // ─── Known Concept Dictionaries ─────────────────────────────────────────────
 
@@ -279,4 +287,183 @@ export function ensureTrilingualConcept(
   }
 
   return result;
+}
+
+// ─── LLM-Assisted Translation ─────────────────────────────────────────────────
+
+export interface TranslateOptions {
+  preserveProperNouns?: string[];
+  personaId?: string;
+  domain?: string[];
+}
+
+function buildTranslationPrompt(
+  text: string,
+  sourceLang: SupportedLanguage,
+  targetLang: SupportedLanguage,
+  options?: TranslateOptions
+): string {
+  const sourceLabel = sourceLang === 'en' ? '英文'
+    : sourceLang === 'de' ? '德文'
+    : sourceLang === 'la' ? '拉丁文'
+    : sourceLang === 'el' ? '古希腊文'
+    : sourceLang === 'zh' ? '中文'
+    : sourceLang;
+
+  const targetLabel = targetLang === 'zh' ? '中文'
+    : targetLang === 'en' ? '英文'
+    : targetLang;
+
+  const nounNote = options?.preserveProperNouns && options.preserveProperNouns.length > 0
+    ? `\n以下专有名词不要翻译：${options.preserveProperNouns.join(', ')}`
+    : '';
+
+  return `将以下${sourceLabel}文本翻译为${targetLabel}。
+
+规则：
+- 保持原文的哲学/概念精确性
+- 保持语气和修辞风格
+- 专有名词（如人名、地名、哲学术语）保留原文${nounNote}
+- 只输出翻译结果，不要添加任何解释或注释
+
+=== 待翻译文本 ===
+${text}
+=== 结束 ===`;
+}
+
+export async function translateField(
+  text: string,
+  targetLang: 'zh-CN' | 'en-US',
+  llm?: LLMProvider | null,
+  options?: TranslateOptions
+): Promise<string> {
+  if (!text || text.trim().length === 0) return text;
+
+  const hasChinese = /[\u4e00-\u9fff]/.test(text);
+  const hasEnglish = /[a-zA-Z]{4,}/.test(text);
+
+  if (targetLang === 'zh-CN' && hasChinese && !hasEnglish) return text;
+  if (targetLang === 'en-US' && hasEnglish && !hasChinese) return text;
+
+  if (!llm) return text;
+
+  const sourceLang: SupportedLanguage = hasChinese ? 'zh' : 'en';
+  const prompt = buildTranslationPrompt(text, sourceLang, 'zh', options);
+
+  try {
+    const response = await llm.chat({
+      model: 'deepseek-chat',
+      messages: [{ role: 'user', content: prompt }],
+      temperature: 0.3,
+      maxTokens: Math.min(text.length * 3, 2000),
+    });
+    return response.content.trim();
+  } catch (err) {
+    console.error('[translateField] LLM translation failed:', err);
+    return text;
+  }
+}
+
+// ─── Batch Backfill ─────────────────────────────────────────────────────────
+
+export interface BackfillOptions {
+  preserveProperNouns?: string[];
+  personaId?: string;
+  domain?: string[];
+}
+
+export async function backfillChineseFields(
+  knowledge: KnowledgeLayer,
+  expression: import('./distillation-v4-types').ExpressionLayer,
+  llm?: LLMProvider | null,
+  options?: BackfillOptions
+): Promise<{ knowledge: KnowledgeLayer; expression: ExpressionLayer }> {
+  if (!llm) {
+    console.warn('[backfillChineseFields] No LLM provided, skipping backfill');
+    return { knowledge, expression };
+  }
+
+  const opts: BackfillOptions = {
+    preserveProperNouns: options?.preserveProperNouns ?? [
+      'Marcus Aurelius', 'Stoicism', 'Epictetus', 'Seneca',
+      'Plato', 'Aristotle', 'Buddha', 'Dharma', 'Nirvana', 'Zen',
+      'wu wei', 'Dao', '道', '无为', '法', '佛法', '涅槃',
+    ],
+    ...options,
+  };
+
+  const identityPromptZh = knowledge.identityPromptZh?.length > 30
+    ? knowledge.identityPromptZh
+    : await translateField(knowledge.identityPrompt, 'zh-CN', llm, opts);
+
+  const mentalModels = await Promise.all(
+    knowledge.mentalModels.map(async (mm) => ({
+      ...mm,
+      oneLinerZh: mm.oneLinerZh || await translateField(mm.oneLiner, 'zh-CN', llm, opts),
+      applicationZh: mm.applicationZh || (mm.application ? await translateField(mm.application, 'zh-CN', llm, opts) : undefined),
+      limitationZh: mm.limitationZh || (mm.limitation ? await translateField(mm.limitation, 'zh-CN', llm, opts) : undefined),
+    }))
+  );
+
+  const decisionHeuristics = await Promise.all(
+    knowledge.decisionHeuristics.map(async (h) => ({
+      ...h,
+      descriptionZh: h.descriptionZh || await translateField(h.description, 'zh-CN', llm, opts),
+      applicationZh: h.applicationZh || (h.application ? await translateField(h.application, 'zh-CN', llm, opts) : undefined),
+      exampleZh: h.exampleZh || (h.example ? await translateField(h.example, 'zh-CN', llm, opts) : undefined),
+    }))
+  );
+
+  const values = await Promise.all(
+    knowledge.values.map(async (v) => ({
+      ...v,
+      descriptionZh: v.descriptionZh || await translateField(v.description, 'zh-CN', llm, opts),
+    }))
+  );
+
+  const tensions = await Promise.all(
+    knowledge.tensions.map(async (t) => ({
+      ...t,
+      tensionZh: t.tensionZh || await translateField(t.tension, 'zh-CN', llm, opts),
+      descriptionZh: t.descriptionZh || (t.description ? await translateField(t.description, 'zh-CN', llm, opts) : undefined),
+    }))
+  );
+
+  let strengthsZh = knowledge.strengthsZh;
+  let blindspotsZh = knowledge.blindspotsZh;
+
+  if ((!strengthsZh || strengthsZh.length === 0) && knowledge.strengths.length > 0) {
+    strengthsZh = await Promise.all(
+      knowledge.strengths.map(s => translateField(s, 'zh-CN', llm, opts))
+    );
+  }
+
+  if ((!blindspotsZh || blindspotsZh.length === 0) && knowledge.blindspots.length > 0) {
+    blindspotsZh = await Promise.all(
+      knowledge.blindspots.map(s => translateField(s, 'zh-CN', llm, opts))
+    );
+  }
+
+  const honestBoundaries = await Promise.all(
+    knowledge.honestBoundaries.map(async (hb) => ({
+      ...hb,
+      textZh: hb.textZh || await translateField(hb.text, 'zh-CN', llm, opts),
+      reasonZh: hb.reasonZh || (hb.reason ? await translateField(hb.reason, 'zh-CN', llm, opts) : undefined),
+    }))
+  );
+
+  return {
+    knowledge: {
+      ...knowledge,
+      identityPromptZh,
+      mentalModels,
+      decisionHeuristics,
+      values,
+      tensions,
+      strengthsZh: strengthsZh ?? [],
+      blindspotsZh: blindspotsZh ?? [],
+      honestBoundaries,
+    },
+    expression,
+  };
 }

@@ -509,23 +509,53 @@
     "confidenceNotes": []
   },
   "expression": {
-    "vocabulary": [],
-    "sentenceStyle": [],
-    "forbiddenWords": [],
+    "vocabulary": [
+      "先生",
+      "阁下",
+      "岂有此理",
+      "放肆",
+      "荒谬",
+      "恕我直言",
+      "依我之见",
+      "诚然",
+      "然而",
+      "故而",
+      "务必",
+      "断不可",
+      "此等",
+      "如此这般",
+      "岂敢"
+    ],
+    "sentenceStyle": [
+      "使用反问句加强语气，如‘岂有此理？’‘何至于此？’",
+      "偏好‘……是也’或‘……之……’的文言句式",
+      "常用‘恕我……’开头表达谦逊或不满",
+      "多用‘然而’‘故而’等转折连词连接观点"
+    ],
+    "forbiddenWords": [
+      "牛逼",
+      "卧槽",
+      "绝了",
+      "躺平",
+      "内卷"
+    ],
     "tone": "formal",
-    "certaintyLevel": "medium",
-    "rhetoricalHabit": "长短句交错，节奏自然",
-    "quotePatterns": [],
-    "rhythm": "长短句交错，节奏自然",
-    "rhythmDescription": "长短句交错，节奏自然",
-    "chineseAdaptation": "",
-    "verbalMarkers": [],
-    "speakingStyle": "措辞严谨、正式；长短句交错，节奏自然。",
-    "confidence": "medium",
-    "confidenceNotes": [
-      "词汇样本不足",
-      "语料过短，表达层提取受限"
-    ]
+    "certaintyLevel": "high",
+    "rhetoricalHabit": "善用反问与排比，通过连续质问或对比来强化观点，如‘此等行径，岂非荒谬？岂非可耻？’",
+    "quotePatterns": [
+      "引用古典典故或兵法，如‘孙子曰……’",
+      "引用西方格言或军事名言，如‘拿破仑曾言……’",
+      "引用《圣经》或宗教典故，如‘如经上所记……’"
+    ],
+    "chineseAdaptation": "1. 多用‘之’‘乎’‘者’‘也’等文言虚词，避免口语化表达。2. 保持反问句和排比句的使用，以体现其权威与不容辩驳。3. 在引用典故时，优先选择中外军事或历史经典，避免现代流行文化引用。",
+    "verbalMarkers": [
+      "岂有此理",
+      "恕我直言",
+      "诚然如此"
+    ],
+    "speakingStyle": "该人物说话时带有19世纪末军官的正式与威严，措辞考究，常以居高临下的口吻训诫或质问。中文表达中会刻意使用文言词汇和书面语，显得庄重而略带迂腐，但逻辑清晰、不容置疑。",
+    "confidence": "high",
+    "confidenceNotes": []
   },
   "validation": {
     "crossLanguageConsistency": 100,

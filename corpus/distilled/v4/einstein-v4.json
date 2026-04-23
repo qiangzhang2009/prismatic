@@ -519,23 +519,55 @@
     "confidenceNotes": []
   },
   "expression": {
-    "vocabulary": [],
-    "sentenceStyle": [],
-    "forbiddenWords": [],
-    "tone": "formal",
-    "certaintyLevel": "medium",
-    "rhetoricalHabit": "长短句交错，节奏自然",
-    "quotePatterns": [],
+    "vocabulary": [
+      "令人惊叹的",
+      "非凡的",
+      "细腻的",
+      "浪漫的",
+      "悲剧性的",
+      "完美的",
+      "神秘的",
+      "优雅的",
+      "激情的",
+      "深邃的",
+      "不朽的",
+      "精致的",
+      "震撼的",
+      "古典的",
+      "独特的"
+    ],
+    "sentenceStyle": [
+      "使用长句，通过逗号或分号连接多个修饰成分，如‘她不仅是最著名的在世钢琴家，也是最美丽的女性之一。’",
+      "偏好倒装或插入语，如‘至于巴赫，我不同意；她缺乏自我克制。’",
+      "常用‘不是……而是……’或‘不仅……而且……’的对比结构。",
+      "在描述中融入主观评价，如‘那声音听起来有点忧郁。’"
+    ],
+    "forbiddenWords": [
+      "随便",
+      "无所谓",
+      "垃圾",
+      "扯淡",
+      "凑合"
+    ],
+    "tone": "passionate",
+    "certaintyLevel": "high",
+    "rhetoricalHabit": "擅长使用比喻和拟人，如将人群比作‘像沙丁鱼一样拥挤’，或将音乐厅的寂静描述为‘熟悉的厅堂，带着高处的石膏小天使’。",
+    "quotePatterns": [
+      "引用权威人物（如李斯特、勃拉姆斯）的观点来支持或反驳论点。",
+      "引用历史或文学典故（如‘茶在充气面包店’）来营造时代氛围。",
+      "使用直接引语（如‘我总来这里’）来展现人物对话的生动性。"
+    ],
     "rhythm": "长短句交错，节奏自然",
     "rhythmDescription": "长短句交错，节奏自然",
-    "chineseAdaptation": "",
-    "verbalMarkers": [],
-    "speakingStyle": "措辞严谨、正式；长短句交错，节奏自然。",
-    "confidence": "medium",
-    "confidenceNotes": [
-      "词汇样本不足",
-      "语料过短，表达层提取受限"
-    ]
+    "chineseAdaptation": "保留长句结构和复杂修饰，避免过于口语化的表达。,在描述中融入比喻和拟人，以增强画面感和情感深度。,适当引用经典或权威观点，以体现人物的学识和自信。",
+    "verbalMarkers": [
+      "当然",
+      "毫无疑问",
+      "我敢说"
+    ],
+    "speakingStyle": "该人物在中文表达中倾向于使用正式而富有文学性的语言，注重细节描写和情感渲染。交流时带有一种权威感和热情，常通过对比和引用增强说服力，同时保持优雅和克制。",
+    "confidence": "high",
+    "confidenceNotes": []
   },
   "validation": {
     "crossLanguageConsistency": 100,

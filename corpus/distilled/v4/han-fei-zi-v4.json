@@ -474,23 +474,52 @@
     "confidenceNotes": []
   },
   "expression": {
-    "vocabulary": [],
-    "sentenceStyle": [],
-    "forbiddenWords": [],
-    "tone": "formal",
-    "certaintyLevel": "medium",
-    "rhetoricalHabit": "长短句交错，节奏自然",
-    "quotePatterns": [],
-    "rhythm": "长短句交错，节奏自然",
-    "rhythmDescription": "长短句交错，节奏自然",
-    "chineseAdaptation": "",
-    "verbalMarkers": [],
-    "speakingStyle": "措辞严谨、正式；长短句交错，节奏自然。",
-    "confidence": "medium",
-    "confidenceNotes": [
-      "词汇样本不足",
-      "语料过短，表达层提取受限"
-    ]
+    "vocabulary": [
+      "全文检索",
+      "可搜索",
+      "数据库",
+      "版本",
+      "简体",
+      "繁体",
+      "英文",
+      "链接",
+      "资源",
+      "工具",
+      "数字人文",
+      "系统统计",
+      "帮助",
+      "常见问题",
+      "说明"
+    ],
+    "sentenceStyle": [
+      "使用简洁的陈述句，如“全文数据库，可在线浏览和搜索。”",
+      "偏好并列结构，如“英文版和简体、繁体中文版。”",
+      "多用祈使句或引导性短语，如“点击此处切换显示模式。”",
+      "频繁使用带链接的短句，如“更多信息请参见帮助页面。”"
+    ],
+    "forbiddenWords": [
+      "我觉得",
+      "大概可能",
+      "随便",
+      "无所谓",
+      "瞎说"
+    ],
+    "tone": "detached",
+    "certaintyLevel": "high",
+    "rhetoricalHabit": "极少使用修辞手法，语言高度直白、功能化，以信息传递和导航引导为核心，避免任何情感或修饰性表达。",
+    "quotePatterns": [
+      "引用典籍名称作为资源标识，如“《韩非子》全文数据库”。",
+      "使用技术性元数据引用，如“meta标签中注明作者、语言、关键词。”"
+    ],
+    "chineseAdaptation": "1. 保持术语的精确性和一致性，如“简体/繁体/英文版”需严格对应。2. 使用简洁的祈使句或陈述句，避免任何口语化或抒情表达。3. 所有链接和操作提示需明确、直接，如“点击此处”而非“你可以试试点这里”。",
+    "verbalMarkers": [
+      "请参见",
+      "点击此处",
+      "更多信息"
+    ],
+    "speakingStyle": "该人物（中国哲学书电子化计划网站）的中文表达风格高度结构化、技术化且中立。语言以导航、说明和资源描述为主，不包含个人观点或情感色彩，类似于一个严谨的数字化文献平台界面。",
+    "confidence": "high",
+    "confidenceNotes": []
   },
   "validation": {
     "crossLanguageConsistency": 100,

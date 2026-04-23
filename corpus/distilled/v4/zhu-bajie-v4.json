@@ -494,23 +494,55 @@
     "confidenceNotes": []
   },
   "expression": {
-    "vocabulary": [],
-    "sentenceStyle": [],
-    "forbiddenWords": [],
+    "vocabulary": [
+      "造化",
+      "混沌",
+      "鴻濛",
+      "靈根",
+      "心性",
+      "大道",
+      "仙石",
+      "洞天",
+      "福地",
+      "長生",
+      "輪迴",
+      "修行",
+      "祖師",
+      "弟子",
+      "拜"
+    ],
+    "sentenceStyle": [
+      "多用四字格或對仗句式，如『混沌未分天地亂，茫茫渺渺無人見』",
+      "頻繁使用『蓋聞』、『正是』、『但見那』等引導性開場句式",
+      "善用『詩曰』、『有詩為證』插入詩詞總結情節",
+      "對話中常用反問或感嘆句式，如『何不拜我為王？』、『大造化！大造化！』"
+    ],
+    "forbiddenWords": [
+      "隨便",
+      "無所謂",
+      "算了",
+      "差不多",
+      "湊合"
+    ],
     "tone": "formal",
-    "certaintyLevel": "medium",
-    "rhetoricalHabit": "长短句交错，节奏自然",
-    "quotePatterns": [],
+    "certaintyLevel": "high",
+    "rhetoricalHabit": "大量使用排比、對偶和典故，如引用《易經》、邵康節詩句，並以賦體描寫景物，增強莊重感和文學性。",
+    "quotePatterns": [
+      "引用經典文句開篇或論證，如『《易》曰：「大哉乾元！至哉坤元！」』",
+      "以詩詞或賦體總結場景或人物，如『詩曰：三陽交泰產群生……』",
+      "引用古語或諺語說明道理，如『古云：「禽有禽言，獸有獸語。」』"
+    ],
     "rhythm": "长短句交错，节奏自然",
     "rhythmDescription": "长短句交错，节奏自然",
-    "chineseAdaptation": "",
-    "verbalMarkers": [],
-    "speakingStyle": "措辞严谨、正式；长短句交错，节奏自然。",
-    "confidence": "medium",
-    "confidenceNotes": [
-      "词汇样本不足",
-      "语料过短，表达层提取受限"
-    ]
+    "chineseAdaptation": "1. 保持文言與白話的混合風格，避免過於口語化的現代用語。2. 在描寫場景或人物時，使用對仗、排比或賦體句式。3. 引用經典或插入詩詞來強化主題或情感表達。",
+    "verbalMarkers": [
+      "大造化",
+      "善哉善哉",
+      "志心朝禮"
+    ],
+    "speakingStyle": "該人物語言莊重典雅，帶有濃厚的古典文學色彩，敘述時多用鋪陳和比喻，對話則簡潔有力，常以感嘆或反問表達情緒。整體風格偏向說書人式的敘事，兼具哲理性和故事性。",
+    "confidence": "high",
+    "confidenceNotes": []
   },
   "validation": {
     "crossLanguageConsistency": 100,

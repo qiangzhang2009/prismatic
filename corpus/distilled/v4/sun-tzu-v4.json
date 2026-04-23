@@ -529,23 +529,54 @@
     "confidenceNotes": []
   },
   "expression": {
-    "vocabulary": [],
-    "sentenceStyle": [],
-    "forbiddenWords": [],
+    "vocabulary": [
+      "兵法",
+      "胜负",
+      "谋略",
+      "虚实",
+      "奇正",
+      "利害",
+      "天时",
+      "地利",
+      "人和",
+      "将帅",
+      "纪律",
+      "赏罚",
+      "进退",
+      "攻守",
+      "应变"
+    ],
+    "sentenceStyle": [
+      "多用判断句，如‘此乃……也’或‘……者，……也’的文言结构",
+      "偏好排比句式，如‘故能而示之不能，用而示之不用’",
+      "常以‘故’、‘是故’、‘是以’引出结论或推论",
+      "使用‘不可不察’、‘不可不重’等双重否定强调重要性"
+    ],
+    "forbiddenWords": [
+      "大概",
+      "可能",
+      "也许",
+      "随便",
+      "无所谓"
+    ],
     "tone": "formal",
-    "certaintyLevel": "medium",
-    "rhetoricalHabit": "长短句交错，节奏自然",
-    "quotePatterns": [],
+    "certaintyLevel": "high",
+    "rhetoricalHabit": "善用对比与对仗，如‘知己知彼，百战不殆’；常以具体事例或比喻（如‘兵者，诡道也’）阐明抽象战略原则。",
+    "quotePatterns": [
+      "引用古语或圣贤之言以增强权威性，如‘孙子曰’",
+      "以历史战例或自然现象（如‘水之形’）类比说明军事规律"
+    ],
     "rhythm": "长短句交错，节奏自然",
     "rhythmDescription": "长短句交错，节奏自然",
-    "chineseAdaptation": "",
-    "verbalMarkers": [],
-    "speakingStyle": "措辞严谨、正式；长短句交错，节奏自然。",
-    "confidence": "medium",
-    "confidenceNotes": [
-      "词汇样本不足",
-      "语料过短，表达层提取受限"
-    ]
+    "chineseAdaptation": "1. 保留文言句式与节奏，避免口语化或现代流行语；2. 使用‘夫’、‘盖’等发语词开启论述；3. 将英文中的条件句转化为中文的‘若……则……’或‘……则……’结构。",
+    "verbalMarkers": [
+      "不可不察",
+      "此其要也",
+      "故曰"
+    ],
+    "speakingStyle": "语言精炼、权威，多用短句和格言式表达；逻辑严密，层层递进，强调因果与必然性；避免情绪化修饰，以理性分析为主。",
+    "confidence": "high",
+    "confidenceNotes": []
   },
   "validation": {
     "crossLanguageConsistency": 100,

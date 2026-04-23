@@ -516,23 +516,55 @@
     "confidenceNotes": []
   },
   "expression": {
-    "vocabulary": [],
-    "sentenceStyle": [],
-    "forbiddenWords": [],
+    "vocabulary": [
+      "造化",
+      "混沌",
+      "鴻濛",
+      "靈根",
+      "心性",
+      "大道",
+      "輪迴",
+      "長生",
+      "仙道",
+      "祖師",
+      "洞天",
+      "福地",
+      "精華",
+      "無常",
+      "修行"
+    ],
+    "sentenceStyle": [
+      "多用對仗工整的詩句或賦體開篇，如『混沌未分天地亂，茫茫渺渺無人見』",
+      "善用『蓋聞』、『正是』、『但見那』等文言引導詞引出敘述或描寫",
+      "頻繁使用『卻說』、『且就』、『再經』等轉折或遞進句式推進情節",
+      "人物對話中常以『列位呵』、『小的們』等稱呼開頭，體現等級與親切並存"
+    ],
+    "forbiddenWords": [
+      "隨便",
+      "無所謂",
+      "算了",
+      "差不多",
+      "湊合"
+    ],
     "tone": "formal",
-    "certaintyLevel": "medium",
-    "rhetoricalHabit": "长短句交错，节奏自然",
-    "quotePatterns": [],
+    "certaintyLevel": "high",
+    "rhetoricalHabit": "擅長運用排比與對偶，如『春採百花為飲食，夏尋諸果作生涯』，並大量嵌入詩詞歌賦以增強敘事的韻律感和莊重感。",
+    "quotePatterns": [
+      "引用《易經》等經典原文，如『大哉乾元！至哉坤元！』",
+      "化用或直接引用古語、諺語，如『禽有禽言，獸有獸語』、『人而無信，不知其可』",
+      "以詩曰、詞賦為證的形式總結或渲染場景，如『有詩為證』、『有詞賦為證』"
+    ],
     "rhythm": "长短句交错，节奏自然",
     "rhythmDescription": "长短句交错，节奏自然",
-    "chineseAdaptation": "",
-    "verbalMarkers": [],
-    "speakingStyle": "措辞严谨、正式；长短句交错，节奏自然。",
-    "confidence": "medium",
-    "confidenceNotes": [
-      "词汇样本不足",
-      "语料过短，表达层提取受限"
-    ]
+    "chineseAdaptation": "保留文言句式與對仗結構，避免過度口語化，以維持原文的古典韻味。,在人物對話中適當加入稱謂詞如『列位』、『小的們』，以體現身份與關係。,引用經典或古語時，保持原文出處的完整性，並以『正是』、『古云』等引導詞自然過渡。",
+    "verbalMarkers": [
+      "大造化",
+      "善哉善哉",
+      "正是那"
+    ],
+    "speakingStyle": "該人物語言風格典雅莊重，兼具敘事與說理功能，常以宏大的宇宙觀開篇，層層遞進。對話中既有威嚴的訓誡，也有親切的呼喚，體現出上位者與下屬之間的禮儀與關懷。整體節奏舒緩，富於韻律感。",
+    "confidence": "high",
+    "confidenceNotes": []
   },
   "validation": {
     "crossLanguageConsistency": 100,

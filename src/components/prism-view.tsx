@@ -1,15 +1,22 @@
 /**
  * Prismatic — Prism View Component
- * Multi-perspective analysis display
+ * Multi-perspective analysis display with structured synthesis
  */
 
 'use client';
 
-import { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { getPersonasByIds } from '@/lib/personas';
 import type { Persona } from '@/lib/types';
+
+interface SynthesisData {
+  id?: string;
+  content: string;
+  timestamp?: string;
+  _usage?: any;
+  isPrediction?: boolean;
+}
 
 interface PrismViewProps {
   perspectives: {
@@ -18,12 +25,83 @@ interface PrismViewProps {
     confidence: number;
     mentalModelUsed?: string;
   }[];
-  synthesis?: string;
+  synthesis?: SynthesisData;
   loading?: boolean;
+}
+
+interface SynthesisSection {
+  label: string;
+  icon: string;
+  color: string;
+  bgColor: string;
+  content: string;
+}
+
+// Parse structured synthesis content into sections
+function parseSynthesis(content: string): SynthesisSection[] {
+  const sections: SynthesisSection[] = [];
+
+  const consensusMatch = content.match(/## 共识\n([\s\S]*?)(?=## |$)/i);
+  if (consensusMatch) {
+    sections.push({
+      label: '共识',
+      icon: '🤝',
+      color: 'text-emerald-400',
+      bgColor: 'bg-emerald-500/10 border-emerald-500/20',
+      content: consensusMatch[1].trim(),
+    });
+  }
+
+  const disagreementMatch = content.match(/## 分歧\n([\s\S]*?)(?=## |$)/i);
+  if (disagreementMatch) {
+    sections.push({
+      label: '分歧',
+      icon: '⚡',
+      color: 'text-amber-400',
+      bgColor: 'bg-amber-500/10 border-amber-500/20',
+      content: disagreementMatch[1].trim(),
+    });
+  }
+
+  const blindspotMatch = content.match(/## 盲点\n([\s\S]*?)(?=## |$)/i);
+  if (blindspotMatch) {
+    sections.push({
+      label: '盲点',
+      icon: '👁️',
+      color: 'text-red-400',
+      bgColor: 'bg-red-500/10 border-red-500/20',
+      content: blindspotMatch[1].trim(),
+    });
+  }
+
+  const futureMatch = content.match(/## 未来视角\n([\s\S]*?)(?=## |$)/i);
+  if (futureMatch) {
+    sections.push({
+      label: '未来视角',
+      icon: '🔮',
+      color: 'text-purple-400',
+      bgColor: 'bg-purple-500/10 border-purple-500/20',
+      content: futureMatch[1].trim(),
+    });
+  }
+
+  // Fallback: treat entire content as single section
+  if (sections.length === 0 && content.trim()) {
+    sections.push({
+      label: '综合分析',
+      icon: '✨',
+      color: 'text-prism-blue',
+      bgColor: 'bg-prism-blue/10 border-prism-blue/20',
+      content: content.trim(),
+    });
+  }
+
+  return sections;
 }
 
 export function PrismView({ perspectives, synthesis, loading }: PrismViewProps) {
   const personas = getPersonasByIds(perspectives.map((p) => p.personaId));
+  const synthesisSections = synthesis ? parseSynthesis(synthesis.content) : [];
 
   return (
     <div className="space-y-6">
@@ -102,22 +180,53 @@ export function PrismView({ perspectives, synthesis, loading }: PrismViewProps) 
         })}
       </div>
 
-      {/* Synthesis */}
-      {synthesis && (
+      {/* Enhanced Synthesis — Structured sections */}
+      {synthesisSections.length > 0 && (
         <motion.div
           className="rounded-2xl p-6 border border-border-subtle bg-gradient-to-br from-bg-surface to-bg-elevated"
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, delay: perspectives.length * 0.1 }}
         >
-          <div className="flex items-center gap-2 mb-4">
+          {/* Synthesis header */}
+          <div className="flex items-center gap-2 mb-5">
             <div className="w-2 h-2 rounded-full bg-prism-green" />
-            <h3 className="font-medium text-sm">综合分析</h3>
+            <h3 className="font-medium text-sm">
+              {synthesis?.isPrediction ? '折射洞察 + 未来判断' : '折射洞察'}
+            </h3>
+            {synthesis?.isPrediction && (
+              <span className="text-[10px] px-2 py-0.5 rounded-full bg-purple-500/15 text-purple-400 border border-purple-500/20">
+                🔮 含未来视角
+              </span>
+            )}
           </div>
-          <div className="prose prose-sm prose-invert max-w-none">
-            <div className="text-sm leading-relaxed text-text-primary whitespace-pre-wrap">
-              {synthesis}
-            </div>
+
+          {/* Structured sections */}
+          <div className="space-y-3">
+            {synthesisSections.map((section, index) => (
+              <motion.div
+                key={section.label}
+                initial={{ opacity: 0, x: -8 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.3, delay: perspectives.length * 0.1 + index * 0.08 }}
+                className={cn(
+                  'rounded-xl p-4 border',
+                  section.bgColor
+                )}
+              >
+                <div className="flex items-start gap-2">
+                  <span className="text-base flex-shrink-0 mt-0.5">{section.icon}</span>
+                  <div className="flex-1 min-w-0">
+                    <div className={cn('text-xs font-semibold mb-1.5', section.color)}>
+                      {section.label}
+                    </div>
+                    <div className="text-sm leading-relaxed text-text-primary whitespace-pre-wrap">
+                      {section.content}
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+            ))}
           </div>
         </motion.div>
       )}

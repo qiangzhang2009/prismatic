@@ -503,23 +503,55 @@
     "confidenceNotes": []
   },
   "expression": {
-    "vocabulary": [],
-    "sentenceStyle": [],
-    "forbiddenWords": [],
+    "vocabulary": [
+      "造化",
+      "混沌",
+      "鴻濛",
+      "靈根",
+      "心性",
+      "大道",
+      "仙石",
+      "洞天",
+      "福地",
+      "長生不老",
+      "輪迴",
+      "修行",
+      "祖師",
+      "弟子",
+      "志心朝禮"
+    ],
+    "sentenceStyle": [
+      "多用對仗工整的詩句或賦體開篇或總結，如‘混沌未分天地亂，茫茫渺渺無人見’。",
+      "頻繁使用‘蓋聞’、‘正是’、‘但見那’等文言引導詞引出敘述或描寫。",
+      "對話中常以‘列位呵’、‘小的們’等稱呼開頭，體現角色間的尊卑關係。",
+      "善用‘真個是’、‘果是’等強調性短語加強語氣。"
+    ],
+    "forbiddenWords": [
+      "隨便",
+      "無所謂",
+      "隨便啦",
+      "算了",
+      "差不多"
+    ],
     "tone": "formal",
-    "certaintyLevel": "medium",
-    "rhetoricalHabit": "长短句交错，节奏自然",
-    "quotePatterns": [],
+    "certaintyLevel": "high",
+    "rhetoricalHabit": "擅長運用排比、對偶和典故，如‘天開於子，地闢於丑’、‘爭名奪利幾時休？早起遲眠不自由！’，並常以詩詞賦文穿插敘事，增強莊重感和文學性。",
+    "quotePatterns": [
+      "引用《易經》等經典原文，如‘大哉乾元！至哉坤元！’。",
+      "引用古語或諺語，如‘禽有禽言，獸有獸語’、‘人而無信，不知其可’。",
+      "引用歷史人物言論，如‘邵康節曰：冬至子之半，天心無改移’。"
+    ],
     "rhythm": "长短句交错，节奏自然",
     "rhythmDescription": "长短句交错，节奏自然",
-    "chineseAdaptation": "",
-    "verbalMarkers": [],
-    "speakingStyle": "措辞严谨、正式；长短句交错，节奏自然。",
-    "confidence": "medium",
-    "confidenceNotes": [
-      "词汇样本不足",
-      "语料过短，表达层提取受限"
-    ]
+    "chineseAdaptation": "保持文言與白話的適度混合，避免過於現代或口語化的表達，尤其要保留詩詞賦文的穿插。,在對話中體現角色身份差異，如祖師用詞更為威嚴簡潔，猴王則帶有天真活潑的語氣。,善用四字成語、對仗句和典故，以增強文本的古典韻味和說服力。",
+    "verbalMarkers": [
+      "大造化！",
+      "善哉，善哉！",
+      "正是那："
+    ],
+    "speakingStyle": "該人物語言風格典雅莊重，帶有濃厚的古典文學色彩，敘述時多用文言句式，對話則兼具口語化與禮儀性。表達中常融入哲理性思考，如對天地、生死、修行的探討，體現出超凡脫俗的智慧與從容。",
+    "confidence": "high",
+    "confidenceNotes": []
   },
   "validation": {
     "crossLanguageConsistency": 100,

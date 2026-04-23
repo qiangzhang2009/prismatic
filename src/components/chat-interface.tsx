@@ -1152,11 +1152,13 @@ export function ChatInterface({ className, initialPersona, initialMode }: ChatIn
               {mode === 'solo'
                 ? `向${selectedPersonas[0]?.nameZh}提出你的问题`
                 : mode === 'prism'
-                ? `${selectedIds.length}个视角折射出完整光谱`
+                ? `${selectedIds.length}个视角折射出完整认知地图`
                 : mode === 'roundtable'
                 ? `${selectedIds.length}位思想家正在激烈碰撞`
                 : mode === 'epoch'
-                ? `关公战秦琼，正面交锋即将上演`
+                ? `跨越时空的正面对决，即将上演`
+                : mode === 'mission'
+                ? `任务特攻队开始协作，目标：完整产出`
                 : mode === 'council'
                 ? `${selectedIds.length}位顾问正在为您出谋划策`
                 : mode === 'oracle'

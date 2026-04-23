@@ -624,29 +624,54 @@
     "confidenceNotes": []
   },
   "expression": {
-    "vocabulary": [],
-    "sentenceStyle": [
-      "善用引证",
-      "善用短句，简洁有力"
+    "vocabulary": [
+      "投资者关系",
+      "公司概览",
+      "财务信息",
+      "股票代码",
+      "年度报告",
+      "代理声明",
+      "新闻稿",
+      "SEC文件",
+      "企业管治",
+      "董事会",
+      "股东",
+      "收益发布",
+      "常见问题",
+      "联系我们",
+      "电子邮件提醒"
     ],
-    "forbiddenWords": [],
+    "sentenceStyle": [
+      "使用无主语的祈使句或省略句，如'Skip to main content'",
+      "大量使用名词性短语堆叠，如'Amazon.com, Inc. - Overview'",
+      "偏好使用被动语态或非人称结构，如'is designed to'",
+      "频繁使用冒号或破折号进行信息分隔，如'Q4ApiKey: 'BF185719B0464B3CB809D23926182246'"
+    ],
+    "forbiddenWords": [
+      "我觉得",
+      "可能吧",
+      "大概",
+      "随便",
+      "无所谓"
+    ],
     "tone": "formal",
-    "certaintyLevel": "medium",
-    "rhetoricalHabit": "长句为主，论证缜密",
+    "certaintyLevel": "high",
+    "rhetoricalHabit": "极少使用修辞手法，以信息传递和功能导向为主，偶尔使用排比结构强调关键信息点。",
     "quotePatterns": [
-      "平均引用长度: 41 字符"
+      "引用技术标准或协议名称，如'RevealTrans(Duration=0,Transition=0)'",
+      "引用公司内部代码或标识符，如'Q4SnowplowLib_ipLocStorageKey'"
     ],
     "rhythm": "长句为主，论证缜密",
     "rhythmDescription": "长句为主，论证缜密",
-    "chineseAdaptation": "回复保持简短有力，避免冗长段落",
+    "chineseAdaptation": "保持正式、客观的语调，避免使用口语化或情绪化表达，如'我们觉得'应改为'公司认为'。,使用标准化的专业术语和固定搭配，如'投资者关系'、'SEC文件'，避免随意替换同义词。,句子结构保持简洁、直接，多用名词短语和短句，避免复杂从句和修饰性语言，如'点击此处'而非'您可以点击这个链接来获取更多信息'。",
     "verbalMarkers": [
-      "&#39;&#39;"
+      "请参见",
+      "请注意",
+      "更多信息"
     ],
-    "speakingStyle": "措辞严谨、正式；长句为主，论证缜密。",
-    "confidence": "medium",
-    "confidenceNotes": [
-      "词汇样本不足"
-    ]
+    "speakingStyle": "该人物（亚马逊投资者关系网站）的中文表达风格高度正式、结构化，以信息传递为核心，避免任何主观评价或情感色彩。语言精确、简洁，大量使用专业术语和固定格式，如同法律文件或技术文档。",
+    "confidence": "high",
+    "confidenceNotes": []
   },
   "validation": {
     "crossLanguageConsistency": 100,

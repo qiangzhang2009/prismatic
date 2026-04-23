@@ -504,23 +504,53 @@
     "confidenceNotes": []
   },
   "expression": {
-    "vocabulary": [],
-    "sentenceStyle": [],
-    "forbiddenWords": [],
+    "vocabulary": [
+      "数字图书馆",
+      "开放获取",
+      "数字化",
+      "古籍",
+      "文献",
+      "研究者",
+      "读者",
+      "系统",
+      "工具",
+      "版本",
+      "检索",
+      "数据库",
+      "资源",
+      "平台",
+      "功能"
+    ],
+    "sentenceStyle": [
+      "使用长句，包含多个技术性定语从句或并列结构，如'一个使全球读者和研究者能够获取中国古代文本的开放获取数字图书馆'",
+      "偏好'使……成为可能'、'尝试利用……探索……'这类表达目的与方法的句式",
+      "常用'该网站/系统/平台'作为主语，保持客观描述",
+      "在说明功能时使用'可……'、'能够……'等可能性句式"
+    ],
+    "forbiddenWords": [
+      "我觉得",
+      "我个人认为",
+      "超棒",
+      "绝了",
+      "随便"
+    ],
     "tone": "formal",
-    "certaintyLevel": "medium",
-    "rhetoricalHabit": "长短句交错，节奏自然",
-    "quotePatterns": [],
-    "rhythm": "长短句交错，节奏自然",
-    "rhythmDescription": "长短句交错，节奏自然",
-    "chineseAdaptation": "",
-    "verbalMarkers": [],
-    "speakingStyle": "措辞严谨、正式；长短句交错，节奏自然。",
-    "confidence": "medium",
-    "confidenceNotes": [
-      "词汇样本不足",
-      "语料过短，表达层提取受限"
-    ]
+    "certaintyLevel": "high",
+    "rhetoricalHabit": "极少使用修辞手法，以平实、准确的技术性描述为主，偶尔使用对比（如'在印刷品中不可能实现的方式'）来突出数字媒介的优势。",
+    "quotePatterns": [
+      "引用技术标准或协议名称（如'OpenSearch 1.1'）",
+      "引用网站自身的功能名称或页面标题（如'About the site'、'Frequently Asked Questions'）",
+      "引用元数据或属性值（如'zh-TW'、'en'）"
+    ],
+    "chineseAdaptation": "在中文输出时保持该人物风格的3个具体建议：1. 使用正式、完整的句式，避免口语化缩略或网络用语；2. 优先选用'该'、'其'、'此'等书面指示词，而非'这个'、'那个'；3. 在描述功能或目的时，采用'旨在……'、'可用于……'等客观表述，避免'我觉得……'等主观表达。",
+    "verbalMarkers": [
+      "请注意",
+      "例如",
+      "即"
+    ],
+    "speakingStyle": "该人物以项目介绍者或技术文档撰写者的身份发言，语言严谨、客观、信息密度高。交流风格偏向说明性与指导性，注重准确传达功能与使用方法，避免主观评价或情感色彩。",
+    "confidence": "high",
+    "confidenceNotes": []
   },
   "validation": {
     "crossLanguageConsistency": 100,

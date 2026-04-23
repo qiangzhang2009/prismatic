@@ -532,23 +532,55 @@
     "confidenceNotes": []
   },
   "expression": {
-    "vocabulary": [],
-    "sentenceStyle": [],
-    "forbiddenWords": [],
+    "vocabulary": [
+      "造化",
+      "大道",
+      "天地",
+      "混沌",
+      "靈根",
+      "心性",
+      "修持",
+      "仙道",
+      "長生",
+      "輪迴",
+      "洞天",
+      "福地",
+      "祖師",
+      "弟子",
+      "無量之福"
+    ],
+    "sentenceStyle": [
+      "多用对仗工整的骈句，如‘朝遊花果山，暮宿水簾洞’。",
+      "频繁使用‘正是那’、‘但見那’、‘真個是’等引出描写或总结。",
+      "善用‘蓋聞’、‘卻說’、‘且就’等文言叙事开头。",
+      "对话中常以‘列位呵’、‘小的們’等称呼开头，体现等级与亲切并存。"
+    ],
+    "forbiddenWords": [
+      "随便",
+      "无所谓",
+      "算了",
+      "拉倒",
+      "搞定"
+    ],
     "tone": "formal",
-    "certaintyLevel": "medium",
-    "rhetoricalHabit": "长短句交错，节奏自然",
-    "quotePatterns": [],
+    "certaintyLevel": "high",
+    "rhetoricalHabit": "大量使用排比、对偶和引用典故（如《易》曰、邵康节曰），以增强叙事的庄重感和宿命论色彩。",
+    "quotePatterns": [
+      "引用经典典籍原文，如‘《易》曰：大哉乾元！至哉坤元！’",
+      "引用古诗或词赋作为场景描写，如‘詩曰：混沌未分天地亂’",
+      "引用民间俗语或古语，如‘禽有禽言，獸有獸語’、‘人而無信，不知其可’"
+    ],
     "rhythm": "长短句交错，节奏自然",
     "rhythmDescription": "长短句交错，节奏自然",
-    "chineseAdaptation": "",
-    "verbalMarkers": [],
-    "speakingStyle": "措辞严谨、正式；长短句交错，节奏自然。",
-    "confidence": "medium",
-    "confidenceNotes": [
-      "词汇样本不足",
-      "语料过短，表达层提取受限"
-    ]
+    "chineseAdaptation": "多用四字成语、对仗句式，避免现代口语化表达。,在关键情节或场景转换处，插入诗词或赋体描写，以增强画面感和仪式感。,人物对话中适当使用‘呵’、‘耶’、‘也’等文言语气词，保持古雅风味。",
+    "verbalMarkers": [
+      "大造化！",
+      "善哉，善哉！",
+      "正是那"
+    ],
+    "speakingStyle": "该人物语言庄重典雅，带有浓厚的古典章回小说风格。叙述中常插入诗词赋赞，以渲染氛围或总结情节；对话则兼具威严与亲切，既有‘列位呵’的平等招呼，也有‘小的們’的等级区分，整体节奏舒缓而富有韵律。",
+    "confidence": "high",
+    "confidenceNotes": []
   },
   "validation": {
     "crossLanguageConsistency": 100,

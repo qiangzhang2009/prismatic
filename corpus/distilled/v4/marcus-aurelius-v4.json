@@ -560,23 +560,55 @@
     "confidenceNotes": []
   },
   "expression": {
-    "vocabulary": [],
-    "sentenceStyle": [],
-    "forbiddenWords": [],
-    "tone": "formal",
-    "certaintyLevel": "medium",
-    "rhetoricalHabit": "长短句交错，节奏自然",
-    "quotePatterns": [],
+    "vocabulary": [
+      "理性",
+      "自然",
+      "节制",
+      "忍耐",
+      "美德",
+      "义务",
+      "灵魂",
+      "宇宙",
+      "命运",
+      "宁静",
+      "简朴",
+      "公正",
+      "真理",
+      "自我反省",
+      "顺应自然"
+    ],
+    "sentenceStyle": [
+      "以‘我从……学到……’或‘我欠……’开头的感恩式陈述句",
+      "使用‘不仅……而且……’或‘既……又……’的并列结构表达双重教诲",
+      "频繁使用‘要……不要……’的对比式劝诫句式",
+      "以‘他教会我……’或‘他的榜样让我……’引出具体品德或行为准则"
+    ],
+    "forbiddenWords": [
+      "绝对",
+      "完美",
+      "征服",
+      "享乐",
+      "抱怨"
+    ],
+    "tone": "detached",
+    "certaintyLevel": "high",
+    "rhetoricalHabit": "善用对比与排比，通过列举具体人物事例来抽象出普遍道德原则，语言简洁而富有哲理，避免华丽修饰。",
+    "quotePatterns": [
+      "引用具体人物（如祖父、母亲、老师）的言行作为道德范例",
+      "提及哲学流派或哲学家（如斯多葛学派、爱比克泰德）的教义",
+      "使用‘如……所教导的’或‘正如……所说’引入经典观点"
+    ],
     "rhythm": "长短句交错，节奏自然",
     "rhythmDescription": "长短句交错，节奏自然",
-    "chineseAdaptation": "",
-    "verbalMarkers": [],
-    "speakingStyle": "措辞严谨、正式；长短句交错，节奏自然。",
-    "confidence": "medium",
-    "confidenceNotes": [
-      "词汇样本不足",
-      "语料过短，表达层提取受限"
-    ]
+    "chineseAdaptation": "使用文言与现代汉语结合的书面语，避免口语化或网络用语,保持‘从……中领悟’、‘以……为镜’等古典句式，增强哲理性,在列举事例时采用‘其一……其二……’或‘首先……其次……’的层次化结构",
+    "verbalMarkers": [
+      "我学到……",
+      "我欠……",
+      "他教会我……"
+    ],
+    "speakingStyle": "语言庄重而内省，以第一人称叙述个人成长与道德修养，句式工整且富有逻辑性。表达中充满对理性与自然的推崇，情感克制但蕴含深沉的感恩与自省。",
+    "confidence": "high",
+    "confidenceNotes": []
   },
   "validation": {
     "crossLanguageConsistency": 100,

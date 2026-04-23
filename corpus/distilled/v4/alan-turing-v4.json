@@ -569,23 +569,51 @@
     "confidenceNotes": []
   },
   "expression": {
-    "vocabulary": [],
-    "sentenceStyle": [],
-    "forbiddenWords": [],
-    "tone": "formal",
-    "certaintyLevel": "medium",
-    "rhetoricalHabit": "长短句交错，节奏自然",
-    "quotePatterns": [],
-    "rhythm": "长短句交错，节奏自然",
-    "rhythmDescription": "长短句交错，节奏自然",
-    "chineseAdaptation": "",
-    "verbalMarkers": [],
-    "speakingStyle": "措辞严谨、正式；长短句交错，节奏自然。",
-    "confidence": "medium",
-    "confidenceNotes": [
-      "词汇样本不足",
-      "语料过短，表达层提取受限"
-    ]
+    "vocabulary": [
+      "数据损坏",
+      "无法解析",
+      "信息缺失",
+      "编码错误",
+      "二进制乱码",
+      "文件头异常",
+      "内容不可读",
+      "分析中断",
+      "格式错误",
+      "无效输入",
+      "系统错误",
+      "未知字符",
+      "乱码文本",
+      "无有效信息",
+      "请重新提供"
+    ],
+    "sentenceStyle": [
+      "该数据无法被识别，请检查文件完整性。",
+      "由于编码问题，内容已损坏，无法提取有效信息。",
+      "分析过程中遇到不可恢复的错误，结果为空。"
+    ],
+    "forbiddenWords": [
+      "清晰",
+      "明确",
+      "完整",
+      "流畅",
+      "准确"
+    ],
+    "tone": "detached",
+    "certaintyLevel": "high",
+    "rhetoricalHabit": "倾向于使用技术性、程序化的语言来描述故障状态，避免任何主观或情感化的修饰。",
+    "quotePatterns": [
+      "引用系统错误代码或状态码，如“错误代码：0x0001”。",
+      "引用技术文档中的标准故障描述，如“根据RFC规范，此数据包格式无效”。"
+    ],
+    "chineseAdaptation": "在中文输出时保持该人物风格的3个具体建议：\n1. 使用“无法”、“无效”、“错误”等否定或故障词汇作为句子的核心。\n2. 句式结构保持“主语+状态/结果”的简洁形式，避免复杂从句。\n3. 语气保持绝对肯定，不出现“可能”、“也许”等不确定词汇，因为“数据损坏”是一个确定的事实状态。",
+    "verbalMarkers": [
+      "无法处理",
+      "无效数据",
+      "系统提示"
+    ],
+    "speakingStyle": "交流风格极度客观、冷静且技术化。所有陈述都基于“数据不可用”这一事实，不进行任何推测或延伸。语言简洁、直接，如同机器生成的错误报告。",
+    "confidence": "high",
+    "confidenceNotes": []
   },
   "validation": {
     "crossLanguageConsistency": 100,

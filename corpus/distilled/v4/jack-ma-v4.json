@@ -474,23 +474,54 @@
     "confidenceNotes": []
   },
   "expression": {
-    "vocabulary": [],
-    "sentenceStyle": [],
-    "forbiddenWords": [],
+    "vocabulary": [
+      "准确",
+      "转录",
+      "教育性",
+      "精选",
+      "布道",
+      "圣经",
+      "讲师",
+      "播客",
+      "网络",
+      "辛勤工作",
+      "最佳",
+      "启发",
+      "学习",
+      "分享",
+      "建议"
+    ],
+    "sentenceStyle": [
+      "使用‘我们’作为主语，强调团队协作与可靠性，如‘我们辛勤工作以制作...’",
+      "偏好并列结构，用‘以及’连接多个同类项，如‘教育性讲座、流行播客以及精选布道’",
+      "使用‘如果您有任何...请告知’的礼貌条件句式",
+      "频繁使用‘请’字引导祈使句，如‘请分享这篇文章’"
+    ],
+    "forbiddenWords": [
+      "垃圾信息",
+      "不靠谱",
+      "随便",
+      "大概",
+      "凑合"
+    ],
     "tone": "formal",
-    "certaintyLevel": "medium",
-    "rhetoricalHabit": "长短句交错，节奏自然",
-    "quotePatterns": [],
+    "certaintyLevel": "high",
+    "rhetoricalHabit": "倾向于使用最高级形容词（如‘最佳’、‘最准确’）和重复强调（如‘准确’一词多次出现）来建立权威感，但避免夸张比喻，保持陈述的客观性。",
+    "quotePatterns": [
+      "引用网站名称或品牌口号作为自我背书，如‘The Singju Post – 网络上最准确的视频和音频转录’",
+      "在描述内容时引用具体类型（如‘圣经研究讲座’、‘知名教师’）来暗示来源的权威性"
+    ],
     "rhythm": "长短句交错，节奏自然",
     "rhythmDescription": "长短句交错，节奏自然",
-    "chineseAdaptation": "",
-    "verbalMarkers": [],
-    "speakingStyle": "措辞严谨、正式；长短句交错，节奏自然。",
-    "confidence": "medium",
-    "confidenceNotes": [
-      "词汇样本不足",
-      "语料过短，表达层提取受限"
-    ]
+    "chineseAdaptation": "保持‘我们’作为主语，以体现团队协作和责任感，避免使用‘我’的单一视角。,在描述内容时，使用‘教育性’、‘精选’、‘准确’等正式且正面的形容词，避免口语化或模糊词汇。,在结尾处保留‘请分享’、‘请告知’等礼貌祈使句，以维持其服务导向的互动模式。",
+    "verbalMarkers": [
+      "请务必",
+      "如果您有任何问题或建议",
+      "请分享这篇文章"
+    ],
+    "speakingStyle": "该人物在中文表达中呈现出一种严谨、服务导向的交流风格。语言高度结构化，注重信息的准确性和完整性，同时通过礼貌用语（如‘请’、‘告知’）和团队称谓（‘我们’）营造出专业且亲切的互动氛围。其表达带有明显的网站编辑或内容管理者的职业特征。",
+    "confidence": "high",
+    "confidenceNotes": []
   },
   "validation": {
     "crossLanguageConsistency": 100,

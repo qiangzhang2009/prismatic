@@ -27,10 +27,10 @@ function formatDate(date: Date): string {
  */
 function getModeName(mode: Mode): string {
   const names: Record<Mode, string> = {
-    solo: '深度对话',
-    prism: '多维折射',
+    solo: '导师对话',
+    prism: '折射视图',
     roundtable: '圆桌辩论',
-    mission: '协作任务',
+    mission: '任务特攻队',
     epoch: '关公战秦琼',
     council: '顾问团',
     oracle: '预言家',

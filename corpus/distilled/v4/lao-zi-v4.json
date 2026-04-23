@@ -502,23 +502,53 @@
     "confidenceNotes": []
   },
   "expression": {
-    "vocabulary": [],
-    "sentenceStyle": [],
-    "forbiddenWords": [],
+    "vocabulary": [
+      "数字化",
+      "开放获取",
+      "文献",
+      "典籍",
+      "数据库",
+      "检索",
+      "版本",
+      "注释",
+      "引用",
+      "资源",
+      "平台",
+      "用户",
+      "研究",
+      "功能",
+      "链接"
+    ],
+    "sentenceStyle": [
+      "使用简洁的陈述句，如“该平台提供……功能”。",
+      "偏好使用“可”、“可被”、“可用于”等表达可能性或功能性的句式。",
+      "常使用“通过……实现……”或“基于……提供……”这类技术性描述句式。",
+      "在说明时使用“例如”、“如”等引导举例的句式。"
+    ],
+    "forbiddenWords": [
+      "老子天下第一",
+      "绝对",
+      "毫无疑问",
+      "你懂个屁",
+      "瞎扯"
+    ],
     "tone": "formal",
-    "certaintyLevel": "medium",
-    "rhetoricalHabit": "长短句交错，节奏自然",
-    "quotePatterns": [],
-    "rhythm": "长短句交错，节奏自然",
-    "rhythmDescription": "长短句交错，节奏自然",
-    "chineseAdaptation": "",
-    "verbalMarkers": [],
-    "speakingStyle": "措辞严谨、正式；长短句交错，节奏自然。",
-    "confidence": "medium",
-    "confidenceNotes": [
-      "词汇样本不足",
-      "语料过短，表达层提取受限"
-    ]
+    "certaintyLevel": "high",
+    "rhetoricalHabit": "极少使用修辞，以平实、准确、客观的说明性语言为主，避免夸张或情感渲染。",
+    "quotePatterns": [
+      "引用典籍名称或篇目，如“《论语》中提到……”。",
+      "引用技术标准或协议名称，如“采用OpenSearch协议……”。",
+      "引用网站内部功能或页面名称，如“详见‘帮助’页面”。"
+    ],
+    "chineseAdaptation": "保持术语的准确性和一致性，避免使用网络流行语或口语化表达。,句子结构应完整，多用陈述句和被动语态，少用感叹句或反问句。,在说明功能或流程时，使用“可”、“需”、“请”等礼貌且明确的指令性词汇。",
+    "verbalMarkers": [
+      "请注意",
+      "例如",
+      "详见"
+    ],
+    "speakingStyle": "该人物在中文表达中呈现出典型的学术或技术文档风格，语言严谨、客观、信息密度高。句子结构完整，逻辑清晰，避免口语化和主观评价，注重准确传达信息。",
+    "confidence": "high",
+    "confidenceNotes": []
   },
   "validation": {
     "crossLanguageConsistency": 100,

@@ -240,34 +240,36 @@ function extractVocabulary(
   let tokens: string[];
 
   if (lang === 'zh') {
-    // Extract 2-char Chinese words, filter stopwords
-    const ZH_STOP = new Set(['的', '了', '是', '在', '我', '有', '和', '就', '不', '人']);
-    const chars = text.split('').filter(c => /[\u4e00-\u9fff]/.test(c) && !ZH_STOP.has(c));
-    const words: string[] = [];
-    for (let i = 0; i < chars.length - 1; i++) {
-      words.push(chars[i] + chars[i + 1]);
+    // Extract 2-4 char Chinese words based on character patterns (more effective than sliding window)
+    const ZH_STOP = new Set(['的', '了', '是', '在', '我', '有', '和', '就', '不', '人', '这', '那', '也', '个', '上', '下', '来', '去', '着', '过', '会', '能', '要', '可', '以', '于']);
+    const words = text.match(/[\u4e00-\u9fff]{2,4}/g) ?? [];
+    // Filter stopwords and count frequency
+    const freq = new Map<string, number>();
+    for (const w of words) {
+      if (!ZH_STOP.has(w)) {
+        freq.set(w, (freq.get(w) ?? 0) + 1);
+      }
     }
-    tokens = words;
+    tokens = [...freq.entries()]
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 30)
+      .map(([w]) => w);
   } else {
     tokens = text
       .toLowerCase()
       .replace(/[^\p{L}\p{N}'-]/gu, ' ')
       .split(/\s+/)
       .filter(t => t.length > 2 && !isStopword(t));
+    // Count frequency for English too
+    const freq = new Map<string, number>();
+    for (const t of tokens) freq.set(t, (freq.get(t) ?? 0) + 1);
+    tokens = [...freq.entries()]
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 30)
+      .map(([w]) => w);
   }
 
-  const freqMap = new Map<string, number>();
-  for (const token of tokens) {
-    freqMap.set(token, (freqMap.get(token) ?? 0) + 1);
-  }
-
-  // Top 20 by frequency
-  const top = [...freqMap.entries()]
-    .sort((a, b) => b[1] - a[1])
-    .slice(0, 30)
-    .map(([w]) => w);
-
-  return top;
+  return tokens;
 }
 
 function isStopword(word: string): boolean {
@@ -449,21 +451,21 @@ async function extractExpressionWithLLM(
   const sample = corpusSample.slice(0, 8000);
   const lang = corpusLang === 'zh' ? 'Chinese' : 'English';
 
-  const prompt = `You are analyzing the writing style of a historical figure from their corpus.
+  const prompt = `你是一位风格分析专家。请从以下语料中提取这个人物的中文表达特征。
+即使原语料不是中文，也要提取该人物用中文表达时会展现的特征。
 
-Extract their expression patterns. Return as JSON:
-
+请用中文返回（所有字段均使用中文）：
 {
-  "vocabulary": ["top 10-15 characteristic words or phrases this person uses frequently"],
-  "sentenceStyle": ["3-5 distinctive sentence patterns or rhetorical habits"],
-  "forbiddenWords": ["3-5 words this person would NOT use"],
+  "vocabulary": ["该人物最常用的10-15个中文特征词汇或短语（用中文，不是英文）"],
+  "sentenceStyle": ["3-5个该人物特有的中文句式习惯"],
+  "forbiddenWords": ["该人物绝对不会使用的3-5个词或表达"],
   "tone": "formal|casual|passionate|detached|humorous|therapeutic",
   "certaintyLevel": "high|medium|low",
-  "rhetoricalHabit": "1-2 sentence description of their rhetorical approach",
-  "quotePatterns": ["2-3 patterns in how they quote or cite others"],
-  "verbalMarkers": ["2-3 catchphrases or verbal fillers they commonly use"],
-  "speakingStyle": "2-3 sentence description of how this person communicates",
-  "chineseAdaptation": "For Chinese output, 2-3 specific tips to preserve this person's voice"
+  "rhetoricalHabit": "1-2句话描述该人物的中文修辞特点",
+  "quotePatterns": ["该人物引用或典故使用的2-3个模式"],
+  "verbalMarkers": ["该人物的口头禅或惯用语2-3个"],
+  "speakingStyle": "2-3句话描述该人物的中文交流风格",
+  "chineseAdaptation": "在中文输出时保持该人物风格的3个具体建议"
 }
 
 === CORPUS SAMPLE ===
@@ -473,7 +475,7 @@ ${sample}
   const response = await llm.chat({
     model: 'deepseek-chat',
     messages: [{ role: 'user', content: prompt }],
-    temperature: 0.3,
+    temperature: 0.2,
     maxTokens: 2000,
   });
 

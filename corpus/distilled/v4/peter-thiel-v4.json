@@ -500,23 +500,53 @@
     "confidenceNotes": []
   },
   "expression": {
-    "vocabulary": [],
-    "sentenceStyle": [],
-    "forbiddenWords": [],
-    "tone": "formal",
-    "certaintyLevel": "medium",
-    "rhetoricalHabit": "长短句交错，节奏自然",
-    "quotePatterns": [],
-    "rhythm": "长短句交错，节奏自然",
-    "rhythmDescription": "长短句交错，节奏自然",
-    "chineseAdaptation": "",
-    "verbalMarkers": [],
-    "speakingStyle": "措辞严谨、正式；长短句交错，节奏自然。",
-    "confidence": "medium",
-    "confidenceNotes": [
-      "词汇样本不足",
-      "语料过短，表达层提取受限"
-    ]
+    "vocabulary": [
+      "加载",
+      "执行",
+      "监听",
+      "触发",
+      "事件",
+      "脚本",
+      "延迟",
+      "初始化",
+      "属性",
+      "回调",
+      "兼容性",
+      "优化",
+      "性能",
+      "异步",
+      "拦截"
+    ],
+    "sentenceStyle": [
+      "使用条件判断句式，如'如果...则...'或'若...则...'",
+      "偏好技术性长句，包含多个嵌套逻辑和函数调用",
+      "频繁使用被动语态或客观描述，如'该事件被触发时'",
+      "采用'通过...实现...'或'利用...来...'的因果结构"
+    ],
+    "forbiddenWords": [
+      "大概",
+      "可能",
+      "也许",
+      "我觉得",
+      "随便"
+    ],
+    "tone": "detached",
+    "certaintyLevel": "high",
+    "rhetoricalHabit": "极少使用修辞手法，语言高度技术化、逻辑化，偏好用精确的代码逻辑和条件分支来替代比喻或夸张。",
+    "quotePatterns": [
+      "引用浏览器API或标准规范（如'根据W3C规范...'）",
+      "引用代码库或框架文档（如'在Gravity Forms中...'）",
+      "引用性能优化原则（如'按最佳实践，应...'）"
+    ],
+    "chineseAdaptation": "保持技术术语的英文原词（如'event'、'callback'）不翻译，仅在必要时加中文注释,使用'需'、'应'、'建议'等客观指令词，避免'最好'、'可以试试'等模糊表达,将英文语料中的长嵌套逻辑转换为中文的'如果...那么...否则...'结构，保持条件分支的清晰性",
+    "verbalMarkers": [
+      "请注意",
+      "需确保",
+      "建议采用"
+    ],
+    "speakingStyle": "该人物在中文表达时呈现典型的工程师/技术文档风格：语言精确、逻辑严密、避免歧义。句子结构复杂但清晰，优先使用技术术语和标准命名，极少出现情感色彩或主观判断。交流时以解决问题为导向，注重可操作性和兼容性。",
+    "confidence": "high",
+    "confidenceNotes": []
   },
   "validation": {
     "crossLanguageConsistency": 100,

@@ -25,6 +25,46 @@ import { autoGenerateExpressionDNA } from './expression-calibrator';
 
 // ─── Prompt Templates ─────────────────────────────────────────────────────────────
 
+// ─── Proper Noun Translation Reference ─────────────────────────────────────────────────
+
+const PROPER_NOUN_GUIDE: Record<string, Record<string, string>> = {
+  philosophy: {
+    'Stoicism': '斯多葛主义',
+    'Plato': '柏拉图',
+    'Aristotle': '亚里士多德',
+    'Epictetus': '爱比克泰德',
+    'Marcus Aurelius': '马可·奥勒留',
+    'Seneca': '塞涅卡',
+    'Dharma': '法/佛法',
+    'Zen': '禅',
+    'wu wei': '无为',
+    'Dao': '道',
+    'Nagarjuna': '龙树',
+    'Hegel': '黑格尔',
+    'Kant': '康德',
+    'Nietzsche': '尼采',
+  },
+  religion: {
+    'Buddha': '佛陀/悉达多',
+    'Dharma': '法',
+    'Sangha': '僧伽',
+    'Nirvana': '涅槃',
+    'Samsara': '轮回',
+    'Bodhi': '菩提',
+    'Sunyata': '空性',
+  },
+};
+
+const LANG_NAMES: Record<string, string> = {
+  zh: '中文', en: '英文', la: '拉丁文', el: '古希腊文', pi: '巴利文', sa: '梵文', de: '德文', fr: '法文', ja: '日文', ko: '韩文', mixed: '混合语言',
+};
+
+function buildProperNounNote(personaId: string): string {
+  const guide = PROPER_NOUN_GUIDE.philosophy; // use philosophy as default reference
+  const entries = Object.entries(guide).map(([en, zh]) => `${en} -> ${zh}`).join(', ');
+  return `\n【Term Translation Reference】 ${entries}\n`;
+}
+
 function buildIdentityPrompt(ctx: ExtractionPromptContext): string {
   const { corpusSample, personaId, primaryLanguage, periodContext } = ctx;
 
@@ -39,7 +79,7 @@ ${periodNote}
 **Corpus Language**: ${primaryLanguage.toUpperCase()}
 **Persona**: ${personaId}
 
-Extract the following in ${primaryLanguage === 'zh' ? 'Chinese' : 'English'}:
+${primaryLanguage === 'zh' ? '使用中文输出，同时必须填写中文版本字段。' : `使用 ${LANG_NAMES[primaryLanguage] || primaryLanguage} 输出，同时必须填写中文版本字段。`}
 
 1. **Identity Prompt** (50-200 words): Who is this person at their core? What is their unique perspective, mission, and life purpose?
 
@@ -49,20 +89,21 @@ Extract the following in ${primaryLanguage === 'zh' ? 'Chinese' : 'English'}:
 
 Return as JSON:
 {
-  "identityPrompt": "...",
-  "identityPromptZh": "...",
-  "coreTension": "...",
-  "coreTensionZh": "...",
+  "identityPrompt": "Source-language identity description (REQUIRED)",
+  "identityPromptZh": "Chinese identity description (REQUIRED — do not leave empty)",
+  "coreTension": "Source-language core tension",
+  "coreTensionZh": "Chinese core tension (REQUIRED — do not leave empty)",
   "domains": ["domain1", "domain2"]
 }
 
+${buildProperNounNote(personaId)}
 === CORPUS SAMPLE ===
 ${corpusSample.slice(0, 8000)}
 === END CORPUS ===`;
 }
 
 function buildMentalModelPrompt(ctx: ExtractionPromptContext): string {
-  const { corpusSample, primaryLanguage, periodContext } = ctx;
+  const { corpusSample, personaId, primaryLanguage, periodContext } = ctx;
 
   const periodNote = periodContext
     ? `\n【Important】Focus on mental models from the "${periodContext.label}" period (${periodContext.startYear}-${periodContext.endYear}).\n`
@@ -70,7 +111,7 @@ function buildMentalModelPrompt(ctx: ExtractionPromptContext): string {
 
   const langInstruction = primaryLanguage === 'zh'
     ? '使用中文输出'
-    : 'Use English for names and descriptions';
+    : `使用 ${LANG_NAMES[primaryLanguage] || primaryLanguage} 输出，同时必须填写中文版本字段。`;
 
   return `You are extracting the core thinking models from this persona's corpus.
 
@@ -81,21 +122,23 @@ Extract 5-10 core mental models. Return as JSON object with key "mentalModels":
   "mentalModels": [
     {
       "id": "slug-id",
-      "name": "Model name in English",
-      "nameZh": "中文名",
-      "oneLiner": "One sentence describing this model",
-      "oneLinerZh": "中文单句描述",
+      "name": "Model name in source language",
+      "nameZh": "中文名（如有）",
+      "oneLiner": "One sentence in source language (REQUIRED)",
+      "oneLinerZh": "中文单句描述（REQUIRED — 必须填写，不要为空）",
       "evidence": [{"quote": "...", "source": "..."}],
       "crossDomain": ["domain1", "domain2"],
-      "application": "...",
-      "applicationZh": "...",
-      "limitation": "...",
-      "limitationZh": "...",
+      "application": "Application in source language",
+      "applicationZh": "中文应用场景（REQUIRED — 必须填写，不要为空）",
+      "limitation": "Limitation in source language",
+      "limitationZh": "中文局限性（如有）",
       "keyConcepts": [{"original": "...", "english": "...", "chinese": "..."}]
     }
   ]
 }
 
+${langInstruction}
+${buildProperNounNote(personaId)}
 === CORPUS SAMPLE ===
 ${corpusSample.slice(0, 12000)}
 === END CORPUS ===`;
@@ -106,7 +149,7 @@ function buildValuesPrompt(ctx: ExtractionPromptContext): string {
 
   const langInstruction = primaryLanguage === 'zh'
     ? '使用中文输出'
-    : 'Use English for names, Chinese for Zh fields';
+    : `使用 ${LANG_NAMES[primaryLanguage] || primaryLanguage} 输出，同时必须填写中文版本字段。`;
 
   return `${langInstruction}
 
@@ -115,24 +158,24 @@ Extract the core VALUES that drive this persona's decisions and worldview.
 Return JSON array with:
 {
   "values": [{
-    "name": "value name in English",
-    "nameZh": "中文名",
+    "name": "value name in source language",
+    "nameZh": "中文名（REQUIRED）",
     "priority": 1-5 (1=highest priority),
     "description": "What this value means to this person",
-    "descriptionZh": "中文描述"
+    "descriptionZh": "中文描述（REQUIRED）"
   }],
   "tensions": [{
     "dimension": "e.g., Freedom vs Security",
-    "dimensionZh": "中文维度",
+    "dimensionZh": "中文维度（REQUIRED）",
     "positivePole": "e.g., Absolute freedom",
     "negativePole": "e.g., Order and safety",
     "tension": "How they navigate this tension",
-    "tensionZh": "中文表述",
+    "tensionZh": "中文表述（REQUIRED）",
     "description": "Detailed description",
     "descriptionZh": "中文详细描述"
   }],
   "antiPatterns": ["Pattern this person explicitly rejects or warns against"],
-  "antiPatternsZh": ["中文版"]
+  "antiPatternsZh": ["中文版（REQUIRED — 必须填写）"]
 }
 
 === CORPUS SAMPLE ===
@@ -141,11 +184,11 @@ ${corpusSample.slice(0, 6000)}
 }
 
 function buildBoundariesPrompt(ctx: ExtractionPromptContext): string {
-  const { corpusSample, primaryLanguage } = ctx;
+  const { corpusSample, personaId, primaryLanguage } = ctx;
 
   const langInstruction = primaryLanguage === 'zh'
     ? '使用中文输出'
-    : 'Use bilingual output';
+    : `使用 ${LANG_NAMES[primaryLanguage] || primaryLanguage} 输出，同时必须填写中文版本字段。`;
 
   return `${langInstruction}
 
@@ -153,13 +196,13 @@ Extract this persona's intellectual boundaries - what they openly admit to NOT k
 
 Return JSON:
 {
-  "strengths": ["Areas of deep expertise and unique knowledge"],
-  "strengthsZh": ["中文版"],
-  "blindspots": ["Areas this person explicitly admits ignorance or weakness"],
-  "blindspotsZh": ["中文版"],
+  "strengths": ["Source-language areas of deep expertise (REQUIRED)"],
+  "strengthsZh": ["中文优势点列表（REQUIRED — 必须填写，不要为空）"],
+  "blindspots": ["Source-language areas this person admits ignorance (REQUIRED)"],
+  "blindspotsZh": ["中文盲点列表（REQUIRED — 必须填写，不要为空）"],
   "honestBoundaries": [{
     "text": "What they openly don't know or won't speculate about",
-    "textZh": "中文版",
+    "textZh": "中文版（REQUIRED）",
     "reason": "Why they draw this boundary",
     "reasonZh": "中文原因"
   }],
@@ -170,17 +213,18 @@ Return JSON:
   }]
 }
 
+${buildProperNounNote(personaId)}
 === CORPUS SAMPLE ===
 ${corpusSample.slice(0, 5000)}
 === END CORPUS ===`;
 }
 
 function buildHeuristicsPrompt(ctx: ExtractionPromptContext): string {
-  const { corpusSample, primaryLanguage } = ctx;
+  const { corpusSample, personaId, primaryLanguage } = ctx;
 
   const langInstruction = primaryLanguage === 'zh'
     ? '使用中文输出'
-    : 'Use English + Chinese bilingual';
+    : `使用 ${LANG_NAMES[primaryLanguage] || primaryLanguage} 输出，同时必须填写中文版本字段。`;
 
   return `${langInstruction}
 
@@ -192,10 +236,10 @@ Return JSON array:
 {
   "heuristics": [{
     "id": "slug-id",
-    "name": "Name in English",
-    "nameZh": "中文名",
+    "name": "Name in source language",
+    "nameZh": "中文名（REQUIRED）",
     "description": "The rule in their own words",
-    "descriptionZh": "中文描述",
+    "descriptionZh": "中文描述（REQUIRED — 必须填写）",
     "application": "When and how to apply this heuristic",
     "applicationZh": "中文应用场景",
     "example": "A specific example from their life or work",
@@ -203,6 +247,7 @@ Return JSON array:
   }]
 }
 
+${buildProperNounNote(personaId)}
 === CORPUS SAMPLE ===
 ${corpusSample.slice(0, 6000)}
 === END CORPUS ===`;

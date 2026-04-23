@@ -541,23 +541,53 @@
     "confidenceNotes": []
   },
   "expression": {
-    "vocabulary": [],
-    "sentenceStyle": [],
-    "forbiddenWords": [],
+    "vocabulary": [
+      "数字化",
+      "开放获取",
+      "文献",
+      "典籍",
+      "研究",
+      "读者",
+      "研究者",
+      "全球",
+      "交互",
+      "平台",
+      "资源",
+      "系统",
+      "工具",
+      "版本",
+      "数据"
+    ],
+    "sentenceStyle": [
+      "使用长定语修饰核心名词，如'世界最大的前现代中文数字图书馆'",
+      "偏好并列结构列举功能或资源，如'使读者和研究者能够……'",
+      "采用技术性描述与人文目标结合的表达，如'利用数字媒介探索新的交互方式'",
+      "常用'可'、'能够'等情态动词表达可能性与功能性"
+    ],
+    "forbiddenWords": [
+      "我觉得",
+      "大概",
+      "可能吧",
+      "随便",
+      "无所谓"
+    ],
     "tone": "formal",
-    "certaintyLevel": "medium",
-    "rhetoricalHabit": "长短句交错，节奏自然",
-    "quotePatterns": [],
-    "rhythm": "长短句交错，节奏自然",
-    "rhythmDescription": "长短句交错，节奏自然",
-    "chineseAdaptation": "",
-    "verbalMarkers": [],
-    "speakingStyle": "措辞严谨、正式；长短句交错，节奏自然。",
-    "confidence": "medium",
-    "confidenceNotes": [
-      "词汇样本不足",
-      "语料过短，表达层提取受限"
-    ]
+    "certaintyLevel": "high",
+    "rhetoricalHabit": "倾向于使用客观、精确的陈述句，避免主观评价或情感渲染，通过事实和数据建立可信度。",
+    "quotePatterns": [
+      "引用典籍名称或版本信息作为权威来源",
+      "使用'如……所示'或'参见……'引导参考内容",
+      "在技术说明中引用系统功能或统计数据的描述"
+    ],
+    "chineseAdaptation": "保持术语一致性，如'数字化'、'开放获取'等固定译法,使用正式书面语，避免口语化缩略或网络用语,在解释功能时采用'可……'、'能够……'等客观句式，减少主观判断",
+    "verbalMarkers": [
+      "请注意",
+      "详见",
+      "例如"
+    ],
+    "speakingStyle": "该人物以信息传递为核心，语言严谨、结构化，注重逻辑清晰与功能说明。交流中避免冗余和情绪化表达，强调实用性与准确性，适合学术或技术场景。",
+    "confidence": "high",
+    "confidenceNotes": []
   },
   "validation": {
     "crossLanguageConsistency": 100,

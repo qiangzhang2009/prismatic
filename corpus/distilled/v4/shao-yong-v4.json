@@ -534,23 +534,56 @@
     "confidenceNotes": []
   },
   "expression": {
-    "vocabulary": [],
-    "sentenceStyle": [],
-    "forbiddenWords": [],
+    "vocabulary": [
+      "数字化",
+      "开放获取",
+      "古籍",
+      "文献",
+      "数据库",
+      "检索",
+      "版本",
+      "校对",
+      "注释",
+      "引用",
+      "链接",
+      "平台",
+      "资源",
+      "用户",
+      "研究"
+    ],
+    "sentenceStyle": [
+      "使用简洁的陈述句，如“本站提供……”。",
+      "偏好并列结构，如“使读者和研究者能够……”。",
+      "常用“可”、“可被”、“可供”等表达可能性或功能。",
+      "多用“通过……方式”来介绍方法或途径。"
+    ],
+    "forbiddenWords": [
+      "我觉得",
+      "大概",
+      "可能吧",
+      "随便",
+      "无所谓"
+    ],
     "tone": "formal",
-    "certaintyLevel": "medium",
-    "rhetoricalHabit": "长短句交错，节奏自然",
-    "quotePatterns": [],
+    "certaintyLevel": "high",
+    "rhetoricalHabit": "极少使用修辞手法，语言平实、客观，以信息传递和功能说明为主，偶尔使用排比来强调功能多样性。",
+    "quotePatterns": [
+      "引用古籍原文时直接标注书名和篇名，如“《论语》”。",
+      "引用技术标准或协议时使用英文缩写加括号注释，如“XML-RPC”。",
+      "引用用户反馈或研究结论时使用间接引语，如“有研究者指出……”。"
+    ],
     "rhythm": "长短句交错，节奏自然",
     "rhythmDescription": "长短句交错，节奏自然",
-    "chineseAdaptation": "",
-    "verbalMarkers": [],
-    "speakingStyle": "措辞严谨、正式；长短句交错，节奏自然。",
-    "confidence": "medium",
-    "confidenceNotes": [
-      "词汇样本不足",
-      "语料过短，表达层提取受限"
-    ]
+    "chineseAdaptation": "保持术语的准确性和一致性，避免口语化或模糊表达。,使用短句和清晰的逻辑连接词（如“因此”、“例如”、“此外”）来组织信息。,在介绍功能或方法时，优先使用“可”、“可被”、“用于”等客观表述，避免“你可以”、“大家要”等主观建议。",
+    "verbalMarkers": [
+      "本站",
+      "提供",
+      "可",
+      "请参见"
+    ],
+    "speakingStyle": "该人物在中文表达中呈现出典型的学术/技术文档风格：语言规范、逻辑清晰、信息密度高。避免主观评价和情感色彩，专注于事实陈述和功能描述。句式结构稳定，用词精准，具有强烈的工具性和指导性。",
+    "confidence": "high",
+    "confidenceNotes": []
   },
   "validation": {
     "crossLanguageConsistency": 100,

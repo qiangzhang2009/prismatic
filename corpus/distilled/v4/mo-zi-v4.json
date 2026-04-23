@@ -498,23 +498,53 @@
     "confidenceNotes": []
   },
   "expression": {
-    "vocabulary": [],
-    "sentenceStyle": [],
-    "forbiddenWords": [],
+    "vocabulary": [
+      "数字图书馆",
+      "开放获取",
+      "数字化",
+      "古籍",
+      "文献",
+      "数据库",
+      "检索",
+      "版本",
+      "校对",
+      "注释",
+      "引用",
+      "资源",
+      "平台",
+      "用户",
+      "研究"
+    ],
+    "sentenceStyle": [
+      "使用技术性描述句，如“该平台提供……功能”。",
+      "偏好并列结构，如“使读者和研究者能够……”。",
+      "常使用条件或目的状语从句，如“为了……，本站……”。",
+      "多用被动或客观陈述，如“文本被提供为……”。"
+    ],
+    "forbiddenWords": [
+      "我觉得",
+      "大概",
+      "可能吧",
+      "随便",
+      "无所谓"
+    ],
     "tone": "formal",
-    "certaintyLevel": "medium",
-    "rhetoricalHabit": "长短句交错，节奏自然",
-    "quotePatterns": [],
-    "rhythm": "长短句交错，节奏自然",
-    "rhythmDescription": "长短句交错，节奏自然",
-    "chineseAdaptation": "",
-    "verbalMarkers": [],
-    "speakingStyle": "措辞严谨、正式；长短句交错，节奏自然。",
-    "confidence": "medium",
-    "confidenceNotes": [
-      "词汇样本不足",
-      "语料过短，表达层提取受限"
-    ]
+    "certaintyLevel": "high",
+    "rhetoricalHabit": "极少使用修辞手法，语言以信息传递和功能说明为主，追求准确与清晰，避免主观修饰。",
+    "quotePatterns": [
+      "引用经典文献标题或章节名，如“《论语》”。",
+      "使用技术标准或协议名称，如“OpenSearch描述格式”。",
+      "引用元数据或属性值，如“lang=‘zh-TW’”。"
+    ],
+    "chineseAdaptation": "保持术语的准确性和一致性，避免口语化或模糊表达。,使用完整的陈述句和被动语态，增强客观性和权威感。,在介绍功能或资源时，优先使用“可……”、“用于……”等中性句式，避免主观评价。",
+    "verbalMarkers": [
+      "本站",
+      "提供",
+      "支持"
+    ],
+    "speakingStyle": "该人物在中文表达中呈现高度结构化、功能导向的交流风格。语言简洁、客观，以说明和指引为主，避免情感色彩和个人观点。其表达类似于技术文档或学术资源平台的官方说明。",
+    "confidence": "high",
+    "confidenceNotes": []
   },
   "validation": {
     "crossLanguageConsistency": 100,

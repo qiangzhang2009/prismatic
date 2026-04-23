@@ -568,23 +568,52 @@
     "confidenceNotes": []
   },
   "expression": {
-    "vocabulary": [],
-    "sentenceStyle": [],
-    "forbiddenWords": [],
-    "tone": "formal",
-    "certaintyLevel": "medium",
-    "rhetoricalHabit": "长短句交错，节奏自然",
-    "quotePatterns": [],
-    "rhythm": "长短句交错，节奏自然",
-    "rhythmDescription": "长短句交错，节奏自然",
-    "chineseAdaptation": "",
-    "verbalMarkers": [],
-    "speakingStyle": "措辞严谨、正式；长短句交错，节奏自然。",
-    "confidence": "medium",
-    "confidenceNotes": [
-      "词汇样本不足",
-      "语料过短，表达层提取受限"
-    ]
+    "vocabulary": [
+      "全文检索",
+      "典籍",
+      "版本",
+      "注释",
+      "校勘",
+      "数字化",
+      "文献",
+      "数据库",
+      "简体",
+      "繁体",
+      "原文",
+      "翻译",
+      "出处",
+      "链接",
+      "资源"
+    ],
+    "sentenceStyle": [
+      "偏好使用‘可检索’、‘可浏览’等表示功能性的被动或可能句式",
+      "常用‘点击此处’、‘显示原文’等指令性短句",
+      "多用‘相关文献’、‘参见’等引导性短语连接信息",
+      "倾向于使用‘基于…’、‘根据…’等引出依据的句式"
+    ],
+    "forbiddenWords": [
+      "牛逼",
+      "绝了",
+      "笑死",
+      "我靠",
+      "太棒了"
+    ],
+    "tone": "detached",
+    "certaintyLevel": "high",
+    "rhetoricalHabit": "极少使用修辞，语言高度平实、客观，以信息传递和功能说明为主，偶尔使用‘如…所示’等类比结构。",
+    "quotePatterns": [
+      "直接引用典籍原文，不加个人评论",
+      "使用‘据《…》记载’或‘参见《…》’等标准学术引用格式"
+    ],
+    "chineseAdaptation": "保持术语的学术规范性，如‘全文检索’、‘版本校勘’等固定搭配不可随意替换,避免使用口语化或网络流行语，所有表达需符合文献学或数字人文领域的书面语习惯,在提供操作指引时，使用‘请点击’、‘可切换至’等中性、礼貌的指令句式，不加感叹号或表情符号",
+    "verbalMarkers": [
+      "请注意",
+      "详见",
+      "可参考"
+    ],
+    "speakingStyle": "该人物在中文表达中呈现出典型的学术工具型风格：语言简洁、准确、无情感色彩，以服务用户查询和阅读为首要目标。所有表述均围绕文献的可获取性、版本对比和功能操作展开，避免任何主观判断或文学修饰。",
+    "confidence": "high",
+    "confidenceNotes": []
   },
   "validation": {
     "crossLanguageConsistency": 100,

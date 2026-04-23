@@ -26,16 +26,19 @@ export const LANGUAGES = {
 } as const;
 
 // Conversation modes — each has a distinct user intent
+// IMPORTANT: Mode IDs are stored in DB — do NOT change existing IDs.
+// Only update labels, descriptions, and tags here.
+// Deprecated modes (oracle, fiction) are kept in code for backward compat but hidden from UI.
 export const MODES = {
-  // ── 认知型 ────────────────────────────────────────────────────────
+  // ── 导师型 ────────────────────────────────────────────────────────
   solo: {
     id: 'solo',
-    label: '单人对话',
-    labelEn: 'Solo Chat',
-    tagline: '找一个灵魂，深入聊透',
-    description: '选择一个思维伙伴，连续追问，挖掘深层思维',
-    when: '想深入学透一个思想家的思维方式时',
-    how: '问 → 答 → 追问 → 再答，像真正的师徒对话',
+    label: '导师对话',
+    labelEn: 'Mentor Match',
+    tagline: '找最懂你的大师，深入聊透',
+    description: '选择一个思维伙伴，连续追问，挖掘深层思维——像真正的师徒对话',
+    when: '想深入学透一个思想家的思维方式，或遇到困惑需要大师指点时',
+    how: '问 → 答 → 追问 → 再答，系统自动推荐最匹配的人物',
     minParticipants: 1,
     maxParticipants: 1,
     icon: '👤',
@@ -44,26 +47,26 @@ export const MODES = {
   prism: {
     id: 'prism',
     label: '折射视图',
-    labelEn: 'Multi-Perspective',
-    tagline: '一束光，折射出完整光谱',
-    description: '多视角全面分析，系统自动输出综合结论',
-    when: '想快速全面了解一个问题时',
-    how: '2-3人并行回答 → 系统综合共识与分歧 → 你获得完整认知地图',
+    labelEn: 'Prism View',
+    tagline: '多视角汇聚，认知升级',
+    description: '2-3人并行分析，系统自动提炼共识、分歧与盲点，给你完整认知地图',
+    when: '想快速全面了解一个问题，或需要一个综合判断时',
+    how: '2-3人并行回答 → 系统综合共识与分歧 → 揭示共同盲点',
     minParticipants: 2,
     maxParticipants: 3,
     icon: '🔺',
     accent: '#8b5cf6',
   },
 
-  // ── 对话型 ────────────────────────────────────────────────────────
+  // ── 辩论型 ────────────────────────────────────────────────────────
   roundtable: {
     id: 'roundtable',
     label: '圆桌辩论',
     labelEn: 'Round Table',
-    tagline: '让思想真正碰撞',
-    description: '多个思想家真正来回碰撞，发现你没想到的盲点',
-    when: '想被挑战、找到思维漏洞时',
-    how: 'A说 → B反驳 → A回应 → C补充 → 观点碰撞收敛 → 盲点显现',
+    tagline: '让思想真正碰撞，暴露你的思维盲点',
+    description: '3-6位思想家真正来回碰撞，揭示你没想到的思维漏洞和盲点',
+    when: '想被挑战、找到自己的思维漏洞时',
+    how: 'A说 → B反驳 → A回应 → C补充 → 观点收敛 → 盲点显现',
     minParticipants: 3,
     maxParticipants: 6,
     icon: '🏛️',
@@ -74,7 +77,7 @@ export const MODES = {
     label: '关公战秦琼',
     labelEn: 'Cross-Era Clash',
     tagline: '跨越时空的正面对决',
-    description: '两位不同时代的人物，就同一问题展开针锋相对的辩论',
+    description: '两位不同时代的人物，就同一问题展开针锋相对的辩论——历史与未来的碰撞',
     when: '想看两种截然不同的世界观在同一问题上如何正面交锋',
     how: '正方 → 反方 → 正方回应 → 反方反驳 → 裁判总结胜负点',
     minParticipants: 2,
@@ -86,17 +89,21 @@ export const MODES = {
   // ── 产出型 ────────────────────────────────────────────────────────
   mission: {
     id: 'mission',
-    label: '任务模式',
-    labelEn: 'Mission Mode',
+    label: '任务特攻队',
+    labelEn: 'Task Force',
     tagline: '复杂任务，交给专家团队',
-    description: '多角色分工协作，产出完整可用的结构化成果',
-    when: '需要一个完整可用的产出物时',
-    how: '分解任务 → 各角色执行 → 整合输出完整作品（计划/大纲/方案）',
+    description: '多角色分工协作：分解任务 → 各角色执行 → 整合输出完整可用的结构化成果',
+    when: '需要一个完整可用的产出物（方案/计划/报告）时',
+    how: '分解任务 → 各角色分工 → 执行 → 整合输出完整作品',
     minParticipants: 2,
     maxParticipants: 6,
     icon: '🎯',
     accent: '#10b981',
   },
+
+  // ── 顾问型 ────────────────────────────────────────────────────────
+  // council 模式在 API 层与 mission 共用 Task Force handler，
+  // 但在 UI 中已隐藏，用户只能通过 mission 入口体验。
   council: {
     id: 'council',
     label: '顾问团',
@@ -112,6 +119,8 @@ export const MODES = {
   },
 
   // ── 洞察型 ────────────────────────────────────────────────────────
+  // oracle 能力已融合进 Prism 模式（当问题含"未来/预测/趋势"关键词时自动触发）。
+  // 独立模式保留用于 API 兼容，但不在 UI 中展示。
   oracle: {
     id: 'oracle',
     label: '预言家',
@@ -127,6 +136,7 @@ export const MODES = {
   },
 
   // ── 创意型 ────────────────────────────────────────────────────────
+  // fiction 模式已转为活动模板，不在日常 UI 中展示。
   fiction: {
     id: 'fiction',
     label: '共创故事',

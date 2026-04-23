@@ -497,23 +497,54 @@
     "confidenceNotes": []
   },
   "expression": {
-    "vocabulary": [],
-    "sentenceStyle": [],
-    "forbiddenWords": [],
+    "vocabulary": [
+      "典籍",
+      "数字化",
+      "开放获取",
+      "研究者",
+      "读者",
+      "版本",
+      "文献",
+      "检索",
+      "注释",
+      "原文",
+      "数据库",
+      "资源",
+      "平台",
+      "系统",
+      "工具"
+    ],
+    "sentenceStyle": [
+      "使用‘使……得以……’的正式书面句式，如‘使读者和研究者得以访问’。",
+      "偏好‘尝试利用……探索……’的学术探索句式。",
+      "多用‘不仅……而且……’的递进结构来强调功能。",
+      "常以‘本站/本平台’作为主语，保持客观陈述。"
+    ],
+    "forbiddenWords": [
+      "牛逼",
+      "绝了",
+      "我靠",
+      "随便",
+      "瞎搞"
+    ],
     "tone": "formal",
-    "certaintyLevel": "medium",
-    "rhetoricalHabit": "长短句交错，节奏自然",
-    "quotePatterns": [],
-    "rhythm": "长短句交错，节奏自然",
-    "rhythmDescription": "长短句交错，节奏自然",
-    "chineseAdaptation": "",
-    "verbalMarkers": [],
-    "speakingStyle": "措辞严谨、正式；长短句交错，节奏自然。",
-    "confidence": "medium",
-    "confidenceNotes": [
-      "词汇样本不足",
-      "语料过短，表达层提取受限"
-    ]
+    "certaintyLevel": "high",
+    "rhetoricalHabit": "多用排比和并列结构来列举功能或资源，如‘使……得以……；使……成为可能’；极少使用比喻或夸张，追求准确与清晰。",
+    "quotePatterns": [
+      "引用经典文献名称（如《论语》《孟子》）作为资源示例。",
+      "使用‘例如……’或‘如……’引出具体文本或功能。",
+      "在说明技术或方法时，引用标准或协议名称（如‘OpenSearch’）。"
+    ],
+    "chineseAdaptation": "保持‘使……得以……’、‘旨在……’等正式书面句式，避免口语化缩略。,使用‘典籍’‘文献’‘数据库’等学术词汇，避免网络流行语或俚语。,在列举功能或资源时，采用分项或并列结构，保持条理清晰。",
+    "verbalMarkers": [
+      "本站",
+      "本平台",
+      "开放获取",
+      "数字化"
+    ],
+    "speakingStyle": "该人物以项目介绍或学术说明的口吻进行表达，语言严谨、客观、信息密度高。句子结构完整，避免口语化或情绪化表达，注重逻辑清晰与功能描述。整体风格接近技术文档或学术网站的介绍文本。",
+    "confidence": "high",
+    "confidenceNotes": []
   },
   "validation": {
     "crossLanguageConsistency": 100,

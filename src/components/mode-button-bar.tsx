@@ -49,7 +49,7 @@ const MODE_VISUAL: Record<Mode, {
     gradient: { from: '#ef4444', to: '#f87171' },
     glow: 'rgba(239,68,68,0.35)',
     accentText: '#fca5a5',
-    badge: '交锋',
+    badge: '对决',
   },
   mission: {
     emoji: '🎯',
