@@ -110,11 +110,16 @@ async function persistConversation(
       // Note: DB column order is: id, userId, title, mode, participants, archived, tags,
       // messageCount, totalTokens, totalCost, personaIds, createdAt, updatedAt
       // title is skipped (NULL), so we insert NULL at position 5 to keep params aligned.
+      // PostgreSQL text[] columns need ARRAY[...]::text[] syntax, NOT JSON.
+      // E.g. "{'steve-jobs','einstein'}" — the surrounding braces are part of the syntax.
+      const participantArray = participantIds.length > 0
+        ? '{' + participantIds.map(p => '"' + p.replace(/"/g, '\\"') + '"').join(',') + '}'
+        : '{}';
       await client.query(`
         INSERT INTO conversations (id, "userId", title, mode, participants, archived, tags,
                                  "messageCount", "totalTokens", "totalCost", "personaIds", "createdAt", "updatedAt")
-        VALUES ($1, $2, NULL, $3, $4, false, '{}'::text[],
-                $5, $6, $7, $4, NOW(), NOW())
+        VALUES ($1, $2, NULL, $3, $4::text[], false, '{}'::text[],
+                $5, $6, $7, $4::text[], NOW(), NOW())
         ON CONFLICT (id) DO UPDATE SET
           mode = EXCLUDED.mode,
           participants = EXCLUDED.participants,
@@ -123,7 +128,7 @@ async function persistConversation(
           "totalTokens" = EXCLUDED."totalTokens",
           "totalCost" = EXCLUDED."totalCost",
           "updatedAt" = NOW()
-      `, [conversationId, userId, mode, JSON.stringify(participantIds), messages.length, totalTokensNum, totalCostNum]);
+      `, [conversationId, userId, mode, participantArray, messages.length, totalTokensNum, totalCostNum]);
       console.log(`[persistConversation] STEP_upsert_ok conversation=${conversationId}, messages=${messages.length}`);
 
       // ── Insert messages in a single batch ──────────────────────────────────────
@@ -169,14 +174,17 @@ async function persistConversation(
       let totalSkipped = 0;
 
       if (validMessages.length > 0) {
-        // Build a single INSERT with multiple VALUES rows
-        // Each message needs 12 params: id, conversationId, userId, role, content,
-        // personaId, modelUsed, tokensInput, tokensOutput, apiCost, metadata, createdAt
+        // Build a single INSERT with multiple VALUES rows.
+        // Only include columns we actually set; all other columns (tokensUsed, latencyMs,
+        // confidence, round, consensus, source) have DB-side defaults and will be filled
+        // automatically.
         const rows: string[] = [];
         const params: any[] = [];
         let paramIdx = 1;
 
         for (const msg of validMessages) {
+          // 12 columns: id, conversationId, userId, role, content, personaId, modelUsed,
+          //             tokensInput, tokensOutput, apiCost, metadata, createdAt
           rows.push(`($${paramIdx++}, $${paramIdx++}, $${paramIdx++}, $${paramIdx++}, $${paramIdx++}, $${paramIdx++}, $${paramIdx++}, $${paramIdx++}, $${paramIdx++}, $${paramIdx++}, $${paramIdx++}, $${paramIdx++})`);
           params.push(
             msg.id, conversationId, userId, msg.role, msg.content,
@@ -188,9 +196,7 @@ async function persistConversation(
         const batchInsert = `
           INSERT INTO messages (id, "conversationId", "userId", role, content,
                                "personaId", "modelUsed", "tokensInput", "tokensOutput",
-                               "apiCost", metadata, "createdAt",
-                               "tokensUsed", "latencyMs", confidence, "round",
-                               consensus, source)
+                               "apiCost", metadata, "createdAt")
           VALUES ${rows.join(', ')}
           ON CONFLICT (id) DO NOTHING
         `;
