@@ -10,7 +10,7 @@
  *
  * 积分与每日免费额度互斥，有积分用户不消耗每日 10 次免费额度。
  */
-import { prisma } from '@/lib/prisma';
+import { neon } from '@neondatabase/serverless';
 import { decryptApiKey } from '@/lib/encryption';
 
 export type BillingMode = 'A' | 'B';
@@ -27,17 +27,25 @@ export interface BillingDecision {
 }
 
 export async function resolveBillingMode(userId: string): Promise<BillingDecision> {
-  const user = await prisma.user.findUnique({
-    where: { id: userId },
-    select: {
-      apiKeyEncrypted: true,
-      apiKeyIv: true,
-      apiKeyProvider: true,
-      apiKeyStatus: true,
-    },
-  });
+  const connectionString = process.env.DATABASE_URL;
+  if (!connectionString) {
+    return {
+      mode: 'B',
+      provider: 'deepseek',
+      platformApiKey: process.env.DEEPSEEK_API_KEY,
+      creditsToDeduct: 0,
+      allowed: false,
+      reason: 'DATABASE_URL not set',
+    };
+  }
 
-  if (!user) {
+  const sql = neon(connectionString);
+  const rows = await sql`
+    SELECT "apiKeyEncrypted", "apiKeyIv", "apiKeyProvider", "apiKeyStatus"
+    FROM users WHERE id = ${userId} LIMIT 1
+  `;
+
+  if (rows.length === 0) {
     return {
       mode: 'B',
       provider: 'deepseek',
@@ -47,6 +55,8 @@ export async function resolveBillingMode(userId: string): Promise<BillingDecisio
       reason: 'User not found',
     };
   }
+
+  const user = rows[0];
 
   // 模式 A：User-Pays API Key
   if (user.apiKeyEncrypted && user.apiKeyStatus === 'valid' && user.apiKeyIv) {
@@ -60,9 +70,6 @@ export async function resolveBillingMode(userId: string): Promise<BillingDecisio
   }
 
   // 模式 B：平台代付
-  // - 付费用户：无限
-  // - 有充值积分的 FREE 用户：平台代付，每次对话扣 1 积分（由 chat API 调用 deductCredits）
-  // - 无积分 FREE 用户：每日 10 次限制（由 checkUserDailyLimit 控制）
   return {
     mode: 'B',
     provider: 'deepseek',
