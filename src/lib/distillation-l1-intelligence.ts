@@ -602,10 +602,18 @@ export function buildCorpusSample(
 
   let result = '';
   for (const file of sorted) {
-    if (result.length + file.content.length <= maxChars) {
+    // Always include at least a portion of each file (up to maxChars total)
+    // Use greedy truncation: keep adding files until we have enough content
+    const remaining = maxChars - result.length;
+    if (remaining <= 0) break;
+
+    if (file.content.length <= remaining) {
+      // File fits, add it all
       result += `\n\n=== ${file.filename} ===\n\n` + file.content;
+    } else {
+      // File too large, add the prefix
+      result += `\n\n=== ${file.filename} (truncated) ===\n\n` + file.content.slice(0, remaining);
     }
-    if (result.length >= maxChars) break;
   }
 
   return result;

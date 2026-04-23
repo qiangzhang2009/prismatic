@@ -46,7 +46,7 @@ export class OpenAIProvider implements LLMProvider {
   async chat(options: LLMOptions): Promise<LLMResponse> {
     const controller = new AbortController();
     // Node.js runtime default is 10s; leave headroom for cold start + network
-    const timeout = setTimeout(() => controller.abort(), 6000);
+    const timeout = setTimeout(() => controller.abort(), 30000);
 
     try {
       const response = await fetch(`${this.baseURL}/chat/completions`, {
@@ -153,7 +153,7 @@ export class AnthropicProvider implements LLMProvider {
   async chat(options: LLMOptions): Promise<LLMResponse> {
     const controller = new AbortController();
     // Node.js runtime default is 10s; leave headroom for cold start + network
-    const timeout = setTimeout(() => controller.abort(), 6000);
+    const timeout = setTimeout(() => controller.abort(), 30000);
 
     try {
       // Convert messages to Anthropic format
@@ -222,7 +222,7 @@ export class DeepSeekProvider implements LLMProvider {
   async chat(options: LLMOptions): Promise<LLMResponse> {
     const controller = new AbortController();
     // Node.js runtime default is 10s; leave headroom for cold start + network
-    const timeout = setTimeout(() => controller.abort(), 6000);
+    const timeout = setTimeout(() => controller.abort(), 30000);
 
     try {
       const response = await fetch(`${this.baseURL}/chat/completions`, {
