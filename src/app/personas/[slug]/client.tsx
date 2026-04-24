@@ -134,16 +134,16 @@ function MentalModelCard({ model, accentColor, personaId }: { model: Persona['me
             </div>
           </div>
 
-          {/* Application */}
+          {/* Actual application */}
           <div>
             <h5 className="text-xs font-medium text-text-muted mb-2">实际应用</h5>
-            <p className="text-xs text-text-secondary">{model.application}</p>
+            <p className="text-xs text-text-secondary">{(model as any).applicationZh || model.application}</p>
           </div>
 
           {/* Limitation */}
           <div className="rounded-lg p-3 bg-red-500/5 border border-red-500/15">
             <h5 className="text-xs font-medium text-red-400 mb-1">边界条件</h5>
-            <p className="text-xs text-text-secondary">{model.limitation}</p>
+            <p className="text-xs text-text-secondary">{(model as any).limitationZh || model.limitation}</p>
           </div>
         </motion.div>
       )}
@@ -165,7 +165,7 @@ function DecisionHeuristicCard({ h, accentColor }: { h: Persona['decisionHeurist
       <p className="text-xs text-text-secondary">{(h as any).descriptionZh || h.description}</p>
       {expanded && (
         <p className="text-xs text-text-muted mt-2 pt-2 border-t border-border-subtle">
-          应用于：{h.application}
+          应用于：{(h as any).applicationZh || h.application}
         </p>
       )}
     </button>
@@ -433,10 +433,10 @@ export function PersonaDetailClient({ persona, colors }: Props) {
               </div>
 
               {/* Identity & Chinese Adaptation */}
-              {persona.identityPrompt && (
+              {(persona as any).identityPromptZh && (
                 <div className="rounded-2xl border border-border-subtle bg-bg-surface p-6">
                   <h3 className="font-medium mb-3 text-sm text-text-muted">身份认同</h3>
-                  <p className="text-sm text-text-secondary italic">&ldquo;{persona.identityPrompt}&rdquo;</p>
+                  <p className="text-sm text-text-secondary italic">&ldquo;{(persona as any).identityPromptZh}&rdquo;</p>
                 </div>
               )}
 

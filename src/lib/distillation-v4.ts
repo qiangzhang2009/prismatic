@@ -35,6 +35,7 @@ import {
   evaluateGate1,
   evaluateGate2,
   evaluateGate3,
+  evaluateGate4,
   diagnoseFailure,
   createIterationRecord,
   summarizePipelineResult,
@@ -508,6 +509,12 @@ export async function distillPersonaV4(
   const gate3 = evaluateGate3(score, personaType, config.adaptiveThreshold);
   onProgress?.('gate3', 100);
 
+  // ── Gate 4: Semantic Validation ──────────────────────────────────────────
+  onProgress?.('gate4', 0);
+  const skipBilingual = routeDecision.route === 'uni' && routeDecision.primaryLanguage === 'en';
+  const gate4 = evaluateGate4(personaId, knowledge, expression, skipBilingual);
+  onProgress?.('gate4', 100);
+
   // ── Record First Iteration ────────────────────────────────────────────
   const iterations: IterationRecord[] = [];
   let currentKnowledge = knowledge;
@@ -516,6 +523,7 @@ export async function distillPersonaV4(
   let currentGate1 = gate1;
   let currentGate2 = gate2;
   let currentGate3 = gate3;
+  let currentGate4 = gate4;
   let iteration = 1;
 
   // Record the initial extraction as iteration 1
@@ -524,7 +532,10 @@ export async function distillPersonaV4(
     currentGate1,
     currentGate2,
     currentGate3,
-    gate3.result === 'pass' ? 'Initial extraction passed quality gate' : 'Initial extraction failed quality gate',
+    currentGate4,
+    gate3.result === 'pass' && gate4.result === 'pass'
+      ? 'Initial extraction passed all quality gates'
+      : 'Initial extraction failed quality gate(s)',
     [],
     0,
     0
@@ -533,16 +544,10 @@ export async function distillPersonaV4(
 
   // ── Iteration Loop (retry on gate failure) ──────────────────────────
   while (iteration < config.maxIterations) {
-    if (currentGate2.result !== 'fail' && currentGate3.result !== 'fail') break;
+    if (currentGate2.result !== 'fail' && currentGate3.result !== 'fail' && currentGate4.result !== 'fail') break;
 
     iteration++;
     console.log(`[v4] Iteration ${iteration} for ${personaId} — retry after gate failure`);
-
-    const diagnosis = diagnoseFailure(currentGate1, currentGate2, currentGate3);
-    console.log(`[v4] Diagnosis: ${diagnosis.diagnosis}`);
-    if (diagnosis.fixActions.length > 0) {
-      console.log(`[v4] Fix actions: ${diagnosis.fixActions.join(', ')}`);
-    }
 
     // Re-extract
     onProgress?.(`iteration:${iteration}`, 0);
@@ -553,14 +558,16 @@ export async function distillPersonaV4(
     currentGate1 = evaluateGate1(retryResult.report);
     currentGate2 = evaluateGate2(currentKnowledge, currentExpression);
     currentGate3 = evaluateGate3(currentScore, personaType, config.adaptiveThreshold);
+    currentGate4 = evaluateGate4(personaId, currentKnowledge, currentExpression, skipBilingual);
 
     const retryRecord = createIterationRecord(
       iteration,
       currentGate1,
       currentGate2,
       currentGate3,
-      diagnosis.diagnosis,
-      diagnosis.fixActions,
+      currentGate4,
+      `Retry after gate failure (G2:${currentGate2.result} G3:${currentGate3.result} G4:${currentGate4.result})`,
+      currentGate4.autoFixableFindings,
       0,
       0
     );

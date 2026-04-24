@@ -288,12 +288,34 @@ export interface Gate3ScoringResult {
   suggestions: string[];
 }
 
+// ─── Gate 4: Semantic Validation ─────────────────────────────────────────────
+
+export interface SemanticCheckResult {
+  check: string;
+  passed: boolean;
+  score: number;
+  issuesFound: number;
+}
+
+export interface Gate4SemanticResult {
+  result: GateResult;
+  evidenceRelevanceScore: number;
+  expressionKnowledgeScore: number;
+  crossLayerScore: number;
+  bilingualScore: number;
+  overallSemanticScore: number;
+  issues: string[];
+  suggestions: string[];
+  autoFixableFindings: string[];
+}
+
 export interface IterationRecord {
   iteration: number;
   gates: {
     gate1?: Gate1CorpusResult;
     gate2?: Gate2DistillationResult;
     gate3?: Gate3ScoringResult;
+    gate4?: Gate4SemanticResult;
   };
   diagnosis: string;
   fixActions: string[];

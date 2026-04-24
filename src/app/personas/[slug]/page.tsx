@@ -70,25 +70,36 @@ function buildPersonaFromDB(db: Record<string, unknown>): Persona {
         dbPersona.honestBoundaries = codePersona.honestBoundaries;
       }
     } else {
-      // Non-v4: code has the complete Chinese data
-      if (codePersona.mentalModels.length) dbPersona.mentalModels = codePersona.mentalModels;
-      if (codePersona.decisionHeuristics.length) dbPersona.decisionHeuristics = codePersona.decisionHeuristics;
-      if (codePersona.tensions.length) dbPersona.tensions = codePersona.tensions;
-      if (codePersona.honestBoundaries.length) dbPersona.honestBoundaries = codePersona.honestBoundaries;
+      // v5+: DB (V5 JSON) has complete Chinese fields (oneLinerZh, applicationZh,
+      // limitationZh, identityPromptZh, etc.) — treat DB as source of truth.
+      // Code (personas.ts) has English-only fields and missing _Zh variants.
+      // Only supplement from code if DB field is empty.
+      if (!dbPersona.mentalModels.length && codePersona.mentalModels.length) {
+        dbPersona.mentalModels = codePersona.mentalModels;
+      }
+      if (!dbPersona.decisionHeuristics.length && codePersona.decisionHeuristics.length) {
+        dbPersona.decisionHeuristics = codePersona.decisionHeuristics;
+      }
+      if (!dbPersona.tensions.length && codePersona.tensions.length) {
+        dbPersona.tensions = codePersona.tensions;
+      }
+      if (!dbPersona.honestBoundaries.length && codePersona.honestBoundaries.length) {
+        dbPersona.honestBoundaries = codePersona.honestBoundaries;
+      }
     }
 
-    // For v4 personas: DB now has Chinese content — only supplement if DB is empty
-    // For non-v4 personas: code has Chinese content — always use it
-    if (!isV4 || !dbPersona.strengths.length) {
+    // For v4 personas: DB has Chinese content — supplement from code only if DB empty
+    // For v5+ personas: DB (V5 JSON) has the best data — never override with code
+    if (isV4 && !dbPersona.strengths.length) {
       if (codePersona.strengths.length) dbPersona.strengths = codePersona.strengths;
     }
-    if (!isV4 || !dbPersona.blindspots.length) {
+    if (isV4 && !dbPersona.blindspots.length) {
       if (codePersona.blindspots.length) dbPersona.blindspots = codePersona.blindspots;
     }
-    if (!isV4 || !dbPersona.values.length) {
+    if (isV4 && !dbPersona.values.length) {
       if (codePersona.values.length) dbPersona.values = codePersona.values;
     }
-    if (!isV4 || !dbPersona.antiPatterns.length) {
+    if (isV4 && !dbPersona.antiPatterns.length) {
       if (codePersona.antiPatterns.length) dbPersona.antiPatterns = codePersona.antiPatterns;
     }
 

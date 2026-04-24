@@ -16,6 +16,7 @@ import {
   type Gate1CorpusResult,
   type Gate2DistillationResult,
   type Gate3ScoringResult,
+  type Gate4SemanticResult,
   type IterationRecord,
   type DistillationConfig,
   type GateResult,
@@ -23,6 +24,7 @@ import {
   CORPUS_HEALTH_THRESHOLDS,
 } from './distillation-v4-types';
 import { validateBilingualCompleteness } from './distillation-l5-validation';
+import { validateSemantic } from './distillation-semantic-validator';
 import type {
   DistillationScore as LegacyScore,
 } from './types';
@@ -250,6 +252,48 @@ export function evaluateGate3(
   };
 }
 
+// ─── Gate 4: Semantic Validation ────────────────────────────────────────────────
+
+export function evaluateGate4(
+  personaId: string,
+  knowledge: KnowledgeLayer,
+  expression: ExpressionLayer,
+  skipBilingual = false
+): Gate4SemanticResult {
+  const report = validateSemantic({ personaId, knowledge, expression, skipBilingual });
+
+  const issues: string[] = [];
+  const suggestions: string[] = [];
+  const autoFixableFindings: string[] = [];
+
+  for (const finding of report.findings) {
+    const prefix = finding.type === 'error' ? '[ERROR]' : finding.type === 'warning' ? '[WARN]' : '[INFO]';
+    issues.push(`${prefix} ${finding.location}: ${finding.description}`);
+    if (finding.autoFixable) {
+      autoFixableFindings.push(`semantic_${finding.check}`);
+    }
+  }
+
+  // Suggestion mapping
+  for (const suggestion of report.suggestions) {
+    if (!suggestions.includes(suggestion)) {
+      suggestions.push(suggestion);
+    }
+  }
+
+  return {
+    result: report.result,
+    evidenceRelevanceScore: report.checks.evidenceRelevance.score,
+    expressionKnowledgeScore: report.checks.expressionKnowledgeAlignment.score,
+    crossLayerScore: report.checks.crossLayerConsistency.score,
+    bilingualScore: report.checks.bilingualCompleteness.score,
+    overallSemanticScore: report.overallScore,
+    issues,
+    suggestions,
+    autoFixableFindings,
+  };
+}
+
 // ─── Diagnosis & Fix Recommendation ───────────────────────────────────────────────
 
 export type FailureRootCause =
@@ -383,6 +427,7 @@ export function createIterationRecord(
   gate1?: Gate1CorpusResult,
   gate2?: Gate2DistillationResult,
   gate3?: Gate3ScoringResult,
+  gate4?: Gate4SemanticResult,
   diagnosis?: string,
   fixActions?: string[],
   cost: number = 0,
@@ -394,6 +439,7 @@ export function createIterationRecord(
       gate1,
       gate2,
       gate3,
+      gate4,
     },
     diagnosis: diagnosis ?? '',
     fixActions: fixActions ?? [],
@@ -406,18 +452,24 @@ export function createIterationRecord(
 export function shouldContinueIteration(
   iteration: number,
   maxIterations: number,
-  allResults: Gate1CorpusResult[],
+  allResults1: Gate1CorpusResult[],
   allResults2: Gate2DistillationResult[],
-  allResults3: Gate3ScoringResult[]
+  allResults3: Gate3ScoringResult[],
+  allResults4?: Gate4SemanticResult[]
 ): boolean {
   if (iteration >= maxIterations) return false;
 
-  // Check if last iteration passed all gates
-  const last1 = allResults[allResults.length - 1];
+  const last1 = allResults1[allResults1.length - 1];
   const last2 = allResults2[allResults2.length - 1];
   const last3 = allResults3[allResults3.length - 1];
+  const last4 = allResults4?.[allResults4.length - 1];
 
-  if (last1?.result === 'pass' && last2?.result === 'pass' && last3?.result === 'pass') {
+  const pass1 = last1?.result === 'pass';
+  const pass2 = last2?.result === 'pass';
+  const pass3 = last3?.result === 'pass';
+  const pass4 = last4?.result === 'pass' || last4 === undefined;
+
+  if (pass1 && pass2 && pass3 && pass4) {
     return false;
   }
 
