@@ -584,35 +584,62 @@ export async function analyzeCorpus(
   };
 }
 
+// ─── HTML Stripper ─────────────────────────────────────────────────────────────────
+
+export function stripHtml(html: string): string {
+  // Remove script and style elements completely
+  let text = html
+    .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, ' ')
+    .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, ' ')
+    .replace(/<noscript[^>]*>[\s\S]*?<\/noscript>/gi, ' ')
+    .replace(/<head[^>]*>[\s\S]*?<\/head>/gi, ' ')
+    .replace(/<meta[^>]*>/gi, ' ')
+    .replace(/<link[^>]*>/gi, ' ')
+    .replace(/<!--[\s\S]*?-->/g, ' ')
+    .replace(/<br\s*\/?>/gi, '\n')
+    .replace(/<\/p>/gi, '\n\n')
+    .replace(/<\/div>/gi, '\n')
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
+
+  // Decode HTML numeric entities (&#123; or &#x1F4A9;)
+  text = text.replace(/&#(\d+);/g, (_, code) => String.fromCodePoint(parseInt(code, 10)));
+  text = text.replace(/&#x([0-9a-fA-F]+);/g, (_, code) => String.fromCodePoint(parseInt(code, 16)));
+
+  return text;
+}
+
 // ─── Corpus Sample Builder ───────────────────────────────────────────────────────
 
 export function buildCorpusSample(
   files: CorpusFile[],
   maxChars: number = 50000
 ): string {
-  // Prioritize by source quality
-  const priorityOrder = ['primary', 'classical_text', 'book', 'archive', 'lecture', 'interview', 'blog', 'secondary', 'tweet'];
-  const sorted = [...files].sort((a, b) => {
-    const aType = detectSourceType(a.filename, a.content);
-    const bType = detectSourceType(b.filename, b.content);
-    const aIdx = priorityOrder.indexOf(aType);
-    const bIdx = priorityOrder.indexOf(bType);
-    return (aIdx === -1 ? 999 : aIdx) - (bIdx === -1 ? 999 : bIdx);
-  });
-
   let result = '';
-  for (const file of sorted) {
-    // Always include at least a portion of each file (up to maxChars total)
-    // Use greedy truncation: keep adding files until we have enough content
+
+  for (const file of files) {
     const remaining = maxChars - result.length;
     if (remaining <= 0) break;
 
-    if (file.content.length <= remaining) {
-      // File fits, add it all
-      result += `\n\n=== ${file.filename} ===\n\n` + file.content;
+    let content = file.content;
+
+    // Strip HTML if the file looks like HTML
+    if (file.filename.endsWith('.html') || file.filename.endsWith('.htm') ||
+        content.trim().startsWith('<!DOCTYPE') || content.trim().startsWith('<html')) {
+      content = stripHtml(content);
+    }
+
+    if (content.length <= remaining) {
+      result += `\n\n=== ${file.filename} ===\n\n` + content;
     } else {
-      // File too large, add the prefix
-      result += `\n\n=== ${file.filename} (truncated) ===\n\n` + file.content.slice(0, remaining);
+      result += `\n\n=== ${file.filename} (truncated) ===\n\n` + content.slice(0, remaining);
     }
   }
 
