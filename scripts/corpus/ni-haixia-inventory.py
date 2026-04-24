@@ -6,10 +6,9 @@ scripts/corpus/ni-haixia-inventory.py
 """
 import os
 import json
-import stat
+import signal
 from datetime import datetime
 
-# 源目录
 SRC = "/Volumes/WD-4T-1/disk2-4t-1-2/倪海厦"
 OUT = "scripts/corpus/ni-haixia-inventory.json"
 
@@ -18,60 +17,103 @@ EXTENSIONS = {".pdf", ".docx", ".doc", ".txt", ".md", ".epub", ".mobi", ".azw3"}
 results = []
 skipped = []
 total_size = 0
+scan_count = 0
 
-def safe_walk(root, timeout_sec=5):
-    """os.walk with per-entry timeout fallback."""
-    import signal
+# Per-entry timeout (seconds)
+TIMEOUT = 15
 
-    class TimeoutError(Exception):
-        pass
 
-    def handler(signum, frame):
-        raise TimeoutError(f"Timeout after {timeout_sec}s on {root}")
+def with_timeout(func, default=None):
+    """Run a function with alarm-based timeout."""
+    def wrapper(*args, **kwargs):
+        def handler(signum, frame):
+            raise TimeoutError()
 
-    prev_handler = signal.signal(signal.SIGALRM, handler)
+        old = signal.signal(signal.SIGALRM, handler)
+        signal.alarm(TIMEOUT)
+        try:
+            return func(*args, **kwargs)
+        except TimeoutError:
+            return default
+        finally:
+            signal.alarm(0)
+            signal.signal(signal.SIGALRM, old)
+    return wrapper
+
+
+def safe_scandir(path):
+    """Scandir with timeout."""
+    try:
+        return os.scandir(path)
+    except (OSError, PermissionError):
+        return None
+
+
+def safe_stat(entry):
+    """Stat with timeout."""
+    try:
+        return entry.stat()
+    except (OSError, TimeoutError, PermissionError):
+        return None
+
+
+def walk_tree(root):
+    """Walk tree with per-entry timeout."""
+    global scan_count
+
+    scandir = with_timeout(os.scandir, None)(root)
+    if scandir is None:
+        skipped.append(f"scandir_fail: {root}")
+        return
 
     try:
-        for item in os.scandir(root):
-            signal.alarm(timeout_sec)
-            try:
-                if item.is_dir(follow_symlinks=False):
-                    yield from safe_walk(item.path, timeout_sec)
-                elif item.is_file(follow_symlinks=False):
-                    yield item
-            except (OSError, PermissionError):
-                skipped.append(str(item.path))
-            finally:
-                signal.alarm(0)
-    except TimeoutError as e:
-        skipped.append(f"TIMEOUT: {root} — {e}")
+        for entry in scandir:
+            scan_count += 1
+            if scan_count % 200 == 0:
+                print(f"  ... scanned {scan_count} items, found {len(results)} text files", flush=True)
+
+            st = with_timeout(safe_stat, None)(entry)
+            if st is None:
+                skipped.append(f"stat_fail: {entry.path}")
+                continue
+
+            ext = os.path.splitext(entry.name)[1].lower()
+            if ext in EXTENSIONS:
+                try:
+                    total_size += st.st_size
+                    results.append({
+                        "path": entry.path,
+                        "name": entry.name,
+                        "ext": ext,
+                        "size_bytes": st.st_size,
+                        "size_mb": round(st.st_size / 1024 / 1024, 2),
+                    })
+                except Exception:
+                    pass
+            elif os.path.isdir(entry.path) if False else (st.st_mode & 0o170000) == 0o040000:
+                # It's a directory — recurse
+                walk_tree(entry.path)
+    except (TimeoutError, OSError) as e:
+        skipped.append(f"walk_timeout: {root}")
     finally:
-        signal.signal(signal.SIGALRM, prev_handler)
+        try:
+            scandir.close()
+        except Exception:
+            pass
+
+
+def is_dir(entry, st):
+    """Check if entry is a directory."""
+    import stat
+    return stat.S_ISDIR(st.st_mode)
+
 
 print(f"[{datetime.now().isoformat()}] Starting inventory of: {SRC}")
 print("Scanning... (exFAT disk, this may take a while)")
 
 try:
-    for i, entry in enumerate(safe_walk(SRC)):
-        ext = os.path.splitext(entry.name)[1].lower()
-        if ext in EXTENSIONS:
-            try:
-                size = entry.stat().st_size
-                total_size += size
-                results.append({
-                    "path": entry.path,
-                    "name": entry.name,
-                    "ext": ext,
-                    "size_bytes": size,
-                    "size_mb": round(size / 1024 / 1024, 2),
-                })
-            except OSError:
-                pass
+    walk_tree(SRC)
 
-        if (i + 1) % 500 == 0:
-            print(f"  ... scanned {i + 1} items, found {len(results)} text files")
-
-    # Summary
     by_ext = {}
     for r in results:
         by_ext.setdefault(r["ext"], []).append(r)
@@ -79,11 +121,12 @@ try:
     summary = {
         "scan_time": datetime.now().isoformat(),
         "source_dir": SRC,
-        "total_items_found": len(results),
+        "total_items_scanned": scan_count,
+        "total_files_found": len(results),
         "total_size_mb": round(total_size / 1024 / 1024, 2),
         "by_extension": {},
         "files": results,
-        "skipped": skipped[:100],
+        "skipped": skipped[:200],
     }
 
     for ext, files in sorted(by_ext.items()):
@@ -91,20 +134,24 @@ try:
         summary["by_extension"][ext] = {
             "count": len(files),
             "total_mb": round(ext_size / 1024 / 1024, 2),
+            "sample": [f["path"] for f in files[:5]],
         }
 
     with open(OUT, "w", encoding="utf-8") as f:
         json.dump(summary, f, ensure_ascii=False, indent=2)
 
-    print(f"\n✅ Done! Found {len(results)} text files ({summary['total_size_mb']} MB)")
+    print(f"\nDone! Scanned {scan_count} items, found {len(results)} text files ({summary['total_size_mb']} MB)")
     for ext, info in summary["by_extension"].items():
         print(f"   {ext}: {info['count']} files, {info['total_mb']} MB")
     print(f"\nOutput: {OUT}")
     if skipped:
-        print(f"⚠️  {len(skipped)} items skipped (timeouts/permissions)")
-        for s in skipped[:5]:
+        print(f"Skipped: {len(skipped)}")
+        for s in skipped[:10]:
             print(f"   {s}")
 
 except KeyboardInterrupt:
-    print("\n⚠️ Interrupted by user")
-    print(f"Partial results saved to: {OUT}")
+    print("\nInterrupted by user")
+    if results:
+        with open(OUT, "w", encoding="utf-8") as f:
+            json.dump({"partial": True, "files": results, "skipped": skipped[:100]}, f, ensure_ascii=False, indent=2)
+        print(f"Partial results saved to: {OUT}")

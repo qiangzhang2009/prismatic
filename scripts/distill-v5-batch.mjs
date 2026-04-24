@@ -62,6 +62,39 @@ const err = (t) => log(ln('red', `  ✗ ${t}`));
 const info = (t) => log(ln('blue', `  • ${t}`));
 const dim = (t) => log(ln('dim', `    ${t}`));
 
+// ─── Load display metadata from personas.ts ───────────────────────────────────
+
+function loadPersonasMeta() {
+  const content = readFileSync(join(process.cwd(), 'src/lib/personas.ts'), 'utf8');
+  const result = {};
+  const entryStartRegex = /PERSONAS\['([^']+)'\]\s*=\s*\{/g;
+  let match;
+  while ((match = entryStartRegex.exec(content)) !== null) {
+    const slug = match[1];
+    const searchStart = match.index + match[0].length;
+    const nextEntry = content.indexOf('\nPERSONAS[', searchStart);
+    const entryEnd = nextEntry === -1 ? content.length : nextEntry;
+    const entryBlock = content.slice(searchStart, entryEnd);
+    const extractField = (key) => {
+      const re = new RegExp(`${key}:\\s*(?:\\[([^\\]]*)\\]|'([^']*)'|"([^"]*)")`);
+      const m = entryBlock.match(re);
+      if (!m) return null;
+      if (m[1] !== undefined) return (m[1].match(/'([^']+)'/g) || []).map(s => s.replace(/^'|'$/g, ''));
+      return m[2] || m[3] || null;
+    };
+    result[slug] = {
+      name: extractField('name') || slug,
+      nameZh: extractField('nameZh') || slug,
+      nameEn: extractField('nameEn') || extractField('name') || slug,
+      tagline: extractField('tagline') || '',
+      taglineZh: extractField('taglineZh') || '',
+    };
+  }
+  return result;
+}
+
+const PERSONAS_META = loadPersonasMeta();
+
 // ─── Step 1: Scan All Personas ─────────────────────────────────────────────
 
 function scanPersonas() {
@@ -137,8 +170,15 @@ async function distillSingle(personaId) {
     const durationMs = Date.now() - startTime;
 
     // Write output as V5 — stamp the meta with v5 version
+    // Overwrite distilled display fields with authoritative data from personas.ts
+    const meta = PERSONAS_META[personaId] || {};
     const v5Data = {
       ...result.persona,
+      name: meta.name || result.persona.name,
+      nameZh: meta.nameZh || result.persona.nameZh,
+      nameEn: meta.nameEn || result.persona.nameEn,
+      tagline: meta.tagline || result.persona.tagline,
+      taglineZh: meta.taglineZh || result.persona.taglineZh,
       meta: {
         ...result.persona.meta,
         distillationVersion: 'v5',

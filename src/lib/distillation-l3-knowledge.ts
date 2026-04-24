@@ -357,62 +357,44 @@ function extractTrilingualConcepts(
   primaryLang: SupportedLanguage
 ): TrilingualConcept[] {
   const concepts: TrilingualConcept[] = [];
-  const conceptTerms = new Set<string>();
+  const seenOriginals = new Set<string>();
 
-  // Known concept terms to look for — each concept maps languages to {en, zh, de?} values
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const knownConcepts: Record<string, any> = {
-    'language-game': {
-      de: 'Sprachspiel',
-      en: 'language game',
-      zh: '语言游戏',
-    },
-    'family-resemblance': {
-      de: 'Familienähnlichkeit',
-      en: 'family resemblance',
-      zh: '家族相似性',
-    },
-    'form-of-life': {
-      de: 'Lebensform',
-      en: 'form of life',
-      zh: '生活形式',
-    },
-    'private-language': {
-      de: 'private Sprache',
-      en: 'private language',
-      zh: '私人语言',
-    },
-    'rule-following': {
-      de: 'Regelbefolgung',
-      en: 'rule-following',
-      zh: '遵守规则',
-    },
-    'first-principles': {
-      en: 'first principles',
-      zh: '第一性原理',
-    },
-    'moi': {
-      en: 'moi',
-      zh: '小我',
-    },
-  };
-
-  for (const [key, trans] of Object.entries(knownConcepts)) {
-    const en = trans.en?.en?.toLowerCase() ?? '';
-    const zh = trans.zh ?? '';
-    const de = trans.de ?? '';
-
-    if (
-      corpusSample.toLowerCase().includes(en) ||
-      corpusSample.includes(zh) ||
-      (de && corpusSample.toLowerCase().includes(de))
-    ) {
-      concepts.push({
-        original: primaryLang === 'de' ? de : en,
-        english: trans.en?.en ?? en,
-        chinese: trans.zh ?? zh,
-      });
+  // Extract key terms from mental model names and evidence quotes
+  const modelTerms = new Set<string>();
+  for (const model of mentalModels) {
+    const name = model.nameZh || model.name || '';
+    if (name) modelTerms.add(name);
+    for (const ev of model.evidence ?? []) {
+      const quote = ev.quote || '';
+      if (quote.length > 5 && quote.length < 100) {
+        modelTerms.add(quote);
+      }
     }
+  }
+
+  // Find Chinese terms in the corpus (3-8 chars, Chinese characters)
+  const chinesePattern = /[\u4e00-\u9fff]{2,8}/g;
+  const chineseTerms = [...new Set(corpusSample.match(chinesePattern) ?? [])]
+    .filter(t => t.length >= 2 && !seenOriginals.has(t))
+    .slice(0, 15);
+
+  // Only add terms that appear multiple times (noise filter)
+  const termCounts = new Map<string, number>();
+  for (const term of chineseTerms) {
+    const count = (corpusSample.match(new RegExp(term, 'g')) ?? []).length;
+    if (count >= 2) {
+      termCounts.set(term, count);
+    }
+  }
+
+  for (const [term, count] of termCounts) {
+    if (seenOriginals.has(term)) continue;
+    seenOriginals.add(term);
+    concepts.push({
+      original: primaryLang === 'zh' ? term : '',
+      english: '',
+      chinese: term,
+    });
   }
 
   return concepts;

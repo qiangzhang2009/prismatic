@@ -151,9 +151,6 @@ function extractV5Data(slug, data) {
     }))
   );
 
-  const antiPatterns = Array.isArray(persona.antiPatterns || knowledge.antiPatterns)
-    ? (persona.antiPatterns || knowledge.antiPatterns) : [];
-
   const tensions = JSON.stringify(
     ((knowledge.tensions || persona.tensions || [])).map(t => ({
       dimension: t.dimension || '',
@@ -176,11 +173,35 @@ function extractV5Data(slug, data) {
     }))
   );
 
-  const strengths = Array.isArray(persona.strengths || knowledge.strengths)
-    ? (persona.strengths || knowledge.strengths) : [];
+  // blindspots: merge en+zh string arrays into objects
+  const rawBlindspots = Array.isArray(knowledge.blindspots) ? knowledge.blindspots : [];
+  const rawBlindspotsZh = Array.isArray(knowledge.blindspotsZh) ? knowledge.blindspotsZh : [];
+  const blindspots = rawBlindspots.map((bs, i) => ({
+    text: bs || '',
+    textZh: rawBlindspotsZh[i] || bs || '',
+    reason: '',
+    reasonZh: '',
+  }));
 
-  const blindspots = Array.isArray(persona.blindspots || knowledge.blindspots)
-    ? (persona.blindspots || knowledge.blindspots) : [];
+  // strengths: merge en+zh string arrays into objects
+  const rawStrengths = Array.isArray(knowledge.strengths) ? knowledge.strengths : [];
+  const rawStrengthsZh = Array.isArray(knowledge.strengthsZh) ? knowledge.strengthsZh : [];
+  const strengths = rawStrengths.map((s, i) => ({
+    text: s || '',
+    textZh: rawStrengthsZh[i] || s || '',
+    description: s || '',
+    descriptionZh: rawStrengthsZh[i] || s || '',
+  }));
+
+  // antiPatterns: merge en+zh string arrays into objects
+  const rawAntiPatterns = Array.isArray(knowledge.antiPatterns) ? knowledge.antiPatterns : [];
+  const rawAntiPatternsZh = Array.isArray(knowledge.antiPatternsZh) ? knowledge.antiPatternsZh : [];
+  const antiPatterns = rawAntiPatterns.map((ap, i) => ({
+    text: ap || '',
+    textZh: rawAntiPatternsZh[i] || ap || '',
+    description: ap || '',
+    descriptionZh: rawAntiPatternsZh[i] || ap || '',
+  }));
 
   const score = data.score || {};
   const stats = data.meta?.corpusStats || {};
@@ -205,6 +226,19 @@ function extractV5Data(slug, data) {
     scoreFindings: JSON.stringify(score.findings || []),
     corpusItemCount: stats.files || 0,
     corpusTotalWords: stats.words || 0,
+    corpusSources: JSON.stringify((knowledge.sources || persona.sources || []).map(s => ({
+      type: s.type || 'other',
+      title: s.title || '',
+      description: s.description || '',
+    }))),
+    keyQuotes: JSON.stringify(
+      ((persona.mentalModels || knowledge.mentalModels || [])).flatMap(mm =>
+        ((mm.evidence || []).slice(0, 3)).map(e => ({
+          quote: e.quote || e.text || '',
+          source: mm.nameZh || mm.name || '',
+        }))
+      ).filter(q => q.quote.length > 5).slice(0, 20)
+    ),
     distillVersion: data.meta?.distillationVersion || 'v5',
     distillDate: data.meta?.createdAt || new Date().toISOString(),
   };
@@ -315,7 +349,10 @@ async function upsertPersona(slug, display, v5) {
     v5.blindspots,
     v5.systemPromptTemplate,
     v5.identityPrompt,
-    null, null, null, null,
+    v5.reasoningStyle || null,
+    v5.decisionFramework || null,
+    v5.keyQuotes || '[]',
+    v5.lifePhilosophy || null,
     v5.finalScore,
     v5.qualityGrade,
     v5.thresholdPassed,
@@ -324,7 +361,7 @@ async function upsertPersona(slug, display, v5) {
     v5.scoreFindings,
     v5.corpusItemCount,
     v5.corpusTotalWords,
-    JSON.stringify([]),
+    v5.corpusSources || '[]',
     v5.distillVersion,
     v5.distillDate,
     true,

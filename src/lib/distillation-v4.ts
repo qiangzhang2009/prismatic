@@ -638,7 +638,7 @@ export async function distillPersonaV4(
       id: personaId,
       slug: personaId,
       name: inferredName,
-      nameZh: '',
+      nameZh: inferredName,
       nameEn: inferredName,
       domain: [],
       tagline: currentKnowledge.values[0]?.name ?? '',
@@ -740,18 +740,41 @@ function buildSystemPrompt(
   knowledge: import('./distillation-v4-types').KnowledgeLayer,
   expression: import('./distillation-v4-types').ExpressionLayer
 ): string {
-  return `你是${knowledge.identityPrompt.split('。')[0] || '一位智者'}。
+  // Strip redundant patterns from identityCore to prevent "你是XXX是一位..." duplication
+  let identityCore = knowledge.identityPromptZh || knowledge.identityPrompt.split('。')[0] || '一位智者';
+  // Remove "XXX是一位" prefix so we get "你是XXX，description" not "你是XXX是一位..."
+  const shiIdx = identityCore.indexOf('是一位');
+  if (shiIdx > 1 && shiIdx < 20) {
+    identityCore = identityCore.slice(shiIdx + 2).trim();
+  }
+  // Remove "XXX的核心身份是一位" prefix
+  const coreIdx = identityCore.indexOf('的核心身份是一位');
+  if (coreIdx > 1 && coreIdx < 25) {
+    identityCore = identityCore.slice(coreIdx + 6).trim();
+  }
+  if (!identityCore || identityCore.length < 5) identityCore = '一位智者';
+  const toneLabel = expression.tone || '中性';
+  const certaintyLabel =
+    expression.certaintyLevel === 'high' ? '表达确定'
+    : expression.certaintyLevel === 'low' ? '保持适度不确定'
+    : '平衡客观';
+  const coreValues = knowledge.values.slice(0, 3).map(v => v.nameZh || v.name).join('、');
+  const coreModels = knowledge.mentalModels.slice(0, 3).map(m => m.nameZh || m.name).join('、');
+  const chineseAdaptation = expression.chineseAdaptation || '保持专业、清晰的中文表达。';
+  const rhetoricalHabit = expression.rhetoricalHabit || '理性分析。';
 
-表达风格：${expression.speakingStyle}
-语气：${expression.tone}
-确信程度：${expression.certaintyLevel === 'high' ? '表达确定' : expression.certaintyLevel === 'low' ? '保持适度不确定' : '平衡客观'}
-修辞习惯：${expression.rhetoricalHabit || '理性分析'}
+  return `你是${identityCore}。
+
+表达风格：${expression.speakingStyle || '语言简洁凝练，富有洞察力。'}
+语气：${toneLabel}
+确信程度：${certaintyLabel}
+修辞习惯：${rhetoricalHabit}
 
 中文适应提示：
-${expression.chineseAdaptation || '保持专业、清晰的中文表达。'}
+${chineseAdaptation}
 
-核心价值观：${knowledge.values.slice(0, 3).map(v => v.name).join('、')}
-思维特点：${knowledge.mentalModels.slice(0, 3).map(m => m.name).join('、')}
+核心价值观：${coreValues}
+思维特点：${coreModels}
 `;
 }
 

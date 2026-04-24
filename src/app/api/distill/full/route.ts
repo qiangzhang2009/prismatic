@@ -6,8 +6,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { nanoid } from 'nanoid';
 import { getPersonaById } from '@/lib/personas';
-import { distillPersonaV4, DEFAULT_CONFIG } from '@/lib/distillation-v4';
-// import { FullAutoDistillationOrchestrator } from '@/lib/distillation-backup/distillation-orchestrator-full-auto.v3';
 import type { Persona, Domain, DistillationScore } from '@/lib/types';
 import * as path from 'path';
 
@@ -170,6 +168,14 @@ export async function POST(req: NextRequest) {
       isNewPersona = true;
     }
 
+    const corpusDir = resolveCorpusDir(persona.id);
+
+    console.log(`[distill/full] Starting v4 distillation for ${persona.nameZh || persona.name} (${persona.id})`);
+    console.log(`[distill/full] Corpus dir: ${corpusDir}`);
+
+    // Dynamic import prevents bundler from scanning corpus paths at build time
+    const { distillPersonaV4, DEFAULT_CONFIG } = await import('@/lib/distillation-v4');
+
     const outputLang = options.language === 'en' ? 'en-US' : 'zh-CN';
     const v4Config = {
       maxIterations: options.iterations ?? DEFAULT_CONFIG.maxIterations,
@@ -177,10 +183,6 @@ export async function POST(req: NextRequest) {
       outputLanguage: outputLang as 'zh-CN' | 'en-US',
     };
 
-    const corpusDir = resolveCorpusDir(persona.id);
-
-    console.log(`[distill/full] Starting v4 distillation for ${persona.nameZh || persona.name} (${persona.id})`);
-    console.log(`[distill/full] Corpus dir: ${corpusDir}`);
     console.log(`[distill/full] Config:`, JSON.stringify(v4Config));
 
     let result: DistillationResult;
@@ -220,7 +222,7 @@ export async function POST(req: NextRequest) {
       };
       success = true;
     } catch (v4Err) {
-      console.error(`[distill/full] v4 failed, trying v3 fallback:`, v4Err);
+      console.error(`[distill/full] v4 failed:`, v4Err);
       result = {
         personaId: persona.id,
         personaName: persona.nameZh || persona.name,
@@ -230,11 +232,11 @@ export async function POST(req: NextRequest) {
         iterations: 0,
         finalScore: 0,
         grade: 'F',
-        route: 'v3-fallback',
+        route: 'failed',
         totalCost: 0,
         totalTokens: 0,
         completedAt: new Date().toISOString(),
-        version: 'v3',
+        version: 'v4',
       };
     }
 

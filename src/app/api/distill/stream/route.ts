@@ -8,7 +8,6 @@ export const dynamic = 'force-dynamic';
 
 import { NextRequest, NextResponse } from 'next/server';
 import { getPersonaById } from '@/lib/personas';
-import { distillPersonaV4, DEFAULT_CONFIG } from '@/lib/distillation-v4';
 import { formatSSE } from '@/lib/distillation-events';
 import type { PipelineEvent } from '@/lib/distillation-events';
 import * as path from 'path';
@@ -62,17 +61,22 @@ export async function GET(req: NextRequest) {
 
       const corpusDir = resolveCorpusDir(personaId);
 
-      distillPersonaV4({
-        personaId,
-        corpusDir,
-        config: {
-          maxIterations: DEFAULT_CONFIG.maxIterations,
-          adaptiveThreshold: DEFAULT_CONFIG.adaptiveThreshold,
-          outputLanguage: 'zh-CN',
-        },
-        onProgress: (stage, pct) => {
-          send('progress', `[v4] ${stage}: ${pct}%`, { stage, progress: pct, sessionId });
-        },
+      // Dynamic import in a Promise prevents bundler from scanning corpus paths at build time
+      Promise.resolve().then(async () => {
+        const { distillPersonaV4, DEFAULT_CONFIG } = await import('@/lib/distillation-v4');
+
+        return distillPersonaV4({
+          personaId,
+          corpusDir,
+          config: {
+            maxIterations: DEFAULT_CONFIG.maxIterations,
+            adaptiveThreshold: DEFAULT_CONFIG.adaptiveThreshold,
+            outputLanguage: 'zh-CN',
+          },
+          onProgress: (stage, pct) => {
+            send('progress', `[v4] ${stage}: ${pct}%`, { stage, progress: pct, sessionId });
+          },
+        });
       })
         .then((result) => {
           const score = result.pipelineResult.finalScore;

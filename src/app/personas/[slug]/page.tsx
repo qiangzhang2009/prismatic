@@ -103,8 +103,8 @@ function buildPersonaFromDB(db: Record<string, unknown>): Persona {
       if (codePersona.antiPatterns.length) dbPersona.antiPatterns = codePersona.antiPatterns;
     }
 
-    // Sources: prefer code for non-v4, DB for v4 (DB has more complete corpusSources)
-    if (!isV4 && codePersona.sources?.length) {
+    // Sources: v5+ prefer DB (distillation corpusSources), v4 fallback to code
+    if (isV4 && codePersona.sources?.length) {
       dbPersona.sources = codePersona.sources;
     }
 

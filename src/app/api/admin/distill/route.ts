@@ -11,8 +11,7 @@ import { nanoid } from 'nanoid';
 import { getPersonaById } from '@/lib/personas';
 import { prisma } from '@/lib/prisma';
 import { Prisma } from '@prisma/client';
-import { distillPersonaV4, DEFAULT_CONFIG, type DistillV4Options } from '@/lib/distillation-v4';
-// import { FullAutoDistillationOrchestrator } from '@/lib/distillation-backup/distillation-orchestrator-full-auto.v3';
+// distillPersonaV4 loaded dynamically to prevent bundler from scanning corpus paths at build time
 import type { Persona, Domain } from '@/lib/types';
 import * as path from 'path';
 
@@ -135,6 +134,9 @@ async function runV4Distillation(
       where: { id: sessionId },
       data: { status: 'running' },
     });
+
+    // Dynamic import prevents bundler from scanning corpus paths at build time
+    const { distillPersonaV4, DEFAULT_CONFIG } = await import('@/lib/distillation-v4');
 
     const corpusDir = resolveCorpusDir(personaId);
     const v4Config = {
