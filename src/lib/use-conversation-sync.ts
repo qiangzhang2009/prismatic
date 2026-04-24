@@ -272,7 +272,7 @@ function flushOfflineQueue(): QueuedSnapshot[] {
 // (not just the active one like useChatHistory does)
 
 const REGISTRY_KEY = 'prismatic-conversation-registry';
-const STORAGE_VERSION = 3;
+const STORAGE_VERSION = 4;
 
 interface ConversationRegistry {
   version: number;
@@ -301,6 +301,9 @@ function loadRegistry(): ConversationRegistry {
 function migrateRegistry(old: ConversationRegistry): ConversationRegistry {
   // v1→v2: old format stored by persona pair, v2+ uses conversationKey
   // v2→v3: add metadata fields
+  // v3→v4: conversation keys are now user-isolated (prefixed with userId)
+  //         Legacy keys without "u:" prefix are kept as-is for guest users.
+  //         When a user logs in, the hook consumer should call migrateUserConversations().
   const conversations: ConversationRegistry['conversations'] = {};
   for (const [key, data] of Object.entries(old.conversations || {})) {
     conversations[key] = {
@@ -364,8 +367,8 @@ export function useConversationSync() {
   // ── Push a conversation snapshot ───────────────────────────────────────
 
   /** Call this after every message to push a snapshot to the server */
-  const pushSnapshot = useCallback(async (personaIds: string[], messages: AgentMessage[], title?: string, tags?: string[], mode?: string) => {
-    const conversationKey = buildConversationKey(personaIds);
+  const pushSnapshot = useCallback(async (personaIds: string[], messages: AgentMessage[], title?: string, tags?: string[], mode?: string, userId?: string) => {
+    const conversationKey = buildConversationKey(personaIds, userId);
     const contentHash = computeContentHash(messages);
 
     const snapshot: LocalConversationSnapshot = {
@@ -610,6 +613,36 @@ export function useConversationSync() {
     flushOfflineQueue: flushOfflineQueue_,
     registry: registryRef.current,
   };
+}
+
+// ─── Login Migration ─────────────────────────────────────────────────────────────
+
+/**
+ * migrateUserConversations — call this when a user logs in.
+ *
+ * Renames all legacy conversation keys (without "u:" prefix) to user-isolated keys
+ * (with "u:{userId}:" prefix). This prevents cross-user contamination when
+ * multiple users share the same device/browser.
+ */
+export function migrateUserConversations(userId: string): number {
+  const reg = loadRegistry();
+  const legacyKeys = Object.keys(reg.conversations).filter(k => !k.startsWith('u:'));
+  if (legacyKeys.length === 0) return 0;
+
+  for (const legacyKey of legacyKeys) {
+    const personaIds = legacyKey.split('-');
+    const newKey = buildConversationKey(personaIds, userId);
+    if (reg.conversations[newKey]) {
+      delete reg.conversations[legacyKey];
+      continue;
+    }
+    reg.conversations[newKey] = reg.conversations[legacyKey];
+    delete reg.conversations[legacyKey];
+  }
+
+  saveRegistry(reg);
+  console.log(`[Sync] Migrated ${legacyKeys.length} legacy conversations for user ${userId.slice(0, 8)}`);
+  return legacyKeys.length;
 }
 
 // ─── Visitor → Registered Migration ──────────────────────────────────────────

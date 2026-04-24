@@ -13,7 +13,7 @@ import { ModePickerOverlay } from '@/components/mode-picker-overlay';
 import { PERSONA_LIST, getPersonasByIds } from '@/lib/personas';
 import { MODES } from '@/lib/constants';
 import { useChatHistory } from '@/lib/use-chat-history';
-import { useConversationSync } from '@/lib/use-conversation-sync';
+import { useConversationSync, migrateUserConversations } from '@/lib/use-conversation-sync';
 import { useAuthStore, getFeatureLimit } from '@/lib/auth-store';
 import type { Mode, Persona, AgentMessage } from '@/lib/types';
 import { nanoid } from 'nanoid';
@@ -141,6 +141,13 @@ export function ChatInterface({ className, initialPersona, initialMode }: ChatIn
 
   // DB personas — fetched once, merged with hardcoded PERSONA_LIST
   const [dbPersonas, setDbPersonas] = useState<any[]>([]);
+
+  // ── Migrate legacy conversation keys to user-isolated keys on login ──────────
+  useEffect(() => {
+    if (user?.id) {
+      migrateUserConversations(user.id);
+    }
+  }, [user?.id]);
 
   // Fetch all DB personas on mount (for picker + initial lookup)
   useEffect(() => {
@@ -501,7 +508,7 @@ export function ChatInterface({ className, initialPersona, initialMode }: ChatIn
       const pushCurrentSnapshot = () => {
         if (selectedIds.length > 0) {
           // messagesRef.current is always fresh (updated via useEffect above)
-          pushSnapshot(selectedIds, messagesRef.current, snapshotTitle, undefined, mode).catch(() => {});
+          pushSnapshot(selectedIds, messagesRef.current, snapshotTitle, undefined, mode, user?.id).catch(() => {});
         }
       };
 

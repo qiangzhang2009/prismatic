@@ -119,9 +119,20 @@ export interface ConflictItem {
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-/** Build a conversation key from persona IDs (always sorted for cross-device consistency) */
-export function buildConversationKey(personaIds: string[]): string {
-  return [...personaIds].sort().join('-');
+/**
+ * Build a conversation key from persona IDs (always sorted for cross-device consistency).
+ *
+ * When userId is provided, the key is prefixed with the user ID to ensure
+ * that different users on the same device/browser get isolated conversation
+ * namespaces. Without a userId, all users share the same namespace (guest mode).
+ *
+ * Format:
+ *   - Authenticated: "u:{userId}:{sorted personaIds}"
+ *   - Guest/legacy:  "{sorted personaIds}"  (no prefix, backward compatible)
+ */
+export function buildConversationKey(personaIds: string[], userId?: string): string {
+  const base = [...personaIds].sort().join('-');
+  return userId ? `u:${userId}:${base}` : base;
 }
 
 /** SHA-256 hash of a JSON-serializable value */
