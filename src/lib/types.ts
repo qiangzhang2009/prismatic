@@ -70,10 +70,13 @@ export interface MentalModel {
   name: string;
   nameZh: string;
   oneLiner: string;
+  oneLinerZh?: string;
   evidence: Evidence[];
   crossDomain: string[];
   application: string;
+  applicationZh?: string;
   limitation: string;
+  limitationZh?: string;
 }
 
 export interface DecisionHeuristic {
@@ -81,7 +84,9 @@ export interface DecisionHeuristic {
   name: string;
   nameZh: string;
   description: string;
+  descriptionZh?: string;
   application: string;
+  applicationZh?: string;
   example?: string;
 }
 
