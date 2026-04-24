@@ -1,12 +1,19 @@
-# Exclude scrapers directory and large data from deployment
+# Exclude large data and non-essential directories from deployment
 scrapers/
 docs/
 corpus/
+node_modules/
+tmp_ocr/
+backups/
+reports/
+development/
 
 # Environment files - NEVER deploy these
 .env
 .env.*
 !.env.example
+
+# Subprojects that shouldn't be bundled
 newsnow-local/
 research/
 pointcloud-dialogue/
