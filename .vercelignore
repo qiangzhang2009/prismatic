@@ -1,6 +1,8 @@
 # Exclude scrapers directory and large data from deployment
 scrapers/
 docs/
+corpus/
+scripts/
 
 # Environment files - NEVER deploy these
 .env

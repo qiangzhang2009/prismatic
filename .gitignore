@@ -61,6 +61,7 @@ scrapers/
 docs/
 migrations/
 .env*.local
+corpus/
 
 # 3DGS splat files — large binary assets (use download_splat_scene.py)
 public/splats/*.rad
