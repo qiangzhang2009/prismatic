@@ -151,7 +151,7 @@ export function PersonaCard({
                       {(model as any).nameZh || model.name}
                     </span>
                     <span className="text-[10px] text-text-muted leading-snug block line-clamp-1">
-                      {model.oneLiner}
+                      {(model as any).oneLinerZh || model.oneLiner}
                     </span>
                   </div>
                 </div>

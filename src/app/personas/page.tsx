@@ -62,9 +62,12 @@ const CODE_PERSONA_MAP = new Map<string, any>(
     const domains = domainStr.includes(',') ? domainStr.split(',') as Domain[] : [domainStr as Domain];
     const color = getDomainGradient(domains);
 
-    // Prefer code mentalModels (they have Chinese oneLiners), fall back to DB if code is empty
+    // Prefer DB mentalModels (v5 has complete Chinese fields: oneLinerZh, applicationZh, etc.)
+    // Fall back to code only if DB mentalModels is empty
     const codePersona = CODE_PERSONA_MAP.get(db.slug);
-    const rawMentalModels = codePersona?.mentalModels?.length ? codePersona.mentalModels : (db.mentalModels ?? []);
+    const rawMentalModels = (db.mentalModels && (db.mentalModels as unknown[]).length > 0)
+      ? db.mentalModels
+      : (codePersona?.mentalModels ?? []);
 
     const mentalModels = rawMentalModels;
 
