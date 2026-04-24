@@ -2,11 +2,8 @@
 scrapers/
 docs/
 corpus/
-scripts/
 
 # Environment files - NEVER deploy these
 .env
 .env.*
 !.env.example
-wechat-assistant/
-spark-src/
