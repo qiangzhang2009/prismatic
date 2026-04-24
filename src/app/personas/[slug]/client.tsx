@@ -570,7 +570,15 @@ export function PersonaDetailClient({ persona, colors }: Props) {
           {/* Tensions Tab */}
           {activeTab === 'tensions' && persona.tensions && persona.tensions.length > 0 && (
             <div className="space-y-4">
-              {persona.tensions.map((t, i) => (
+              {persona.tensions.map((t, i) => {
+                const tensionText = typeof t.tensionZh === 'string' ? t.tensionZh
+                  : typeof t.tension === 'string' ? t.tension
+                  : typeof t === 'string' ? t
+                  : (t as any).dimension ?? '';
+                const descText = typeof t.descriptionZh === 'string' ? t.descriptionZh
+                  : typeof t.description === 'string' ? t.description
+                  : '';
+                return (
                 <motion.div
                   key={i}
                   className="rounded-2xl border border-border-subtle bg-bg-surface p-6"
@@ -580,11 +588,12 @@ export function PersonaDetailClient({ persona, colors }: Props) {
                 >
                   <div className="flex items-center gap-2 mb-2">
                     <Eye className="w-4 h-4" style={{ color: colors.accent }} />
-                    <h3 className="font-medium text-sm">{t.tensionZh}</h3>
+                    <h3 className="font-medium text-sm">{tensionText}</h3>
                   </div>
-                  <p className="text-sm text-text-secondary">{t.descriptionZh}</p>
+                  <p className="text-sm text-text-secondary">{descText}</p>
                 </motion.div>
-              ))}
+                );
+              })}
 
               {/* Honest Boundaries */}
               {persona.honestBoundaries && persona.honestBoundaries.length > 0 && (
@@ -594,12 +603,18 @@ export function PersonaDetailClient({ persona, colors }: Props) {
                     诚实边界
                   </h3>
                   <div className="space-y-2">
-                    {persona.honestBoundaries.map((b, i) => (
-                      <div key={i} className="flex items-start gap-2">
-                        <div className="w-1 h-1 rounded-full bg-red-400 mt-1.5 flex-shrink-0" />
-                        <p className="text-sm text-text-secondary">{b.textZh ?? b.text}</p>
-                      </div>
-                    ))}
+                    {persona.honestBoundaries.map((b, i) => {
+                      const text = typeof b.textZh === 'string' ? b.textZh
+                        : typeof b.text === 'string' ? b.text
+                        : typeof b === 'string' ? b
+                        : JSON.stringify(b);
+                      return (
+                        <div key={i} className="flex items-start gap-2">
+                          <div className="w-1 h-1 rounded-full bg-red-400 mt-1.5 flex-shrink-0" />
+                          <p className="text-sm text-text-secondary">{text}</p>
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
               )}
