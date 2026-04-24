@@ -67,3 +67,6 @@ corpus/
 public/splats/*.rad
 public/splats/*.radc
 public/spark/
+newsnow-local/
+research/
+pointcloud-dialogue/
