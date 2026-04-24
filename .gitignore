@@ -67,3 +67,5 @@ corpus/
 public/splats/*.rad
 public/splats/*.radc
 public/spark/
+wechat-assistant/
+spark-src/

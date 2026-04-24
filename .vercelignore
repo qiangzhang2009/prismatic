@@ -8,3 +8,5 @@ scripts/
 .env
 .env.*
 !.env.example
+wechat-assistant/
+spark-src/
