@@ -297,39 +297,6 @@ export interface TranslateOptions {
   domain?: string[];
 }
 
-function buildTranslationPrompt(
-  text: string,
-  sourceLang: SupportedLanguage,
-  targetLang: SupportedLanguage,
-  options?: TranslateOptions
-): string {
-  const sourceLabel = sourceLang === 'en' ? '英文'
-    : sourceLang === 'de' ? '德文'
-    : sourceLang === 'la' ? '拉丁文'
-    : sourceLang === 'el' ? '古希腊文'
-    : sourceLang === 'zh' ? '中文'
-    : sourceLang;
-
-  const targetLabel = targetLang === 'zh' ? '中文'
-    : targetLang === 'en' ? '英文'
-    : targetLang;
-
-  const nounNote = options?.preserveProperNouns && options.preserveProperNouns.length > 0
-    ? `\n以下专有名词不要翻译：${options.preserveProperNouns.join(', ')}`
-    : '';
-
-  return `将以下${sourceLabel}文本翻译为${targetLabel}。
-
-规则：
-- 保持原文的哲学/概念精确性
-- 保持语气和修辞风格
-- 专有名词（如人名、地名、哲学术语）保留原文${nounNote}
-- 只输出翻译结果，不要添加任何解释或注释
-
-=== 待翻译文本 ===
-${text}
-=== 结束 ===`;
-}
 
 export async function translateField(
   text: string,
@@ -456,14 +423,14 @@ export async function backfillChineseFields(
     knowledge: {
       ...knowledge,
       identityPromptZh,
-      mentalModels,
-      decisionHeuristics,
-      values,
-      tensions,
+      mentalModels: mentalModels as any,
+      decisionHeuristics: decisionHeuristics as any,
+      values: values as any,
+      tensions: tensions as any,
       strengthsZh: strengthsZh ?? [],
       blindspotsZh: blindspotsZh ?? [],
-      honestBoundaries,
+      honestBoundaries: honestBoundaries as any,
     },
-    expression,
+    expression: expression as any,
   };
 }
