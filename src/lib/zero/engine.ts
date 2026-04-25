@@ -163,7 +163,7 @@ export async function distillZero(
   // Step 3: Analyze
   // =======================================================================
   logger.setPhase('analyze');
-  const corpusReport = analyzeCorpus(preprocessed, personaId, {
+  const corpusReport = analyzeCorpus(preprocessed as unknown as import('./types').CorpusFile[], personaId, {
     detectPeriods: true,
     sampleSize: 50000, // always use 50K chars for quality regardless of budget
   });
