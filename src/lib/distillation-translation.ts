@@ -314,7 +314,7 @@ export async function translateField(
   if (!llm) return text;
 
   const sourceLang: SupportedLanguage = hasChinese ? 'zh' : 'en';
-  const prompt = buildTranslationPrompt(text, sourceLang, 'zh', options);
+  const prompt = buildTranslationPromptForField(text, sourceLang, 'zh', options);
 
   try {
     const response = await llm.chat({
@@ -331,9 +331,9 @@ export async function translateField(
 }
 
 
-// ─── Internal buildTranslationPrompt (4 args) — used by translateField ───────────
+// ─── Internal translation prompt builder (4 args) — used by translateField ─────────
 
-function buildTranslationPrompt(
+function buildTranslationPromptForField(
   text: string,
   sourceLang: SupportedLanguage,
   targetLang: SupportedLanguage,

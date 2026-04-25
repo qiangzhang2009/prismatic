@@ -109,9 +109,11 @@ export interface Tension {
   tension?: string;
   tensionZh: string;
   description?: string;
-  descriptionZh: string;
+  descriptionZh?: string;
   positivePole?: string;
   negativePole?: string;
+  left?: string;
+  right?: string;
 }
 
 export interface Value {

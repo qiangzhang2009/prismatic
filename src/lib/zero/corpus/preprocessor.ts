@@ -10,9 +10,9 @@ import { CorpusFile } from '../types';
 // =============================================================================
 
 export interface PreprocessorOptions {
-  fixOcrErrors?: boolean;
-  fixAncientChinesePunctuation?: boolean;
-  normalizeClinicalText?: boolean;
+  fixOcrErrors?: boolean | ((text: string) => string);
+  fixAncientChinesePunctuation?: boolean | ((text: string) => string);
+  normalizeClinicalText?: boolean | ((text: string) => string);
   deduplicateParagraphs?: boolean;
   minParagraphLength?: number;
   maxParagraphLength?: number;
@@ -253,15 +253,15 @@ export async function preprocessCorpus(
     let text = file.rawText;
 
     // Apply fixes in order
-    if (fixOcrErrors) {
+    if (typeof fixOcrErrors === 'function') {
       text = fixOcrErrors(text);
     }
 
-    if (fixAncientChinesePunctuation) {
+    if (typeof fixAncientChinesePunctuation === 'function') {
       text = fixAncientChinesePunctuation(text);
     }
 
-    if (normalizeClinicalText) {
+    if (typeof normalizeClinicalText === 'function') {
       text = normalizeClinicalText(text);
     }
 
