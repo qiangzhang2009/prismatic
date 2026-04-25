@@ -85,11 +85,11 @@ function detectSourceType(filepath: string, text: string, filename: string): Sou
   if (/classical|经|子|史|集|古典/.test(textLower) && text.length > 10000) return 'classical_text';
   if (/ancient|古典|古文/.test(textLower)) return 'classical_text';
   if (/archive|letter|weibo|微博/.test(lower)) return 'archive';
-  if (text.match(/^[「『""''【]?.{10,50}[」』""''】]?$/m)?.length > 5) return 'essay';
+  if (text.match(/^[「『""''【]?.{10,50}[」』""''】]?$/m)?.length ?? 0 > 5) return 'essay';
 
   // Heuristics from content
   const hasChapterMarkers = text.match(/第[一二三四五六七八九十]+[章节篇]/);
-  const hasFootnotes = text.match(/\[\d+\]|\(\d+\)/)?.length > 3;
+  const hasFootnotes = text.match(/\[\d+\]|\(\d+\)/)?.length ?? 0 > 3;
   if (hasChapterMarkers && hasFootnotes) return 'academic_paper';
   if (hasChapterMarkers && text.length > 50000) return 'book';
 

@@ -242,9 +242,9 @@ function computeLanguageDistribution(files: CorpusFile[]): Record<SupportedLangu
 
 function computeLanguageDistributionRatio(
   dist: Record<SupportedLanguage, number>
-): Record<SupportedLanguage, number> {
+): Record<SupportedLanguage, number> | undefined {
   const total = Object.values(dist).reduce((a, b) => a + b, 0);
-  if (total === 0) return {};
+  if (total === 0) return undefined;
 
   const ratio: Partial<Record<SupportedLanguage, number>> = {};
   for (const [lang, count] of Object.entries(dist)) {
@@ -265,9 +265,9 @@ function computeSourceTypeDistribution(
 
 function computeSourceTypeRatio(
   dist: Record<SourceType, number>
-): Record<SourceType, number> {
+): Record<SourceType, number> | undefined {
   const total = Object.values(dist).reduce((a, b) => a + b, 0);
-  if (total === 0) return {};
+  if (total === 0) return undefined;
 
   const ratio: Partial<Record<SourceType, number>> = {};
   for (const [type, count] of Object.entries(dist)) {

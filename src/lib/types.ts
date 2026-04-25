@@ -49,7 +49,7 @@ export type Mode =
 // ─── Persona ──────────────────────────────────────────────────────────────────
 
 export interface Source {
-  type: 'primary' | 'secondary' | 'book' | 'interview' | 'lecture' | 'weibo' | 'speech' | 'tweet' | 'archive' | 'blog' | 'essay' | 'podcast' | 'classical_text' | 'video' | 'shareholder-letter' | 'ceo-quotes' | 'earnings' | 'gtc' | 'YC' | 'investor_relations' | 'financial_reporting' | 'manuscript' | 'lecture_notes' | 'article';
+  type: 'primary' | 'secondary' | 'book' | 'interview' | 'lecture' | 'weibo' | 'speech' | 'tweet' | 'archive' | 'blog' | 'essay' | 'podcast' | 'classical_text' | 'video' | 'shareholder-letter' | 'ceo-quotes' | 'earnings' | 'gtc' | 'YC' | 'investor_relations' | 'financial_reporting' | 'manuscript' | 'lecture_notes' | 'article' | 'wikipedia' | 'social_media' | 'corporate_website' | 'website' | 'digital_library';
   title: string;
   url?: string;
   description?: string;

@@ -13,6 +13,7 @@ import type {
   TrilingualConcept,
   SupportedLanguage,
   KnowledgeLayer,
+  ExpressionLayer,
   ExtractedMentalModel,
   ExtractedDecisionHeuristic,
   ExtractedValue,
@@ -20,8 +21,6 @@ import type {
   ExtractedHonestBoundary,
 } from './distillation-v4-types';
 import type { LLMProvider } from './llm';
-
-// ─── Known Concept Dictionaries ─────────────────────────────────────────────
 
 // ─── Known Concept Dictionaries ─────────────────────────────────────────────
 
@@ -330,6 +329,44 @@ export async function translateField(
     return text;
   }
 }
+
+
+// ─── Internal buildTranslationPrompt (4 args) — used by translateField ───────────
+
+function buildTranslationPrompt(
+  text: string,
+  sourceLang: SupportedLanguage,
+  targetLang: SupportedLanguage,
+  options?: TranslateOptions
+): string {
+  const sourceLabel = sourceLang === 'en' ? '英文'
+    : sourceLang === 'de' ? '德文'
+    : sourceLang === 'la' ? '拉丁文'
+    : sourceLang === 'el' ? '古希腊文'
+    : sourceLang === 'zh' ? '中文'
+    : sourceLang;
+
+  const targetLabel = targetLang === 'zh' ? '中文'
+    : targetLang === 'en' ? '英文'
+    : targetLang;
+
+  const nounNote = (options?.preserveProperNouns?.length ?? 0) > 0
+    ? `保留以下词汇原文: ${options?.preserveProperNouns?.join(', ')}`
+    : '';
+
+  return `将以下${sourceLabel}文本翻译为${targetLabel}。
+
+规则：
+- 保持原文的哲学/概念精确性
+- 保持语气和修辞风格
+- 专有名词（如人名，地名、哲学术语）保留原文${nounNote}
+- 只输出翻译结果，不要添加任何解释或注释
+
+=== 待翻译文本 ===
+${text}
+=== 结束 ===`;
+}
+
 
 // ─── Batch Backfill ─────────────────────────────────────────────────────────
 
