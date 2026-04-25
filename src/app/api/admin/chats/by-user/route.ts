@@ -18,12 +18,12 @@ function getPool() {
   return new Pool({ connectionString: url });
 }
 
-function resolvePersonaNames(personaIds: string[] | null): Array<{ id: string; name: string }> {
+function resolvePersonaNames(personaIds: string[] | null): Array<{ id: string; name: string; nameZh: string }> {
   if (!personaIds?.length) return [];
   const personas = getPersonasByIds(personaIds);
   return personaIds.map(id => {
     const persona = personas.find(p => p.id === id);
-    return { id, name: persona?.nameZh || persona?.name || id };
+    return { id, name: persona?.nameZh || persona?.name || id, nameZh: persona?.nameZh || persona?.name || id };
   });
 }
 
@@ -133,7 +133,7 @@ export async function GET(req: NextRequest) {
             if (parsed && typeof parsed === 'object' && parsed.mode) msgMode = parsed.mode;
           } catch { /* ignore malformed metadata */ }
         }
-        return { ...m, personaName: persona?.name || m.personaId, msgMode };
+        return { ...m, personaName: persona?.nameZh || persona?.name || m.personaId, msgMode };
       });
 
       userMap[uid].conversations.push({

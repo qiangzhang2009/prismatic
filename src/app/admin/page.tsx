@@ -1877,9 +1877,9 @@ function AssetUserChats({ userChatsData, isLoading, onRefresh }: {
                                 <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${conv.billingMode === 'A' ? 'bg-blue-900/30 text-blue-400' : 'bg-green-900/30 text-green-400'}`}>
                                   {conv.billingMode === 'A' ? 'API Key' : '平台代付'}
                                 </span>
-                                {(conv.personas as Array<{ id: string; name: string }>)?.length > 0 && (
+                                {(conv.personas as Array<{ id: string; name: string; nameZh: string }>)?.length > 0 && (
                                   <span className="text-[10px] text-gray-500">
-                                    {(conv.personas as Array<{ id: string; name: string }>).slice(0, 3).map(p => p.name).join(' + ')}
+                                    {(conv.personas as Array<{ id: string; name: string; nameZh: string }>).slice(0, 3).map(p => p.nameZh).join(' + ')}
                                     {conv.personas.length > 3 ? ` +${conv.personas.length - 3}` : ''}
                                   </span>
                                 )}
