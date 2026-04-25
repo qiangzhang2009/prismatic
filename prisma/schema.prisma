@@ -272,25 +272,37 @@ enum AuthEventType {
 
 // ─── Conversation ──────────────────────────────────────────────────────────────
 
+enum ConversationType {
+  CHAT       // standard single or multi-persona chat
+  MISSION    // goal-oriented multi-turn task completion
+  DEBATE     // structured adversarial dialogue
+  GUARDIAN   // autonomous guardian system discussions
+}
+
 model Conversation {
   id         String   @id @default(cuid())
   userId     String
   user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   title      String?
-  mode       String   // solo, prism, roundtable, mission
-  participants String[] // persona IDs
+  type       ConversationType @default(CHAT)
+  mode       String   @default("solo")
+  participants String[]
+  personaIds String[] @default([])
 
   messages   Message[]
 
   archived   Boolean  @default(false)
-  tags       String[]
+  tags       String[] @default([])
 
-  // Analytics: pre-computed stats (avoid real-time COUNT)
+  // Analytics: pre-computed stats (updated atomically in transactions)
   messageCount Int     @default(0)
   totalTokens  Int     @default(0)
   totalCost    Decimal? @default(0)
-  personaIds   String[] @default([])  // explicit persona IDs array
+
+  // Sync: which devices have synced this conversation
+  deviceIds   String[] @default([])
+  lastSyncedAt DateTime?
 
   // Relations for analytics
   userEvents   UserEvent[]
@@ -298,8 +310,10 @@ model Conversation {
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 
-  @@index([userId, createdAt])
-  @@index([userId, archived])
+  @@index([userId, updatedAt])
+  @@index([userId, archived, updatedAt])
+  @@index([userId, type, updatedAt])
+  @@index([type, updatedAt])
   @@map("conversations")
 }
 
@@ -382,9 +396,18 @@ model Comment {
   // Persona context (which persona page this was left on)
   personaSlug String?
 
+  // ── Guardian mention ──────────────────────────────────────────────────────
+  // The guardian @-mentioned in this comment (if any)
+  mentionedGuardianId    String?
+  // Guardian's reply content (filled asynchronously)
+  mentionedGuardianReply String?
+  // When the guardian replied
+  mentionedGuardianRepliedAt DateTime?
+
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 
+  @@index([mentionedGuardianId])
   @@index([userId, createdAt])
   @@index([parentId])
   @@index([status, createdAt])
@@ -720,8 +743,8 @@ model DistilledPersona {
   // Identity (mirrors Persona type fields)
   slug            String   @unique
   name            String
-  nameZh          String
-  nameEn          String
+  nameZh          String   @default("")
+  nameEn          String   @default("")
   domain          String   @default("philosophy") // comma-separated or JSON
 
   // Basic info

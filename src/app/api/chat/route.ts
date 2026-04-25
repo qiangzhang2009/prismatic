@@ -23,6 +23,7 @@ import { checkUserDailyLimit } from '@/lib/message-stats';
 import { resolveBillingMode } from '@/lib/billing/engine';
 import { prisma } from '@/lib/prisma';
 import { trackEvent, trackEvents, incrementSessionMessages, trackChatStart, trackChatEnd } from '@/lib/analytics';
+import { buildConversationId } from '@/lib/sync-engine';
 import type { Mode } from '@/lib/types';
 import { Pool } from '@neondatabase/serverless';
 
@@ -65,6 +66,7 @@ async function persistConversation(
   userId: string,
   conversationId: string,
   mode: string,
+  type: string,
   participantIds: string[],
   messages: any[],
   totalTokens?: number,
@@ -133,10 +135,10 @@ async function persistConversation(
         ? '{' + participantIds.map(p => '"' + p.replace(/"/g, '\\"') + '"').join(',') + '}'
         : '{}';
       await client.query(`
-        INSERT INTO conversations (id, "userId", title, mode, participants, archived, tags,
+        INSERT INTO conversations (id, "userId", title, type, mode, participants, archived, tags,
                                  "messageCount", "totalTokens", "totalCost", "personaIds", "createdAt", "updatedAt")
-        VALUES ($1, $2, NULL, $3, $4::text[], false, '{}'::text[],
-                $5, $6, $7, $4::text[], NOW(), NOW())
+        VALUES ($1, $2, NULL, $3, $4, $5::text[], false, '{}'::text[],
+                $6, $7, $8, $5::text[], NOW(), NOW())
         ON CONFLICT (id) DO UPDATE SET
           "userId" = CASE WHEN "userId" = $2 THEN EXCLUDED."userId" ELSE "userId" END,
           mode = EXCLUDED.mode,
@@ -146,7 +148,7 @@ async function persistConversation(
           "totalTokens" = EXCLUDED."totalTokens",
           "totalCost" = EXCLUDED."totalCost",
           "updatedAt" = NOW()
-      `, [actualConvId, userId, mode, participantArray, messages.length, totalTokensNum, totalCostNum]);
+      `, [actualConvId, userId, type, mode, participantArray, messages.length, totalTokensNum, totalCostNum]);
       console.log(`[persistConversation] STEP_upsert_ok conversation=${conversationId}, messages=${messages.length}`);
 
       // ── Insert messages in a single batch ──────────────────────────────────────
@@ -1054,13 +1056,15 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json().catch(() => ({}));
-    const { mode, participantIds, message, conversationId, history } = body as {
+    const { mode, participantIds, message, conversationId, history, conversationType } = body as {
       mode: Mode;
       participantIds: string[];
       message: string;
       conversationId?: string;
       history?: any[];
+      conversationType?: 'CHAT' | 'MISSION' | 'DEBATE' | 'GUARDIAN';
     };
+    const type = conversationType || 'CHAT';
 
     if (!message?.trim() || !participantIds?.length) {
       return NextResponse.json({ error: 'Invalid request' }, { status: 400 });
@@ -1102,7 +1106,10 @@ export async function POST(request: NextRequest) {
       }, { status: 429 });
     }
 
-    const convId = conversationId ?? nanoid();
+    // Deterministic conversation ID: same user + same personas = same conversation.
+    // This replaces the previous random nanoid() approach and prevents cross-user
+    // contamination (two users with the same personas get different conversationIds).
+    const convId = buildConversationId(userId, participantIds);
     let data: any;
 
     switch (mode) {
@@ -1270,6 +1277,7 @@ export async function POST(request: NextRequest) {
       userId,
       convId,
       mode,
+      type,
       participantIds,
       allMessages,
       totalInputTokens + totalOutputTokens,

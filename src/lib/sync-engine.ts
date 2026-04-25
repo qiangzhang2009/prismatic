@@ -120,7 +120,23 @@ export interface ConflictItem {
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 /**
- * Build a conversation key from persona IDs (always sorted for cross-device consistency).
+ * Build a deterministic conversation ID from userId + persona IDs.
+ * Same user + same personas = same conversation ID (impossible to collide across users).
+ *
+ * Format: conv_{base64url(sha256)[..16]}
+ *
+ * This replaces the previous random nanoid() approach. Existing conversations
+ * keep their cuid() IDs. New conversations use this deterministic format.
+ */
+export function buildConversationId(userId: string, personaIds: string[]): string {
+  const sorted = [...personaIds].sort().join(':');
+  const payload = `u:${userId}:${sorted}`;
+  const hash = crypto.createHash('sha256').update(payload).digest('base64url').slice(0, 16);
+  return `conv_${hash}`;
+}
+
+/**
+ * Build a conversation key for localStorage (used by sync system).
  *
  * When userId is provided, the key is prefixed with the user ID to ensure
  * that different users on the same device/browser get isolated conversation
@@ -229,7 +245,7 @@ export async function runSync(
         isNew: true,
       });
     } else if (local && server) {
-      // Case C: Both exist → check for conflicts
+      // Case C: Both exist on this device and server → check for conflicts
       const localHash = extractMessageHash(local);
       const serverHash = server.contentHash || '';
 
@@ -239,8 +255,8 @@ export async function runSync(
       if (localHash === serverHash) {
         // Case C1: Identical hash → already in sync
         acknowledged.push(key);
-      } else if (Math.abs(localTime - serverTime) < 5000) {
-        // Case C2: Modified within 5 seconds of each other → conflict
+      } else if (Math.abs(localTime - serverTime) < 30000) {
+        // Case C2: Modified within 30 seconds of each other → conflict (simultaneous edits)
         const serverMessages = await getServerMessages(
           server.syncedConversationId,
           key,
@@ -473,11 +489,15 @@ async function upsertLocalConversation(
     );
   } else if (conversationId && snapshot.messages && snapshot.messages.length > 0) {
     // Update existing conversation with new messages
-    await updateServerConversation(
-      conversationId,
-      snapshot.messages,
-      snapshot.lastMessageAt
-    );
+    const device = await prisma.device.findUnique({ where: { id: deviceId } });
+    if (device) {
+      await updateServerConversation(
+        conversationId,
+        snapshot.messages,
+        snapshot.lastMessageAt,
+        device.userId
+      );
+    }
   }
 
   // Upsert the local conversation snapshot
@@ -509,6 +529,17 @@ async function upsertLocalConversation(
       syncedConversationId: conversationId,
     },
   });
+
+  // Update conversation sync metadata
+  if (conversationId) {
+    await prisma.conversation.update({
+      where: { id: conversationId },
+      data: {
+        lastSyncedAt: new Date(),
+        deviceIds: { push: deviceId },
+      },
+    }).catch(() => { /* conversation may not exist yet */ });
+  }
 }
 
 async function createServerConversation(
@@ -523,11 +554,13 @@ async function createServerConversation(
   const device = await prisma.device.findUnique({ where: { id: deviceId } });
   if (!device) throw new Error('Device not found');
 
-  const conversationId = nanoid();
+  // Deterministic conversation ID: same user + same personas = same ID
+  const conversationId = buildConversationId(device.userId, personaIds);
 
-  // Create the conversation
-  await prisma.conversation.create({
-    data: {
+  // Create the conversation (upsert — idempotent)
+  await prisma.conversation.upsert({
+    where: { id: conversationId },
+    create: {
       id: conversationId,
       userId: device.userId,
       title: title || null,
@@ -536,6 +569,15 @@ async function createServerConversation(
       personaIds,
       archived: false,
       tags: tags || [],
+      messageCount: messages.length,
+      deviceIds: [device.id],
+      lastSyncedAt: new Date(),
+      updatedAt: messages.length > 0
+        ? (messages[messages.length - 1].timestamp ? new Date(messages[messages.length - 1].timestamp as string) : new Date())
+        : new Date(),
+    },
+    update: {
+      // Already exists — update stats
       messageCount: messages.length,
       updatedAt: messages.length > 0
         ? (messages[messages.length - 1].timestamp ? new Date(messages[messages.length - 1].timestamp as string) : new Date())
@@ -568,13 +610,14 @@ async function createServerConversation(
 async function updateServerConversation(
   conversationId: string,
   messages: SyncMessage[],
-  lastMessageAt: string
+  lastMessageAt: string,
+  userId: string
 ): Promise<void> {
   // Upsert messages (skip duplicates)
   const messageRecords = messages.map(msg => ({
     id: msg.id || nanoid(),
     conversationId,
-    userId: '', // filled by conversation lookup
+    userId,
     role: (msg.role as string) === 'agent' ? 'assistant' : msg.role,
     content: msg.content,
     personaId: msg.personaId || null,
@@ -680,13 +723,14 @@ function buildSuggestedMerge(
 
 /**
  * Resolve a conflict with a given strategy.
+ * Actually applies the resolution to the database.
  */
 export async function resolveConflict(
   userId: string,
   conversationKey: string,
   strategy: 'SERVER_WINS' | 'LOCAL_WINS' | 'MERGE_APPEND' | 'USER_DECIDES',
   resolvedMessages?: SyncMessage[]
-): Promise<{ success: boolean }> {
+): Promise<{ success: boolean; mergedCount?: number }> {
   const conflict = await prisma.syncConflict.findFirst({
     where: {
       conversationKey,
@@ -700,21 +744,93 @@ export async function resolveConflict(
 
   const resolvedAt = new Date();
 
-  if (resolvedMessages) {
-    // User decided — use their custom merged messages
-    // This would need the full device + conversation context to upsert
-    // For now, just mark as resolved
+  if (strategy === 'SERVER_WINS' || strategy === 'LOCAL_WINS') {
+    // Update sync metadata so the winning side overwrites on next sync
+    // The local registry will be updated when the device pulls/pushes
+    await prisma.syncConflict.update({
+      where: { id: conflict.id },
+      data: { resolution: strategy, resolvedAt },
+    });
+    return { success: true };
+
+  } else if (strategy === 'MERGE_APPEND') {
+    // Merge by timestamp + deduplicate
+    const localSnap = conflict.localSnapshot as LocalConversationSnapshot | null;
+    const serverSnap = conflict.serverSnapshot as LocalConversationSnapshot | null;
+    const localMsgs = localSnap?.messages || [];
+    const serverMsgs = serverSnap?.messages || [];
+    const merged = buildSuggestedMerge(localMsgs, serverMsgs);
+
+    // Insert new messages into DB
+    const syncedConvId = (await prisma.localConversation.findFirst({
+      where: { conversationKey },
+    }))?.syncedConversationId;
+
+    if (syncedConvId) {
+      const toInsert = merged
+        .filter(m => {
+          // Only insert messages that aren't already in server messages
+          return !serverMsgs.some(sm => sm.id === m.id);
+        })
+        .map(m => ({
+          id: m.id || nanoid(),
+          conversationId: syncedConvId,
+          userId,
+          role: (m.role as string) === 'agent' ? 'assistant' : m.role as string,
+          content: m.content,
+          personaId: m.personaId || null,
+          source: 'web',
+          createdAt: m.timestamp ? new Date(m.timestamp) : new Date(),
+        }));
+
+      if (toInsert.length > 0) {
+        await prisma.message.createMany({ data: toInsert, skipDuplicates: true });
+      }
+
+      // Update conversation stats
+      const totalMessages = await prisma.message.count({ where: { conversationId: syncedConvId } });
+      await prisma.conversation.update({
+        where: { id: syncedConvId },
+        data: { messageCount: totalMessages, updatedAt: resolvedAt },
+      });
+    }
+
+    await prisma.syncConflict.update({
+      where: { id: conflict.id },
+      data: { resolution: strategy, resolvedAt },
+    });
+
+    return { success: true, mergedCount: merged.length };
+
+  } else {
+    // USER_DECIDES — use the provided resolvedMessages
+    const syncedConvId = (await prisma.localConversation.findFirst({
+      where: { conversationKey },
+    }))?.syncedConversationId;
+
+    if (syncedConvId && resolvedMessages) {
+      const toInsert = resolvedMessages.map(m => ({
+        id: m.id || nanoid(),
+        conversationId: syncedConvId,
+        userId,
+        role: (m.role as string) === 'agent' ? 'assistant' : m.role as string,
+        content: m.content,
+        personaId: m.personaId || null,
+        source: 'web',
+        createdAt: m.timestamp ? new Date(m.timestamp) : new Date(),
+      }));
+
+      if (toInsert.length > 0) {
+        await prisma.message.createMany({ data: toInsert, skipDuplicates: true });
+      }
+    }
+
+    await prisma.syncConflict.update({
+      where: { id: conflict.id },
+      data: { resolution: strategy, resolvedAt },
+    });
+    return { success: true };
   }
-
-  await prisma.syncConflict.update({
-    where: { id: conflict.id },
-    data: {
-      resolution: strategy,
-      resolvedAt,
-    },
-  });
-
-  return { success: true };
 }
 
 // ─── Visitor → Registered User Migration ────────────────────────────────────

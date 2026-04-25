@@ -60,6 +60,7 @@ export async function GET(req: NextRequest) {
 
     if (userId) { conditions.push(`c."userId" = $${p++}`); params.push(userId); }
     if (mode) { conditions.push(`c.mode = $${p++}`); params.push(mode); }
+    if (searchParams.get('type')) { conditions.push(`c.type = $${p++}`); params.push(searchParams.get('type')); }
     if (dateFrom) { conditions.push(`c."updatedAt" >= $${p++}`); params.push(new Date(dateFrom)); }
     if (dateTo) { conditions.push(`c."updatedAt" <= $${p++}`); params.push(new Date(dateTo + 'T23:59:59Z')); }
     if (search) {
@@ -82,9 +83,10 @@ export async function GET(req: NextRequest) {
 
     // Use LATERAL join + slice in JS (Neon doesn't support LIMIT inside subqueries)
     const q = `
-      SELECT c.id, c."userId", c.title, c.mode, c.participants, c.tags,
+      SELECT c.id, c."userId", c.title, c.type, c.mode, c.participants, c.tags,
              c."messageCount", c."totalTokens", c."totalCost", c."personaIds",
              c."createdAt", c."updatedAt",
+             c."deviceIds", c."lastSyncedAt",
              u.id as "user.id", u.name as "user.name", u.email as "user.email",
              u.plan as "user.plan", u."apiKeyEncrypted" as "user.apiKeyEncrypted",
              u."apiKeyStatus" as "user.apiKeyStatus",
@@ -121,6 +123,7 @@ export async function GET(req: NextRequest) {
       id: r.id,
       userId: r.userId,
       title: r.title,
+      type: r.type || 'CHAT',
       mode: r.mode,
       participants: r.participants,
       tags: r.tags,
@@ -128,6 +131,9 @@ export async function GET(req: NextRequest) {
       totalTokens: r.totalTokens,
       totalCost: r.totalCost,
       personaIds: r.personaIds,
+      deviceIds: r.deviceIds || [],
+      lastSyncedAt: r.lastSyncedAt,
+      deviceCount: (r.deviceIds || []).length,
       createdAt: r.createdAt,
       updatedAt: r.updatedAt,
       billingMode: r['user.apiKeyEncrypted'] && r['user.apiKeyStatus'] === 'valid' ? 'A' : 'B',

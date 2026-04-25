@@ -12,8 +12,7 @@ import { ModeButtonBar } from '@/components/mode-button-bar';
 import { ModePickerOverlay } from '@/components/mode-picker-overlay';
 import { PERSONA_LIST, getPersonasByIds } from '@/lib/personas';
 import { MODES } from '@/lib/constants';
-import { useChatHistory } from '@/lib/use-chat-history';
-import { useConversationSync, migrateUserConversations } from '@/lib/use-conversation-sync';
+import { useConversationSync, migrateUserConversations, useRegistryChat } from '@/lib/use-conversation-sync';
 import { useAuthStore, getFeatureLimit } from '@/lib/auth-store';
 import type { Mode, Persona, AgentMessage } from '@/lib/types';
 import { nanoid } from 'nanoid';
@@ -111,7 +110,7 @@ export function ChatInterface({ className, initialPersona, initialMode }: ChatIn
     const id = getInitialPersonaId();
     return saved?.selectedIds?.length > 1 ? saved.selectedIds : [id];
   });
-  const { messages, setMessages, clearHistory } = useChatHistory(selectedIds);
+  const { messages, setMessages, clearHistory } = useRegistryChat(selectedIds, user?.id);
   const { pushSnapshot } = useConversationSync();
   const messagesRef = useRef(messages);
   useEffect(() => { messagesRef.current = messages; }, [messages]);

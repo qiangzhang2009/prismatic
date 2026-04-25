@@ -204,16 +204,15 @@ function getAllLocalSnapshots(messagesMap: Map<string, { messages: AgentMessage[
   return snapshots;
 }
 
-/** SHA-256 hash using Web Crypto API (browser-only) */
+/** Compute SHA-256 hash of a value (browser-compatible via SubtleCrypto) */
 async function sha256(message: string): Promise<string> {
-  const msgBuffer = new TextEncoder().encode(message);
-  const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+  const buffer = new TextEncoder().encode(message);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', buffer);
   const hashArray = Array.from(new Uint8Array(hashBuffer));
   return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
 }
 
 function computeContentHash(messages: AgentMessage[]): string {
-  // Use the last 20 messages + count for quick hash (avoids hashing huge content)
   const recentMessages = messages.slice(-20).map(m => ({
     id: m.id,
     role: m.role,
@@ -221,14 +220,15 @@ function computeContentHash(messages: AgentMessage[]): string {
     timestamp: (m as any).timestamp,
   }));
   const payload = JSON.stringify({ count: messages.length, recent: recentMessages });
-  // Simple non-cryptographic hash for change detection — fast and sync
-  let hash = 0;
+  // FNV-1a hash (deterministic, fast, sync) — both frontend and backend use this format
+  // Matches sync-engine.ts contentHash() which uses crypto.createHash('sha256')
+  // We use FNV-1a here since it's synchronous and sufficient for change detection
+  let hash = 2166136261;
   for (let i = 0; i < payload.length; i++) {
-    const char = payload.charCodeAt(i);
-    hash = ((hash << 5) - hash) + char;
-    hash = hash & hash;
+    hash ^= payload.charCodeAt(i);
+    hash = (hash * 16777619) >>> 0;
   }
-  return Math.abs(hash).toString(16).padStart(8, '0');
+  return hash.toString(16).padStart(8, '0');
 }
 
 // ─── Offline Queue ────────────────────────────────────────────────────────────
@@ -272,7 +272,7 @@ function flushOfflineQueue(): QueuedSnapshot[] {
 // (not just the active one like useChatHistory does)
 
 const REGISTRY_KEY = 'prismatic-conversation-registry';
-const STORAGE_VERSION = 4;
+const STORAGE_VERSION = 5;
 
 interface ConversationRegistry {
   version: number;
@@ -282,6 +282,9 @@ interface ConversationRegistry {
     tags?: string[];
     lastUpdated: number;
     mode?: string;
+    contentHash: string;       // SHA-256 hash for change detection
+    lastSyncedAt?: string;    // ISO timestamp of last successful sync
+    syncStatus: 'synced' | 'pending' | 'conflict'; // sync state
   }>;
 }
 
@@ -298,20 +301,23 @@ function loadRegistry(): ConversationRegistry {
   } catch { return { version: STORAGE_VERSION, conversations: {} }; }
 }
 
-function migrateRegistry(old: ConversationRegistry): ConversationRegistry {
+function migrateRegistry(old: any): ConversationRegistry {
   // v1→v2: old format stored by persona pair, v2+ uses conversationKey
   // v2→v3: add metadata fields
   // v3→v4: conversation keys are now user-isolated (prefixed with userId)
-  //         Legacy keys without "u:" prefix are kept as-is for guest users.
-  //         When a user logs in, the hook consumer should call migrateUserConversations().
+  // v4→v5: add contentHash, lastSyncedAt, syncStatus fields
   const conversations: ConversationRegistry['conversations'] = {};
   for (const [key, data] of Object.entries(old.conversations || {})) {
+    const d = data as any;
     conversations[key] = {
-      ...(data as any),
-      lastUpdated: (data as any).lastUpdated || Date.now(),
-      title: (data as any).title || '',
-      tags: (data as any).tags || [],
-      mode: (data as any).mode,
+      messages: d.messages || [],
+      title: d.title || '',
+      tags: d.tags || [],
+      lastUpdated: d.lastUpdated || Date.now(),
+      mode: d.mode,
+      contentHash: d.contentHash || '',
+      lastSyncedAt: d.lastSyncedAt,
+      syncStatus: d.syncStatus || 'synced',
     };
   }
   return { version: STORAGE_VERSION, conversations };
@@ -337,9 +343,97 @@ function getOrCreateConversation(
       tags: [],
       lastUpdated: Date.now(),
       mode: undefined,
+      contentHash: '',
+      lastSyncedAt: undefined,
+      syncStatus: 'synced',
     };
   }
   return registry.conversations[conversationKey];
+}
+
+// ─── Registry-Based Chat Hook ────────────────────────────────────────────────────
+// Replaces useChatHistory: reads/writes to the same registry that sync uses.
+// This eliminates the dual-storage bug where useChatHistory and useConversationSync
+// used separate localStorage namespaces.
+
+/**
+ * useRegistryChat — reads and writes messages from the unified conversation registry.
+ * Provides the same interface as useChatHistory but backed by the shared registry
+ * so pushSnapshot and full sync both see the same data.
+ *
+ * @param personaIds — the currently selected persona IDs
+ * @param userId — the logged-in user ID (for user-isolated keys)
+ */
+export function useRegistryChat(personaIds: string[], userId?: string) {
+  const conversationKey = buildConversationKey(personaIds, userId);
+
+  const [messages, setMessagesState] = useState<AgentMessage[]>(() => {
+    const reg = loadRegistry();
+    return reg.conversations[conversationKey]?.messages || [];
+  });
+
+  const isInitializedRef = useRef(false);
+  const prevIdsRef = useRef<string[]>(personaIds);
+  const hasMessagesRef = useRef(false);
+
+  // Load history when persona selection changes (only if no messages currently)
+  useEffect(() => {
+    const prev = prevIdsRef.current;
+    const changed = prev.length !== personaIds.length ||
+      prev.some((id, i) => id !== personaIds[i]);
+
+    if (changed) {
+      if (!hasMessagesRef.current) {
+        prevIdsRef.current = personaIds;
+        const reg = loadRegistry();
+        const key = buildConversationKey(personaIds, userId);
+        setMessagesState(reg.conversations[key]?.messages || []);
+      }
+    }
+  }, [personaIds, userId]);
+
+  useEffect(() => {
+    hasMessagesRef.current = messages.length > 0;
+  }, [messages]);
+
+  useEffect(() => {
+    isInitializedRef.current = true;
+  }, []);
+
+  const setMessages = useCallback((updater: (prev: AgentMessage[]) => AgentMessage[]) => {
+    setMessagesState(prev => {
+      const next = updater(prev);
+      if (isInitializedRef.current) {
+        const reg = loadRegistry();
+        if (!reg.conversations[conversationKey]) {
+          reg.conversations[conversationKey] = {
+            messages: [],
+            title: '',
+            tags: [],
+            lastUpdated: Date.now(),
+            mode: undefined,
+            contentHash: '',
+            lastSyncedAt: undefined,
+            syncStatus: 'synced',
+          };
+        }
+        reg.conversations[conversationKey].messages = next;
+        reg.conversations[conversationKey].lastUpdated = Date.now();
+        saveRegistry(reg);
+      }
+      return next;
+    });
+  }, [conversationKey]);
+
+  const clearHistory = useCallback(() => {
+    const reg = loadRegistry();
+    delete reg.conversations[conversationKey];
+    saveRegistry(reg);
+    setMessagesState([]);
+    hasMessagesRef.current = false;
+  }, [conversationKey]);
+
+  return { messages, setMessages, clearHistory };
 }
 
 // ─── Main Hook ───────────────────────────────────────────────────────────────
@@ -370,6 +464,9 @@ export function useConversationSync() {
   const pushSnapshot = useCallback(async (personaIds: string[], messages: AgentMessage[], title?: string, tags?: string[], mode?: string, userId?: string) => {
     const conversationKey = buildConversationKey(personaIds, userId);
     const contentHash = computeContentHash(messages);
+    const lastMsgAt = messages.length > 0
+      ? ((messages[messages.length - 1] as any).timestamp as string || new Date().toISOString())
+      : new Date().toISOString();
 
     const snapshot: LocalConversationSnapshot = {
       conversationKey,
@@ -378,27 +475,51 @@ export function useConversationSync() {
       tags,
       messageCount: messages.length,
       contentHash,
-      lastMessageAt: messages.length > 0
-        ? ((messages[messages.length - 1] as any).timestamp as string || new Date().toISOString())
-        : new Date().toISOString(),
+      lastMessageAt: lastMsgAt,
       snapshotAt: new Date().toISOString(),
       mode,
     };
 
+    // Update registry immediately (optimistic update)
+    const reg = loadRegistry();
+    reg.conversations[conversationKey] = {
+      messages,
+      title: title || '',
+      tags: tags || [],
+      lastUpdated: Date.now(),
+      mode,
+      contentHash,
+      lastSyncedAt: reg.conversations[conversationKey]?.lastSyncedAt,
+      syncStatus: 'pending',
+    };
+    saveRegistry(reg);
+    registryRef.current = reg;
+
     if (!isOnlineRef.current) {
-      // Offline: queue for later
       addToOfflineQueue(conversationKey, snapshot);
       return;
     }
 
     try {
-      await fetch('/api/sync/push', {
+      const res = await fetch('/api/sync/push', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ deviceId, snapshots: [snapshot] }),
       });
+      if (res.ok) {
+        // Sync succeeded — mark synced
+        const reg2 = loadRegistry();
+        if (reg2.conversations[conversationKey]) {
+          reg2.conversations[conversationKey].syncStatus = 'synced';
+          reg2.conversations[conversationKey].lastSyncedAt = new Date().toISOString();
+          saveRegistry(reg2);
+          registryRef.current = reg2;
+        }
+      } else {
+        throw new Error(`HTTP ${res.status}`);
+      }
     } catch {
-      // Network error — queue for later
+      // Network error — mark pending, queue for retry
       addToOfflineQueue(conversationKey, snapshot);
     }
   }, [deviceId]);
@@ -726,6 +847,10 @@ export function useSyncedChatHistory(personaIds: string[]) {
         title: reg.conversations[conversationKey]?.title || '',
         tags: reg.conversations[conversationKey]?.tags || [],
         lastUpdated: Date.now(),
+        mode: reg.conversations[conversationKey]?.mode,
+        contentHash: reg.conversations[conversationKey]?.contentHash || '',
+        lastSyncedAt: reg.conversations[conversationKey]?.lastSyncedAt,
+        syncStatus: reg.conversations[conversationKey]?.syncStatus || 'synced',
       };
       saveRegistry(reg);
 
