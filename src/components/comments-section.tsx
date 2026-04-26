@@ -433,6 +433,8 @@ function CommentItem({
   );
   // Nested reply state — for replying to individual replies
   const [replyingToReply, setReplyingToReply] = useState<string | null>(null);
+  // For replying to a guardian's mention reply at the comment level
+  const [replyingToGuardian, setReplyingToGuardian] = useState(false);
 
   // Fix hydration: timeAgo uses new Date() which differs between server and client
   useEffect(() => { setMounted(true); }, []);
@@ -684,6 +686,31 @@ function CommentItem({
                   <p className="text-sm text-text-secondary leading-relaxed italic">
                     {guardianMentionReply}
                   </p>
+                  {/* Reply to guardian button */}
+                  <button
+                    onClick={() => setReplyingToGuardian(!replyingToGuardian)}
+                    className="mt-2 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs border border-prism-blue/20 hover:border-prism-blue/40 hover:bg-prism-blue/5 text-prism-blue transition-all"
+                  >
+                    <MessageCircle className="w-3.5 h-3.5" />
+                    {replyingToGuardian ? '取消追问' : `继续追问 ${guardian ? guardian.nameZh : '守望者'}`}
+                  </button>
+                  {/* Inline reply form */}
+                  <AnimatePresence>
+                    {replyingToGuardian && (
+                      <div className="mt-3">
+                        <ReplyForm
+                          parentId={comment.id}
+                          onSubmit={async (content): Promise<Reply | undefined> => {
+                            if (!onReplyToReply) return undefined;
+                            setReplyingToGuardian(false);
+                            return await onReplyToReply(comment.id, comment.mentionedGuardianId!, content);
+                          }}
+                          onCancel={() => setReplyingToGuardian(false)}
+                          replyToName={guardian ? guardian.nameZh : '守望者'}
+                        />
+                      </div>
+                    )}
+                  </AnimatePresence>
                 </div>
               </div>
             </div>
@@ -819,6 +846,32 @@ function CommentItem({
                           <p className="text-xs text-text-secondary leading-relaxed italic">
                             {reply.mentionedGuardianReply}
                           </p>
+                          {/* Reply to guardian in replies list */}
+                          <button
+                            onClick={() => setReplyingToReply(reply.id)}
+                            className="mt-2 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs border border-prism-blue/20 hover:border-prism-blue/40 hover:bg-prism-blue/5 text-prism-blue transition-all"
+                          >
+                            <MessageCircle className="w-3 h-3" />
+                            {replyingToReply === reply.id ? '取消追问' : '继续追问守望者'}
+                          </button>
+                          {/* Inline reply form */}
+                          <AnimatePresence>
+                            {replyingToReply === reply.id && (
+                              <div className="mt-2">
+                                <ReplyForm
+                                  parentId={comment.id}
+                                  onSubmit={async (content): Promise<Reply | undefined> => {
+                                    if (!onReplyToReply) return undefined;
+                                    const result = await onReplyToReply(comment.id, reply.id, content);
+                                    setReplyingToReply(null);
+                                    return result;
+                                  }}
+                                  onCancel={() => setReplyingToReply(null)}
+                                  replyToName="守望者"
+                                />
+                              </div>
+                            )}
+                          </AnimatePresence>
                         </div>
                       </div>
                     </div>
