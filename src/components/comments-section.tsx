@@ -858,10 +858,10 @@ function CommentItem({
                       {/* Reply to this reply */}
                       <button
                         onClick={() => setReplyingToReply(replyingToReply === reply.id ? null : reply.id)}
-                        className="mt-1 inline-flex items-center gap-1 text-[11px] text-text-muted hover:text-prism-blue transition-colors"
+                        className="mt-2 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs border border-white/10 hover:border-prism-blue/30 hover:bg-prism-blue/5 text-text-muted hover:text-prism-blue transition-all"
                       >
-                        <MessageCircle className="w-3 h-3" />
-                        {replyingToReply === reply.id ? '取消' : '回复'}
+                        <MessageCircle className="w-3.5 h-3.5" />
+                        {replyingToReply === reply.id ? '取消回复' : `回复 ${reply.display_name || reply.author_name}`}
                       </button>
 
                       {/* Inline reply form for replying to a reply */}
