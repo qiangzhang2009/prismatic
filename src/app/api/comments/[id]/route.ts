@@ -1,11 +1,28 @@
 /**
- * Comments API - PATCH (admin actions) and DELETE
+ * Comments API - GET (single comment), PATCH (admin actions) and DELETE
  */
 import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
 import { authenticateRequest, authenticateAdminRequest } from '@/lib/user-management';
 
 const prisma = new PrismaClient();
+
+export async function GET(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const { id } = await params;
+  try {
+    const comment = await prisma.comment.findUnique({ where: { id } });
+    if (!comment) {
+      return NextResponse.json({ error: 'Comment not found' }, { status: 404 });
+    }
+    return NextResponse.json({ comment });
+  } catch (error) {
+    console.error('Get comment error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
+}
 
 export async function PATCH(
   req: NextRequest,
@@ -58,8 +75,9 @@ export async function DELETE(
 ) {
   const userId = await authenticateRequest(req);
   const adminId = await authenticateAdminRequest(req);
+  const visitorId = req.headers.get('x-visitor-id');
 
-  if (!userId && !adminId) {
+  if (!userId && !adminId && !visitorId) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
@@ -71,7 +89,11 @@ export async function DELETE(
     }
 
     const isAdminUser = !!adminId;
-    if (comment.userId !== userId && !isAdminUser) {
+    const isOwner = comment.userId === userId;
+    // For anonymous users: match by ipHash (stored as the visitorId)
+    const isAnonymousOwner = !comment.userId && comment.ipHash === visitorId;
+
+    if (!isAdminUser && !isOwner && !isAnonymousOwner) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 

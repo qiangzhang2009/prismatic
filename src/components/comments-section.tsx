@@ -62,6 +62,8 @@ interface Comment {
   mentionedGuardianReply?: string | null;
   mentionedGuardianRepliedAt?: string | null;
   mentionHint?: string | null;
+  ipHash?: string | null;
+  userId?: string | null;
   // Internal: marks comments added optimistically before server confirmation
   _isOptimistic?: boolean;
 }
@@ -79,6 +81,7 @@ interface Reply {
   is_edited: boolean;
   mentionedGuardianReply?: string | null;
   mentionedGuardianId?: string | null;
+  ipHash?: string | null;
 }
 
 interface QuotedComment {
@@ -403,6 +406,9 @@ function CommentItem({
   quotedComment = null,
   onReplyToReply,
   onReplyCreated,
+  visitorId,
+  onDeleteReply,
+  userId,
 }: {
   comment: Comment;
   isAdmin: boolean;
@@ -416,6 +422,9 @@ function CommentItem({
   quotedComment?: QuotedComment | null;
   onReplyToReply?: (rootCommentId: string, replyId: string, replyContent: string) => Promise<Reply | undefined>;
   onReplyCreated?: (reply: Reply) => void;
+  visitorId: string;
+  onDeleteReply?: (replyId: string) => void;
+  userId?: string;
 }) {
   const [showReactions, setShowReactions] = useState(false);
   const [showAdminMenu, setShowAdminMenu] = useState(false);
@@ -440,6 +449,8 @@ function CommentItem({
   useEffect(() => { setMounted(true); }, []);
   const timeDisplay = mounted ? timeAgo(comment.created_at) : '加载中';
   const canEdit = comment.author_name.startsWith('Admin') || isAdmin;
+  const isOwner = (!!userId && comment.userId === userId) || (!comment.userId && !!comment.ipHash && comment.ipHash === visitorId);
+  const canDelete = isAdmin || isOwner;
 
   // Determine avatar to show
   const avatarInfo = buildAvatarUrl(comment.author_avatar, comment.gender);
@@ -802,6 +813,21 @@ function CommentItem({
               <Edit3 className="w-4 h-4 text-text-muted" />
             </button>
           )}
+
+          {/* Delete button (for own comments) */}
+          {canDelete && (
+            <button
+              onClick={() => {
+                if (window.confirm('确定删除这条留言吗？')) {
+                  onDelete();
+                }
+              }}
+              className="p-2 hover:bg-red-500/10 rounded-lg transition-colors"
+              title="删除"
+            >
+              <Trash2 className="w-4 h-4 text-text-muted hover:text-red-400" />
+            </button>
+          )}
           
           {/* Report button */}
           <button
@@ -908,14 +934,36 @@ function CommentItem({
                       </div>
                       <MentionedContent content={reply.content} />
 
-                      {/* Reply to this reply */}
-                      <button
-                        onClick={() => setReplyingToReply(replyingToReply === reply.id ? null : reply.id)}
-                        className="mt-2 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs border border-white/10 hover:border-prism-blue/30 hover:bg-prism-blue/5 text-text-muted hover:text-prism-blue transition-all"
-                      >
-                        <MessageCircle className="w-3.5 h-3.5" />
-                        {replyingToReply === reply.id ? '取消回复' : `回复 ${reply.display_name || reply.author_name}`}
-                      </button>
+                      {/* Reply actions: reply + delete */}
+                      <div className="mt-2 flex items-center gap-2 flex-wrap">
+                        <button
+                          onClick={() => setReplyingToReply(replyingToReply === reply.id ? null : reply.id)}
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs border border-white/10 hover:border-prism-blue/30 hover:bg-prism-blue/5 text-text-muted hover:text-prism-blue transition-all"
+                        >
+                          <MessageCircle className="w-3.5 h-3.5" />
+                          {replyingToReply === reply.id ? '取消回复' : `回复 ${reply.display_name || reply.author_name}`}
+                        </button>
+
+                        {/* Delete own reply button */}
+                        {(() => {
+                          const replyIsOwner = (!!userId && reply.userId === userId) || (!reply.userId && !!reply.ipHash && reply.ipHash === visitorId);
+                          const replyCanDelete = isAdmin || replyIsOwner;
+                          if (!replyCanDelete) return null;
+                          return (
+                            <button
+                              onClick={() => {
+                                if (window.confirm('确定删除这条回复吗？')) {
+                                  onDeleteReply?.(reply.id);
+                                }
+                              }}
+                              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs border border-red-500/20 hover:border-red-500/40 hover:bg-red-500/5 text-red-400/70 hover:text-red-400 transition-all"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                              删除
+                            </button>
+                          );
+                        })()}
+                      </div>
 
                       {/* Inline reply form for replying to a reply */}
                       <AnimatePresence>
@@ -1200,6 +1248,7 @@ export function CommentsSection() {
 
   const { user } = useAuthStore();
   const visitorId = typeof window !== 'undefined' ? getVisitorId() : '';
+  const userId = user?.id;
 
   const fetchComments = useCallback(async (pageNum = 0, reset = true) => {
     try {
@@ -1441,7 +1490,10 @@ export function CommentsSection() {
     try {
       // Delete goes through DELETE endpoint, everything else through PATCH
       if (action === 'delete') {
-        const res = await fetch(`/api/comments/${commentId}`, { method: 'DELETE' });
+        const res = await fetch(`/api/comments/${commentId}`, {
+          method: 'DELETE',
+          headers: { 'x-visitor-id': visitorId },
+        });
         if (res.ok) {
           setComments(prev => prev.filter(c => c.id !== commentId));
         }
@@ -1459,6 +1511,31 @@ export function CommentsSection() {
       }
     } catch (err) {
       console.error('Admin action failed:', err);
+    }
+  };
+
+  const handleDeleteReply = async (replyId: string, parentId: string) => {
+    try {
+      const res = await fetch(`/api/comments/${replyId}`, {
+        method: 'DELETE',
+        headers: { 'x-visitor-id': visitorId },
+      });
+      if (res.ok) {
+        // Remove reply from local state
+        setComments(prev => prev.map(c => {
+          if (c.id === parentId) {
+            return { ...c, replyCount: Math.max(0, c.replyCount - 1) };
+          }
+          return c;
+        }));
+        toast.success('删除成功');
+      } else {
+        const data = await res.json();
+        toast.error(data.error || '删除失败');
+      }
+    } catch (err) {
+      console.error('Delete reply failed:', err);
+      toast.error('删除失败');
     }
   };
   
@@ -1812,6 +1889,11 @@ export function CommentsSection() {
                           return c;
                         }));
                       }}
+                      visitorId={visitorId}
+                      onDeleteReply={(replyId) => {
+                        handleDeleteReply(replyId, comment.id);
+                      }}
+                      userId={userId}
                     />
 
                     {/* Reply form */}

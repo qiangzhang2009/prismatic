@@ -9,6 +9,8 @@ import { cookies } from 'next/headers';
 import { processCommentInteractions } from '@/lib/guardian-engine';
 import { verifyJWTToken } from '@/lib/user-management';
 import { lookupIP, generateAvatarSeed, getAvatarUrl, COUNTRY_NAMES } from '@/lib/geo';
+import { getTodayGuardians } from '@/lib/guardian';
+import { extractGuardianMention, getMentionHint } from '@/lib/guardian-mention';
 
 /**
  * Extract the real client IP from request headers.
@@ -118,7 +120,10 @@ export async function GET(req: NextRequest) {
         c."createdAt",
         c."updatedAt",
         c.reactions,
-        c."personaSlug"
+        c."personaSlug",
+        c."mentionedGuardianId",
+        c."mentionedGuardianReply",
+        c."mentionedGuardianRepliedAt"
       FROM comments c
       WHERE c.status = 'published' AND c."parentId" IS NULL
       ORDER BY c."createdAt" DESC
@@ -186,6 +191,13 @@ export async function GET(req: NextRequest) {
         report_count: 0,
         replyCount: 0,
         personaSlug: c.personaSlug,
+        mentionedGuardianId: c.mentionedGuardianId ?? null,
+        mentionedGuardianReply: c.mentionedGuardianReply ?? null,
+        mentionedGuardianRepliedAt: c.mentionedGuardianRepliedAt
+          ? new Date(c.mentionedGuardianRepliedAt).toISOString()
+          : null,
+        ipHash: (c.ipHash as string) || null,
+        userId: (c.userId as string) || null,
       });
     }
 
@@ -222,6 +234,7 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
     const { content, parentId, gender, personaSlug } = body;
+    const visitorIdFromHeader = req.headers.get('x-visitor-id');
 
     if (!content || typeof content !== 'string' || content.trim().length === 0) {
       return NextResponse.json({ error: 'Content is required' }, { status: 400 });
@@ -250,12 +263,12 @@ export async function POST(req: NextRequest) {
         } else {
           nickname = randomNickname();
           avatarSeed = generateAvatarSeed(ip, gender);
-          ipHash = ip.slice(0, 64);
+          ipHash = visitorIdFromHeader || ip.slice(0, 64);
         }
       } else {
         nickname = randomNickname();
         avatarSeed = generateAvatarSeed(ip, gender);
-        ipHash = ip.slice(0, 64);
+        ipHash = visitorIdFromHeader || ip.slice(0, 64);
       }
     } else {
       nickname = randomNickname();
@@ -263,20 +276,40 @@ export async function POST(req: NextRequest) {
       ipHash = ip.slice(0, 64);
     }
 
+    // ── Parallel: geo lookup + guardian detection (both with timeout) ─────
     let geoCountryCode: string | null = null;
     let geoCountry: string | null = null;
     let geoRegion: string | null = null;
     let geoCity: string | null = null;
+    let mentionedGuardianId: string | null = null;
+    let mentionHint: string | null = null;
 
-    try {
-      const geo = await lookupIP(ip);
-      if (geo) {
-        geoCountry = geo.country;
-        geoRegion = geo.region;
-        geoCity = geo.city;
-        geoCountryCode = geo.countryCode;
+    const geoPromiseTimed = Promise.race([
+      lookupIP(ip),
+      new Promise<null>((resolve) => setTimeout(() => resolve(null), 500)),
+    ]).catch(() => null);
+
+    const guardianPromise = getTodayGuardians().catch(() => []);
+
+    // Wait for both in parallel, but with a short timeout
+    const [geo, guardians] = await Promise.all([geoPromiseTimed, guardianPromise]);
+
+    if (geo) {
+      geoCountryCode = geo.countryCode;
+      geoCountry = geo.country;
+      geoRegion = geo.region;
+      geoCity = geo.city;
+    }
+
+    // Extract @守望者 mention (from today's guardians list)
+    if (guardians.length > 0) {
+      const guardianIds = guardians.map((g) => g.personaId);
+      const mentionResult = extractGuardianMention(content, guardianIds);
+      if (mentionResult.mentionedPersonaId) {
+        mentionedGuardianId = mentionResult.mentionedPersonaId;
       }
-    } catch { /* geo lookup failed */ }
+      mentionHint = getMentionHint(mentionResult);
+    }
 
     const newComment = await prisma.comment.create({
       data: {
@@ -294,15 +327,24 @@ export async function POST(req: NextRequest) {
         type: parentId ? 'reply' : 'comment',
         personaSlug: personaSlug || null,
         status: 'published',
-          reactions: [],
+        reactions: [],
+        mentionedGuardianId,
       },
     });
 
     const avatarUrl = avatarSeed ? getAvatarUrl(avatarSeed, gender || undefined) : null;
     const location = [geoCountry, geoRegion, geoCity].filter(Boolean).join(' · ') || null;
 
-    if (!parentId) {
-      processCommentInteractions(newComment.id, content.trim(), nickname).catch(console.error);
+    // ── Fire-and-forget: guardian LLM reply ─────────────────────────────────
+    // The LLM call is expensive (3-15s). We return immediately and let it run
+    // in the background. The frontend polls /api/comments/[id] to pick up the
+    // reply once it's ready.
+    if (mentionedGuardianId) {
+      processCommentInteractions(newComment.id, content.trim(), nickname, mentionedGuardianId)
+        .catch((e) => console.error('[Comments] Guardian reply (async) failed:', e));
+    } else {
+      processCommentInteractions(newComment.id, content.trim(), nickname, null)
+        .catch((e) => console.error('[Comments] Guardian reply (organic) failed:', e));
     }
 
     return NextResponse.json({
@@ -321,13 +363,18 @@ export async function POST(req: NextRequest) {
         is_pinned: false,
         is_edited: false,
         likes: 0,
-          reactions: [],
+        reactions: [],
         reactionCount: 0,
         userReaction: null,
         view_count: 0,
         report_count: 0,
         replyCount: 0,
         personaSlug: newComment.personaSlug,
+        mentionedGuardianId,
+        mentionedGuardianReply: null,   // will be picked up by frontend polling
+        mentionedGuardianRepliedAt: null,
+        mentionHint: mentionedGuardianId ? '守望者正在思考中...' : null,
+        ipHash: ipHash,
       }
     });
   } catch (error) {
