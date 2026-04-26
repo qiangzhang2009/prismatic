@@ -4,16 +4,20 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import Image from 'next/image';
+import toast from 'react-hot-toast';
 import {
   MessageSquare, Send, ChevronDown, ChevronUp, Loader2, Sparkles,
   ThumbsUp, Heart, Smile, MoreHorizontal, Pin, Trash2, Edit3, Flag,
-  Eye, Clock, TrendingUp, MessageCircle, Check, X, AlertTriangle,
+  Eye, Clock, TrendingUp, MessageCircle, Check, X,
   Shield, ChevronLeft, CalendarDays, AtSign
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuthStore } from '@/lib/auth-store';
 import { GuardianBanner } from '@/components/guardian-banner';
 import { parseMentions, type MentionSegment } from '@/lib/mentions';
+import { PERSONAS } from '@/lib/personas';
+import MentionPicker from '@/components/MentionPicker';
+import { SkeletonCommentList } from '@/components/skeleton-comments';
 
 interface Reaction {
   emoji: string;
@@ -51,7 +55,15 @@ interface Comment {
   view_count: number;
   report_count: number;
   replyCount: number;
+  personaSlug?: string | null;
   personaInteractions?: PersonaInteraction[];
+  // Guardian mention fields
+  mentionedGuardianId?: string | null;
+  mentionedGuardianReply?: string | null;
+  mentionedGuardianRepliedAt?: string | null;
+  mentionHint?: string | null;
+  // Internal: marks comments added optimistically before server confirmation
+  _isOptimistic?: boolean;
 }
 
 interface Reply {
@@ -65,6 +77,14 @@ interface Reply {
   location: string | null;
   created_at: string;
   is_edited: boolean;
+  mentionedGuardianReply?: string | null;
+  mentionedGuardianId?: string | null;
+}
+
+interface QuotedComment {
+  id: string;
+  content: string;
+  author_name: string;
 }
 
 // Available reactions
@@ -379,7 +399,10 @@ function CommentItem({
   onReport,
   onAdminAction,
   onReply,
-  showReplyButton = true
+  showReplyButton = true,
+  quotedComment = null,
+  onReplyToReply,
+  onReplyCreated,
 }: {
   comment: Comment;
   isAdmin: boolean;
@@ -390,6 +413,9 @@ function CommentItem({
   onAdminAction: (action: string, value?: any) => void;
   onReply: (commentId: string) => void;
   showReplyButton?: boolean;
+  quotedComment?: QuotedComment | null;
+  onReplyToReply?: (rootCommentId: string, replyId: string, replyContent: string) => Promise<Reply | undefined>;
+  onReplyCreated?: (reply: Reply) => void;
 }) {
   const [showReactions, setShowReactions] = useState(false);
   const [showAdminMenu, setShowAdminMenu] = useState(false);
@@ -402,6 +428,11 @@ function CommentItem({
   const [personaInteractions, setPersonaInteractions] = useState<PersonaInteraction[]>([]);
   const [loadingInteractions, setLoadingInteractions] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [guardianMentionReply, setGuardianMentionReply] = useState<string | null>(
+    comment.mentionedGuardianReply ?? null
+  );
+  // Nested reply state — for replying to individual replies
+  const [replyingToReply, setReplyingToReply] = useState<string | null>(null);
 
   // Fix hydration: timeAgo uses new Date() which differs between server and client
   useEffect(() => { setMounted(true); }, []);
@@ -428,13 +459,47 @@ function CommentItem({
       .finally(() => setLoadingInteractions(false));
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [comment.id]);
+
+  // Poll for guardian reply when @-mention is pending
+  useEffect(() => {
+    if (!comment.mentionedGuardianId || guardianMentionReply) return;
+    const interval = setInterval(async () => {
+      try {
+        const res = await fetch(`/api/comments/${comment.id}`);
+        const data = await res.json();
+        if (data.comment?.mentionedGuardianReply) {
+          setGuardianMentionReply(data.comment.mentionedGuardianReply);
+          clearInterval(interval);
+        }
+      } catch { /* ignore */ }
+    }, 8000);
+    return () => clearInterval(interval);
+  }, [comment.id, comment.mentionedGuardianId]);
   
+  // Handle when a reply is created via the inline ReplyForm
+  const handleReplyCreated = useCallback((reply: Reply) => {
+    setReplies(prev => [...prev, reply]);
+    setShowReplies(true);
+  }, []);
+
+  // Track previous replyCount to detect new replies
+  const prevReplyCountRef = useRef(comment.replyCount);
+  useEffect(() => {
+    if (comment.replyCount > prevReplyCountRef.current) {
+      prevReplyCountRef.current = comment.replyCount;
+      setShowReplies(true);
+      fetch(`/api/comments/${comment.id}/replies?parentId=${comment.id}`)
+        .then(r => r.json())
+        .then(data => setReplies(data.replies || []))
+        .catch(() => {});
+    }
+  }, [comment.replyCount, comment.id]);
+
   const fetchReplies = async () => {
     if (replies.length > 0 || loadingReplies) {
       setShowReplies(!showReplies);
       return;
     }
-    
     setLoadingReplies(true);
     try {
       const res = await fetch(`/api/comments/${comment.id}/replies?parentId=${comment.id}`);
@@ -558,7 +623,73 @@ function CommentItem({
         
         {/* Content */}
         <MentionedContent content={comment.content} />
-        
+
+        {/* Quoted comment — shown when replying to a guardian's reply */}
+        {quotedComment && (
+          <div className="mt-2 mb-2 pl-3 border-l-2 border-prism-purple/40 flex items-start gap-2">
+            <div className="text-[10px] text-prism-purple/70 mt-0.5 flex-shrink-0">
+              <AtSign className="w-2.5 h-2.5" />
+            </div>
+            <p className="text-xs text-text-muted/70 italic line-clamp-2">
+              <span className="font-medium text-prism-purple/60">{quotedComment.author_name}：</span>
+              {quotedComment.content}
+            </p>
+          </div>
+        )}
+
+        {/* @守望者 highlight — shown when user @-mentioned a guardian */}
+        {(comment.mentionedGuardianId || comment.mentionHint) && !guardianMentionReply && (
+          <div className="mb-3 px-3 py-2 rounded-lg bg-prism-blue/5 border border-prism-blue/20 flex items-center gap-2">
+            <Sparkles className="w-3.5 h-3.5 text-prism-blue flex-shrink-0" />
+            {comment.mentionHint ? (
+              <span className="text-xs text-prism-blue/80">{comment.mentionHint}</span>
+            ) : (
+              <span className="text-xs text-prism-blue/80">
+                守望者已收到你的召唤，正在思考中...
+              </span>
+            )}
+          </div>
+        )}
+
+        {/* Guardian @-mention reply card — renders when reply is available */}
+        {guardianMentionReply && comment.mentionedGuardianId && (() => {
+          const guardian = PERSONAS[comment.mentionedGuardianId];
+          return (
+            <div className="mt-4 pt-4 border-t border-prism-blue/20">
+              <div className="flex items-start gap-3 pl-4 border-l-2 border-prism-blue/30">
+                <div
+                  className="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0 shadow-lg"
+                  style={{
+                    background: guardian
+                      ? `linear-gradient(135deg, ${guardian.gradientFrom}, ${guardian.gradientTo})`
+                      : 'linear-gradient(135deg, #8b5cf6, #8b5cf6)',
+                    boxShadow: guardian
+                      ? `0 2px 8px ${guardian.gradientFrom}60`
+                      : '0 2px 8px #8b5cf660',
+                  }}
+                  title={guardian ? `${guardian.nameZh}` : '守望者'}
+                >
+                  {guardian ? guardian.nameZh[0] : '?'}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="text-xs font-semibold text-prism-blue">
+                      {guardian ? guardian.nameZh : '守望者'}
+                    </span>
+                    <span className="text-[10px] px-1.5 py-0.5 rounded bg-prism-blue/10 text-prism-blue flex items-center gap-0.5">
+                      <Sparkles className="w-2.5 h-2.5" />
+                      守望者回复
+                    </span>
+                  </div>
+                  <p className="text-sm text-text-secondary leading-relaxed italic">
+                    {guardianMentionReply}
+                  </p>
+                </div>
+              </div>
+            </div>
+          );
+        })()}
+
         {/* Actions */}
         <div className="flex items-center gap-1 flex-wrap">
           {/* Reaction button */}
@@ -665,7 +796,36 @@ function CommentItem({
               className="mt-4 pt-4 border-t border-white/5 space-y-3"
             >
               {replies.map((reply) => (
-                  <div key={reply.id} className="flex items-start gap-3 pl-4 border-l-2 border-white/10">
+                <div key={reply.id}>
+                  {/* Guardian reply card inside the replies list */}
+                  {reply.mentionedGuardianReply && (
+                    <div className="mb-3 pl-12 border-l-2 border-prism-blue/30">
+                      <div className="flex items-start gap-2 pl-3 border-l-2 border-prism-blue/20">
+                        <div
+                          className="w-6 h-6 rounded-full flex items-center justify-center text-white text-[10px] font-bold flex-shrink-0"
+                          style={{ background: 'linear-gradient(135deg, #6366f1, #8b5cf6)' }}
+                          title="守望者回复"
+                        >
+                          ?
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-1.5 mb-1">
+                            <span className="text-[10px] font-semibold text-prism-blue">守望者</span>
+                            <span className="text-[9px] px-1 py-0.5 rounded bg-prism-blue/10 text-prism-blue flex items-center gap-0.5">
+                              <Sparkles className="w-2 h-2" />
+                              回复
+                            </span>
+                          </div>
+                          <p className="text-xs text-text-secondary leading-relaxed italic">
+                            {reply.mentionedGuardianReply}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Reply item */}
+                  <div className="flex items-start gap-3 pl-4 border-l-2 border-white/10">
                     {(() => {
                       const info = buildAvatarUrl(reply.author_avatar, reply.gender);
                       return info.type === 'url'
@@ -694,9 +854,40 @@ function CommentItem({
                         <span className="text-xs text-text-muted">{timeAgo(reply.created_at)}</span>
                       </div>
                       <MentionedContent content={reply.content} />
+
+                      {/* Reply to this reply */}
+                      <button
+                        onClick={() => setReplyingToReply(replyingToReply === reply.id ? null : reply.id)}
+                        className="mt-1 inline-flex items-center gap-1 text-[11px] text-text-muted hover:text-prism-blue transition-colors"
+                      >
+                        <MessageCircle className="w-3 h-3" />
+                        {replyingToReply === reply.id ? '取消' : '回复'}
+                      </button>
+
+                      {/* Inline reply form for replying to a reply */}
+                      <AnimatePresence>
+                        {replyingToReply === reply.id && (
+                          <div className="mt-2">
+                            <ReplyForm
+                              parentId={comment.id}
+                              onSubmit={async (content): Promise<Reply | undefined> => {
+                                if (!onReplyToReply) return undefined;
+                                const result = await onReplyToReply(comment.id, reply.id, content);
+                                setReplyingToReply(null);
+                                return result;
+                              }}
+                              onCancel={() => setReplyingToReply(null)}
+                              quotedGuardianReply={reply.content ? reply.content : null}
+                              replyToName={reply.display_name || reply.author_name}
+                              onReplyCreated={handleReplyCreated}
+                            />
+                          </div>
+                        )}
+                      </AnimatePresence>
                     </div>
                   </div>
-                ))}
+                </div>
+              ))}
             </motion.div>
           )}
         </AnimatePresence>
@@ -811,11 +1002,17 @@ function MentionedContent({ content }: { content: string }) {
 function ReplyForm({
   parentId,
   onSubmit,
-  onCancel
+  onCancel,
+  quotedGuardianReply,
+  onReplyCreated,
+  replyToName,
 }: {
   parentId: string;
-  onSubmit: (content: string) => void;
+  onSubmit: (content: string) => Promise<Reply | undefined>;
   onCancel: () => void;
+  quotedGuardianReply?: string | null;
+  onReplyCreated?: (reply: Reply) => void;
+  replyToName?: string;
 }) {
   const [content, setContent] = useState('');
   const [submitting, setSubmitting] = useState(false);
@@ -823,8 +1020,20 @@ function ReplyForm({
   const handleSubmit = async () => {
     if (!content.trim() || submitting) return;
     setSubmitting(true);
-    await onSubmit(content);
-    setSubmitting(false);
+    try {
+      const newReply = await onSubmit(content);
+
+      if (onReplyCreated && newReply) {
+        onReplyCreated(newReply);
+      }
+
+      setContent('');
+      setTimeout(onCancel, 800);
+    } catch (e: any) {
+      toast.error(e.message || '发送失败，请重试');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -834,13 +1043,38 @@ function ReplyForm({
       exit={{ opacity: 0, height: 0 }}
       className="mt-4 pl-6 border-l-2 border-prism-blue/30"
     >
+      {/* Reply-to context header */}
+      {replyToName && (
+        <div className="mb-3 flex items-center gap-2">
+          <MessageCircle className="w-3.5 h-3.5 text-prism-blue" />
+          <span className="text-xs text-prism-blue font-medium">
+            回复 <span className="text-text-primary">{replyToName}</span>
+          </span>
+        </div>
+      )}
+
+      {/* Quoted guardian reply context */}
+      {quotedGuardianReply && (
+        <div className="mb-3 px-3 py-2 rounded-lg bg-prism-blue/5 border border-prism-blue/20 flex items-start gap-2">
+          <Sparkles className="w-3.5 h-3.5 text-prism-blue flex-shrink-0 mt-0.5" />
+          <p className="text-xs text-prism-blue/80 italic line-clamp-2">
+            引用守望者回复："{quotedGuardianReply}"
+          </p>
+        </div>
+      )}
+
       <div className="bg-white/5 rounded-xl p-4">
         <textarea
           value={content}
           onChange={(e) => setContent(e.target.value)}
-          placeholder="写下你的回复..."
+          placeholder="写下你的回复...（可@守望者名字继续追问）"
           maxLength={500}
           rows={2}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
+              handleSubmit();
+            }
+          }}
           className="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-text-primary placeholder:text-text-muted text-sm focus:outline-none focus:border-prism-blue/50 transition-colors resize-none mb-3"
           autoFocus
         />
@@ -858,7 +1092,12 @@ function ReplyForm({
               disabled={!content.trim() || submitting}
               className="px-3 py-1.5 rounded-lg bg-prism-gradient text-white text-sm disabled:opacity-50 transition-opacity"
             >
-              {submitting ? '发送中...' : '发送'}
+              {submitting ? (
+                <span className="flex items-center gap-1.5">
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  发送中
+                </span>
+              ) : '发送'}
             </button>
           </div>
         </div>
@@ -871,11 +1110,11 @@ function ReplyForm({
 export function CommentsSection() {
   const [comments, setComments] = useState<Comment[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [content, setContent] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [sort, setSort] = useState<'latest' | 'popular'>('latest');
   const [replyingTo, setReplyingTo] = useState<string | null>(null);
+  const [replyingToComment, setReplyingToComment] = useState<Comment | null>(null);
   // Pagination
   const [page, setPage] = useState(0);
   const [hasMore, setHasMore] = useState(false);
@@ -886,8 +1125,18 @@ export function CommentsSection() {
   const [dateFilter, setDateFilter] = useState<string | null>(null);
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [dateRangeLabel, setDateRangeLabel] = useState<string>('全部时间');
+  const [guardians, setGuardians] = useState<Array<{
+    personaId: string;
+    personaNameZh: string;
+    gradientFrom: string;
+    gradientTo: string;
+  }>>([]);
   // Debate topic for comment inspiration (forum ops)
   const [debateTopic, setDebateTopic] = useState<string | null>(null);
+  // Mention picker state
+  const [showMentionPicker, setShowMentionPicker] = useState(false);
+  const [caretPos, setCaretPos] = useState(0);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
   // Quick date filter
   const QUICK_DATES = [
     { label: '今天', getValue: () => new Date().toISOString().slice(0, 10), isToday: true },
@@ -917,7 +1166,7 @@ export function CommentsSection() {
       setPage(pageNum);
     } catch (err) {
       console.error('Failed to fetch comments:', err);
-      setError('加载评论失败');
+      toast.error('加载评论失败，请刷新页面');
     } finally {
       setLoading(false);
     }
@@ -932,6 +1181,16 @@ export function CommentsSection() {
       .then(r => r.ok ? r.json() : null)
       .then(data => {
         if (data?.debate?.topic) setDebateTopic(data.debate.topic);
+      })
+      .catch(() => {});
+
+    // Fetch today's guardians for @-mention quick select
+    fetch('/api/guardian')
+      .then(r => r.ok ? r.json() : null)
+      .then(data => {
+        if (data?.guardians) {
+          setGuardians(data.guardians);
+        }
       })
       .catch(() => {});
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -956,26 +1215,61 @@ export function CommentsSection() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!content.trim() || submitting) return;
+
+    const optimisticComment: Comment = {
+      id: `optimistic-${Date.now()}`,
+      content: content.trim(),
+      author_name: (user?.name || user?.email?.split('@')[0] || '我') as string,
+      author_avatar: '',
+      avatar_url: null as string | null,
+      display_name: (user?.name || user?.email?.split('@')[0] || '我') as string,
+      gender: null,
+      location: null,
+      created_at: new Date().toISOString(),
+      is_pinned: false,
+      is_edited: false,
+      likes: 0,
+      reactions: {},
+      reactionCount: 0,
+      userReaction: null,
+      view_count: 0,
+      report_count: 0,
+      replyCount: 0,
+      personaSlug: null,
+      mentionedGuardianId: null,
+      mentionedGuardianReply: null,
+      mentionedGuardianRepliedAt: null,
+      mentionHint: null,
+    };
+
+    // Optimistic: show immediately
+    setComments(prev => [optimisticComment, ...prev]);
+    setContent('');
+    const originalComments = comments;
+
     setSubmitting(true);
     try {
       const res = await fetch('/api/comments', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          content: content.trim(),
-        }),
+        body: JSON.stringify({ content: content.trim() }),
       });
 
       if (!res.ok) {
         const data = await res.json();
-        throw new Error(data.error || 'Failed to submit');
+        throw new Error(data.error || '提交失败');
       }
 
       const data = await res.json();
-      setComments(prev => [data.comment, ...prev]);
-      setContent('');
+      // Replace optimistic comment with real one
+      setComments(prev => prev.map(c =>
+        c.id === optimisticComment.id ? { ...data.comment, _isOptimistic: false } as Comment : c
+      ));
     } catch (err: any) {
-      setError(err.message || '提交失败');
+      // Rollback optimistic comment
+      setComments(originalComments);
+      setContent(content.trim());
+      toast.error(err.message || '提交失败，请重试');
     } finally {
       setSubmitting(false);
     }
@@ -1009,29 +1303,85 @@ export function CommentsSection() {
   };
   
   const handleReply = async (parentId: string, replyContent: string) => {
-    try {
-      const res = await fetch('/api/comments', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          content: replyContent,
-          parentId,
-        }),
-      });
+    const res = await fetch('/api/comments', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        content: replyContent,
+        parentId,
+      }),
+    });
 
-      if (res.ok) {
-        setComments(prev => prev.map(c => {
-          if (c.id === parentId) {
-            return { ...c, replyCount: c.replyCount + 1 };
-          }
-          return c;
-        }));
-        setReplyingTo(null);
-        fetchComments();
-      }
-    } catch (err) {
-      console.error('Failed to submit reply:', err);
+    if (!res.ok) {
+      const data = await res.json();
+      throw new Error(data.error || '发送失败');
     }
+
+    const data = await res.json();
+
+    // Add new reply to the target comment's replies in local state
+    const newReply: Reply = {
+      id: data.comment.id,
+      content: data.comment.content,
+      author_name: data.comment.author_name,
+      author_avatar: '',
+      avatar_url: data.comment.avatar_url || null,
+      display_name: data.comment.display_name || data.comment.author_name,
+      gender: data.comment.gender || null,
+      location: data.comment.location || null,
+      created_at: data.comment.created_at || new Date().toISOString(),
+      is_edited: false,
+    };
+
+    setComments(prev => prev.map(c => {
+      if (c.id === parentId) {
+        return { ...c, replyCount: c.replyCount + 1 };
+      }
+      return c;
+    }));
+    setReplyingTo(null);
+    setReplyingToComment(null);
+    // Return the new reply so callers (ReplyForm) can also use it
+    return newReply;
+  };
+
+  const handleReplyToReply = async (rootCommentId: string, _replyId: string, replyContent: string) => {
+    const res = await fetch('/api/comments', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        content: replyContent,
+        parentId: rootCommentId,
+      }),
+    });
+
+    if (!res.ok) {
+      const data = await res.json();
+      throw new Error(data.error || '发送失败');
+    }
+
+    const data = await res.json();
+
+    const newReply: Reply = {
+      id: data.comment.id,
+      content: data.comment.content,
+      author_name: data.comment.author_name,
+      author_avatar: '',
+      avatar_url: data.comment.avatar_url || null,
+      display_name: data.comment.display_name || data.comment.author_name,
+      gender: data.comment.gender || null,
+      location: data.comment.location || null,
+      created_at: data.comment.created_at || new Date().toISOString(),
+      is_edited: false,
+    };
+
+    setComments(prev => prev.map(c => {
+      if (c.id === rootCommentId) {
+        return { ...c, replyCount: c.replyCount + 1 };
+      }
+      return c;
+    }));
+    return newReply;
   };
   
   const handleAdminAction = async (commentId: string, action: string, value?: any) => {
@@ -1154,8 +1504,24 @@ export function CommentsSection() {
             {/* Textarea */}
             <div className="mb-4 relative">
               <textarea
+                ref={textareaRef}
                 value={content}
-                onChange={(e) => setContent(e.target.value)}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  const pos = e.target.selectionStart ?? val.length;
+                  setContent(val);
+                  setCaretPos(pos);
+                  // Show picker when @ is typed
+                  const textBefore = val.slice(0, pos);
+                  const hasOpenMention = /@[^@\s]{0,30}$/.test(textBefore);
+                  setShowMentionPicker(hasOpenMention);
+                }}
+                onKeyDown={(e) => {
+                  // Close picker on Escape if open
+                  if (e.key === 'Escape' && showMentionPicker) {
+                    setShowMentionPicker(false);
+                  }
+                }}
                 placeholder={
                   debateTopic
                     ? `围绕"${debateTopic}"发表看法，可用@人物名引用蒸馏人物...`
@@ -1168,12 +1534,76 @@ export function CommentsSection() {
               <div className="absolute bottom-3 right-3 text-xs text-text-muted">
                 {content.length}/1000
               </div>
+              {/* @Mention Picker */}
+              <AnimatePresence>
+                {showMentionPicker && (
+                  <MentionPicker
+                    value={content}
+                    caretPos={caretPos}
+                    onSelect={(_slug, displayName) => {
+                      // Replace the @query in content with the full mention
+                      const textBefore = content.slice(0, caretPos);
+                      const textAfter = content.slice(caretPos);
+                      const match = textBefore.match(/@[^@\s]{0,30}$/);
+                      if (match) {
+                        const before = textBefore.slice(0, match.index);
+                        setContent(before + displayName + textAfter);
+                        const newPos = before.length + displayName.length;
+                        setCaretPos(newPos);
+                        // Restore cursor position after React re-render
+                        setTimeout(() => {
+                          if (textareaRef.current) {
+                            textareaRef.current.selectionStart = newPos;
+                            textareaRef.current.selectionEnd = newPos;
+                            textareaRef.current.focus();
+                          }
+                        }, 0);
+                      }
+                      setShowMentionPicker(false);
+                    }}
+                    onClose={() => setShowMentionPicker(false)}
+                    textareaRect={textareaRef.current?.getBoundingClientRect() ?? null}
+                  />
+                )}
+              </AnimatePresence>
             </div>
 
-            {error && (
-              <div className="mb-4 px-4 py-2 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-sm flex items-center gap-2">
-                <AlertTriangle className="w-4 h-4" />
-                {error}
+            {/* Guardian @-mention quick select */}
+            {guardians.length > 0 && (
+              <div className="mb-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <AtSign className="w-3.5 h-3.5 text-text-muted" />
+                  <span className="text-xs text-text-muted">@守望者（今日值班的思想家会优先回复）</span>
+                </div>
+                <div className="flex items-center gap-2 overflow-x-auto pb-1">
+                  {guardians.map((g) => {
+                    const isMentioned = content.includes(`@${g.personaNameZh}`);
+                    return (
+                      <button
+                        key={g.personaId}
+                        type="button"
+                        onClick={() => {
+                          const mention = `@${g.personaNameZh} `;
+                          setContent((prev) => (prev ? `${prev} ${mention}` : mention));
+                        }}
+                        className={cn(
+                          'flex items-center gap-1.5 px-2.5 py-1.5 rounded-full text-xs whitespace-nowrap transition-all border flex-shrink-0',
+                          isMentioned
+                            ? 'bg-prism-blue/20 border-prism-blue/50 text-prism-blue'
+                            : 'bg-white/5 border-white/10 text-text-secondary hover:border-white/20 hover:bg-white/10'
+                        )}
+                      >
+                        <div
+                          className="w-4 h-4 rounded-full flex items-center justify-center text-white text-[8px] font-bold flex-shrink-0"
+                          style={{ background: `linear-gradient(135deg, ${g.gradientFrom}, ${g.gradientTo})` }}
+                        >
+                          {g.personaNameZh[0]}
+                        </div>
+                        {g.personaNameZh}
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
             )}
 
@@ -1283,9 +1713,7 @@ export function CommentsSection() {
         {/* Comments List */}
         <div className="space-y-4">
           {loading ? (
-            <div className="flex items-center justify-center py-12">
-              <Loader2 className="w-6 h-6 text-text-muted animate-spin" />
-            </div>
+            <SkeletonCommentList />
           ) : comments.length === 0 ? (
             <div className="text-center py-12">
               <div className="w-20 h-20 rounded-full bg-prism-blue/5 border border-prism-blue/10 flex items-center justify-center mx-auto mb-4">
@@ -1318,16 +1746,41 @@ export function CommentsSection() {
                       onDelete={() => handleAdminAction(comment.id, 'delete')}
                       onReport={() => {}}
                       onAdminAction={(action, value) => handleAdminAction(comment.id, action, value)}
-                      onReply={setReplyingTo}
+                      onReply={(id) => {
+                        setReplyingTo(id);
+                        setReplyingToComment(comment);
+                      }}
+                      onReplyToReply={(rootId, replyId, content) => handleReplyToReply(rootId, replyId, content)}
+                      onReplyCreated={(newReply) => {
+                        setComments(prev => prev.map(c => {
+                          if (c.id === comment.id) {
+                            return { ...c, replyCount: c.replyCount + 1 };
+                          }
+                          return c;
+                        }));
+                      }}
                     />
-                    
+
                     {/* Reply form */}
                     <AnimatePresence>
                       {replyingTo === comment.id && (
                         <ReplyForm
                           parentId={comment.id}
-                          onSubmit={(content) => handleReply(comment.id, content)}
-                          onCancel={() => setReplyingTo(null)}
+                          onSubmit={async (content) => {
+                            const reply = await handleReply(comment.id, content);
+                            return reply;
+                          }}
+                          onCancel={() => { setReplyingTo(null); setReplyingToComment(null); }}
+                          quotedGuardianReply={replyingToComment?.mentionedGuardianReply ?? null}
+                          replyToName={replyingToComment?.display_name || replyingToComment?.author_name}
+                          onReplyCreated={(reply) => {
+                            setComments(prev => prev.map(c => {
+                              if (c.id === comment.id) {
+                                return { ...c, replyCount: c.replyCount + 1 };
+                              }
+                              return c;
+                            }));
+                          }}
                         />
                       )}
                     </AnimatePresence>
