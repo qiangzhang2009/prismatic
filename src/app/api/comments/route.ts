@@ -11,6 +11,7 @@ import { verifyJWTToken } from '@/lib/user-management';
 import { lookupIP, generateAvatarSeed, getAvatarUrl, COUNTRY_NAMES } from '@/lib/geo';
 import { getTodayGuardians } from '@/lib/guardian';
 import { extractGuardianMention, getMentionHint } from '@/lib/guardian-mention';
+import { PERSONAS } from '@/lib/personas';
 
 /**
  * Extract the real client IP from request headers.
@@ -123,7 +124,12 @@ export async function GET(req: NextRequest) {
         c."personaSlug",
         c."mentionedGuardianId",
         c."mentionedGuardianReply",
-        c."mentionedGuardianRepliedAt"
+        c."mentionedGuardianRepliedAt",
+        (
+          SELECT COUNT(*)
+          FROM comments r
+          WHERE r."parentId" = c.id AND r.status = 'published'
+        ) AS reply_count
       FROM comments c
       WHERE c.status = 'published' AND c."parentId" IS NULL
       ORDER BY c."createdAt" DESC
@@ -189,12 +195,15 @@ export async function GET(req: NextRequest) {
         userReaction,
         view_count: 0,
         report_count: 0,
-        replyCount: 0,
+        replyCount: Number(c.reply_count ?? 0),
         personaSlug: c.personaSlug,
         mentionedGuardianId: c.mentionedGuardianId ?? null,
         mentionedGuardianReply: c.mentionedGuardianReply ?? null,
         mentionedGuardianRepliedAt: c.mentionedGuardianRepliedAt
           ? new Date(c.mentionedGuardianRepliedAt).toISOString()
+          : null,
+        mentionedGuardianName: c.mentionedGuardianId
+          ? PERSONAS[c.mentionedGuardianId]?.nameZh ?? null
           : null,
         ipHash: (c.ipHash as string) || null,
         userId: (c.userId as string) || null,
@@ -233,7 +242,7 @@ export async function POST(req: NextRequest) {
 
   try {
     const body = await req.json();
-    const { content, parentId, gender, personaSlug } = body;
+    const { content, parentId, gender, personaSlug, mentionedGuardianId: incomingGuardianId } = body;
     const visitorIdFromHeader = req.headers.get('x-visitor-id');
 
     if (!content || typeof content !== 'string' || content.trim().length === 0) {
@@ -277,6 +286,7 @@ export async function POST(req: NextRequest) {
     }
 
     // ── Parallel: geo lookup + guardian detection (both with timeout) ─────
+    // Geo lookup runs for ALL users (admin or not) — location is part of the comment data
     let geoCountryCode: string | null = null;
     let geoCountry: string | null = null;
     let geoRegion: string | null = null;
@@ -301,8 +311,11 @@ export async function POST(req: NextRequest) {
       geoCity = geo.city;
     }
 
-    // Extract @守望者 mention (from today's guardians list)
-    if (guardians.length > 0) {
+    // Determine the guardian to respond: prefer explicit mentionId, else auto-detect from @ in content
+    // When replying to a guardian via "继续追问", the guardian is already known (passed explicitly)
+    if (incomingGuardianId) {
+      mentionedGuardianId = incomingGuardianId;
+    } else if (guardians.length > 0) {
       const guardianIds = guardians.map((g) => g.personaId);
       const mentionResult = extractGuardianMention(content, guardianIds);
       if (mentionResult.mentionedPersonaId) {
@@ -339,13 +352,34 @@ export async function POST(req: NextRequest) {
     // The LLM call is expensive (3-15s). We return immediately and let it run
     // in the background. The frontend polls /api/comments/[id] to pick up the
     // reply once it's ready.
-    if (mentionedGuardianId) {
+    //
+    // Rules for triggering guardian reply:
+    // 1. Root comments (no parentId) with @mention → reply to THAT guardian
+    // 2. Replies (has parentId) → NEVER trigger guardian engine.
+    //    Replies are part of an existing conversation thread and should NOT
+    //    spawn additional guardian responses. The parent comment's guardian is
+    //    already engaged with the thread.
+    // 3. Organic comments (no mention) → probabilistic engagement (handled async)
+    //
+    // NOTE: `mentionedGuardianId` can be set in three ways:
+    //   a. Explicit incoming value (from "继续追问" — caller passes parent's guardianId)
+    //   b. @-mention detection in content (only for root comments)
+    //   c. Empty → organic engagement (only for root comments without @mention)
+    const isRootComment = !parentId;
+    if (isRootComment && mentionedGuardianId) {
+      // Root comment with explicit or @-mention guardian → sync reply from that guardian
       processCommentInteractions(newComment.id, content.trim(), nickname, mentionedGuardianId)
-        .catch((e) => console.error('[Comments] Guardian reply (async) failed:', e));
-    } else {
+        .catch((e) => console.error('[Comments] Guardian reply (mention) failed:', e));
+    } else if (isRootComment && !mentionedGuardianId) {
+      // Root comment without @mention → organic probabilistic engagement
       processCommentInteractions(newComment.id, content.trim(), nickname, null)
         .catch((e) => console.error('[Comments] Guardian reply (organic) failed:', e));
+    } else if (!isRootComment && mentionedGuardianId) {
+      // Reply to a guardian (继续追问) → guardian should respond with follow-up
+      processCommentInteractions(newComment.id, content.trim(), nickname, mentionedGuardianId)
+        .catch((e) => console.error('[Comments] Guardian follow-up reply failed:', e));
     }
+    // Replies without a mentionedGuardianId → never trigger guardian engine
 
     return NextResponse.json({
       success: true,
@@ -373,7 +407,9 @@ export async function POST(req: NextRequest) {
         mentionedGuardianId,
         mentionedGuardianReply: null,   // will be picked up by frontend polling
         mentionedGuardianRepliedAt: null,
-        mentionHint: mentionedGuardianId ? '守望者正在思考中...' : null,
+        mentionHint: mentionedGuardianId
+          ? `${PERSONAS[mentionedGuardianId]?.nameZh || '守望者'}正在思考中...`
+          : null,
         ipHash: ipHash,
       }
     });

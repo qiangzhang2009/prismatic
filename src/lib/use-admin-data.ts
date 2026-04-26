@@ -351,3 +351,36 @@ export function usePrefetchUser() {
     },
   };
 }
+
+export interface ChatStats {
+  totalConversations: number;
+  totalMessages: number;
+  userMessages: number;
+  assistantMessages: number;
+  totalTokens: number;
+  totalCost: number;
+  modeStats: Array<{ mode: string; count: number; totalCost: number }>;
+  billing: { apiKeyMode: number; platformMode: number };
+  personaStats: Array<{ personaId: string; messageCount: number; tokens: number; cost: number }>;
+  dateFilter: { days: number; dateFrom: string; dateTo: string };
+  allTime: {
+    totalMessages: number;
+    totalTokens: number;
+    totalCost: number;
+  };
+  error?: string;
+}
+
+export function useChatStats(days: number = 7, dateFrom?: string, dateTo?: string) {
+  const params = new URLSearchParams();
+  params.set('days', String(days));
+  if (dateFrom) params.set('dateFrom', dateFrom);
+  if (dateTo) params.set('dateTo', dateTo);
+
+  return useQuery<ChatStats>({
+    queryKey: ['admin', 'chat-stats', days, dateFrom, dateTo],
+    queryFn: () => fetchAdminAPI<ChatStats>(`/api/admin/chats/stats?${params}`),
+    staleTime: 1000 * 60 * 5,
+    retry: 1,
+  });
+}

@@ -266,6 +266,33 @@ export async function POST(req: NextRequest) {
       results.push(`Indexes: ${e.message}`);
     }
 
+    // ── comments guardian mention ────────────────────────────────────────────────
+    try {
+      await sql`ALTER TABLE public.comments ADD COLUMN IF NOT EXISTS mentioned_guardian_id TEXT`;
+      await sql`ALTER TABLE public.comments ADD COLUMN IF NOT EXISTS mentioned_guardian_reply TEXT`;
+      await sql`ALTER TABLE public.comments ADD COLUMN IF NOT EXISTS mentioned_guardian_replied_at TIMESTAMPTZ`;
+      await sql`CREATE INDEX IF NOT EXISTS idx_comments_mentioned_guardian ON public.comments(mentioned_guardian_id) WHERE mentioned_guardian_id IS NOT NULL`;
+      results.push('comments.guardian_mention ✓');
+    } catch (e: any) {
+      results.push(`comments.guardian_mention: ${e.message}`);
+    }
+
+    // ── Cleanup: remove non-persona records from distilled_personas ─────────────────
+    try {
+      const deleted = await sql`
+        DELETE FROM public.distilled_personas
+        WHERE "slug" IN (
+          'greek-classics', 'chinese-classics', 'quantangshi',
+          'three-kingdoms', 'journey-west', 'tripitaka',
+          'sun-wukong', 'zhu-bajie'
+        )
+        RETURNING "slug"
+      `;
+      results.push(`Cleanup non-persona records: ${deleted.length} deleted`);
+    } catch (e: any) {
+      results.push(`Cleanup non-persona records: ${e.message}`);
+    }
+
     // ── Sample comments ─────────────────────────────────────────────────────────
     try {
       const existingComments = await sql`SELECT COUNT(*) as count FROM public.prismatic_comments`;

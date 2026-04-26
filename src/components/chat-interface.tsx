@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Send, Loader2, ChevronDown, Settings, Trash2, X, Download, FileText, Image, Zap, CheckSquare, Calendar } from 'lucide-react';
+import { Send, Loader2, ChevronDown, Settings, Trash2, X, Download, FileText, Image, Zap, CheckSquare, Calendar, RefreshCw } from 'lucide-react';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { PersonaCard } from '@/components/persona-card';
@@ -20,6 +20,7 @@ import { trackChatStart, trackChatMessage } from '@/lib/use-tracking';
 import { LimitReachedModal, type LimitModalType } from '@/components/limit-reached-modal';
 import { exportChatAsImage, exportChatAsText } from '@/lib/export-chat';
 import { ExportPanel } from '@/components/export-panel';
+import { KnowledgeGapBanner } from '@/components/knowledge-gap-banner';
 
 const STORAGE_KEY = 'prismatic-chat-state';
 const DAILY_LIMIT_KEY = 'prismatic-daily-messages';
@@ -110,7 +111,7 @@ export function ChatInterface({ className, initialPersona, initialMode }: ChatIn
     const id = getInitialPersonaId();
     return saved?.selectedIds?.length > 1 ? saved.selectedIds : [id];
   });
-  const { messages, setMessages, clearHistory } = useRegistryChat(selectedIds, user?.id);
+  const { messages, setMessages, clearHistory, reloadMessages } = useRegistryChat(selectedIds, user?.id);
   const { pushSnapshot } = useConversationSync();
   const messagesRef = useRef(messages);
   useEffect(() => { messagesRef.current = messages; }, [messages]);
@@ -213,12 +214,30 @@ export function ChatInterface({ className, initialPersona, initialMode }: ChatIn
   }, [dbPersonas]);  // eslint-disable-line react-hooks/exhaustive-deps
 
   // selectedPersonas — resolve from both hardcoded and DB personas
-  // DB personas override hardcoded ones with the same ID (deduplicate by id, DB wins)
+  // Merge strategy:
+  //   - nameZh: hardcoded wins (Chinese source of truth, prevents flicker)
+  //   - name:  always skip from DB (English, never needed for display)
+  //   - other fields: DB wins (colors, prompts, scores, etc.)
   const allPersonas = (() => {
     const map = new Map<string, any>();
-    // Hardcoded first so DB can override
     for (const p of PERSONA_LIST) map.set(p.id, p);
-    for (const p of dbPersonas) map.set(p.id, p);
+    for (const p of dbPersonas) {
+      const existing = map.get(p.id);
+      if (existing) {
+        // Merge: preserve hardcoded nameZh, take everything else from DB
+        const merged: any = { ...existing };
+        for (const key of Object.keys(p)) {
+          if (key === 'name') continue; // skip English name entirely
+          if (key === 'nameZh') continue; // keep hardcoded Chinese
+          if (p[key] !== undefined && p[key] !== null) {
+            merged[key] = p[key];
+          }
+        }
+        map.set(p.id, merged);
+      } else {
+        map.set(p.id, p);
+      }
+    }
     return Array.from(map.values());
   })();
   const selectedPersonas = selectedIds
@@ -234,7 +253,9 @@ export function ChatInterface({ className, initialPersona, initialMode }: ChatIn
   }, [isPickerOpen]);
 
   // Filtered persona list — both hardcoded and DB
+  // Skip personas with empty/placeholder names so they don't appear in the picker
   const filteredPersonas = allPersonas.filter((p: any) => {
+    if (!p.nameZh && !p.name) return false;
     const matchTab = pickerTab === 'all' || p.domain?.includes(pickerTab);
     const matchSearch = pickerSearch.trim() === '' ||
       p.nameZh?.includes(pickerSearch) ||
@@ -442,6 +463,10 @@ export function ChatInterface({ className, initialPersona, initialMode }: ChatIn
         try { data = await response.json(); } catch {}
         const isLimitReached = response.status === 429 || (data?.code === 'DAILY_LIMIT_REACHED');
         if (isLimitReached) {
+          // Sync dailyCount from server (authoritative source)
+          if (data?.current !== undefined && data?.limit !== undefined) {
+            localStorage.setItem(DAILY_LIMIT_KEY, String(data.current));
+          }
           setLimitModalType('daily_limit');
           setShowLimitModal(true);
         } else if (response.status === 401) {
@@ -466,14 +491,17 @@ export function ChatInterface({ className, initialPersona, initialMode }: ChatIn
 
       // Update credits display after successful deduction
       if (data.creditsRemaining !== undefined) {
-        if (data.creditsRemaining === 0) {
-          // Credits exhausted after this conversation
+        const { updateUser } = useAuthStore.getState();
+        updateUser({ credits: data.creditsRemaining });
+        // Credits exhausted: show appropriate modal based on plan type.
+        // - Paid users (LIFETIME/MONTHLY/YEARLY): they should have unlimited access;
+        //   if credits ran out, show the modal to alert (edge case).
+        // - FREE users: show 'credits_exhausted' when purchased credits hit 0, so
+        //   the user knows they now fall back to the daily free quota.
+        if (data.creditsRemaining === 0 && (isPaid || plan === 'FREE')) {
           setLimitModalType('credits_exhausted');
           setShowLimitModal(true);
         }
-        // Update the user's credits in the Zustand store
-        const { updateUser } = useAuthStore.getState();
-        updateUser({ credits: data.creditsRemaining });
       }
 
       // Increment daily counter for non-credits users (so toolbar shows new remaining count immediately)
@@ -777,6 +805,7 @@ export function ChatInterface({ className, initialPersona, initialMode }: ChatIn
           setShowPersonaPicker(open);
         }}
         minParticipants={MODES[mode]?.minParticipants ?? 1}
+        selectedPersonas={selectedPersonas}
       />
 
       {/* ── Toolbar row (settings / export / limits) ─────────── */}
@@ -908,7 +937,7 @@ export function ChatInterface({ className, initialPersona, initialMode }: ChatIn
 
         {messages.length > 0 && (
           <button
-            className="text-text-muted hover:text-red-400 transition-colors"
+            className="text-text-muted hover:text-text-primary transition-colors"
             onClick={() => {
               if (window.confirm('确定清空当前对话历史？此操作不可撤销。')) {
                 clearHistory();
@@ -918,6 +947,18 @@ export function ChatInterface({ className, initialPersona, initialMode }: ChatIn
             title="清空对话历史"
           >
             <Trash2 className="w-4 h-4" />
+          </button>
+        )}
+
+        {messages.length > 0 && (
+          <button
+            className="text-text-muted hover:text-text-primary transition-colors"
+            onClick={() => {
+              reloadMessages();
+            }}
+            title="刷新对话记录"
+          >
+            <RefreshCw className="w-4 h-4" />
           </button>
         )}
       </div>
@@ -1250,6 +1291,12 @@ export function ChatInterface({ className, initialPersona, initialMode }: ChatIn
                     </div>
                   )}
                 </div>
+
+                {/* ── Knowledge Gap Warning Banner ─────────────────────────────── */}
+                {message._gap?.isGapAware && message._gap?.degradationMode !== 'normal' && (
+                  <KnowledgeGapBanner gap={message._gap} personaNameZh={persona.nameZh} />
+                )}
+
                 <div className="chat-bubble chat-bubble-agent">
                   <MessageContent content={message.content} role="agent" />
                 </div>

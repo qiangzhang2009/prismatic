@@ -19,10 +19,12 @@ export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams;
     const days = parseInt(searchParams.get('days') || '7', 10);
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const periodStart = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
-    periodStart.setHours(0, 0, 0, 0);
+    // Use UTC ISO strings — Edge Runtime's Date handling differs from Node.js
+    const nowUtc = new Date();
+    nowUtc.setUTCHours(0, 0, 0, 0);
+    const periodStart = new Date(nowUtc.getTime() - days * 24 * 60 * 60 * 1000);
+    const nowUtcStr = nowUtc.toISOString();
+    const periodStartStr = periodStart.toISOString();
 
     const sql = getSql();
 
@@ -35,12 +37,12 @@ export async function GET(request: NextRequest) {
       sql`SELECT id FROM users WHERE status = 'ACTIVE' AND plan != 'FREE' AND plan IS NOT NULL`,
       sql`
         SELECT
-          (SELECT COUNT(*) FROM users WHERE "createdAt" >= ${periodStart}) as new_users,
-          (SELECT COUNT(*) FROM messages WHERE "createdAt" >= ${periodStart} AND content != '[message-counted]') as period_messages,
-          (SELECT COUNT(*) FROM conversations WHERE "updatedAt" >= ${periodStart}) as period_conversations,
-          (SELECT COUNT(DISTINCT "userId") FROM messages WHERE "createdAt" >= ${today}) as dau,
-          (SELECT COUNT(DISTINCT "userId") FROM messages WHERE "createdAt" >= ${periodStart}) as mau,
-          (SELECT COALESCE(SUM("apiCost"), 0) FROM messages WHERE "createdAt" >= ${periodStart}) as period_cost
+          (SELECT COUNT(*) FROM users WHERE "createdAt" >= ${periodStartStr}) as new_users,
+          (SELECT COUNT(*) FROM messages WHERE "createdAt" >= ${periodStartStr} AND content != '[message-counted]') as period_messages,
+          (SELECT COUNT(*) FROM conversations WHERE "updatedAt" >= ${periodStartStr}) as period_conversations,
+          (SELECT COUNT(DISTINCT "userId") FROM messages WHERE "createdAt" >= ${nowUtcStr}) as dau,
+          (SELECT COUNT(DISTINCT "userId") FROM messages WHERE "createdAt" >= ${periodStartStr}) as mau,
+          (SELECT COALESCE(SUM("apiCost"), 0) FROM messages WHERE "createdAt" >= ${periodStartStr}) as period_cost
       `,
     ]);
 

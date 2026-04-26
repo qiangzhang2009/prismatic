@@ -97,7 +97,7 @@ const PREMADE_CLASHES: PreMadeClash[] = [
   {
     id: 'graham-vs-thiel',
     title: '格雷厄姆 vs 蒂尔',
-    subtitle: 'Startup 两种哲学',
+    subtitle: '创业两种哲学',
     topic: '创业公司应该快速迭代 MVP，还是一开始就做不可能的事？',
     personaAId: 'paul-graham',
     personaBId: 'peter-thiel',

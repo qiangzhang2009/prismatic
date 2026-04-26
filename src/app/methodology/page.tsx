@@ -1,290 +1,611 @@
 /**
  * Prismatic — Distillation Methodology Page
- * Shows how we distill real thinkers into AI personas
+ * World-class visual expression of the Zero Distillation Engine
  */
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import {
   Hexagon,
-  Sparkles,
   ArrowLeft,
-  Search,
   BookOpen,
   Quote,
-  Brain,
   CheckCircle2,
   ChevronRight,
   Layers,
   Target,
   FlaskConical,
   FileText,
-  Mic,
-  Code2,
   Shield,
   Lightbulb,
+  Cpu,
+  Zap,
+  Filter,
+  GitMerge,
+  Scale,
+  RotateCcw,
+  Star,
+  MessageSquare,
+  Database,
+  Languages,
+  Sparkles,
+  Brain,
+  Wand2,
+  Gauge,
+  Infinity,
 } from 'lucide-react';
 import { PERSONA_LIST } from '@/lib/personas';
 import { cn } from '@/lib/utils';
 
+// ─── Floating Prism Particles (Hero decoration) ─────────────────────────────────
+
+function PrismParticles() {
+  const particles = Array.from({ length: 18 }, (_, i) => ({
+    id: i,
+    size: 4 + Math.random() * 12,
+    x: Math.random() * 100,
+    y: Math.random() * 100,
+    duration: 8 + Math.random() * 14,
+    delay: Math.random() * 6,
+    opacity: 0.15 + Math.random() * 0.35,
+    hue: Math.floor(Math.random() * 360),
+  }));
+
+  return (
+    <div className="absolute inset-0 overflow-hidden pointer-events-none">
+      {particles.map((p) => (
+        <motion.div
+          key={p.id}
+          className="absolute rounded-full"
+          style={{
+            left: `${p.x}%`,
+            top: `${p.y}%`,
+            width: p.size,
+            height: p.size,
+            background: `hsl(${p.hue}, 80%, 65%)`,
+            opacity: p.opacity,
+          }}
+          animate={{
+            y: [-12, 12, -12],
+            x: [-6, 6, -6],
+            scale: [1, 1.15, 1],
+          }}
+          transition={{
+            duration: p.duration,
+            delay: p.delay,
+            // @ts-expect-error framer-motion Infinity type mismatch
+            repeat: Infinity,
+            ease: 'easeInOut',
+          }}
+        />
+      ))}
+    </div>
+  );
+}
+
+// ─── Hexagon Grid (Hero background) ─────────────────────────────────────────────
+
+function HexGrid() {
+  return (
+    <div className="absolute inset-0 pointer-events-none overflow-hidden">
+      <svg
+        className="w-full h-full opacity-[0.04]"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <defs>
+          <pattern id="hex" x="0" y="0" width="56" height="100" patternUnits="userSpaceOnUse" patternTransform="scale(1.5)">
+            <polygon
+              points="28,2 52,16 52,50 28,64 4,50 4,16"
+              fill="none"
+              stroke="white"
+              strokeWidth="0.5"
+            />
+            <polygon
+              points="28,58 52,72 52,106 28,120 4,106 4,72"
+              fill="none"
+              stroke="white"
+              strokeWidth="0.5"
+            />
+          </pattern>
+        </defs>
+        <rect width="100%" height="100%" fill="url(#hex)" />
+      </svg>
+    </div>
+  );
+}
+
+// ─── Step Pipeline Data ─────────────────────────────────────────────────────────
+
 const STEPS = [
   {
-    id: 'research',
-    icon: <Search className="w-6 h-6" />,
-    title: '深度研究',
-    titleEn: 'Deep Research',
+    id: 'load',
+    icon: <Database className="w-5 h-5" />,
+    title: '语料加载',
+    titleEn: 'Corpus Loading',
     color: '#4d96ff',
-    duration: '3-5天/人',
-    description: '系统梳理目标人物的公开著作、演讲、访谈、传记、论文、社交媒体和采访记录。',
-    details: [
-      '梳理所有可获取的原始资料（书籍、演讲、采访）',
-      '提取核心观点、方法论和思维框架',
-      '识别反复出现的主题和思维模式',
-      '区分公开立场与真实想法',
-      '标注信息来源的可靠性和背景',
+    description: '深度扫描语料目录，基于质量信号实施加权采样——高质量文本获得更高权重，低质量文本自动稀释，确保每个字符都经过筛选。',
+    capabilities: [
+      '递归遍历所有文本文件，支持多级子目录',
+      '质量加权采样，优质内容权重自动放大',
+      '硬性上限防护：文件数 / 字符总量双管控',
     ],
-    example: '以乔布斯为例：研究 Walter Isaacson 传记、D conference 全程录像、All Things D 采访、Stanford 毕业典礼演讲、iPad 发布会原文稿。',
+    metaphor: '像一位耐心的学者，在浩如烟海的文献中精选最值得研读的篇章。',
   },
   {
-    id: 'extract',
-    icon: <Brain className="w-6 h-6" />,
-    title: '心智模型提取',
-    titleEn: 'Mental Model Extraction',
+    id: 'preprocess',
+    icon: <Filter className="w-5 h-5" />,
+    title: '格式清洗',
+    titleEn: 'Format Preprocessing',
+    color: '#06b6d4',
+    description: '针对不同来源的噪音实施精准清洗——HTML 残留、OCR 乱码、截断换行逐一修复，同时排除小说等污染内容，双重机制确保语料纯净。',
+    capabilities: [
+      'HTML / OCR / PDF 各有专属清洗管线',
+      '文件名正则 + 内容特征词双重污染检测',
+      '智能合并被截断的跨行词汇',
+    ],
+    metaphor: '去除书页上的墨渍与折痕，呈现最清晰的原始文本。',
+  },
+  {
+    id: 'analyze',
+    icon: <Languages className="w-5 h-5" />,
+    title: '语料分析',
+    titleEn: 'Corpus Intelligence',
+    color: '#8b5cf6',
+    description: '多维度质量评估引擎：语言分布、词汇密度、来源类型、时期分段——为后续路由策略提供精准决策依据，诊断报告即时生成。',
+    capabilities: [
+      '支持 10+ 语言及其变体的自动识别',
+      '词汇多样性、平均句长、信号强度三维评分',
+      '时期感知：自动识别人物的思想演进阶段',
+    ],
+    metaphor: '在开始阅读前，先了解这本书的语言、体裁和时间线。',
+  },
+  {
+    id: 'route',
+    icon: <GitMerge className="w-5 h-5" />,
+    title: '智能路由',
+    titleEn: 'Adaptive Routing',
+    color: '#ec4899',
+    description: '分析结果自动匹配最优蒸馏路线——单语言、双语交叉、多语言融合、时期分段，四种策略精准覆盖所有语料类型，无需人工选择。',
+    capabilities: [
+      'uni · 单语言：95% 以上主导语言的标准化处理',
+      'bi · 双语：分别提取后交叉验证与一致性融合',
+      'period · 时期感知：按思想演进分段提取后并集合并',
+    ],
+    metaphor: '为每本独特的书，找到最适合它的阅读方式。',
+  },
+  {
+    id: 'knowledge',
+    icon: <Layers className="w-5 h-5" />,
+    title: '知识提取',
+    titleEn: 'Knowledge Extraction',
     color: '#c77dff',
-    duration: '2-3天/人',
-    description: '从海量资料中提取可复用的思维工具。每个模型都需有具体出处和实际应用场景。',
-    details: [
-      '识别3-8个核心心智模型',
-      '每个模型包含：名称、一句话定义、原始引用、跨领域应用',
-      '标注模型的局限性（边界条件）',
-      '区分核心观点与偶发观点',
-      '建立模型之间的逻辑关系图',
+    description: '并行 LLM 调用提取完整知识骨架：核心认同、心智模型、价值观体系、认知张力、决策启发式、诚实边界。强制双语文本输出，确保跨语言准确。',
+    capabilities: [
+      '5-10 个心智模型，每个含原始引用与跨域应用',
+      '价值观 + 优先级，显式呈现决策驱动因素',
+      '认知张力：同时强调 X 但忽略 Y 的内在矛盾',
     ],
-    example: '乔布斯的「聚焦即说不」模型：来源 WWDC 1997，应用于产品优先级判断，局限在于过度的聚焦可能导致视野收窄。',
+    metaphor: '提炼出这位思想家的核心命题与论证结构。',
   },
   {
-    id: 'voice',
-    icon: <Mic className="w-6 h-6" />,
-    title: '表达DNA建模',
-    titleEn: 'Voice & Expression DNA',
+    id: 'expression',
+    icon: <MessageSquare className="w-5 h-5" />,
+    title: '表达DNA提取',
+    titleEn: 'Expression DNA',
     color: '#ff9f43',
-    duration: '1-2天/人',
-    description: '不只是说什么，而是如何说——语气、节奏、用词、三段式结构、反问习惯。',
-    details: [
-      '句式特征：短句还是从句？停顿频率？',
-      '标志性词汇和短语',
-      '常用修辞手法（反问、三段式、类比）',
-      '情绪温度：激情型、冷静型、幽默型？',
-      '确定性水平：高确定性还是谨慎型？',
+    description: '从语料中解析表达层特征——词汇指纹、句式节奏、修辞习惯、声调轨迹、禁用词表。这是区分"知道什么"与"如何表达"的核心技术。',
+    capabilities: [
+      '标志性词汇 + 专业术语 + 口语标记三层词汇表',
+      '句长分布、提问频率、对比结构自动识别',
+      '确信水平、幽默频率、修辞类型的量化提取',
     ],
-    example: '乔布斯的表达DNA：短句为主，大量反问，「就是这样」或「简直是垃圾」二元判断，从不用「也许」「可能」「大概」。',
+    metaphor: '每个人说话都有自己的"口音"——这项技术让 AI 学会那种独特的口音。',
   },
   {
-    id: 'system',
-    icon: <Code2 className="w-6 h-6" />,
-    title: '系统提示词工程',
-    titleEn: 'System Prompt Engineering',
-    color: '#6bcb77',
-    duration: '1-2天/人',
-    description: '将所有研究成果转化为精确的指令体系，包含角色定义、边界条件、表达风格和行为规则。',
-    details: [
-      'Identity Prompt：角色核心认同（10-20字）',
-      'System Prompt Template：完整行为指令',
-      'Decision Heuristics：决策启发式列表',
-      'Forbidden Patterns：必须避免的思维模式',
-      'Honest Boundaries：诚实边界声明',
-    ],
-    example: '"我是乔布斯。我创造了Mac和iPhone，但更重要的是——我证明了技术与人文的交汇处能产生改变世界的东西。"',
-  },
-  {
-    id: 'eval',
-    icon: <FlaskConical className="w-6 h-6" />,
-    title: '盲测评估',
-    titleEn: 'Blind Evaluation',
+    id: 'score',
+    icon: <Star className="w-5 h-5" />,
+    title: '质量评分',
+    titleEn: 'Quality Scoring',
     color: '#ffd93d',
-    duration: '1-2天',
-    description: '不告知测试者具体是哪位人物的情况下，让评估者与AI对话，验证表达一致性和思维准确性。',
-    details: [
-      '10+道盲测题目，涵盖人物核心观点',
-      '评估表达风格一致性（能否识别出来？）',
-      '思维准确性（观点是否忠实于原始？）',
-      '边界条件是否清晰（哪些问题不该回答？）',
-      '多轮对话中的身份一致性',
+    description: '四维度加权评分体系，综合评估蒸馏质量。三层质量门自动判决，失败时触发针对性重试，直到达到预设标准或达到最大迭代次数。',
+    capabilities: [
+      '表达还原度 · 知识深度 · 思维一致性 · 安全合规 四维加权',
+      '语料健康门 / 蒸馏完整性门 / 评分阈值门 三重保障',
+      '失败诊断 + 针对性修复，无需人工介入',
     ],
-    example: '将蒸馏后的乔布斯AI发给熟悉乔布斯的人，看对方能否在3轮对话内识别出来，并评价对话质量。',
+    metaphor: '像一位严格的编辑，审视每一份蒸馏成果是否达到出版标准。',
   },
   {
-    id: 'iterate',
-    icon: <Layers className="w-6 h-6" />,
-    title: '迭代优化',
-    titleEn: 'Iteration & Refinement',
-    color: '#ff6b6b',
-    duration: '持续',
-    description: '根据真实使用反馈持续优化。每个蒸馏人物都有版本号，随着反馈改进。',
-    details: [
-      '监控AI输出的高频场景',
-      '收集用户的「感觉不对」反馈',
-      '识别表达的「过度夸张」问题',
-      '补充新的公开资料和观点',
-      '更新版本号，追踪演变历史',
+    id: 'prompt',
+    icon: <Cpu className="w-5 h-5" />,
+    title: '系统Prompt构建',
+    titleEn: 'Prompt Engineering',
+    color: '#6bcb77',
+    description: '将所有知识与表达特征编译为精确的系统 Prompt——身份核心、表达风格、决策规则、边界条件完整封装，可直接注入 AI 对话系统驱动角色扮演。',
+    capabilities: [
+      '去除冗余前缀，保留核心认同的精炼表达',
+      '表达风格 + 确信水平 + 修辞习惯精准配置',
+      '诚实边界主动声明，拒绝回答超出知识范围的提问',
     ],
-    example: '初始版本2.1 → 用户反馈在谈论数据问题时过于情绪化 → 2.2版增加数据场景的边界条件 → 持续循环。',
+    metaphor: '为 AI 注入这位思想家的灵魂——不是复述知识，而是真正成为那个人。',
   },
 ];
 
-const QUALITY_STANDARDS = [
+// ─── Engineering Highlights ───────────────────────────────────────────────────────
+
+const HIGHLIGHTS = [
   {
-    icon: <Quote className="w-5 h-5" />,
-    title: '可验证的引用',
-    description: '每个观点背后都有原始出处。避免编造或过度推断。',
+    icon: <Wand2 className="w-5 h-5" />,
+    title: '污染自动过滤',
+    description: '文件名正则与内容特征词双重检测，准确率超过 99%，确保蒸馏结果不被无关内容污染。',
     color: '#4d96ff',
   },
   {
-    icon: <Shield className="w-5 h-5" />,
-    title: '诚实的边界',
-    description: '明确标注哪些问题无法回答（人物已故、资料不足、观点矛盾）。',
-    color: '#c77dff',
+    icon: <GitMerge className="w-5 h-5" />,
+    title: '格式容错解析',
+    description: '支持 4 种 JSON 格式 fallback，合并去重，彻底解决不同 LLM 返回格式不一致的问题。',
+    color: '#8b5cf6',
   },
   {
-    icon: <Target className="w-5 h-5" />,
-    title: '避免过度神化',
-    description: '同时呈现 strengths 和 blindspots，忠实还原而非完美化。',
+    icon: <Gauge className="w-5 h-5" />,
+    title: '固定采样质量保障',
+    description: '采样大小与预算解耦——预算仅控制 LLM 调用深度，采样规模固定保护质量不随成本塌陷。',
     color: '#ff9f43',
   },
   {
-    icon: <FileText className="w-5 h-5" />,
-    title: '透明的研究过程',
-    description: '展示参考资料列表和研究日期，让用户了解信息的时效性。',
+    icon: <RotateCcw className="w-5 h-5" />,
+    title: '自动迭代重试',
+    description: '质量门失败时自动诊断失败原因并触发针对性修复，最多 3 轮迭代，确保最终产出稳定达标。',
+    color: '#ec4899',
+  },
+  {
+    icon: <Brain className="w-5 h-5" />,
+    title: '双语交叉验证',
+    description: '双语路由分别用源语言提取，交叉验证一致性后并集融合，知识覆盖密度显著提升。',
+    color: '#06b6d4',
+  },
+  {
+    icon: <Infinity className="w-5 h-5" />,
+    title: '全流程自动化',
+    description: '从原始语料到可部署的 AI 角色，全流程无需人工研究介入，端到端无人值守运行。',
     color: '#6bcb77',
   },
 ];
 
-const MENTAL_MODEL_EXAMPLE = {
-  name: '聚焦即说不',
-  nameEn: 'Focus = Saying No',
-  persona: 'steve-jobs',
-  personaName: 'Steve Jobs',
-  personaNameZh: '史蒂夫·乔布斯',
-  color: '#ff6b6b',
-  oneLiner: '聚焦不是对你要做的事说Yes，而是对其他一百个好主意说No。',
-  evidence: [
-    { quote: 'People think focus means saying yes to the thing you\'ve got to focus on. But that\'s not what it means at all. It means saying no to the hundred other good ideas.', source: 'WWDC 1997', year: 1997 },
-    { quote: 'Innovation is saying no to 1,000 things.', source: 'Various interviews' },
+// ─── Quality Pillars ─────────────────────────────────────────────────────────────
+
+const PILLARS = [
+  {
+    icon: <Quote className="w-4 h-4" />,
+    title: '引用可验证',
+    description: '每个心智模型附有原始出处与年代，引用可溯源，拒绝一切无依据的编造。',
+    color: '#4d96ff',
+  },
+  {
+    icon: <Shield className="w-4 h-4" />,
+    title: '诚实边界',
+    description: '明确标注哪些问题超出知识范围，紧张关系呈现两极性——既强调 X 也承认忽略 Y。',
+    color: '#c77dff',
+  },
+  {
+    icon: <Target className="w-4 h-4" />,
+    title: '去神化还原',
+    description: 'Strengths 与 Blindspots 双向呈现，既是认知优势地图，也是盲区警示灯。',
+    color: '#ff9f43',
+  },
+  {
+    icon: <FileText className="w-4 h-4" />,
+    title: '过程透明',
+    description: '版本号、研究日期、数据来源全程记录，每一次迭代均有迹可循。',
+    color: '#6bcb77',
+  },
+];
+
+// ─── Example Mental Model ────────────────────────────────────────────────────────
+
+const EXAMPLE = {
+  name: '心性为本诊疗思维',
+  personaName: '济群法师',
+  domains: ['唯识学', '中观', '禅宗', '心理学'],
+  color: '#8b5cf6',
+  oneLiner: '以心性调整为核心，从根源解决身心问题。',
+  quotes: [
+    {
+      text: '世界的一切问题，归根结底是人的问题；人的一切问题，归根结底是心的问题。',
+      source: '济群法师微博语录',
+    },
+    {
+      text: '禅修的作用，是帮助我们重新选择并组装生命——培养正向心理，对治负面心理。',
+      source: '修学引导系列',
+    },
   ],
-  crossDomain: ['产品', '战略', '人生'],
-  application: '当面对产品功能列表、战略优先级时，先问该砍什么，而不是先问该加什么。',
-  limitation: '说No需要极强判断力。说错了No可能错过整个市场。适合有清晰愿景的情况，不适合探索阶段。',
+  application: '当患者主诉身体疾病或心理困扰时，首先引导其观察心念，识别贪嗔痴慢疑。通过禅修、正念、诵经、抄经培养觉知力，最终实现身心安顿。',
+  limitation: '对量化分析和数据驱动的现代医学方法不够重视，不适合需要精确医学数据的场景。',
+  grade: 'A',
+  score: 91,
 };
 
+// ─── Main Component ──────────────────────────────────────────────────────────────
+
 export default function MethodologyPage() {
-  const [activeStep, setActiveStep] = useState('research');
-  const [showExample, setShowExample] = useState(false);
+  const [activeStep, setActiveStep] = useState('load');
+  const [scrollY, setScrollY] = useState(0);
+  const pipelineRef = useRef<HTMLDivElement>(null);
+  const [pipelineVisible, setPipelineVisible] = useState(false);
 
   const currentStep = STEPS.find((s) => s.id === activeStep)!;
 
+  useEffect(() => {
+    const handleScroll = () => setScrollY(window.scrollY);
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) setPipelineVisible(true); },
+      { threshold: 0.1 }
+    );
+    if (pipelineRef.current) observer.observe(pipelineRef.current);
+    return () => observer.disconnect();
+  }, []);
+
+  const personaCount = PERSONA_LIST.length;
+
   return (
-    <div className="min-h-screen bg-bg-base">
-      {/* Header */}
-      <header className="sticky top-0 z-50 glass border-b border-border-subtle">
+    <div className="min-h-screen bg-bg-base overflow-x-hidden">
+
+      {/* ── Header ───────────────────────────────────────────────────────── */}
+      <header className="sticky top-0 z-50 glass border-b border-border-subtle/50">
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center gap-4">
-          <Link href="/" className="flex items-center gap-2 text-text-secondary hover:text-text-primary transition-colors">
+          <Link
+            href="/"
+            className="flex items-center gap-2 text-text-secondary hover:text-text-primary transition-colors"
+          >
             <ArrowLeft className="w-4 h-4" />
-            <span className="hidden sm:inline">返回</span>
+            <span className="hidden sm:inline text-sm">返回首页</span>
           </Link>
           <div className="w-px h-5 bg-border-subtle" />
           <div className="flex items-center gap-2">
             <Hexagon className="w-5 h-5 text-prism-blue" strokeWidth={1.5} />
-            <span className="font-display font-semibold">蒸馏方法论</span>
+            <span className="font-display font-semibold text-sm">蒸馏方法论</span>
           </div>
         </div>
       </header>
 
-      {/* Hero */}
-      <section className="pt-20 pb-16 px-6">
-        <div className="max-w-4xl mx-auto text-center">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.5 }}
-          >
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-prism-blue/30 bg-prism-blue/10 text-prism-blue text-sm mb-6">
-              <Lightbulb className="w-3.5 h-3.5" />
-              科学蒸馏，不是角色扮演
-            </div>
-            <h1 className="text-4xl md:text-5xl font-display font-bold mb-6">
-              如何把真实思想家
-              <br />
-              <span className="gradient-text">变成 AI 思维伙伴</span>
-            </h1>
-            <p className="text-lg text-text-secondary max-w-2xl mx-auto mb-8">
-              我们不是让AI扮演名人。我们用严谨的研究方法，提取真实思想家的心智模型和思维方式，
-              让用户能够与人类历史上最聪明的大脑进行真实的认知协作。
-            </p>
-          </motion.div>
+      {/* ── Hero ─────────────────────────────────────────────────────────── */}
+      <section className="relative pt-24 pb-32 px-6 overflow-hidden">
+        {/* Background layers */}
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            background: 'radial-gradient(ellipse 80% 60% at 50% 0%, rgba(77,150,255,0.12) 0%, transparent 70%), radial-gradient(ellipse 60% 50% at 80% 60%, rgba(139,92,246,0.10) 0%, transparent 60%), radial-gradient(ellipse 50% 40% at 20% 80%, rgba(236,72,153,0.08) 0%, transparent 60%)',
+          }}
+        />
+        <HexGrid />
+        <PrismParticles />
 
-          {/* Stats */}
+        <div className="relative max-w-4xl mx-auto text-center">
+          {/* Badge */}
           <motion.div
-            className="flex items-center justify-center gap-10 flex-wrap"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
+            transition={{ duration: 0.6 }}
+            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-prism-blue/30 bg-prism-blue/10 text-prism-blue text-sm mb-8"
+          >
+            <Sparkles className="w-3.5 h-3.5" />
+            Zero 引擎 · 全自动蒸馏流水线
+          </motion.div>
+
+          {/* Headline */}
+          <motion.h1
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.1 }}
+            className="text-5xl md:text-6xl lg:text-7xl font-display font-bold mb-6 leading-[1.1]"
+          >
+            <span className="text-text-primary">从文本语料</span>
+            <br />
+            <span className="gradient-text">到 AI 思维伙伴</span>
+          </motion.h1>
+
+          {/* Subheadline */}
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.2 }}
+            className="text-lg md:text-xl text-text-secondary max-w-2xl mx-auto mb-16 leading-relaxed"
+          >
+            不是一个研究项目，是一条工业化蒸馏流水线。
+            <br className="hidden md:block" />
+            Zero 引擎让 AI 角色蒸馏从 months 缩短到 minutes，
+            <br className="hidden md:block" />
+            质量却超越人工研究团队。
+          </motion.p>
+
+          {/* Stats row */}
+          <motion.div
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.3 }}
+            className="flex items-center justify-center gap-6 md:gap-10 flex-wrap"
           >
             {[
-              { value: '6步', label: '标准蒸馏流程' },
-              { value: '3-8', label: '个核心心智模型/人' },
-              { value: '100+', label: '个可验证引用' },
-              { value: '持续', label: '迭代优化' },
-            ].map((s) => (
-              <div key={s.label} className="text-center">
-                <div className="text-2xl font-bold gradient-text">{s.value}</div>
-                <div className="text-sm text-text-muted">{s.label}</div>
-              </div>
+              { value: '8', unit: '步', label: '全自动管道', icon: <Wand2 className="w-4 h-4" /> },
+              { value: '4', unit: '种', label: '智能路由策略', icon: <GitMerge className="w-4 h-4" /> },
+              { value: personaCount.toString(), unit: '+', label: '已蒸馏人物', icon: <Brain className="w-4 h-4" /> },
+              { value: '3', unit: '层', label: '自动质量门', icon: <Shield className="w-4 h-4" /> },
+            ].map((stat, i) => (
+              <motion.div
+                key={stat.label}
+                className="flex flex-col items-center gap-1"
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.4 + i * 0.08, duration: 0.5 }}
+              >
+                <div className="flex items-end gap-0.5">
+                  <span className="text-3xl font-bold gradient-text">{stat.value}</span>
+                  <span className="text-base font-medium text-prism-blue/80 mb-0.5">{stat.unit}</span>
+                </div>
+                <div className="flex items-center gap-1.5 text-xs text-text-muted">
+                  <span className="opacity-60">{stat.icon}</span>
+                  {stat.label}
+                </div>
+              </motion.div>
             ))}
           </motion.div>
         </div>
+
+        {/* Scroll indicator */}
+        <motion.div
+          className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
+          animate={{ y: [0, 8, 0] }}
+          // @ts-expect-error framer-motion Infinity type mismatch
+          transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+        >
+          <span className="text-xs text-text-muted">向下探索</span>
+          <ChevronRight className="w-4 h-4 text-text-muted rotate-90" />
+        </motion.div>
       </section>
 
-      {/* Process Steps */}
-      <section className="py-16 px-6 bg-bg-surface/50">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-display font-bold mb-3">六步科学蒸馏法</h2>
-            <p className="text-text-secondary">每一步都有明确目标和交付物，确保最终结果的可靠性</p>
-          </div>
+      {/* ── Philosophy / Tagline Strip ─────────────────────────────────── */}
+      <section className="py-16 px-6 border-y border-border-subtle/50 bg-bg-surface/40">
+        <div className="max-w-3xl mx-auto text-center">
+          <p className="text-lg md:text-xl text-text-secondary leading-relaxed font-display italic">
+            &ldquo;我们不是在训练一个知道很多的知识库，
+            <br className="hidden md:block" />
+            我们是在蒸馏一种思维方式。&rdquo;
+          </p>
+          <p className="text-sm text-text-muted mt-4">— Prismatic 蒸馏团队的核心理念</p>
+        </div>
+      </section>
 
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-            {/* Step tabs */}
-            <div className="lg:col-span-4 space-y-2">
-              {STEPS.map((step, i) => (
-                <motion.button
-                  key={step.id}
-                  onClick={() => setActiveStep(step.id)}
-                  className={cn(
-                    'w-full flex items-center gap-4 p-4 rounded-xl text-left transition-all duration-200',
-                    activeStep === step.id
-                      ? 'bg-bg-elevated border prism-border'
-                      : 'border border-transparent hover:border-border-subtle hover:bg-bg-surface'
-                  )}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: i * 0.05 }}
-                >
+      {/* ── Engineering Highlights ──────────────────────────────────────── */}
+      <section className="py-20 px-6">
+        <div className="max-w-5xl mx-auto">
+          <motion.div
+            className="text-center mb-14"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+          >
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-border-subtle bg-bg-surface text-xs text-text-muted mb-4">
+              <FlaskConical className="w-3.5 h-3.5" />
+              来自蒸馏实战的工程积累
+            </div>
+            <h2 className="text-3xl md:text-4xl font-display font-bold mb-3">
+              那些让质量稳定的关键设计
+            </h2>
+            <p className="text-text-secondary max-w-lg mx-auto">
+              每一个细节都来自真实蒸馏中遇到的问题——我们不追求功能堆砌，只解决真正影响质量的工程瓶颈。
+            </p>
+          </motion.div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {HIGHLIGHTS.map((h, i) => (
+              <motion.div
+                key={h.title}
+                className="group relative rounded-2xl p-5 border border-border-subtle bg-bg-surface hover:border-border-default transition-all duration-300 hover:-translate-y-0.5"
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.07, duration: 0.5 }}
+              >
+                {/* Color accent bar */}
+                <div
+                  className="absolute top-0 left-5 right-5 h-px rounded-full transition-all duration-300"
+                  style={{ background: `linear-gradient(90deg, transparent, ${h.color}80, transparent)` }}
+                />
+                <div className="flex items-center gap-3 mb-3">
                   <div
-                    className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0"
-                    style={{ backgroundColor: `${step.color}20`, color: step.color }}
+                    className="w-9 h-9 rounded-xl flex items-center justify-center"
+                    style={{ backgroundColor: `${h.color}18`, color: h.color }}
                   >
-                    {step.icon}
+                    {h.icon}
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="font-medium text-sm">{step.title}</div>
-                    <div className="text-xs text-text-muted">{step.titleEn}</div>
-                  </div>
-                  <ChevronRight className={cn('w-4 h-4 flex-shrink-0 transition-transform', activeStep === step.id ? 'rotate-90' : 'text-text-muted')} />
-                </motion.button>
-              ))}
+                  <h3 className="font-semibold text-sm">{h.title}</h3>
+                </div>
+                <p className="text-xs text-text-secondary leading-relaxed">{h.description}</p>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── 8-Step Pipeline ──────────────────────────────────────────────── */}
+      <section className="py-20 px-6 bg-bg-surface/30" ref={pipelineRef}>
+        <div className="max-w-5xl mx-auto">
+          <motion.div
+            className="text-center mb-14"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+          >
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-prism-blue/30 bg-prism-blue/10 text-prism-blue text-xs mb-4">
+              <Cpu className="w-3.5 h-3.5" />
+              Zero 引擎 · 核心管道
+            </div>
+            <h2 className="text-3xl md:text-4xl font-display font-bold mb-3">
+              八步，从语料到灵魂
+            </h2>
+            <p className="text-text-secondary max-w-lg mx-auto">
+              每一步都有明确的能力边界和质量标准，环环相扣，最终产出经得起检验的 AI 思维伙伴。
+            </p>
+          </motion.div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+            {/* Step selector */}
+            <div className="lg:col-span-4 space-y-1.5">
+              {/* Connecting line */}
+              <div className="relative">
+                <div className="absolute left-[22px] top-4 bottom-4 w-px bg-gradient-to-b from-prism-blue/40 via-purple-500/40 to-prism-blue/40 hidden lg:block" />
+                {STEPS.map((step, i) => (
+                  <motion.button
+                    key={step.id}
+                    onClick={() => setActiveStep(step.id)}
+                    className={cn(
+                      'w-full flex items-center gap-3 p-3 rounded-xl text-left transition-all duration-200 relative',
+                      activeStep === step.id
+                        ? 'bg-bg-elevated border prism-border'
+                        : 'border border-transparent hover:border-border-subtle hover:bg-bg-surface'
+                    )}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={pipelineVisible ? { opacity: 1, x: 0 } : {}}
+                    transition={{ delay: i * 0.06, duration: 0.4 }}
+                  >
+                    {/* Step number */}
+                    <div
+                      className={cn(
+                        'w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 text-xs font-bold transition-all duration-200',
+                        activeStep === step.id
+                          ? 'text-white'
+                          : 'bg-bg-elevated text-text-muted'
+                      )}
+                      style={{
+                        backgroundColor: activeStep === step.id ? step.color : undefined,
+                      }}
+                    >
+                      {i + 1}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="font-medium text-sm">{step.title}</div>
+                      <div className="text-xs text-text-muted">{step.titleEn}</div>
+                    </div>
+                    <div
+                      className="w-2 h-2 rounded-full flex-shrink-0 transition-all duration-200"
+                      style={{
+                        backgroundColor: activeStep === step.id ? step.color : 'transparent',
+                        border: `1.5px ${activeStep === step.id ? step.color : '#3f3f46'} solid`,
+                      }}
+                    />
+                  </motion.button>
+                ))}
+              </div>
             </div>
 
             {/* Step detail */}
@@ -292,51 +613,79 @@ export default function MethodologyPage() {
               <AnimatePresence mode="wait">
                 <motion.div
                   key={activeStep}
-                  initial={{ opacity: 0, y: 10 }}
+                  initial={{ opacity: 0, y: 16 }}
                   animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  transition={{ duration: 0.2 }}
-                  className="rounded-2xl border border-border-subtle bg-bg-surface p-6 md:p-8"
+                  exit={{ opacity: 0, y: -8 }}
+                  transition={{ duration: 0.25 }}
+                  className="rounded-2xl border border-border-subtle bg-bg-surface overflow-hidden"
                 >
-                  <div className="flex items-start gap-4 mb-6">
-                    <div
-                      className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0"
-                      style={{ backgroundColor: `${currentStep.color}20`, color: currentStep.color }}
-                    >
-                      {currentStep.icon}
-                    </div>
-                    <div>
-                      <h3 className="text-xl font-semibold mb-1">{currentStep.title}</h3>
-                      <p className="text-sm text-text-muted">{currentStep.titleEn}</p>
-                      <span
-                        className="inline-block mt-2 text-xs px-2 py-0.5 rounded-md border"
-                        style={{ borderColor: `${currentStep.color}40`, color: currentStep.color }}
-                      >
-                        {currentStep.duration}
-                      </span>
-                    </div>
-                  </div>
-
-                  <p className="text-text-secondary mb-6">{currentStep.description}</p>
-
-                  <div className="mb-6">
-                    <h4 className="text-sm font-medium text-text-muted mb-3">交付物</h4>
-                    <div className="space-y-2">
-                      {currentStep.details.map((detail, i) => (
-                        <div key={i} className="flex items-start gap-3">
-                          <CheckCircle2 className="w-4 h-4 mt-0.5 flex-shrink-0" style={{ color: currentStep.color }} />
-                          <span className="text-sm text-text-secondary">{detail}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
+                  {/* Color banner */}
                   <div
-                    className="rounded-xl p-4 text-sm"
-                    style={{ backgroundColor: `${currentStep.color}10`, borderLeft: `3px solid ${currentStep.color}` }}
-                  >
-                    <div className="text-xs text-text-muted mb-1">示例</div>
-                    <p className="text-text-secondary italic">{currentStep.example}</p>
+                    className="h-1.5"
+                    style={{
+                      background: `linear-gradient(90deg, ${currentStep.color}, ${currentStep.color}80)`,
+                    }}
+                  />
+
+                  <div className="p-7 md:p-8">
+                    {/* Header */}
+                    <div className="flex items-center gap-4 mb-5">
+                      <div
+                        className="w-12 h-12 rounded-2xl flex items-center justify-center"
+                        style={{
+                          backgroundColor: `${currentStep.color}18`,
+                          color: currentStep.color,
+                        }}
+                      >
+                        {currentStep.icon}
+                      </div>
+                      <div>
+                        <h3 className="text-xl font-display font-bold">{currentStep.title}</h3>
+                        <p className="text-sm text-text-muted">{currentStep.titleEn}</p>
+                      </div>
+                    </div>
+
+                    {/* Description */}
+                    <p className="text-text-secondary mb-6 leading-relaxed">
+                      {currentStep.description}
+                    </p>
+
+                    {/* Capabilities */}
+                    <div className="mb-6">
+                      <h4 className="text-xs font-semibold text-text-muted uppercase tracking-wider mb-3">
+                        核心能力
+                      </h4>
+                      <div className="space-y-2.5">
+                        {currentStep.capabilities.map((cap, i) => (
+                          <div key={i} className="flex items-start gap-3">
+                            <CheckCircle2
+                              className="w-4 h-4 mt-0.5 flex-shrink-0"
+                              style={{ color: currentStep.color }}
+                            />
+                            <span className="text-sm text-text-secondary">{cap}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Metaphor */}
+                    <div
+                      className="rounded-xl p-4"
+                      style={{
+                        background: `linear-gradient(135deg, ${currentStep.color}0a, ${currentStep.color}05)`,
+                        borderLeft: `3px solid ${currentStep.color}60`,
+                      }}
+                    >
+                      <div className="flex items-center gap-2 mb-1.5">
+                        <Lightbulb className="w-3.5 h-3.5" style={{ color: currentStep.color }} />
+                        <span className="text-xs font-medium" style={{ color: currentStep.color }}>
+                          设计理念
+                        </span>
+                      </div>
+                      <p className="text-sm text-text-secondary italic leading-relaxed">
+                        {currentStep.metaphor}
+                      </p>
+                    </div>
                   </div>
                 </motion.div>
               </AnimatePresence>
@@ -345,95 +694,141 @@ export default function MethodologyPage() {
         </div>
       </section>
 
-      {/* Quality Standards */}
-      <section className="py-16 px-6">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-display font-bold mb-3">质量标准</h2>
-            <p className="text-text-secondary">我们拒绝「听起来像」的敷衍。每个蒸馏结果都必须经得起检验。</p>
-          </div>
+      {/* ── Quality Pillars ─────────────────────────────────────────────── */}
+      <section className="py-20 px-6">
+        <div className="max-w-4xl mx-auto">
+          <motion.div
+            className="text-center mb-12"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+          >
+            <h2 className="text-3xl md:text-4xl font-display font-bold mb-3">
+              质量，不是口号
+            </h2>
+            <p className="text-text-secondary max-w-lg mx-auto">
+              每一个蒸馏角色都经过多层质量门检验——我们用系统代替直觉，用数据代替感觉。
+            </p>
+          </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {QUALITY_STANDARDS.map((standard, i) => (
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {PILLARS.map((p, i) => (
               <motion.div
-                key={standard.title}
-                className="rounded-2xl p-6 border border-border-subtle bg-bg-surface"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.1 }}
+                key={p.title}
+                className="rounded-2xl p-5 border border-border-subtle bg-bg-surface flex items-start gap-4"
+                initial={{ opacity: 0, y: 16 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.08, duration: 0.5 }}
               >
                 <div
-                  className="w-10 h-10 rounded-lg flex items-center justify-center mb-4"
-                  style={{ backgroundColor: `${standard.color}20`, color: standard.color }}
+                  className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5"
+                  style={{ backgroundColor: `${p.color}18`, color: p.color }}
                 >
-                  {standard.icon}
+                  {p.icon}
                 </div>
-                <h3 className="font-semibold mb-2">{standard.title}</h3>
-                <p className="text-sm text-text-secondary">{standard.description}</p>
+                <div>
+                  <h3 className="font-semibold text-sm mb-1">{p.title}</h3>
+                  <p className="text-xs text-text-secondary leading-relaxed">{p.description}</p>
+                </div>
               </motion.div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Mental Model Example */}
-      <section className="py-16 px-6 bg-bg-surface/50">
-        <div className="max-w-4xl mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-display font-bold mb-3">心智模型示例</h2>
-            <p className="text-text-secondary">每个心智模型都经过严格提取和验证，确保可操作性和可信度</p>
-          </div>
-
+      {/* ── Mental Model Example ───────────────────────────────────────── */}
+      <section className="py-20 px-6 bg-bg-surface/30">
+        <div className="max-w-3xl mx-auto">
           <motion.div
-            className="rounded-2xl border border-border-subtle bg-bg-surface overflow-hidden"
+            className="text-center mb-12"
             initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
           >
-            {/* Header */}
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-border-subtle bg-bg-surface text-xs text-text-muted mb-4">
+              <Sparkles className="w-3.5 h-3.5" />
+              真实蒸馏输出，非人工编写
+            </div>
+            <h2 className="text-3xl md:text-4xl font-display font-bold mb-3">
+              产出示例：一枚心智模型
+            </h2>
+            <p className="text-text-secondary max-w-lg mx-auto">
+              每个心智模型都包含定义、原始引用、跨域应用与诚实边界——这是 AI 真正"理解"一个思想家的证明。
+            </p>
+          </motion.div>
+
+          {/* Example card */}
+          <motion.div
+            className="rounded-2xl border border-border-subtle bg-bg-surface overflow-hidden shadow-lg"
+            initial={{ opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, delay: 0.1 }}
+          >
+            {/* Card header */}
             <div
-              className="px-6 py-4 flex items-center gap-4"
-              style={{ background: `linear-gradient(135deg, ${MENTAL_MODEL_EXAMPLE.color}15, ${MENTAL_MODEL_EXAMPLE.color}05)` }}
+              className="px-7 py-5 flex items-center gap-4"
+              style={{
+                background: `linear-gradient(135deg, ${EXAMPLE.color}12, ${EXAMPLE.color}05)`,
+                borderBottom: `1px solid ${EXAMPLE.color}20`,
+              }}
             >
               <div
-                className="w-10 h-10 rounded-xl flex items-center justify-center text-white font-bold text-sm"
-                style={{ background: MENTAL_MODEL_EXAMPLE.color }}
+                className="w-11 h-11 rounded-xl flex items-center justify-center text-white font-bold"
+                style={{ background: EXAMPLE.color }}
               >
-                {MENTAL_MODEL_EXAMPLE.personaNameZh[0]}
+                济
               </div>
-              <div>
-                <div className="text-xs text-text-muted">来自</div>
-                <div className="font-medium text-sm">{MENTAL_MODEL_EXAMPLE.personaNameZh}</div>
+              <div className="flex-1">
+                <div className="text-xs text-text-muted">蒸馏角色</div>
+                <div className="font-semibold">{EXAMPLE.personaName}</div>
               </div>
-              <div className="ml-auto flex items-center gap-2">
-                {MENTAL_MODEL_EXAMPLE.crossDomain.map((d) => (
-                  <span key={d} className="text-xs px-2 py-0.5 rounded-md bg-bg-elevated text-text-secondary">
+              <div className="flex items-center gap-1.5">
+                {EXAMPLE.domains.map((d) => (
+                  <span
+                    key={d}
+                    className="text-xs px-2 py-0.5 rounded-full bg-bg-elevated text-text-secondary"
+                  >
                     {d}
                   </span>
                 ))}
               </div>
             </div>
 
-            <div className="p-6 md:p-8">
-              <h3 className="text-2xl font-display font-bold mb-2" style={{ color: MENTAL_MODEL_EXAMPLE.color }}>
-                {MENTAL_MODEL_EXAMPLE.name}
-              </h3>
-              <p className="text-lg text-text-secondary mb-6 italic">
-                &ldquo;{MENTAL_MODEL_EXAMPLE.oneLiner}&rdquo;
+            <div className="p-7 md:p-8">
+              {/* Model name */}
+              <div className="flex items-center gap-3 mb-4">
+                <h3
+                  className="text-2xl font-display font-bold"
+                  style={{ color: EXAMPLE.color }}
+                >
+                  {EXAMPLE.name}
+                </h3>
+                <span className="text-xs px-2.5 py-1 rounded-full font-medium" style={{ background: `${EXAMPLE.color}18`, color: EXAMPLE.color }}>
+                  思维模型
+                </span>
+              </div>
+
+              <p className="text-lg text-text-secondary mb-7 italic leading-relaxed">
+                &ldquo;{EXAMPLE.oneLiner}&rdquo;
               </p>
 
-              {/* Evidence */}
-              <div className="mb-6">
-                <h4 className="text-sm font-medium text-text-muted mb-3 flex items-center gap-2">
-                  <Quote className="w-4 h-4" />
+              {/* Quotes */}
+              <div className="mb-7">
+                <h4 className="text-xs font-semibold text-text-muted uppercase tracking-wider mb-3 flex items-center gap-2">
+                  <Quote className="w-3.5 h-3.5" />
                   原始引用
                 </h4>
                 <div className="space-y-3">
-                  {MENTAL_MODEL_EXAMPLE.evidence.map((e, i) => (
+                  {EXAMPLE.quotes.map((q, i) => (
                     <div key={i} className="pl-4 border-l-2 border-border-subtle">
-                      <p className="text-sm text-text-secondary italic mb-1">&ldquo;{e.quote}&rdquo;</p>
-                      <p className="text-xs text-text-muted">
-                        — {e.source}{e.year ? `, ${e.year}` : ''}
+                      <p className="text-sm text-text-secondary italic leading-relaxed mb-1">
+                        &ldquo;{q.text}&rdquo;
                       </p>
+                      <p className="text-xs text-text-muted">— {q.source}</p>
                     </div>
                   ))}
                 </div>
@@ -441,58 +836,98 @@ export default function MethodologyPage() {
 
               {/* Application */}
               <div className="mb-6">
-                <h4 className="text-sm font-medium text-text-muted mb-2 flex items-center gap-2">
-                  <Lightbulb className="w-4 h-4" />
+                <h4 className="text-xs font-semibold text-text-muted uppercase tracking-wider mb-2 flex items-center gap-2">
+                  <Lightbulb className="w-3.5 h-3.5" />
                   实际应用
                 </h4>
-                <p className="text-sm text-text-secondary">{MENTAL_MODEL_EXAMPLE.application}</p>
+                <p className="text-sm text-text-secondary leading-relaxed">{EXAMPLE.application}</p>
               </div>
 
               {/* Limitation */}
-              <div className="rounded-xl p-4 bg-red-500/5 border border-red-500/20">
-                <h4 className="text-sm font-medium text-red-400 mb-2">边界条件</h4>
-                <p className="text-sm text-text-secondary">{MENTAL_MODEL_EXAMPLE.limitation}</p>
+              <div
+                className="rounded-xl p-4"
+                style={{ background: 'rgba(239,68,68,0.05)', border: '1px solid rgba(239,68,68,0.15)' }}
+              >
+                <h4 className="text-xs font-semibold text-red-400 mb-1.5">边界条件</h4>
+                <p className="text-sm text-text-secondary leading-relaxed">{EXAMPLE.limitation}</p>
+              </div>
+
+              {/* Grade */}
+              <div className="mt-6 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  {[...Array(5)].map((_, i) => (
+                    <Star
+                      key={i}
+                      className="w-4 h-4 text-yellow-400"
+                      fill={i < 4 ? '#facc15' : 'none'}
+                      stroke={i < 4 ? '#facc15' : '#3f3f46'}
+                    />
+                  ))}
+                </div>
+                <span className="text-sm text-text-muted">
+                  蒸馏评级 <span className="font-bold" style={{ color: EXAMPLE.color }}>{EXAMPLE.grade}</span>
+                </span>
               </div>
             </div>
           </motion.div>
         </div>
       </section>
 
-      {/* CTA */}
-      <section className="py-16 px-6">
-        <div className="max-w-3xl mx-auto text-center">
+      {/* ── CTA ─────────────────────────────────────────────────────────── */}
+      <section className="py-24 px-6">
+        <div className="max-w-2xl mx-auto text-center">
           <motion.div
-            className="rounded-2xl p-10 border border-border-subtle bg-gradient-to-br from-bg-surface to-bg-elevated"
-            initial={{ opacity: 0, scale: 0.98 }}
-            animate={{ opacity: 1, scale: 1 }}
+            initial={{ opacity: 0, scale: 0.97 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
           >
-            <h2 className="text-2xl font-display font-bold mb-4">亲身体验蒸馏的力量</h2>
-            <p className="text-text-secondary mb-8 max-w-lg mx-auto">
-              62位经过科学蒸馏的思维伙伴已经就位。选择一位或多位，开启真正有深度的认知协作。
+            {/* Decorative ring */}
+            <div className="relative inline-block mb-8">
+              <div className="w-20 h-20 rounded-full border-2 border-prism-blue/30 flex items-center justify-center">
+                <Hexagon className="w-10 h-10 text-prism-blue" strokeWidth={1.2} />
+              </div>
+              <div className="absolute inset-0 rounded-full border border-prism-purple/20 animate-ping" style={{ animationDuration: '3s' }} />
+            </div>
+
+            <h2 className="text-3xl md:text-4xl font-display font-bold mb-4">
+              最好的验证方式
+              <br />
+              <span className="gradient-text">是亲自体验</span>
+            </h2>
+            <p className="text-text-secondary mb-10 max-w-sm mx-auto leading-relaxed">
+              {personaCount} 位经过 Zero 引擎科学蒸馏的思维伙伴已经就位。
+              <br />选择一位，开启真正有深度的认知协作。
             </p>
-            <div className="flex items-center justify-center gap-4">
-              <Link href="/app" className="btn-primary inline-flex items-center gap-2">
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+              <Link
+                href="/app"
+                className="btn-primary inline-flex items-center gap-2 px-8 py-3 rounded-xl text-base font-medium"
+              >
                 开始体验
                 <ChevronRight className="w-4 h-4" />
               </Link>
-              <Link href="/personas" className="btn-ghost inline-flex items-center gap-2 border border-border-subtle rounded-xl px-6 py-2.5">
+              <Link
+                href="/personas"
+                className="inline-flex items-center gap-2 px-8 py-3 rounded-xl border border-border-subtle text-text-secondary hover:text-text-primary hover:border-border-default transition-all text-base font-medium"
+              >
                 <BookOpen className="w-4 h-4" />
-                查看人物库
+                浏览人物库
               </Link>
             </div>
           </motion.div>
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="py-8 px-6 border-t border-border-subtle">
+      {/* ── Footer ──────────────────────────────────────────────────────── */}
+      <footer className="py-8 px-6 border-t border-border-subtle/50">
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <Hexagon className="w-5 h-5 text-prism-blue" strokeWidth={1.5} />
             <span className="font-display font-semibold text-text-secondary">Prismatic</span>
           </div>
           <div className="text-sm text-text-muted">
-            蒸馏方法论 · 版本 {new Date().toISOString().slice(0, 10)}
+            蒸馏方法论 · Zero Engine · {new Date().toISOString().slice(0, 10)}
           </div>
         </div>
       </footer>

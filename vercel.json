@@ -1,6 +1,6 @@
 {
   "regions": ["hkg1"],
-  "crons": [
+    "crons": [
     {
       "path": "/api/cron/guardian-discussions",
       "schedule": "0 9 * * *"

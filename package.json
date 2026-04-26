@@ -2,6 +2,7 @@
   "name": "prismatic",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "bin": {
     "prismatic-distill": "./dist/lib/distillation/cli.js"
   },
@@ -69,6 +70,7 @@
     "nodemailer": "^7.0.13",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
+    "react-hot-toast": "^2.6.0",
     "react-markdown": "^10.1.0",
     "recharts": "^3.8.1",
     "resend": "^6.10.0",
@@ -98,6 +100,7 @@
     "postcss": "^8.4.38",
     "prisma": "^5.22.0",
     "tailwindcss": "^3.4.3",
+    "tsx": "^4.21.0",
     "typescript": "^5.4.5",
     "vitest": "^1.5.0"
   }

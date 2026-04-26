@@ -1,19 +1,33 @@
-# Exclude large data and non-essential directories from deployment
+# ─── Data & Research (large, never needed on server) ───────────────────────────
 scrapers/
-docs/
 corpus/
-node_modules/
-tmp_ocr/
-backups/
-reports/
-development/
+.venv-ocr/
+venv-ocr/
+newsnow-local/
+research/
+pointcloud-dialogue/
 
-# Environment files - NEVER deploy these
+# ─── Build & Cache ────────────────────────────────────────────────────────────
+.next/
+out/
+build/
+/dist/
+.vercel/
+.cache/
+
+# ─── Environment files ────────────────────────────────────────────────────────
 .env
 .env.*
 !.env.example
 
-# Subprojects that shouldn't be bundled
-newsnow-local/
-research/
-pointcloud-dialogue/
+# ─── Documentation ────────────────────────────────────────────────────────────
+docs/
+tmp_ocr/
+backups/
+reports/
+development/
+tmp/
+*.log
+
+# ─── Dependencies (explicit) ──────────────────────────────────────────────────
+node_modules/

@@ -125,7 +125,9 @@ export function PersonaCard({
                 );
               })()}
             </div>
-            <p className="text-[11px] text-text-muted leading-snug mt-0.5 line-clamp-2">{persona.taglineZh || persona.tagline || ''}</p>
+            <p className="text-[11px] text-text-muted leading-snug mt-0.5 line-clamp-2">
+              {persona.taglineZh || persona.tagline || ''}
+            </p>
           </div>
         </div>
 

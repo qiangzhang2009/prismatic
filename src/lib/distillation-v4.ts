@@ -30,7 +30,7 @@ import {
 import { decideRoute, summarizeRoute } from './distillation-l2-routing';
 import { extractKnowledge } from './distillation-l3-knowledge';
 import { extractExpression } from './distillation-l4-expression';
-import { crossValidate, buildFusion } from './distillation-l5-validation';
+import { crossValidate, buildFusion, validateBilingualCompleteness } from './distillation-l5-validation';
 import {
   evaluateGate1,
   evaluateGate2,
@@ -82,21 +82,28 @@ async function runUniRoute(
   console.log(`[v4] Uni-route selected for ${personaId}`);
   console.log(`     Primary: ${routeDecision.primaryLanguage}, Output: ${config.outputLanguage}`);
 
-  // Read corpus files
+  // Read corpus files recursively
   const corpusFiles: CorpusFile[] = [];
-  if (fs.existsSync(corpusDir)) {
-    for (const entry of fs.readdirSync(corpusDir)) {
-      const filepath = path.join(corpusDir, entry);
-      if (fs.statSync(filepath).isFile()) {
+
+  function walkDir(dir: string): void {
+    if (!fs.existsSync(dir)) return;
+    for (const entry of fs.readdirSync(dir)) {
+      const filepath = path.join(dir, entry);
+      const stat = fs.statSync(filepath);
+      if (stat.isFile()) {
         corpusFiles.push({
           filename: entry,
           filepath,
           content: fs.readFileSync(filepath, 'utf-8'),
-          size: fs.statSync(filepath).size,
+          size: stat.size,
         });
+      } else if (stat.isDirectory()) {
+        walkDir(filepath);
       }
     }
   }
+
+  walkDir(corpusDir);
 
   const primaryFiles = getFileByLanguage(corpusFiles, routeDecision.primaryLanguage);
   const primarySample = buildCorpusSample(primaryFiles, 80000);
@@ -149,19 +156,26 @@ async function runBiRoute(
   console.log(`     Primary: ${routeDecision.primaryLanguage}, Secondary: ${routeDecision.secondaryLanguages.join(', ')}`);
 
   const corpusFiles: CorpusFile[] = [];
-  if (fs.existsSync(corpusDir)) {
-    for (const entry of fs.readdirSync(corpusDir)) {
-      const filepath = path.join(corpusDir, entry);
-      if (fs.statSync(filepath).isFile()) {
+
+  function walkDir(dir: string): void {
+    if (!fs.existsSync(dir)) return;
+    for (const entry of fs.readdirSync(dir)) {
+      const filepath = path.join(dir, entry);
+      const stat = fs.statSync(filepath);
+      if (stat.isFile()) {
         corpusFiles.push({
           filename: entry,
           filepath,
           content: fs.readFileSync(filepath, 'utf-8'),
-          size: fs.statSync(filepath).size,
+          size: stat.size,
         });
+      } else if (stat.isDirectory()) {
+        walkDir(filepath);
       }
     }
   }
+
+  walkDir(corpusDir);
 
   const primaryLang = routeDecision.primaryLanguage;
   const secondaryLang = routeDecision.secondaryLanguages[0];
@@ -239,19 +253,26 @@ async function runPeriodRoute(
   console.log(`     ${routeDecision.periodPartitions?.map(p => p.label).join(' → ') ?? 'No periods'}`);
 
   const corpusFiles: CorpusFile[] = [];
-  if (fs.existsSync(corpusDir)) {
-    for (const entry of fs.readdirSync(corpusDir)) {
-      const filepath = path.join(corpusDir, entry);
-      if (fs.statSync(filepath).isFile()) {
+
+  function walkDir(dir: string): void {
+    if (!fs.existsSync(dir)) return;
+    for (const entry of fs.readdirSync(dir)) {
+      const filepath = path.join(dir, entry);
+      const stat = fs.statSync(filepath);
+      if (stat.isFile()) {
         corpusFiles.push({
           filename: entry,
           filepath,
           content: fs.readFileSync(filepath, 'utf-8'),
-          size: fs.statSync(filepath).size,
+          size: stat.size,
         });
+      } else if (stat.isDirectory()) {
+        walkDir(filepath);
       }
     }
   }
+
+  walkDir(corpusDir);
 
   const periods = routeDecision.periodPartitions ?? [];
   const periodSamples = periods.map(period => {
@@ -338,8 +359,8 @@ function calculateScore(
     domain: [],
     tagline: knowledge.values[0]?.name ?? '',
     taglineZh: knowledge.values[0]?.nameZh ?? '',
-    brief: knowledge.identityPrompt.slice(0, 200),
-    briefZh: knowledge.identityPromptZh.slice(0, 200),
+    brief: (knowledge.identityPrompt || '').slice(0, 200),
+    briefZh: (knowledge.identityPromptZh || '').slice(0, 200),
     mentalModels: knowledge.mentalModels.map((m, i) => ({
       id: m.id || `mm-${i}`,
       name: m.name,
@@ -447,12 +468,13 @@ export async function distillPersonaV4(
     knowledge = periodResult.knowledge;
     expression = periodResult.expression;
   } else if (routeDecision.route === 'bi') {
+    // Bi-lingual route: extract both languages, then cross-validate and fuse.
+    // Do NOT re-run uni — the bi extraction already has primary+secondary knowledge/expression.
     const biResult = await runBiRoute(personaId, corpusDir, config, llm);
     bilingual = biResult.bilingual;
-    // Fall through to uni for knowledge/expression extraction
-    const uniResult = await runUniRoute(personaId, corpusDir, config, llm);
-    knowledge = uniResult.knowledge;
-    expression = uniResult.expression;
+    // Use the primary language's extraction as base; L5 fusion block below will merge in secondary.
+    knowledge = biResult.bilingual.primary.knowledge;
+    expression = biResult.bilingual.primary.expression;
   } else {
     // uni or multi (fallback to uni)
     const uniResult = await runUniRoute(personaId, corpusDir, config, llm);
@@ -502,6 +524,18 @@ export async function distillPersonaV4(
   onProgress?.('gate1', 50);
   onProgress?.('gate2', 0);
   const gate2 = evaluateGate2(knowledge, expression);
+  // V5 fix: add bilingual completeness validation to gate2
+  const bilingualCheck = validateBilingualCompleteness(knowledge, expression);
+  if (!bilingualCheck.passed) {
+    for (const issue of bilingualCheck.issues) {
+      gate2.issues.push(issue);
+      gate2.autoFixableFindings.push('distill_chinese_completeness:regenerate');
+    }
+    if (gate2.result === 'pass') gate2.result = 'fail';
+  }
+  for (const warning of bilingualCheck.warnings) {
+    gate2.suggestions.push(warning);
+  }
   onProgress?.('gate2', 50);
   onProgress?.('gate3', 0);
 
@@ -557,6 +591,18 @@ export async function distillPersonaV4(
     currentScore = calculateScore(currentKnowledge, currentExpression, personaId, 'uni');
     currentGate1 = evaluateGate1(retryResult.report);
     currentGate2 = evaluateGate2(currentKnowledge, currentExpression);
+    // V5 fix: add bilingual completeness validation to retry gate2
+    const retryBilingualCheck = validateBilingualCompleteness(currentKnowledge, currentExpression);
+    if (!retryBilingualCheck.passed) {
+      for (const issue of retryBilingualCheck.issues) {
+        currentGate2.issues.push(issue);
+        currentGate2.autoFixableFindings.push('distill_chinese_completeness:regenerate');
+      }
+      if (currentGate2.result === 'pass') currentGate2.result = 'fail';
+    }
+    for (const warning of retryBilingualCheck.warnings) {
+      currentGate2.suggestions.push(warning);
+    }
     currentGate3 = evaluateGate3(currentScore, personaType, config.adaptiveThreshold);
     currentGate4 = evaluateGate4(personaId, currentKnowledge, currentExpression, skipBilingual);
 
@@ -643,8 +689,8 @@ export async function distillPersonaV4(
       domain: [],
       tagline: currentKnowledge.values[0]?.name ?? '',
       taglineZh: currentKnowledge.values[0]?.nameZh ?? '',
-      brief: currentKnowledge.identityPrompt.slice(0, 200),
-      briefZh: currentKnowledge.identityPromptZh.slice(0, 200),
+      brief: (currentKnowledge.identityPrompt || '').slice(0, 200),
+      briefZh: (currentKnowledge.identityPromptZh || '').slice(0, 200),
       avatar: '',
       accentColor: '#6366f1',
       gradientFrom: '#6366f1',

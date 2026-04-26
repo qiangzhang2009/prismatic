@@ -17,11 +17,10 @@ export const USER_DAILY_LIMIT = 10;
 // 检查用户是否达到今日对话配额上限
 //
 // 额度来源（优先级）：
-// 1. 充值积分 > 0 → 使用积分，不扣每日10次限制
-// 2. 付费用户（MONTHLY/YEARLY/LIFETIME）→ 无限制
-// 3. 免费且无积分 → 每日限制 10 条（localStorage 前端计数，server 兜底）
+// 1. 付费用户（MONTHLY/YEARLY/LIFETIME）→ 无限制
+// 2. 有充值积分 → 使用积分，不扣每日10次限制
+// 3. 免费且无积分 → 每日限制 10 条（服务器端权威计数）
 //
-// 注意：积分与每日免费额度互斥。积分是额外权益，不叠加每日限制。
 export async function checkUserDailyLimit(
   userId: string,
   plan: SubscriptionPlan = 'FREE',
@@ -38,11 +37,13 @@ export async function checkUserDailyLimit(
   }
 
   // 优先级 2：有充值积分 → 不走每日限制，用积分支付
+  //    当积分耗尽时（credits == 0），回退到每日免费额度检查
   if (credits > 0) {
     return { allowed: true, current: 0, limit: credits, reason: 'using_credits' };
   }
 
-  // 优先级 3：免费且无积分 → 每日限制
+  // 优先级 3：免费且无积分 → 每日限制（只统计用户发送的消息）
+  //    积分耗尽后自然落在此分支
   const current = await getDailyMessageCount(userId);
   return {
     allowed: current < USER_DAILY_LIMIT,
@@ -80,8 +81,8 @@ export async function getDailyMessageCount(userId: string, date?: string): Promi
   const count = await prismaStats.message.count({
     where: {
       userId,
+      role: 'user',
       createdAt: { gte: targetDate, lt: nextDate },
-      content: { not: '[message-counted]' },
     },
   });
   return count;

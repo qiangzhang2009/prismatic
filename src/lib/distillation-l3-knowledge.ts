@@ -565,8 +565,8 @@ export function knowledgeToPersona(
     domain: [],
     tagline: knowledge.values[0]?.name ?? '',
     taglineZh: knowledge.values[0]?.nameZh ?? '',
-    brief: knowledge.identityPrompt.slice(0, 200),
-    briefZh: knowledge.identityPromptZh.slice(0, 200),
+    brief: (knowledge.identityPrompt || '').slice(0, 200),
+    briefZh: (knowledge.identityPromptZh || '').slice(0, 200),
     mentalModels: knowledge.mentalModels.map(mm => ({
       id: mm.id || nanoid(8),
       name: mm.name,

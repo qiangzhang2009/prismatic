@@ -412,13 +412,13 @@ export async function analyzeCorpus(
   personaId: string,
   corpusDir: string
 ): Promise<CorpusHealthReport> {
-  // Read all files
+  // Read all files recursively
   const files: CorpusFile[] = [];
 
-  if (fs.existsSync(corpusDir)) {
-    const entries = fs.readdirSync(corpusDir);
-    for (const entry of entries) {
-      const filepath = path.join(corpusDir, entry);
+  function walkDir(dir: string): void {
+    if (!fs.existsSync(dir)) return;
+    for (const entry of fs.readdirSync(dir)) {
+      const filepath = path.join(dir, entry);
       const stat = fs.statSync(filepath);
       if (stat.isFile()) {
         const content = fs.readFileSync(filepath, 'utf-8');
@@ -429,9 +429,13 @@ export async function analyzeCorpus(
           size: stat.size,
           lastModified: stat.mtime.toISOString(),
         });
+      } else if (stat.isDirectory()) {
+        walkDir(filepath);
       }
     }
   }
+
+  walkDir(corpusDir);
 
   if (files.length === 0) {
     return {

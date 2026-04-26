@@ -3,7 +3,9 @@
  * Extracts @守望者 mentions from comment content.
  * Rules:
  * 1. Parse @mention using parseMentions(), find first matching persona
- * 2. Check if that persona is in today's guardian list
+ *    (supports: full name, nickname, alias — all resolved in parseMentions)
+ * 2. If a persona is mentioned → that persona replies (no guardian-rotation gate)
+ *    All 65 personas in the library can respond to @mentions.
  * 3. Return mention metadata for DB storage and frontend display
  */
 
@@ -73,11 +75,11 @@ export function extractGuardianMention(
 
 /**
  * Get a mention hint message for the frontend.
+ * All @mentioned personas reply — no distinction between today's guardians and others.
  */
 export function getMentionHint(
   result: GuardianMentionResult
 ): string | null {
   if (!result.mentionedPersonaId) return null;
-  if (result.isTodayGuardian) return null; // no hint needed, will get reply
-  return `${result.mentionedPersonaNameZh} 今日未值班，但你的呼唤TA会看到`;
+  return null; // all mentioned personas reply; no special hint needed
 }

@@ -31,7 +31,7 @@ import { useQuery } from '@tanstack/react-query';
 import {
   useUsers, useUpdateUser, useDeleteUser, useAddCredits,
   useAnalyticsOverview, useAnalyticsTrend, useAnalyticsPersonas,
-  useCapacity,
+  useCapacity, useChatStats,
 } from '@/lib/use-admin-data';
 import type { User, UserFilter } from '@/lib/use-admin-data';
 
@@ -878,25 +878,14 @@ function AssetsSection() {
   const [search, setSearch] = useState('');
   const [billingMode, setBillingMode] = useState('');
   const [mode, setMode] = useState('');
+  const [days, setDays] = useState(7); // Default 7 days — same as Dashboard
+  const [page, setPage] = useState(1);
   const [dateFrom, setDateFrom] = useState('');
   const [dateTo, setDateTo] = useState('');
-  const [page, setPage] = useState(1);
 
-  // Quick date buttons: set dateFrom to N days ago, dateTo to today; 0 = no limit (all time)
-  const applyQuickDate = (days: number) => {
-    if (days === 0) {
-      // All time: no date filters
-      setDateFrom('');
-      setDateTo('');
-      setPage(1);
-      return;
-    }
-    const to = new Date();
-    to.setHours(23, 59, 59, 999);
-    const from = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
-    from.setHours(0, 0, 0, 0);
-    setDateFrom(from.toISOString().split('T')[0]);
-    setDateTo(to.toISOString().split('T')[0]);
+  // Quick date buttons: update days state and reset to first page
+  const applyQuickDate = (d: number) => {
+    setDays(d);
     setPage(1);
   };
 
@@ -910,8 +899,8 @@ function AssetsSection() {
   }), [page, search, billingMode, mode, dateFrom, dateTo]);
 
   const { data: convData, isLoading: convLoading, refetch, isError: convError } = useQuery({
-    queryKey: ['admin', 'chats', params.toString()],
-    queryFn: () => fetch(`/api/admin/chats?${params}`, { credentials: 'include' }).then(r => r.json()),
+    queryKey: ['admin', 'chats', params.toString(), days],
+    queryFn: () => fetch(`/api/admin/chats?${params}&days=${days}`, { credentials: 'include' }).then(r => r.json()),
     staleTime: 0,
     refetchOnWindowFocus: true,
   });
@@ -921,6 +910,7 @@ function AssetsSection() {
     queryFn: () => fetch(`/api/admin/chats/by-user?${params}`, { credentials: 'include' }).then(r => r.json()),
     staleTime: 0,
     refetchOnWindowFocus: true,
+    enabled: dim === 'userchats',
   });
 
   const convs = convData?.conversations || [];
@@ -962,16 +952,15 @@ function AssetsSection() {
         <div className="flex items-center gap-3">
           <span className="text-xs text-gray-500">{total} 条对话</span>
           <div className="flex items-center gap-1 bg-gray-900/50 border border-gray-800 rounded-lg p-1">
-            <button key={0} onClick={() => applyQuickDate(0)}
-              className="px-2.5 py-1 rounded text-xs font-medium transition-colors bg-gray-800 text-gray-300 hover:bg-gray-700">
-              全部
-            </button>
-            {[7, 14, 30, 90].map(d => (
-              <button key={d} onClick={() => applyQuickDate(d)}
-                className="px-2.5 py-1 rounded text-xs font-medium transition-colors bg-gray-800 text-gray-300 hover:bg-gray-700">
-                {d}天
-              </button>
-            ))}
+            {[0, 7, 14, 30, 90].map(d => {
+              const isActive = d === days;
+              return (
+                <button key={d} onClick={() => applyQuickDate(d)}
+                  className={`px-2.5 py-1 rounded text-xs font-medium transition-colors ${isActive ? 'bg-prism-blue text-white' : 'bg-gray-800 text-gray-300 hover:bg-gray-700'}`}>
+                  {d === 0 ? '全部' : `${d}天`}
+                </button>
+              );
+            })}
           </div>
         </div>
       </div>
@@ -979,7 +968,7 @@ function AssetsSection() {
       {/* ── 分析面板 ── */}
       <div className="bg-gray-900/80 border border-gray-800 rounded-2xl p-6">
         <AnimatePresence mode="wait">
-          {dim === 'overview' && <AssetOverview key="overview" convData={convData} />}
+          {dim === 'overview' && <AssetOverview key="overview" convData={convData} days={days} />}
           {dim === 'cost' && <AssetCostAnalysis key="cost" days={30} />}
           {dim === 'topics' && <AssetTopics key="topics" days={30} />}
           {dim === 'personas' && <AssetPersonas key="personas" days={0} />}
@@ -1267,29 +1256,28 @@ function ConversationCard({ conv }: { conv: any }) {
 
 // ─── 分析维度: 总览 ─────────────────────────────────────────────────────────
 
-function AssetOverview({ convData }: { convData: any }) {
-  const convs = convData?.conversations || [];
-  const total = convData?.total || 0;
+function AssetOverview({ convData, days }: { convData: any; days: number }) {
+  // Use authoritative stats API (queries actual message/conversation tables directly)
+  // instead of summing paginated convData.messageCount which was broken.
+  const { data: stats, isLoading: statsLoading } = useChatStats(days);
 
-  const totalMessages = convs.reduce((s: number, c: any) => s + (c.messageCount || 0), 0);
-  const totalCost = convs.reduce((s: number, c: any) => s + (c.totalCost || 0), 0);
-  const totalTokens = convs.reduce((s: number, c: any) => s + (c.totalTokens || 0), 0);
-  const apiKeyCount = convs.filter((c: any) => c.billingMode === 'A').length;
-  const platformCount = convs.filter((c: any) => c.billingMode === 'B').length;
-  const modeCount = convs.reduce((acc: Record<string, number>, c: any) => {
-    const m = c.mode || 'unknown';
-    acc[m] = (acc[m] || 0) + 1;
-    return acc;
-  }, {} as Record<string, number>);
-
-  const topModes = (Object.entries(modeCount) as [string, number][])
-    .sort(([, a], [, b]) => b - a)
-    .slice(0, 5)
-    .map(([name, count]) => ({ name, count }));
+  const total = stats?.totalConversations ?? convData?.total ?? 0;
+  const totalMessages = stats?.totalMessages ?? 0;
+  const totalCost = stats?.totalCost ?? 0;
+  const totalTokens = stats?.totalTokens ?? 0;
+  const apiKeyCount = stats?.billing?.apiKeyMode ?? 0;
+  const platformCount = stats?.billing?.platformMode ?? 0;
+  const modeStats = stats?.modeStats ?? [];
+  const topModes = modeStats.slice(0, 5);
 
   return (
     <div className="space-y-5">
-      <h4 className="text-sm font-semibold text-white">当前页面 · 总览</h4>
+      {statsLoading && (
+        <div className="text-xs text-gray-500">加载中...</div>
+      )}
+      <h4 className="text-sm font-semibold text-white">
+        {days === 7 ? '近 7 天 · 总览' : days === 14 ? '近 14 天 · 总览' : days === 30 ? '近 30 天 · 总览' : `近 ${days} 天 · 总览`}
+      </h4>
       {/* KPI row */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         {[
@@ -1337,9 +1325,9 @@ function AssetOverview({ convData }: { convData: any }) {
           <h5 className="text-xs font-medium text-gray-400 mb-3">对话模式分布</h5>
           <div className="space-y-1.5">
             {topModes.map((m, i) => (
-              <div key={m.name} className="flex items-center gap-3 text-sm">
+              <div key={m.mode} className="flex items-center gap-3 text-sm">
                 <span className="w-4 text-xs text-gray-500 text-right">{i + 1}</span>
-                <span className="w-20 text-gray-300 truncate">{m.name}</span>
+                <span className="w-20 text-gray-300 truncate">{m.mode}</span>
                 <div className="flex-1 bg-gray-700 rounded-full h-1.5 overflow-hidden">
                   <div className="h-full bg-purple-500 rounded-full" style={{ width: `${total > 0 ? (m.count / total) * 100 : 0}%` }} />
                 </div>

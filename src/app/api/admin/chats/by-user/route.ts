@@ -54,8 +54,14 @@ export async function GET(req: NextRequest) {
     let p = 1;
 
     if (mode) { conditions.push(`c.mode = $${p++}`); params.push(mode); }
-    if (dateFrom) { conditions.push(`c."updatedAt" >= $${p++}`); params.push(new Date(dateFrom)); }
-    if (dateTo) { conditions.push(`c."updatedAt" <= $${p++}`); params.push(new Date(dateTo + 'T23:59:59Z')); }
+    const parsedDateFrom = dateFrom ? new Date(dateFrom) : null;
+    const parsedDateTo = dateTo ? new Date(dateTo) : null;
+    if (parsedDateFrom && !isNaN(parsedDateFrom.getTime())) { conditions.push(`c."updatedAt" >= $${p++}`); params.push(parsedDateFrom); }
+    if (parsedDateTo && !isNaN(parsedDateTo.getTime())) {
+      parsedDateTo.setUTCHours(23, 59, 59, 999);
+      conditions.push(`c."updatedAt" <= $${p++}`);
+      params.push(parsedDateTo);
+    }
     if (search) {
       conditions.push(`EXISTS (SELECT 1 FROM messages m WHERE m."conversationId" = c.id AND LOWER(m.content) LIKE LOWER($${p++}))`);
       params.push(`%${search}%`);

@@ -449,6 +449,126 @@ export type ConflictResolutionStrategy =
   | 'direct_quote_over_secondary' // Prefer direct quotes over secondary analysis
   | 'llm_arbitration';         // Use LLM to pick best version
 
+// ─── L1: Corpus Metadata (Knowledge Gap Awareness) ─────────────────────────────────
+
+export type KnowledgeGapStrategy =
+  | 'extrapolate_identity'     // 用 Identity + Heuristics 推演回答（还在世的人物）
+  | 'honest_boundary'          // 直接告知知识边界，不做推演（敏感人物）
+  | 'refer_sources'           // 引用已蒸馏的 sources 中相关信息
+  | 'hybrid';                 // 先引用已知事实，再做有保留的推演
+
+export interface CorpusMetadata {
+  /** 语料截止日期 — YYYY-MM-DD 格式，在此日期之后的事，蒸馏模型无法回答 */
+  cutoffDate?: string;
+  /** 人物是否还在世 — 决定是否需要知识缺口检测 */
+  isAlive?: boolean;
+  /** 语料库最新更新时间 */
+  corpusLastUpdated?: string;
+  /** 语料库覆盖的时间跨度 */
+  coverageSpan?: {
+    startYear?: number;
+    endYear?: number;
+  };
+  /** 知识缺口处理策略 */
+  knowledgeGapStrategy?: KnowledgeGapStrategy;
+  /** 敏感话题列表 — 这些话题人物不会讨论 */
+  sensitiveTopics?: string[];
+  /** 置信度评分 0-1 */
+  confidenceScore?: number;
+  /** 知识空白信号 — 描述该 persona 哪些领域超出了蒸馏范围 */
+  knowledgeGapSignals?: string[];
+  /** 推演禁区 — 即使是推演也绝对不能越过的边界 */
+  extrapolationBoundaries?: string[];
+}
+
+// ─── L2: Knowledge Gap Detection ─────────────────────────────────────────────────
+
+export type GapSeverity = 'none' | 'minor' | 'significant' | 'severe';
+
+export interface KnowledgeGapDetectionResult {
+  /** 问题是否可能落在语料库覆盖范围之外 */
+  isOutsideCorpus: boolean;
+  /** 严重程度 */
+  severity: GapSeverity;
+  /** 检测到的线索 */
+  signals: GapSignal[];
+  /** 问题涉及的时间范围（如果可推断） */
+  questionTimeRange?: {
+    earliestYear?: number;
+    latestYear?: number;
+    containsFuture: boolean;
+    containsPresent: boolean;
+  };
+  /** 问题是否涉及特定人物、事件或话题 */
+  topicHint?: string;
+  /** 是否可能涉及敏感话题 */
+  isSensitive: boolean;
+  /** 检测置信度 */
+  confidence: number; // 0-1
+}
+
+export interface GapSignal {
+  type: 'temporal_marker' | 'recent_event' | 'unknown_entity' | 'ongoing_process' | 'future_prediction' | 'specific_date';
+  description: string;
+  raw: string;
+  confidence: number; // 0-1
+}
+
+// ─── L3: Graceful Degradation ────────────────────────────────────────────────────
+
+export type DegradationMode =
+  | 'normal'          // 正常蒸馏回答
+  | 'extrapolate'    // 用 Identity + Heuristics 推演
+  | 'honest_boundary' // 明确告知知识边界
+  | 'refer_sources'   // 引用已知 sources
+  | 'hybrid';        // 混合模式
+
+export interface GracefulDegradationConfig {
+  personaId: string;
+  degradationMode: DegradationMode;
+  knowledgeLayer: KnowledgeLayer;
+  expressionLayer: ExpressionLayer;
+  corpusMetadata: CorpusMetadata;
+  gapDetection: KnowledgeGapDetectionResult;
+}
+
+export interface ExtrapolationResult {
+  /** 推演回答 */
+  content: string;
+  /** 是否为推演（非直接事实） */
+  isExtrapolation: boolean;
+  /** 推演所基于的核心原则 */
+  extrapolatedFrom: string[]; // e.g. ['identity', 'heuristic:决策启发式1', 'value:核心价值观']
+  /** 诚实边界声明 */
+  honestBoundaryStatement: string;
+  /** 置信度 */
+  confidence: number; // 0-1
+  /** 安全等级 */
+  safetyLevel: 'safe' | 'caution' | 'unsafe';
+  /** 不适合回答的原因（如果判定 unsafe） */
+  unsafeReason?: string;
+}
+
+export interface GracefulDegradationResult {
+  /** 最终使用的降级模式 */
+  mode: DegradationMode;
+  /** 是否需要 LLM 调用 */
+  needsLLM: boolean;
+  /** 正常蒸馏结果（如果有） */
+  normalResponse?: string;
+  /** 降级推演结果（如果有） */
+  extrapolationResult?: ExtrapolationResult;
+  /** 诚实边界声明 */
+  boundaryStatement?: string;
+  /** 元数据注释（用于前端展示） */
+  meta: {
+    isAlive: boolean;
+    corpusCutoffDate?: string;
+    isExtrapolation: boolean;
+    confidence: number;
+  };
+}
+
 // ─── Utility Types ─────────────────────────────────────────────────────────────
 
 export interface BilingualExtraction {

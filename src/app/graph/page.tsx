@@ -572,9 +572,9 @@ export default function GraphPage() {
                 <p className="text-[10px] text-white/30 uppercase tracking-widest mb-3 font-medium">连线类型</p>
                 <div className="space-y-2.5">
                   {[
-                    { color: '#60a5fa', label: '启发 Inspired', desc: '思维上的传承或影响', dash: false },
-                    { color: '#fbbf24', label: '互补 Complements', desc: '视角与方法互为补充', dash: true },
-                    { color: '#f87171', label: '对立 Opposes', desc: '思考方式的根本对立', dash: true },
+                    { color: '#60a5fa', label: '启发', desc: '思维上的传承或影响', dash: false },
+                    { color: '#fbbf24', label: '互补', desc: '视角与方法互为补充', dash: true },
+                    { color: '#f87171', label: '对立', desc: '思考方式的根本对立', dash: true },
                   ].map(item => (
                     <div key={item.label} className="flex items-center gap-3">
                       <svg width="36" height="10" className="flex-shrink-0">
@@ -681,7 +681,7 @@ export default function GraphPage() {
                     )}
                   </div>
                   {selectedNode.type !== 'domain' && (
-                    <p className="text-xs text-white/30 mt-0.5">{selectedNode.label}</p>
+                    <p className="text-xs text-white/30 mt-0.5">{selectedNode.labelZh}</p>
                   )}
                 </div>
                 <button onClick={() => setSelectedNode(null)} className="w-8 h-8 rounded-lg flex items-center justify-center text-white/35 hover:text-white hover:bg-white/10 transition-colors flex-shrink-0">

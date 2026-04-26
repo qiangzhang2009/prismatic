@@ -26,6 +26,7 @@ import { trackEvent, trackEvents, incrementSessionMessages, trackChatStart, trac
 import { buildConversationId } from '@/lib/sync-engine';
 import type { Mode } from '@/lib/types';
 import { Pool } from '@neondatabase/serverless';
+import { enrichCorpusMetadata, quickGapCheck } from '@/lib/distillation-runtime-orchestrator';
 
 export const runtime = 'nodejs';
 
@@ -119,7 +120,7 @@ async function persistConversation(
       // a DIFFERENT user, generate a new conversationId for this user instead
       // of overwriting the other user's conversation record.
       const existingConv = await client.query(
-        `SELECT "userId" FROM conversations WHERE id = $1 LIMIT 1`,
+        `SELECT conversations."userId" FROM conversations WHERE conversations.id = $1 LIMIT 1`,
         [conversationId]
       );
       const existingOwner = existingConv.rows[0]?.userId;
@@ -140,13 +141,13 @@ async function persistConversation(
         VALUES ($1, $2, NULL, $3, $4, $5::text[], false, '{}'::text[],
                 $6, $7, $8, $5::text[], NOW(), NOW())
         ON CONFLICT (id) DO UPDATE SET
-          "userId" = CASE WHEN "userId" = $2 THEN EXCLUDED."userId" ELSE "userId" END,
+          "userId" = CASE WHEN conversations."userId" = $2 THEN EXCLUDED."userId" ELSE conversations."userId" END,
           mode = EXCLUDED.mode,
           participants = EXCLUDED.participants,
           "personaIds" = EXCLUDED."personaIds",
-          "messageCount" = EXCLUDED."messageCount",
-          "totalTokens" = EXCLUDED."totalTokens",
-          "totalCost" = EXCLUDED."totalCost",
+          "messageCount" = COALESCE(conversations."messageCount", 0) + $6,
+          "totalTokens" = COALESCE(conversations."totalTokens", 0) + $7,
+          "totalCost" = COALESCE(conversations."totalCost", 0::numeric) + $8::numeric,
           "updatedAt" = NOW()
       `, [actualConvId, userId, type, mode, participantArray, messages.length, totalTokensNum, totalCostNum]);
       console.log(`[persistConversation] STEP_upsert_ok conversation=${conversationId}, messages=${messages.length}`);
@@ -383,35 +384,202 @@ async function handleSolo(
 
   const systemPrompt = `${persona.systemPromptTemplate}
 Identity: ${persona.identityPrompt}
+
+[PERSONA ISOLATION RULES]
+- You are ONLY ${persona.nameZh || persona.name}. Do not blend in other philosophical frameworks or unrelated theories.
+- Answer from your own worldview and knowledge domain ONLY.
+- Never mix in external theories, frameworks, or perspectives not consistent with your identity and expertise.
+- Do not explain what "other thinkers would say" — speak purely as yourself.
+- Use "I" not "this persona would..." or "from the perspective of...".
+
 Strengths: ${persona.strengths.join(', ')}
+
 Use "I" not "this persona would...".`;
 
   const msgs: any[] = [{ role: 'system', content: systemPrompt }];
 
   for (const h of history.slice(-8)) {
-    msgs.push({ role: 'user', content: h.content });
-    if (h.response) msgs.push({ role: 'assistant', content: h.response });
+    const role = h.role === 'assistant' || h.role === 'agent' ? 'assistant' : 'user';
+    if (role === 'assistant') {
+      msgs.push({ role: 'assistant', content: h.content });
+    } else {
+      msgs.push({ role: 'user', content: h.content });
+    }
   }
 
   msgs.push({ role: 'user', content: message });
 
   const result = await llmChat(llm, modelName, msgs, { temperature: 0.7, maxTokens: 500 });
 
+  // ── Runtime Gap Detection (L1+L2+L3) for living personas ──────────────────
+  // After getting the LLM response, check if the question falls outside corpus coverage.
+  // This only runs for living personas (isAlive=true) to handle the "what happened
+  // recently?" edge case. For dead personas, corpus is complete so we skip detection.
+  let responseContent = result.content;
+  let gapMeta: any = undefined;
+
+  if (persona.isAlive !== false) {
+    try {
+      const { enrichCorpusMetadata, detectRuntimeGap, routeGracefully, handleRuntimeGap } =
+        await import('@/lib/distillation-runtime-orchestrator');
+
+      const enriched = enrichCorpusMetadata(persona);
+      const gapDetection = detectRuntimeGap({ question: message, enriched });
+      const routing = routeGracefully({ gapResult: gapDetection, enriched }, 'fast');
+
+      // Only intercept responses that need special handling
+      if (routing.mode !== 'normal') {
+        const knowledge = personaToKnowledgeLayer(persona);
+        const expression = personaToExpressionLayer(persona);
+        const gapResult = await handleRuntimeGap({
+          question: message,
+          enriched,
+          knowledge,
+          expression,
+          route: routing,
+          gapResult: gapDetection,
+          llm,
+          useLLM: false, // fast path for hot path
+        });
+
+        if (gapResult) {
+          // Use the gap-aware response instead of the normal LLM response
+          responseContent = gapResult.normalResponse ?? gapResult.extrapolationResult?.content ?? responseContent;
+
+          gapMeta = {
+            isGapAware: true,
+            isExtrapolation: gapResult.meta.isExtrapolation,
+            degradationMode: gapResult.mode,
+            confidence: gapResult.meta.confidence,
+            routingReason: routing.reason,
+            warningLabel: buildWarningLabel(routing.mode, persona.nameZh),
+            corpusCutoffDate: enriched.corpusMetadata.cutoffDate,
+            gapSignals: gapDetection.signals.slice(0, 3).map((s: any) => s.description),
+          };
+        }
+      }
+    } catch (gapErr) {
+      // Gap detection is non-fatal: if it fails, fall back to the normal LLM response
+      console.error('[handleSolo] gap detection failed:', gapErr);
+    }
+  }
+
   return [{
     id: nanoid(),
     personaId: persona.id,
     role: 'agent',
-    content: result.content,
+    content: responseContent,
     confidence: getPersonaConfidence(persona.id),
     timestamp: new Date().toISOString(),
-    // Real token usage from API
     _usage: result.usage,
+    _gap: gapMeta,
   }];
+}
+
+/** Build a user-facing warning label for gap-aware responses */
+function buildWarningLabel(mode: string, nameZh: string): string {
+  const labels: Record<string, string> = {
+    extrapolate: '【推演声明】以下为基于价值观的推演内容，非具体事实',
+    hybrid: '【混合内容】部分为已知信息，部分为推演',
+    honest_boundary: '【知识边界】以下内容超出蒸馏知识范围',
+    refer_sources: '【来源引用】以下内容引用自已蒸馏来源',
+  };
+  return labels[mode] ?? '';
+}
+
+/** Convert a Persona object to KnowledgeLayer shape for gap handling */
+function personaToKnowledgeLayer(persona: any): any {
+  return {
+    identityPrompt: persona.identityPrompt || '',
+    identityPromptZh: persona.briefZh || persona.brief || persona.identityPrompt || '',
+    mentalModels: (persona.mentalModels || []).map((m: any) => ({
+      id: m.id || '',
+      name: m.name || '',
+      nameZh: m.nameZh || m.name || '',
+      oneLiner: m.oneLiner || '',
+      oneLinerZh: m.oneLinerZh || m.oneLiner || '',
+      evidence: m.evidence || [],
+      crossDomain: m.crossDomain || [],
+      application: m.application || '',
+      applicationZh: m.applicationZh || m.application || '',
+      limitation: m.limitation || '',
+      limitationZh: m.limitationZh || m.limitation || '',
+      keyConcepts: [],
+    })),
+    decisionHeuristics: (persona.decisionHeuristics || []).map((h: any) => ({
+      id: h.id || '',
+      name: h.name || '',
+      nameZh: h.nameZh || h.name || '',
+      description: h.description || '',
+      descriptionZh: h.descriptionZh || h.description || '',
+      application: h.application || '',
+      applicationZh: h.applicationZh || h.application || '',
+      example: h.example,
+    })),
+    values: (persona.values || []).map((v: any) => ({
+      name: v.name || '',
+      nameZh: v.nameZh || v.name || '',
+      priority: v.priority || 3,
+      description: v.description || '',
+      descriptionZh: v.descriptionZh || v.description || '',
+    })),
+    tensions: (persona.tensions || []).map((t: any) => ({
+      dimension: t.dimension || '',
+      dimensionZh: t.dimensionZh || t.dimension || '',
+      tension: t.tension || '',
+      tensionZh: t.tensionZh || t.tension || '',
+      description: t.description || '',
+      descriptionZh: t.descriptionZh || t.description || '',
+      positivePole: t.positivePole || '',
+      negativePole: t.negativePole || '',
+    })),
+    antiPatterns: persona.antiPatterns || [],
+    antiPatternsZh: persona.antiPatternsZh || persona.antiPatterns || [],
+    honestBoundaries: (persona.honestBoundaries || []).map((hb: any) => ({
+      text: hb.text || '',
+      textZh: hb.textZh || hb.text || '',
+      reason: hb.reason || '',
+      reasonZh: hb.reasonZh || hb.reason || '',
+    })),
+    strengths: persona.strengths || [],
+    strengthsZh: persona.strengthsZh || persona.strengths || [],
+    blindspots: persona.blindspots || [],
+    blindspotsZh: persona.blindspotsZh || persona.blindspots || [],
+    sources: persona.sources || [],
+    keyConcepts: [],
+    confidence: 'medium',
+    confidenceNotes: [],
+  };
+}
+
+function personaToExpressionLayer(persona: any): any {
+  const dna = persona.expressionDNA || {};
+  return {
+    vocabulary: dna.vocabulary || [],
+    sentenceStyle: dna.sentenceStyle || [],
+    forbiddenWords: dna.forbiddenWords || [],
+    tone: dna.humorStyle ? 'humorous' : 'formal',
+    certaintyLevel: dna.certaintyLevel || 'medium',
+    rhetoricalHabit: dna.rhetoricalHabit || '',
+    quotePatterns: dna.quotePatterns || [],
+    rhythm: dna.rhythm || '',
+    rhythmDescription: dna.rhythm || '',
+    chineseAdaptation: dna.chineseAdaptation || '',
+    verbalMarkers: dna.verbalMarkers || [],
+    speakingStyle: dna.speakingStyle || '',
+    confidence: 'medium',
+    confidenceNotes: [],
+  };
 }
 
 // ─── Prism: Multi-Perspective ────────────────────────────────────────────────
 // Step 1: All personas answer in parallel
 // Step 2: Synthesis
+//
+// Gap Detection (multi-persona): Each persona's response is checked for knowledge
+// gaps. If any living persona detected a gap, the synthesis prompt includes cutoff
+// awareness to prevent hallucination. Individual perspective messages carry _gap
+// metadata so the frontend can surface per-persona gap warnings.
 
 async function handlePrism(
   { llm, modelName }: { llm: { chat: (opts: any) => Promise<LLMResponse> }; modelName: string },
@@ -421,22 +589,62 @@ async function handlePrism(
 
   // Step 1: Parallel perspective answers
   const perspectiveResults = await Promise.allSettled(
-    personas.map(persona => {
+    personas.map(async persona => {
+      // Build per-persona prompt with cutoff awareness for living personas
+      const cutoffNote = (persona.isAlive !== false && persona.corpusMetadata?.cutoffDate)
+        ? `\n\n【重要】你的知识截止到 ${persona.corpusMetadata.cutoffDate}。如果问题涉及此日期之后的最新事件，请明确说明这一点，并基于你的价值观和思维方式提供推演性观点。`
+        : '';
+
       const prompt = `${persona.systemPromptTemplate}
 Identity: ${persona.identityPrompt}
-
+${cutoffNote}
 问题：「${question}」
 
 用你的视角和思维方式回答这个问题。150字以内，直接、有观点、像你在说话。`;
-      return llmChat(llm, modelName,
+
+      // Run the LLM call and capture the response
+      const r = await llmChat(llm, modelName,
         [{ role: 'system', content: prompt }, { role: 'user', content: question }],
         { temperature: 0.7, maxTokens: 250 }
-      ).then(r => ({
+      );
+
+      // ── Per-Persona Gap Detection (for living personas only) ──────────────
+      let _gap: any = undefined;
+      if (persona.isAlive !== false) {
+        try {
+          const needsCheck = quickGapCheck(question);
+          if (needsCheck) {
+            const enriched = enrichCorpusMetadata(persona);
+            const signals = enriched.corpusMetadata.knowledgeGapSignals || [];
+            // Determine mode from signals
+            const hasRecentEvent = signals.some((s: string) =>
+              /最近|去年|今年|最新|近期|当下/.test(s) ||
+              /20\d{2}年/.test(s)
+            );
+            const mode = hasRecentEvent ? 'honest_boundary' : 'normal';
+            if (mode !== 'normal') {
+              _gap = {
+                isGapAware: true,
+                degradationMode: mode,
+                warningLabel: buildWarningLabel(mode, persona.nameZh),
+                corpusCutoffDate: enriched.corpusMetadata.cutoffDate,
+                gapSignals: signals.slice(0, 3),
+                confidence: enriched.corpusMetadata.confidenceScore ?? 0.7,
+              };
+            }
+          }
+        } catch (_gapErr) {
+          // Non-fatal; gap detection failure never blocks the response
+        }
+      }
+
+      return {
         personaId: persona.id,
         nameZh: persona.nameZh,
         response: r.content,
-        _usage: r.usage, // capture real token usage
-      }));
+        _usage: r.usage,
+        _gap,
+      };
     })
   );
 
@@ -446,14 +654,24 @@ Identity: ${persona.identityPrompt}
 
   if (perspectives.length === 0) return { messages: [], synthesis: null };
 
-  // Step 2: Synthesis
+  // ── Synthesis: inject cutoff awareness if any living persona detected a gap ──
+  const anyGap = perspectives.some(p => p._gap);
+  const livingWithGap = perspectives.filter(p => p._gap);
+  const livingCutoffs = livingWithGap
+    .map(p => `${p.nameZh} 的知识截止到 ${p._gap.corpusCutoffDate || '未知'}，其回应可能涉及推演内容。`)
+    .join('\n');
+
   const perspectiveTexts = perspectives
-    .map(p => `[${p.nameZh}]: ${p.response}`)
+    .map(p => `[${p.nameZh}]${p._gap ? ' ⚠️' : ''}: ${p.response}`)
     .join('\n\n');
+
+  const synthesisInstruction = anyGap
+    ? `\n\n【综合者注意】以下人物中有人涉及知识截止期后的内容：\n${livingCutoffs}\n综合时请标注各视角中哪些是已蒸馏事实、哪些是推演。`
+    : '';
 
   const synthesisResult = await llmChat(llm, modelName, [
     { role: 'system', content: '你是认知综合者。分析多个专家视角，给出共识、分歧和整合洞察，中文回复。' },
-    { role: 'user', content: `问题：「${question}」\n\n各视角回答：\n${perspectiveTexts}\n\n请提取：1) 共识 2) 分歧 3) 整合洞察（各40字以内）` },
+    { role: 'user', content: `问题：「${question}」\n\n各视角回答：\n${perspectiveTexts}${synthesisInstruction}\n\n请提取：1) 共识 2) 分歧 3) 整合洞察（各40字以内）` },
   ], { temperature: 0.4, maxTokens: 300 });
 
   const messages = perspectives.map(p => ({
@@ -464,6 +682,7 @@ Identity: ${persona.identityPrompt}
     confidence: getPersonaConfidence(p.personaId),
     timestamp: new Date().toISOString(),
     _usage: p._usage,
+    _gap: p._gap,
   }));
 
   return {
@@ -473,6 +692,7 @@ Identity: ${persona.identityPrompt}
       content: synthesisResult.content,
       timestamp: new Date().toISOString(),
       _usage: synthesisResult.usage,
+      _gapAware: anyGap,
     },
   };
 }
@@ -498,13 +718,22 @@ async function handleRoundtable(
     `${i + 1}. ${p.nameZh}（${p.strengths.slice(0, 2).join('、')}）`
   ).join('\n');
 
-  const systemPrompt = `你是圆桌辩论主持人。多个思想家就话题展开对话，每人说一句（60字以内），2轮，共${speakers.length * 2}条发言，最后一段50字以内的总结。
+  // Inject knowledge cutoff awareness for living personas into the system prompt
+  const livingPersonas = speakers.filter(p => p.isAlive !== false && p.corpusMetadata?.cutoffDate);
+  const cutoffInjection = livingPersonas.length > 0
+    ? `
+【知识截止期提示】以下人物的知识有截止期，回答涉及近期事件时请注明：
+${livingPersonas.map(p => `- ${p.nameZh}：知识截止到 ${p.corpusMetadata.cutoffDate}`).join('\n')}
+如果话题涉及截止期之后的事件，应标注为"推演"而非"事实"。`
+    : '';
+
+  const systemPrompt = `你是圆桌辩论主持人。多个思想家就话题展开对话，每人说一句（60字以内），2轮，共${speakers.length * 2}条发言，最后一段50字以内的总结。${cutoffInjection}
 
 格式（markdown，每行一条发言）：
-**人物名**: 发言内容
+|**人物名**: 发言内容
 
 最后一行：
-【总结】: 盲点+碰撞点（50字以内）`;
+|【总结】: 盲点+碰撞点（50字以内）`;;
 
   const userPrompt = `话题：${topic}
 思想家：${speakerList}
@@ -945,7 +1174,12 @@ async function handleOracle(
 ) {
   const speaker = personas[0];
 
-  const systemPrompt = `你是预言家，以${speaker.nameZh}的视角，用未来视角审视现在。
+  // Inject cutoff awareness for living personas
+  const oracleCutoffNote = (speaker.isAlive !== false && speaker.corpusMetadata?.cutoffDate)
+    ? `\n\n【重要】${speaker.nameZh} 的知识截止到 ${speaker.corpusMetadata.cutoffDate}。如果涉及此日期之后的事件，请明确标注为推演，并说明判断依据。`
+    : '';
+
+  const systemPrompt = `你是预言家，以${speaker.nameZh}的视角，用未来视角审视现在。${oracleCutoffNote}
 
 核心原则：
 - 不是给你建议，而是告诉你未来会发生什么，以及为什么
@@ -966,7 +1200,7 @@ async function handleOracle(
 置信度：XX% | 主要依据：...
 
 ## 💡 关键判断（80字以内，一句话）
-`;
+`;;
 
   const userPrompt = `请以预言家的视角，分析这个问题：${question}`;
   const result = await llmChat(llm, modelName,
@@ -992,19 +1226,27 @@ async function handleFiction(
 ) {
   const speakers = personas.slice(0, 3);
 
-  const systemPrompt = `你是故事主持人，让${speakers.map(p => `${p.nameZh}（${p.identityPrompt}）`).join('、')}共同演绎一个故事。
+  // Cutoff awareness for living personas
+  const _fictionLiving = speakers.filter(p => p.isAlive !== false && p.corpusMetadata?.cutoffDate);
+  const fictionCutoffNote = _fictionLiving.length > 0
+    ? '\n\n【人物知识截止期】\n' + _fictionLiving
+        .map(p => `- ${p.nameZh}：截止到 ${p.corpusMetadata.cutoffDate}`).join('\n')
+        + '\n涉及近期事件时请标注推演。'
+    : '';
+
+  const systemPrompt = `你是故事主持人，让${speakers.map(p => `${p.nameZh}（${p.identityPrompt}）`).join('、')}共同演绎一个故事。${fictionCutoffNote}
 
 规则：
 - 每人保持自己的人物语言风格和行为逻辑
 - 用 markdown 格式，格式：**【人物名】**：（动作和对话）
 - 共6-8段，推进情节，不拖沓
 - 结局开放或有意味
+- 涉及近期事件时标注来源（已蒸馏事实 或 推演视角）
 
 格式：
 **【${speakers[0].nameZh}】**：（内容）
 **【${speakers[1].nameZh}】**：（内容）
-...
-`;
+...`;;
 
   const userPrompt = `故事背景/前提：${premise}`;
   const result = await llmChat(llm, modelName,
@@ -1271,21 +1513,30 @@ export async function POST(request: NextRequest) {
     const { cost } = estimateTokenCost(getModelName(billing.provider), totalInputTokens, totalOutputTokens);
     totalCost = cost;
 
-    // Persist conversation and messages
-    console.log(`[Chat API] ABOUT_TO_CALL persistConversation userId=${userId} convId=${convId} mode=${mode} messages=${allMessages.length}`);
-    const persistResult = await persistConversation(
-      userId,
-      convId,
-      mode,
-      type,
-      participantIds,
-      allMessages,
-      totalInputTokens + totalOutputTokens,
-      cost
-    );
-    console.log(`[Chat API] persistConversation RETURNED result=${JSON.stringify(persistResult)}`);
+    // Persist conversation and messages — add enriched diagnostics for debugging
+    const dbUrl = process.env.DATABASE_URL ? '(set)' : '(MISSING!)';
+    console.log(`[Chat API] ABOUT_TO_CALL persistConversation userId=${userId} convId=${convId} mode=${mode} messages=${allMessages.length} dbUrl=${dbUrl}`);
+    let persistResult: { id: string; inserted: number; skipped: number } | null = null;
+    try {
+      persistResult = await persistConversation(
+        userId,
+        convId,
+        mode,
+        type,
+        participantIds,
+        allMessages,
+        totalInputTokens + totalOutputTokens,
+        cost
+      );
+      console.log(`[Chat API] persistConversation RETURNED result=${JSON.stringify(persistResult)}`);
+    } catch (persistErr) {
+      const errMsg = persistErr instanceof Error ? persistErr.message : String(persistErr);
+      console.error(`[Chat API] persistConversation THREW error=${errMsg} convId=${convId} userId=${userId}`);
+    }
     if (!persistResult) {
-      console.warn(`[Chat API] persistConversation returned null for conv=${convId}, mode=${mode}, messages=${allMessages.length} — data NOT saved to DB`);
+      console.warn(`[Chat API] persistConversation returned null — data NOT saved to DB. convId=${convId} userId=${userId} messages=${allMessages.length}`);
+    } else {
+      console.log(`[Chat API] Conversation saved: convId=${persistResult.id} inserted=${persistResult.inserted} skipped=${persistResult.skipped}`);
     }
 
     // Tokens and cost are already set by the upsert in persistConversation

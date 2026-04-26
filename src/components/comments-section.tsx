@@ -61,6 +61,7 @@ interface Comment {
   mentionedGuardianId?: string | null;
   mentionedGuardianReply?: string | null;
   mentionedGuardianRepliedAt?: string | null;
+  mentionedGuardianName?: string | null;
   mentionHint?: string | null;
   ipHash?: string | null;
   userId?: string | null;
@@ -82,6 +83,7 @@ interface Reply {
   mentionedGuardianReply?: string | null;
   mentionedGuardianId?: string | null;
   ipHash?: string | null;
+  userId?: string | null;
 }
 
 interface QuotedComment {
@@ -420,7 +422,7 @@ function CommentItem({
   onReply: (commentId: string) => void;
   showReplyButton?: boolean;
   quotedComment?: QuotedComment | null;
-  onReplyToReply?: (rootCommentId: string, replyId: string, replyContent: string) => Promise<Reply | undefined>;
+  onReplyToReply?: (rootCommentId: string, replyId: string, replyContent: string, guardianId?: string | null) => Promise<Reply | undefined>;
   onReplyCreated?: (reply: Reply) => void;
   visitorId: string;
   onDeleteReply?: (replyId: string) => void;
@@ -654,13 +656,9 @@ function CommentItem({
         {(comment.mentionedGuardianId || comment.mentionHint) && !guardianMentionReply && (
           <div className="mb-3 px-3 py-2 rounded-lg bg-prism-blue/5 border border-prism-blue/20 flex items-center gap-2">
             <Sparkles className="w-3.5 h-3.5 text-prism-blue flex-shrink-0" />
-            {comment.mentionHint ? (
-              <span className="text-xs text-prism-blue/80">{comment.mentionHint}</span>
-            ) : (
-              <span className="text-xs text-prism-blue/80">
-                守望者已收到你的召唤，正在思考中...
-              </span>
-            )}
+            <span className="text-xs text-prism-blue/80">
+              {comment.mentionHint || `${PERSONAS[comment.mentionedGuardianId!]?.nameZh || '守望者'}正在思考中...`}
+            </span>
           </div>
         )}
 
@@ -711,13 +709,15 @@ function CommentItem({
                       <div className="mt-3">
                         <ReplyForm
                           parentId={comment.id}
-                          onSubmit={async (content): Promise<Reply | undefined> => {
+                          onSubmit={async (content, gId): Promise<Reply | undefined> => {
                             if (!onReplyToReply) return undefined;
                             setReplyingToGuardian(false);
-                            return await onReplyToReply(comment.id, comment.mentionedGuardianId!, content);
+                            return await onReplyToReply(comment.id, comment.mentionedGuardianId!, content, gId ?? comment.mentionedGuardianId);
                           }}
                           onCancel={() => setReplyingToGuardian(false)}
                           replyToName={guardian ? guardian.nameZh : '守望者'}
+                          mentionedGuardianId={comment.mentionedGuardianId}
+                          mentionedGuardianNameZh={guardian ? guardian.nameZh : '守望者'}
                         />
                       </div>
                     )}
@@ -886,14 +886,16 @@ function CommentItem({
                               <div className="mt-2">
                                 <ReplyForm
                                   parentId={comment.id}
-                                  onSubmit={async (content): Promise<Reply | undefined> => {
+                                  onSubmit={async (content, gId): Promise<Reply | undefined> => {
                                     if (!onReplyToReply) return undefined;
-                                    const result = await onReplyToReply(comment.id, reply.id, content);
+                                    const result = await onReplyToReply(comment.id, reply.id, content, gId ?? reply.mentionedGuardianId);
                                     setReplyingToReply(null);
                                     return result;
                                   }}
                                   onCancel={() => setReplyingToReply(null)}
                                   replyToName="守望者"
+                                  mentionedGuardianId={reply.mentionedGuardianId ?? null}
+                                  mentionedGuardianNameZh="守望者"
                                 />
                               </div>
                             )}
@@ -971,9 +973,9 @@ function CommentItem({
                           <div className="mt-2">
                             <ReplyForm
                               parentId={comment.id}
-                              onSubmit={async (content): Promise<Reply | undefined> => {
+                              onSubmit={async (content, gId): Promise<Reply | undefined> => {
                                 if (!onReplyToReply) return undefined;
-                                const result = await onReplyToReply(comment.id, reply.id, content);
+                                const result = await onReplyToReply(comment.id, reply.id, content, gId ?? reply.mentionedGuardianId);
                                 setReplyingToReply(null);
                                 return result;
                               }}
@@ -1107,13 +1109,17 @@ function ReplyForm({
   quotedGuardianReply,
   onReplyCreated,
   replyToName,
+  mentionedGuardianId,
+  mentionedGuardianNameZh,
 }: {
   parentId: string;
-  onSubmit: (content: string) => Promise<Reply | undefined>;
+  onSubmit: (content: string, mentionedGuardianId?: string | null) => Promise<Reply | undefined>;
   onCancel: () => void;
   quotedGuardianReply?: string | null;
   onReplyCreated?: (reply: Reply) => void;
   replyToName?: string;
+  mentionedGuardianId?: string | null;
+  mentionedGuardianNameZh?: string;
 }) {
   const [content, setContent] = useState('');
   const [submitting, setSubmitting] = useState(false);
@@ -1122,7 +1128,7 @@ function ReplyForm({
     if (!content.trim() || submitting) return;
     setSubmitting(true);
     try {
-      const newReply = await onSubmit(content);
+      const newReply = await onSubmit(content, mentionedGuardianId);
 
       if (onReplyCreated && newReply) {
         onReplyCreated(newReply);
@@ -1168,7 +1174,7 @@ function ReplyForm({
         <textarea
           value={content}
           onChange={(e) => setContent(e.target.value)}
-          placeholder="写下你的回复...（可@守望者名字继续追问）"
+          placeholder={mentionedGuardianId ? `继续追问 ${mentionedGuardianNameZh || '守望者'}...` : '写下你的回复...'}
           maxLength={500}
           rows={2}
           onKeyDown={(e) => {
@@ -1353,6 +1359,7 @@ export function CommentsSection() {
     try {
       const res = await fetch('/api/comments', {
         method: 'POST',
+        credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ content: content.trim() }),
       });
@@ -1433,27 +1440,35 @@ export function CommentsSection() {
       location: data.comment.location || null,
       created_at: data.comment.created_at || new Date().toISOString(),
       is_edited: false,
+      userId: data.comment.userId || null,
+      ipHash: data.comment.ipHash || null,
+      mentionedGuardianId: data.comment.mentionedGuardianId || null,
+      mentionedGuardianReply: data.comment.mentionedGuardianReply || null,
     };
 
+    // Update replyCount on the parent comment in CommentsSection state
     setComments(prev => prev.map(c => {
       if (c.id === parentId) {
         return { ...c, replyCount: c.replyCount + 1 };
       }
       return c;
     }));
+    // Also add to the replies list of the target comment via the callback
+    // @ts-expect-error handleReplyCreated is defined later in this component
+    handleReplyCreated(newReply);
     setReplyingTo(null);
     setReplyingToComment(null);
-    // Return the new reply so callers (ReplyForm) can also use it
     return newReply;
   };
 
-  const handleReplyToReply = async (rootCommentId: string, _replyId: string, replyContent: string) => {
+  const handleReplyToReply = async (rootCommentId: string, _replyId: string, replyContent: string, guardianId?: string | null) => {
     const res = await fetch('/api/comments', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         content: replyContent,
         parentId: rootCommentId,
+        mentionedGuardianId: guardianId || undefined,
       }),
     });
 
@@ -1475,6 +1490,10 @@ export function CommentsSection() {
       location: data.comment.location || null,
       created_at: data.comment.created_at || new Date().toISOString(),
       is_edited: false,
+      userId: data.comment.userId || null,
+      ipHash: data.comment.ipHash || null,
+      mentionedGuardianId: data.comment.mentionedGuardianId || null,
+      mentionedGuardianReply: data.comment.mentionedGuardianReply || null,
     };
 
     setComments(prev => prev.map(c => {
@@ -1492,6 +1511,7 @@ export function CommentsSection() {
       if (action === 'delete') {
         const res = await fetch(`/api/comments/${commentId}`, {
           method: 'DELETE',
+          credentials: 'include',  // sends prismatic_token cookie automatically
           headers: { 'x-visitor-id': visitorId },
         });
         if (res.ok) {
@@ -1502,6 +1522,7 @@ export function CommentsSection() {
 
       const res = await fetch(`/api/comments/${commentId}`, {
         method: 'PATCH',
+        credentials: 'include',  // sends prismatic_token cookie automatically
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action, value }),
       });
@@ -1518,6 +1539,7 @@ export function CommentsSection() {
     try {
       const res = await fetch(`/api/comments/${replyId}`, {
         method: 'DELETE',
+        credentials: 'include',  // sends prismatic_token cookie automatically
         headers: { 'x-visitor-id': visitorId },
       });
       if (res.ok) {
@@ -1870,7 +1892,7 @@ export function CommentsSection() {
                   >
                     <CommentItem
                       comment={comment}
-                      isAdmin={false}
+                      isAdmin={user?.role === 'ADMIN' || false}
                       onReact={(emoji) => handleReaction(comment.id, emoji)}
                       onEdit={fetchComments}
                       onDelete={() => handleAdminAction(comment.id, 'delete')}
@@ -1880,7 +1902,7 @@ export function CommentsSection() {
                         setReplyingTo(id);
                         setReplyingToComment(comment);
                       }}
-                      onReplyToReply={(rootId, replyId, content) => handleReplyToReply(rootId, replyId, content)}
+                      onReplyToReply={(rootId, replyId, content, guardianId) => handleReplyToReply(rootId, replyId, content, guardianId)}
                       onReplyCreated={(newReply) => {
                         setComments(prev => prev.map(c => {
                           if (c.id === comment.id) {
@@ -1901,7 +1923,7 @@ export function CommentsSection() {
                       {replyingTo === comment.id && (
                         <ReplyForm
                           parentId={comment.id}
-                          onSubmit={async (content) => {
+                          onSubmit={async (content, _gId) => {
                             const reply = await handleReply(comment.id, content);
                             return reply;
                           }}

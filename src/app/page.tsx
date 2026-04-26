@@ -2,12 +2,10 @@
 
 /**
  * Prismatic — Main Landing Page
- * Refined: World-class data analyst perspective + visual optimization
- * Tagline: "人可以是书，书也可以是人"
+ * World-class visual redesign: prism metaphor, editorial sections, premium feel
  */
 
 import { useState, useEffect } from 'react';
-import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -15,109 +13,367 @@ import {
   Hexagon, Sparkles, ArrowRight, Play, GitFork,
   Target, Brain, Layers, BarChart3, TrendingUp, Sparkle,
   BookOpen, MessageSquare, GitMerge, Zap, Crown, GitBranch,
+  ChevronDown, Star, Quote,
 } from 'lucide-react';
 import { PERSONA_LIST } from '@/lib/personas';
 import { PERSONA_CONFIDENCE } from '@/lib/confidence';
 import { MODES, APP_NAME, APP_DESCRIPTION } from '@/lib/constants';
-import { PersonaCard } from '@/components/persona-card';
-import { ModeSelector } from '@/components/mode-selector';
 import { Footer } from '@/components/footer';
 import { CommentsSection } from '@/components/comments-section';
 import { cn, getDomainGradient } from '@/lib/utils';
 
-// ─── Hero Stats ────────────────────────────────────────────────────────────────
-const HERO_STATS = [
-  { value: String(PERSONA_LIST.length), label: '蒸馏人物', icon: BookOpen, color: '#4d96ff' },
-  { value: '8', label: '协作模式', icon: Layers, color: '#6bcb77' },
-  { value: '1.2GB+', label: '训练语料', icon: BarChart3, color: '#c77dff' },
-  { value: '∞', label: '视角组合', icon: TrendingUp, color: '#ff9f43' },
-];
+// ─── Animated Prism SVG ─────────────────────────────────────────────────────────
 
-// ─── Data Visualization Bar ─────────────────────────────────────────────────────
-// Dynamically computed from PERSONA_CONFIDENCE real data
-const DOMAIN_CATEGORIES = [
-  {
-    label: '古典哲学',
-    domains: ['philosophy', 'stoicism'],
-    color: '#4d96ff',
-  },
-  {
-    label: '斯多葛学派',
-    domains: [],
-    color: '#8e44ad',
-    fallbackPersonas: ['marcus-aurelius', 'epictetus', 'seneca'],
-  },
-  {
-    label: '东方智慧',
-    domains: ['zen-buddhism', 'spirituality'],
-    color: '#ff6b6b',
-    fallbackPersonas: ['jiqun', 'lao-zi', 'zhuang-zi', 'confucius', 'mencius', 'hui-neng'],
-  },
-  {
-    label: '科技思想',
-    domains: ['technology', 'AI', 'engineering', 'semiconductor'],
-    color: '#6bcb77',
-  },
-  {
-    label: '投资哲学',
-    domains: ['investment', 'economics'],
-    color: '#ffd93d',
-  },
-  {
-    label: '科学思维',
-    domains: ['science'],
-    color: '#c77dff',
-  },
-];
-
-function computeCorpusData() {
-  return DOMAIN_CATEGORIES.map((cat) => {
-    let scores: number[] = [];
-
-    if (cat.domains.length > 0) {
-      // Find personas whose domain overlaps with this category
-      scores = PERSONA_LIST
-        .filter((p) => p.domain.some((d) => cat.domains.includes(d)))
-        .map((p) => PERSONA_CONFIDENCE[p.id]?.overall)
-        .filter((s): s is number => s !== undefined);
-    }
-
-    if (scores.length === 0 && cat.fallbackPersonas) {
-      // Fallback: use specific known personas for this category
-      scores = cat.fallbackPersonas
-        .map((id) => PERSONA_CONFIDENCE[id]?.overall)
-        .filter((s): s is number => s !== undefined);
-    }
-
-    const value = scores.length > 0
-      ? scores.reduce((a, b) => a + b, 0) / scores.length / 100
-      : 0;
-
-    return { label: cat.label, value, color: cat.color };
-  });
+function PrismLight() {
+  return (
+    <svg
+      viewBox="0 0 400 300"
+      className="absolute right-0 top-1/2 -translate-y-1/2 w-[40vw] max-w-[600px] opacity-[0.18] pointer-events-none hidden lg:block"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      {/* Prism body */}
+      <polygon
+        points="100,40 200,260 0,260"
+        fill="none"
+        stroke="rgba(255,255,255,0.6)"
+        strokeWidth="1.5"
+        strokeLinejoin="round"
+      />
+      {/* Refracted beams */}
+      <motion.line
+        x1="100" y1="40" x2="60" y2="290"
+        stroke="url(#beamRed)" strokeWidth="2" strokeLinecap="round"
+        initial={{ pathLength: 0, opacity: 0 }}
+        animate={{ pathLength: 1, opacity: 0.9 }}
+        transition={{ duration: 2, delay: 0.5 }}
+      />
+      <motion.line
+        x1="100" y1="40" x2="120" y2="295"
+        stroke="url(#beamYellow)" strokeWidth="2" strokeLinecap="round"
+        initial={{ pathLength: 0, opacity: 0 }}
+        animate={{ pathLength: 1, opacity: 0.9 }}
+        transition={{ duration: 2, delay: 0.7 }}
+      />
+      <motion.line
+        x1="100" y1="40" x2="180" y2="300"
+        stroke="url(#beamGreen)" strokeWidth="2" strokeLinecap="round"
+        initial={{ pathLength: 0, opacity: 0 }}
+        animate={{ pathLength: 1, opacity: 0.9 }}
+        transition={{ duration: 2, delay: 0.9 }}
+      />
+      <motion.line
+        x1="100" y1="40" x2="240" y2="295"
+        stroke="url(#beamBlue)" strokeWidth="2" strokeLinecap="round"
+        initial={{ pathLength: 0, opacity: 0 }}
+        animate={{ pathLength: 1, opacity: 0.9 }}
+        transition={{ duration: 2, delay: 1.1 }}
+      />
+      <motion.line
+        x1="100" y1="40" x2="300" y2="280"
+        stroke="url(#beamPurple)" strokeWidth="2" strokeLinecap="round"
+        initial={{ pathLength: 0, opacity: 0 }}
+        animate={{ pathLength: 1, opacity: 0.9 }}
+        transition={{ duration: 2, delay: 1.3 }}
+      />
+      {/* Beam gradients */}
+      <defs>
+        <linearGradient id="beamRed" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stopColor="#ff6b6b" stopOpacity="0.8" />
+          <stop offset="100%" stopColor="#ff6b6b" stopOpacity="0" />
+        </linearGradient>
+        <linearGradient id="beamYellow" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stopColor="#ffd93d" stopOpacity="0.8" />
+          <stop offset="100%" stopColor="#ffd93d" stopOpacity="0" />
+        </linearGradient>
+        <linearGradient id="beamGreen" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stopColor="#6bcb77" stopOpacity="0.8" />
+          <stop offset="100%" stopColor="#6bcb77" stopOpacity="0" />
+        </linearGradient>
+        <linearGradient id="beamBlue" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stopColor="#4d96ff" stopOpacity="0.8" />
+          <stop offset="100%" stopColor="#4d96ff" stopOpacity="0" />
+        </linearGradient>
+        <linearGradient id="beamPurple" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stopColor="#c77dff" stopOpacity="0.8" />
+          <stop offset="100%" stopColor="#c77dff" stopOpacity="0" />
+        </linearGradient>
+      </defs>
+    </svg>
+  );
 }
 
-const CORPUS_DATA = computeCorpusData();
+// ─── Floating Light Particles ────────────────────────────────────────────────────
 
-// ─── Featured Personas ─────────────────────────────────────────────────────────
-const FEATURED_PERSONAS = PERSONA_LIST.slice(0, 6);
+function HeroParticles() {
+  const particles = Array.from({ length: 24 }, (_, i) => ({
+    id: i,
+    size: 2 + Math.random() * 6,
+    x: Math.random() * 100,
+    y: Math.random() * 100,
+    duration: 6 + Math.random() * 12,
+    delay: Math.random() * 8,
+    opacity: 0.1 + Math.random() * 0.4,
+    hue: Math.floor(Math.random() * 360),
+  }));
 
-// ─── Mode Cards ────────────────────────────────────────────────────────────────
-const MODE_ICONS: Record<string, React.ReactNode> = {
-  solo: <MessageSquare className="w-6 h-6" />,
-  prism: <Layers className="w-6 h-6" />,
-  roundtable: <GitMerge className="w-6 h-6" />,
-  mission: <Target className="w-6 h-6" />,
+  return (
+    <div className="absolute inset-0 overflow-hidden pointer-events-none">
+      {particles.map((p) => (
+        <motion.div
+          key={p.id}
+          className="absolute rounded-full"
+          style={{
+            left: `${p.x}%`,
+            top: `${p.y}%`,
+            width: p.size,
+            height: p.size,
+            background: `hsl(${p.hue}, 80%, 65%)`,
+            opacity: p.opacity,
+          }}
+          animate={{ y: [-8, 8, -8], scale: [1, 1.2, 1] }}
+          transition={{ duration: p.duration, delay: p.delay, repeat: Infinity, ease: 'easeInOut' }}
+        />
+      ))}
+    </div>
+  );
+}
+
+// ─── Domain Orb ─────────────────────────────────────────────────────────────────
+
+// Dynamically compute top domains from real persona data
+const DOMAIN_NAME_MAP: Record<string, string> = {
+  philosophy: '哲学', strategy: '兵法', history: '历史', science: '科学',
+  creativity: '创意', spirituality: '灵性', stoicism: '斯多葛', literature: '文学',
+  investment: '投资', leadership: '领导力', ethics: '伦理', business: '商业',
+  education: '教育', zen_buddhism: '禅修', medicine: '医学', negotiation: '谈判',
+  psychology: '心理学', fiction: '文学', economics: '经济学', AI: '人工智能',
 };
+
+const DOMAIN_COLORS = [
+  '#4d96ff', '#8b5cf6', '#ff6b6b', '#6bcb77',
+  '#ffd93d', '#c77dff', '#f472b6', '#38bdf8', '#fb923c',
+];
+
+const toRgba = (hex: string, alpha: number) => {
+  const r = parseInt(hex.slice(1, 3), 16);
+  const g = parseInt(hex.slice(3, 5), 16);
+  const b = parseInt(hex.slice(5, 7), 16);
+  return `rgba(${r},${g},${b},${alpha})`;
+};
+
+// Extract top domains by frequency from actual persona data
+const domainCounts: Record<string, number> = {};
+PERSONA_LIST.forEach(p => (p.domain ?? []).forEach(d => {
+  domainCounts[d] = (domainCounts[d] || 0) + 1;
+}));
+const TOP_DOMAINS = Object.entries(domainCounts)
+  .sort((a, b) => b[1] - a[1])
+  .slice(0, 9)
+  .map(([key, count], i) => ({
+    name: DOMAIN_NAME_MAP[key] ?? key,
+    color: DOMAIN_COLORS[i % DOMAIN_COLORS.length],
+    glow: toRgba(DOMAIN_COLORS[i % DOMAIN_COLORS.length], 0.4),
+    count,
+    size: 120 - i * 4,
+  }));
+
+function DomainOrbs() {
+  return (
+    <div className="relative w-full h-48 flex items-center justify-center">
+      {/* Orb container */}
+      <div className="absolute inset-0 flex items-center justify-center">
+        {TOP_DOMAINS.map((d, i) => {
+          const angle = (i / TOP_DOMAINS.length) * 2 * Math.PI - Math.PI / 2;
+          const radius = 130;
+          const x = Math.cos(angle) * radius;
+          const y = Math.sin(angle) * radius;
+          return (
+            <motion.div
+              key={d.name}
+              className="absolute flex flex-col items-center gap-1 cursor-default"
+              style={{ x, y }}
+              initial={{ opacity: 0, scale: 0 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.1 * i, duration: 0.6 }}
+              whileHover={{ scale: 1.15 }}
+            >
+              <div
+                className="rounded-full flex items-center justify-center font-semibold text-white shadow-lg"
+                style={{
+                  width: d.size,
+                  height: d.size,
+                  background: `radial-gradient(circle at 35% 35%, ${d.color}, ${d.color}80)`,
+                  boxShadow: `0 0 ${d.size * 0.4}px ${d.glow}, 0 0 ${d.size * 0.8}px ${d.glow}`,
+                }}
+              >
+                <span className="text-xs px-2 text-center leading-tight">{d.name}</span>
+              </div>
+            </motion.div>
+          );
+        })}
+        {/* Center glow */}
+        <div className="absolute w-16 h-16 rounded-full bg-white/5" />
+      </div>
+    </div>
+  );
+}
+
+// ─── Mode Card ─────────────────────────────────────────────────────────────────
+
+function ModeCard({
+  mode,
+  index,
+  onClick,
+}: {
+  mode: (typeof MODES)[keyof typeof MODES];
+  index: number;
+  onClick: () => void;
+}) {
+  const accentColors: Record<string, string> = {
+    solo: '#818cf8',
+    prism: '#c084fc',
+    roundtable: '#38bdf8',
+    mission: '#34d399',
+    epoch: '#f87171',
+    council: '#fbbf24',
+    oracle: '#a78bfa',
+    fiction: '#fb7185',
+  };
+  const accent = accentColors[mode.id] || '#818cf8';
+
+  return (
+    <motion.button
+      onClick={onClick}
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ delay: index * 0.07, duration: 0.5 }}
+      whileTap={{ scale: 0.98 }}
+      className="group relative rounded-2xl p-6 text-left border border-white/[0.06] bg-bg-elevated/40 hover:bg-bg-elevated/60 hover:border-white/[0.1] transition-all duration-300 overflow-hidden"
+    >
+      {/* Top accent line */}
+      <div
+        className="absolute top-0 left-0 right-0 h-0.5 opacity-60 transition-opacity duration-300 group-hover:opacity-100"
+        style={{ background: `linear-gradient(90deg, ${accent}, transparent)` }}
+      />
+
+      {/* Icon */}
+      <div
+        className="w-10 h-10 rounded-xl flex items-center justify-center mb-4 transition-all duration-300"
+        style={{ background: `${accent}18`, color: accent }}
+      >
+        <span className="text-xl">{mode.icon}</span>
+      </div>
+
+      {/* Label */}
+      <h3 className="font-semibold text-text-primary text-base mb-1.5">{mode.label}</h3>
+
+      {/* Tagline */}
+      <p className="text-xs text-text-muted leading-relaxed mb-4">{mode.tagline}</p>
+
+      {/* Meta */}
+      <div className="flex items-center gap-2">
+        <span
+          className="text-[11px] font-medium px-2 py-0.5 rounded-full"
+          style={{
+            background: `${accent}15`,
+            color: accent,
+            border: `1px solid ${accent}30`,
+          }}
+        >
+          {mode.minParticipants}-{mode.maxParticipants}人
+        </span>
+      </div>
+
+      {/* Hover arrow */}
+      <div
+        className="absolute bottom-5 right-5 w-7 h-7 rounded-full flex items-center justify-center opacity-0 -translate-x-2 transition-all duration-300 group-hover:opacity-100 group-hover:translate-x-0"
+        style={{ background: `${accent}20`, color: accent }}
+      >
+        <ArrowRight className="w-3.5 h-3.5" />
+      </div>
+    </motion.button>
+  );
+}
+
+// ─── Persona Showcase Card ───────────────────────────────────────────────────────
+
+function PersonaShowcaseCard({
+  persona,
+  index,
+}: {
+  persona: (typeof PERSONA_LIST)[number];
+  index: number;
+}) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 16 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ delay: index * 0.06, duration: 0.5 }}
+    >
+      <Link href={`/personas/${persona.slug}`}>
+        <div className="group relative rounded-2xl border border-white/[0.06] bg-bg-surface/60 hover:bg-bg-elevated/80 hover:border-white/[0.1] transition-all duration-300 p-5 overflow-hidden">
+          {/* Top color accent */}
+          <div
+            className="absolute top-0 left-0 right-0 h-1 opacity-70"
+            style={{
+              background: `linear-gradient(90deg, ${persona.gradientFrom || '#4d96ff'}, ${persona.gradientTo || '#c77dff'})`,
+            }}
+          />
+
+          {/* Avatar */}
+          <div className="flex items-start gap-4 mt-2">
+            <div
+              className="w-14 h-14 rounded-2xl flex items-center justify-center text-lg font-bold text-white flex-shrink-0"
+              style={{
+                background: `linear-gradient(135deg, ${persona.gradientFrom || '#4d96ff'}, ${persona.gradientTo || '#c77dff'})`,
+                boxShadow: `0 4px 20px ${(persona.gradientFrom || '#4d96ff')}40`,
+              }}
+            >
+              {persona.nameZh?.[0] || persona.name?.[0] || '?'}
+            </div>
+            <div className="flex-1 min-w-0">
+              <h3 className="font-semibold text-text-primary group-hover:text-white transition-colors truncate">
+                {persona.nameZh || persona.name}
+              </h3>
+              <p className="text-xs text-text-muted truncate mt-0.5">
+                {persona.tagline || persona.taglineZh}
+              </p>
+              {/* Domain tags */}
+              <div className="flex flex-wrap gap-1 mt-2">
+                {persona.domain.slice(0, 2).map((d) => (
+                  <span
+                    key={d}
+                    className="text-[10px] px-1.5 py-0.5 rounded bg-bg-elevated text-text-muted"
+                  >
+                    {d}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Quote snippet */}
+          {persona.taglineZh && (
+            <div className="mt-4 pl-3 border-l-2 border-white/10">
+              <p className="text-xs text-text-muted italic leading-relaxed line-clamp-2">
+                &ldquo;{persona.taglineZh}&rdquo;
+              </p>
+            </div>
+          )}
+        </div>
+      </Link>
+    </motion.div>
+  );
+}
+
+// ─── Main Component ──────────────────────────────────────────────────────────────
 
 export default function HomePage() {
   const router = useRouter();
   const [selectedMode, setSelectedMode] = useState<string>('prism');
-  const [visible, setVisible] = useState(false);
-
-  useEffect(() => {
-    setVisible(true);
-  }, []);
 
   const handleModeClick = (modeId: string) => {
     setSelectedMode(modeId);
@@ -126,389 +382,234 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen bg-bg-base">
-      {/* ── Hero Section ────────────────────────────────────────────────── */}
-      <section className="pt-36 pb-24 px-6 relative overflow-hidden">
-        {/* Background: layered orbs for depth */}
-        <div className="absolute top-0 left-1/4 w-[500px] h-[500px] rounded-full bg-prism-purple/8 blur-[120px]" />
-        <div className="absolute top-20 right-1/4 w-[400px] h-[400px] rounded-full bg-prism-blue/8 blur-[100px]" />
-        <div className="absolute top-40 left-1/2 -translate-x-1/2 w-[600px] h-[300px] rounded-full bg-prism-cyan/5 blur-[80px]" />
-        
-        {/* Decorative grid */}
-        <div className="absolute inset-0 opacity-[0.03]" style={{
-          backgroundImage: 'linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)',
-          backgroundSize: '60px 60px'
-        }} />
+
+      {/* ── Hero ─────────────────────────────────────────────────────────── */}
+      <section className="relative pt-32 pb-28 px-6 overflow-hidden min-h-[92vh] flex flex-col justify-center">
+        {/* Layered atmospheric background */}
+        <div className="absolute inset-0">
+          <div className="absolute top-0 left-1/4 w-[600px] h-[600px] rounded-full bg-prism-purple/10 blur-[150px]" />
+          <div className="absolute top-10 right-1/4 w-[400px] h-[400px] rounded-full bg-prism-blue/10 blur-[120px]" />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 w-[500px] h-[500px] rounded-full bg-prism-cyan/6 blur-[100px]" />
+        </div>
+
+        <HeroParticles />
+        <PrismLight />
 
         <div className="max-w-5xl mx-auto relative">
-          {/* Tagline */}
+          {/* Tagline badge */}
           <motion.div
-            initial={{ opacity: 0, y: 10 }}
+            initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-white/10 bg-white/5 backdrop-blur-sm mb-8"
+            transition={{ duration: 0.7 }}
+            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-white/10 bg-white/5 mb-10"
           >
-            <Sparkle className="w-3.5 h-3.5 text-prism-blue" />
-            <span className="text-xs text-text-secondary">「人可以是书，那么，书也可以是人」</span>
+            <Quote className="w-3.5 h-3.5 text-prism-blue" />
+            <span className="text-xs text-text-secondary italic">
+              「人可以是书，那么，书也可以是人」
+            </span>
           </motion.div>
 
-          {/* Main headline */}
+          {/* Headline */}
           <motion.h1
-            className="text-5xl md:text-6xl lg:text-7xl font-display font-bold mb-6 leading-none tracking-tight"
-            initial={{ opacity: 0, y: 20 }}
+            className="text-5xl md:text-6xl lg:text-7xl font-display font-bold mb-8 leading-[1.05] tracking-tight"
+            initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.1 }}
+            transition={{ duration: 0.7, delay: 0.1 }}
           >
             <span className="gradient-text">{APP_NAME}</span>
+            <br />
+            <span className="text-text-primary/90 font-light">棱镜折射</span>
           </motion.h1>
 
+          {/* Subheadline */}
           <motion.p
-            className="text-xl md:text-2xl text-text-secondary mb-3 font-light max-w-2xl"
+            className="text-lg md:text-xl text-text-secondary mb-6 leading-relaxed max-w-2xl"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
+            transition={{ duration: 0.7, delay: 0.2 }}
           >
-            {APP_DESCRIPTION}
+            一道白光，经由卓越思维的棱镜，折射出七彩的光谱
           </motion.p>
 
+          {/* Description */}
           <motion.p
-            className="text-base text-text-muted max-w-xl mb-10 leading-relaxed"
+            className="text-base text-text-muted mb-12 leading-relaxed max-w-xl"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.3 }}
+            transition={{ duration: 0.7, delay: 0.3 }}
           >
-            每个人的一生都是一本书，每本书都是一个人的灵魂。
-            当我们阅读那些卓越人物的著作时，不仅是在获取知识，更是在与一个伟大的灵魂对话。
-            <br />{APP_NAME} 已蒸馏 {PERSONA_LIST.length} 位卓越人物，涵盖哲学、投资、科技、科学、东方智慧等领域。
-            让乔布斯、马斯克、芒格、费曼同时为你思考——不是引用他们说过的话，而是用他们的方式去思考你的问题。
+            每本书都是一个卓越灵魂的凝结。当我们阅读那些伟大人物的著作时，不仅是在获取知识，更是在与一个伟大的灵魂对话。
+            棱镜折射让乔布斯、马斯克、芒格、费曼同时成为你的思维棱镜——不是引用他们说过的话，而是用他们各自独特的方式，折射你的每一个问题。
           </motion.p>
 
-          {/* CTA */}
+          {/* CTAs */}
           <motion.div
-            className="flex flex-wrap items-center gap-3 mb-16"
+            className="flex flex-wrap items-center gap-4"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.4 }}
+            transition={{ duration: 0.7, delay: 0.4 }}
           >
             <Link
               href="/app"
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-prism-gradient text-white font-medium hover:opacity-90 transition-all shadow-lg shadow-prism-blue/20"
+              className="inline-flex items-center gap-2.5 px-7 py-3.5 rounded-xl bg-prism-gradient text-white font-semibold hover:opacity-90 transition-all shadow-lg shadow-prism-blue/20 text-base"
             >
               <Play className="w-4 h-4" />
               开始体验
             </Link>
             <Link
-              href="/personas"
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-xl border border-white/10 text-text-primary font-medium hover:bg-white/5 transition-all backdrop-blur-sm"
+              href="/methodology"
+              className="inline-flex items-center gap-2 px-7 py-3.5 rounded-xl border border-white/10 text-text-secondary hover:text-text-primary hover:bg-white/5 transition-all text-base font-medium"
             >
-              探索 {PERSONA_LIST.length} 位蒸馏人物
-              <ArrowRight className="w-4 h-4" />
+              <Sparkles className="w-4 h-4" />
+              蒸馏方法论
             </Link>
           </motion.div>
 
-          {/* Stats Row - redesigned with glass effect */}
+          {/* Bottom stats */}
           <motion.div
-            className="grid grid-cols-2 md:grid-cols-4 gap-4"
+            className="flex items-center gap-8 mt-16 pt-10 border-t border-white/[0.06]"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ duration: 0.6, delay: 0.5 }}
+            transition={{ duration: 0.7, delay: 0.6 }}
           >
-            {HERO_STATS.map((stat, i) => (
-              <motion.div
-                key={stat.label}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.5 + i * 0.08 }}
-                className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm p-5 text-center"
-              >
-                <stat.icon className="w-5 h-5 mx-auto mb-3 opacity-60" style={{ color: stat.color }} />
-                <div className="text-3xl font-bold text-text-primary mb-1 tracking-tight">{stat.value}</div>
-                <div className="text-xs text-text-muted tracking-wide uppercase">{stat.label}</div>
-              </motion.div>
+            {[
+              { value: String(PERSONA_LIST.length), label: '蒸馏人物', color: '#4d96ff' },
+              { value: '8', label: '协作模式', color: '#6bcb77' },
+              { value: '1.8GB+', label: '训练语料', color: '#c77dff' },
+              { value: '∞', label: '视角组合', color: '#ff9f43' },
+            ].map((stat) => (
+              <div key={stat.label} className="flex items-center gap-3">
+                <div
+                  className="w-1.5 h-1.5 rounded-full flex-shrink-0"
+                  style={{ background: stat.color }}
+                />
+                <div>
+                  <span className="text-lg font-bold text-text-primary">{stat.value}</span>
+                  <span className="text-xs text-text-muted ml-1.5">{stat.label}</span>
+                </div>
+              </div>
             ))}
           </motion.div>
         </div>
+
+        {/* Scroll indicator */}
+        <motion.div
+          className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
+          animate={{ y: [0, 8, 0] }}
+          transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+        >
+          <span className="text-xs text-text-muted">向下探索</span>
+          <ChevronDown className="w-4 h-4 text-text-muted" />
+        </motion.div>
       </section>
 
-      {/* ── Data Quality Visualization ────────────────────────────────────────── */}
-      <section className="py-20 px-6 bg-bg-surface/30">
+      {/* ── Domain Orbs ─────────────────────────────────────────────────── */}
+      <section className="py-20 px-6 border-y border-white/[0.04] bg-bg-surface/20">
         <div className="max-w-4xl mx-auto">
           <motion.div
+            className="text-center mb-8"
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-center mb-12"
+            transition={{ duration: 0.6 }}
           >
-            <h2 className="text-2xl md:text-3xl font-display font-bold text-text-primary mb-3">
-              语料置信度分布
+            <h2 className="text-2xl md:text-3xl font-display font-bold mb-3">
+              覆盖 {PERSONA_LIST.length} 位卓越人物的思想宇宙
             </h2>
             <p className="text-text-muted text-sm max-w-lg mx-auto">
-              基于全网可获取的完整语料，从零开始系统梳理。每个领域的置信度代表数据的完整程度与质量。
-            已覆盖 {PERSONA_LIST.length} 位蒸馏人物，涵盖哲学、投资、科技、科学、东方智慧等多个领域
+              从古典哲学到现代科学，从东方智慧到硅谷思维——每一个领域的卓越头脑，都已成为你的思维伙伴
             </p>
           </motion.div>
-
-          {/* Horizontal bar chart - redesigned */}
-          <motion.div
-            className="space-y-5"
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.2 }}
-          >
-            {CORPUS_DATA.map((item, i) => (
-              <motion.div
-                key={item.label}
-                initial={{ opacity: 0, x: -20 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: 0.1 * i }}
-                className="flex items-center gap-5"
-              >
-                <div className="w-20 text-sm text-text-secondary text-right font-medium flex-shrink-0">{item.label}</div>
-                <div className="flex-1 h-8 bg-bg-elevated rounded-xl overflow-hidden relative shadow-inner">
-                  <motion.div
-                    className="h-full rounded-xl relative"
-                    style={{ backgroundColor: item.color }}
-                    initial={{ width: 0 }}
-                    whileInView={{ width: `${item.value * 100}%` }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 1, delay: 0.2 + 0.1 * i, ease: 'easeOut' }}
-                  >
-                    <div className="absolute inset-0 bg-gradient-to-r from-white/10 to-transparent" />
-                  </motion.div>
-                  <div className="absolute inset-0 flex items-center justify-end pr-4">
-                    <span className="text-sm font-semibold text-white drop-shadow-lg">{Math.round(item.value * 100)}%</span>
-                  </div>
-                </div>
-                <div className="w-12 text-xs text-text-muted flex-shrink-0 text-right">
-                  {item.value >= 0.9 ? '5.0' : item.value >= 0.75 ? '4.0' : '3.0'}
-                </div>
-              </motion.div>
-            ))}
-          </motion.div>
-
-          <motion.p
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.6 }}
-            className="text-center text-xs text-text-muted mt-8 border-t border-border-subtle pt-6"
-          >
-            数据来源：PerseusDL · Guopop/chinese-philosophy · The-Digital-Stoic-Library · HuggingFace Lex Fridman
-          </motion.p>
+          <DomainOrbs />
         </div>
       </section>
 
-      {/* ── Mode Showcase ────────────────────────────────────────────────── */}
-      <section className="py-20 px-6">
-        <div className="max-w-6xl mx-auto">
+      {/* ── Mode Showcase ───────────────────────────────────────────────── */}
+      <section className="py-24 px-6">
+        <div className="max-w-5xl mx-auto">
           <motion.div
+            className="text-center mb-14"
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-center mb-12"
+            transition={{ duration: 0.6 }}
           >
-            <h2 className="text-2xl md:text-3xl font-display font-bold text-text-primary mb-3">
-              选择你的协作模式
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-white/10 bg-white/5 text-xs text-text-muted mb-4">
+              <Layers className="w-3.5 h-3.5" />
+              8 种协作模式
+            </div>
+            <h2 className="text-3xl md:text-4xl font-display font-bold mb-3">
+              选择你的思维协作方式
             </h2>
-            <p className="text-text-muted text-sm max-w-lg mx-auto">
+            <p className="text-text-muted max-w-lg mx-auto">
               从单人深度追问到多智能体实时辩论，找到最适合你的思维伙伴组合
             </p>
           </motion.div>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {Object.values(MODES).map((mode, i) => {
-              const isSelected = selectedMode === mode.id;
-              // 模式专属色彩配置
-              const modeColors: Record<string, { gradient: string; glow: string; icon: string }> = {
-                solo: { gradient: 'from-indigo-600/25 to-indigo-500/5', glow: 'shadow-indigo-500/20', icon: 'text-indigo-400' },
-                prism: { gradient: 'from-violet-600/25 to-violet-500/5', glow: 'shadow-violet-500/20', icon: 'text-violet-400' },
-                roundtable: { gradient: 'from-sky-600/25 to-sky-500/5', glow: 'shadow-sky-500/20', icon: 'text-sky-400' },
-                epoch: { gradient: 'from-red-600/25 to-red-500/5', glow: 'shadow-red-500/20', icon: 'text-red-400' },
-                mission: { gradient: 'from-emerald-600/25 to-emerald-500/5', glow: 'shadow-emerald-500/20', icon: 'text-emerald-400' },
-                council: { gradient: 'from-amber-600/25 to-amber-500/5', glow: 'shadow-amber-500/20', icon: 'text-amber-400' },
-                oracle: { gradient: 'from-purple-600/25 to-purple-500/5', glow: 'shadow-purple-500/20', icon: 'text-purple-400' },
-                fiction: { gradient: 'from-pink-600/25 to-pink-500/5', glow: 'shadow-pink-500/20', icon: 'text-pink-400' },
-              };
-              const colors = modeColors[mode.id] || modeColors.prism;
-
-              return (
-                <motion.button
-                  key={mode.id}
-                  onClick={() => handleModeClick(mode.id)}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: i * 0.08 }}
-                  whileTap={{ scale: 0.98 }}
-                  className={cn(
-                    'relative rounded-2xl p-5 text-left transition-all duration-300 border overflow-hidden',
-                    isSelected
-                      ? 'border-white/20 shadow-xl'
-                      : 'border-white/5 hover:border-white/10 hover:shadow-lg'
-                  )}
-                  style={{
-                    background: isSelected
-                      ? `linear-gradient(135deg, var(--bg-elevated) 0%, var(--bg-surface) 100%)`
-                      : undefined,
-                  }}
-                >
-                  {/* Glow effect for selected */}
-                  {isSelected && (
-                    <div
-                      className="absolute inset-0 opacity-20"
-                      style={{
-                        background: `linear-gradient(135deg, ${mode.accent}15 0%, transparent 60%)`,
-                      }}
-                    />
-                  )}
-
-                  {/* Gradient background for unselected */}
-                  {!isSelected && (
-                    <div
-                      className="absolute inset-0 opacity-30 rounded-2xl"
-                      style={{
-                        background: `linear-gradient(135deg, ${mode.accent}10 0%, transparent 50%)`,
-                      }}
-                    />
-                  )}
-
-                  <div className="relative z-10">
-                    {/* Icon with colored background */}
-                    <div
-                      className={cn(
-                        'w-12 h-12 rounded-xl flex items-center justify-center mb-4',
-                        isSelected ? 'bg-white/10' : 'bg-white/5'
-                      )}
-                      style={{
-                        background: isSelected ? `${mode.accent}20` : `${mode.accent}10`,
-                      }}
-                    >
-                      <span className={isSelected ? 'text-2xl' : 'text-xl'}>{mode.icon}</span>
-                    </div>
-
-                    {/* Mode label */}
-                    <div className={cn('font-bold mb-1', isSelected ? 'text-text-primary text-base' : 'text-text-secondary text-sm')}>
-                      {mode.label}
-                    </div>
-
-                    {/* Description */}
-                    <div className="text-xs text-text-muted leading-relaxed mb-4">
-                      {mode.description}
-                    </div>
-
-                    {/* Tag badge */}
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <span
-                        className="text-[10px] font-medium px-2 py-1 rounded-md"
-                        style={{
-                          background: `${mode.accent}15`,
-                          color: mode.accent,
-                          border: `1px solid ${mode.accent}30`,
-                        }}
-                      >
-                        {mode.minParticipants}-{mode.maxParticipants}人
-                      </span>
-                      <span
-                        className="text-[10px] px-2 py-1 rounded-md"
-                        style={{
-                          background: 'rgba(255,255,255,0.05)',
-                          color: 'rgba(255,255,255,0.4)',
-                        }}
-                      >
-                        {mode.tagline}
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Active indicator dot */}
-                  {isSelected && (
-                    <div
-                      className="absolute top-4 right-4 w-2.5 h-2.5 rounded-full shadow-lg"
-                      style={{ background: mode.accent }}
-                    />
-                  )}
-                </motion.button>
-              );
-            })}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            {Object.values(MODES).map((mode, i) => (
+              <ModeCard
+                key={mode.id}
+                mode={mode}
+                index={i}
+                onClick={() => handleModeClick(mode.id)}
+              />
+            ))}
           </div>
 
-          {/* CTA */}
           <motion.div
+            className="text-center mt-10"
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
-            transition={{ delay: 0.4 }}
-            className="text-center mt-10"
           >
             <Link
               href="/app"
               className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-prism-gradient text-white font-medium hover:opacity-90 transition-all shadow-lg shadow-prism-blue/20"
             >
-              <Sparkles className="w-4 h-4" />
               开始体验
+              <ArrowRight className="w-4 h-4" />
             </Link>
           </motion.div>
         </div>
       </section>
 
-      {/* ── Featured Personas ──────────────────────────────────────────────── */}
-      <section className="py-20 px-6 bg-bg-surface/50">
-        <div className="max-w-6xl mx-auto">
+      {/* ── Featured Personas ─────────────────────────────────────────────── */}
+      <section className="py-24 px-6 bg-bg-surface/30">
+        <div className="max-w-5xl mx-auto">
           <motion.div
+            className="flex items-end justify-between mb-10"
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="flex items-end justify-between mb-10"
+            transition={{ duration: 0.6 }}
           >
             <div>
-              <h2 className="text-2xl md:text-3xl font-display font-bold text-text-primary mb-2">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-white/10 bg-white/5 text-xs text-text-muted mb-3">
+                <BookOpen className="w-3.5 h-3.5" />
+                人物档案馆
+              </div>
+              <h2 className="text-3xl md:text-4xl font-display font-bold">
                 蒸馏人物
               </h2>
-              <p className="text-text-muted text-sm">
-                覆盖哲学、投资、科技、科学、东方智慧等多个领域
-              </p>
             </div>
             <Link
               href="/personas"
-              className="hidden md:flex items-center gap-1 text-sm text-prism-blue hover:underline"
+              className="hidden md:flex items-center gap-1.5 text-sm text-text-muted hover:text-text-primary transition-colors"
             >
               查看全部
               <ArrowRight className="w-3.5 h-3.5" />
             </Link>
           </motion.div>
 
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-            {FEATURED_PERSONAS.map((persona, i) => {
-              return (
-                <motion.div
-                  key={persona.id}
-                  initial={{ opacity: 0 }}
-                  whileInView={{ opacity: 1 }}
-                  viewport={{ once: true, margin: '-50px' }}
-                  transition={{ delay: i * 0.06, duration: 0.3 }}
-                >
-                  <Link href={`/personas/${persona.slug}`}>
-                    <div className="group rounded-xl border border-border-subtle bg-bg-elevated p-4 hover:border-border-medium transition-all duration-200">
-                      <div 
-                        className="w-12 h-12 rounded-full mb-3 flex items-center justify-center text-sm font-bold text-white"
-                        style={{ background: `linear-gradient(135deg, ${persona.gradientFrom || '#4d96ff'}, ${persona.gradientTo || '#c77dff'})` }}
-                      >
-                        {persona.nameZh?.[0] || persona.name?.[0] || '?'}
-                      </div>
-                      <p className="text-sm font-medium text-text-primary group-hover:text-prism-blue transition-colors truncate">
-                        {persona.nameZh || persona.name}
-                      </p>
-                      <p className="text-xs text-text-muted truncate">{persona.tagline || persona.taglineZh}</p>
-                    </div>
-                  </Link>
-                </motion.div>
-              );
-            })}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {PERSONA_LIST.slice(0, 6).map((p, i) => (
+              <PersonaShowcaseCard key={p.id} persona={p} index={i} />
+            ))}
           </div>
 
           <div className="text-center mt-8 md:hidden">
-            <Link href="/personas" className="text-sm text-prism-blue hover:underline flex items-center justify-center gap-1">
+            <Link href="/personas" className="text-sm text-text-muted hover:text-text-primary transition-colors flex items-center justify-center gap-1.5">
               查看全部人物
               <ArrowRight className="w-3.5 h-3.5" />
             </Link>
@@ -516,80 +617,91 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ── About Section ─────────────────────────────────────────────────── */}
-      <section id="about" className="py-20 px-6">
-        <div className="max-w-4xl mx-auto">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-center mb-12"
-          >
-            <h2 className="text-2xl md:text-3xl font-display font-bold text-text-primary mb-4">
-              关于{APP_NAME}
-            </h2>
-            <p className="text-text-secondary leading-relaxed max-w-2xl mx-auto">
-              {APP_NAME} 基于「认知蒸馏」技术，通过深度访谈、文献研究、著作分析等方式，
-              对人类历史上最卓越的思考者进行系统性分析，重构他们的思维模型、决策框架和表达 DNA。
-              <br />目前已蒸馏 {PERSONA_LIST.length} 位卓越人物，支持 8 种协作模式，从单人深度追问到多智能体实时辩论，
-              让不同领域的顶尖头脑同时为你思考，发现单一视角无法产生的洞见。
-            </p>
-          </motion.div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {[
-              { icon: Brain, title: '深度蒸馏', desc: '从原始文本中提取思维模式和决策框架，而非简单的角色扮演' },
-              { icon: Layers, title: '多视角协作', desc: '不同领域的蒸馏人物可以同时参与讨论，碰撞出单一视角无法产生的洞见' },
-              { icon: Target, title: '解决实际问题', desc: '不只是提供观点，而是将智慧应用于你的具体问题' },
-            ].map((item, i) => (
-              <motion.div
-                key={item.title}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.1 }}
-                className="text-center p-8 rounded-2xl border border-white/5 bg-white/[0.02] hover:bg-white/[0.04] transition-colors"
-              >
-                <item.icon className="w-7 h-7 text-text-secondary mx-auto mb-5" />
-                <h3 className="font-medium text-text-primary mb-2 text-lg">{item.title}</h3>
-                <p className="text-sm text-text-muted leading-relaxed">{item.desc}</p>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── CTA ──────────────────────────────────────────────────────────── */}
+      {/* ── Philosophy / Pull Quote ─────────────────────────────────────── */}
       <section className="py-24 px-6">
         <div className="max-w-3xl mx-auto text-center">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 24 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="rounded-3xl relative overflow-hidden p-12 md:p-16"
+            transition={{ duration: 0.7 }}
           >
-            {/* Background glow */}
-            <div className="absolute inset-0 bg-gradient-to-b from-prism-blue/10 via-transparent to-transparent" />
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] bg-prism-blue/10 rounded-full blur-[100px]" />
-            
+            {/* Decorative quote mark */}
+            <div className="relative inline-block mb-8">
+              <Quote className="w-16 h-16 text-white/5 mx-auto" />
+            </div>
+
+            <blockquote className="text-2xl md:text-3xl font-display font-bold text-text-primary leading-snug mb-6 italic">
+              我们不是在训练一个知道很多的知识库，
+              <br />
+              <span className="gradient-text">我们是在蒸馏一种思维方式。</span>
+            </blockquote>
+
+            <p className="text-text-muted text-sm max-w-xl mx-auto leading-relaxed">
+              棱镜折射基于「认知蒸馏」技术，通过深度访谈、文献研究、著作分析等方式，
+              对人类历史上最卓越的思考者进行系统性分析，重构他们的思维模型、决策框架和表达 DNA。
+            </p>
+
+            <div className="mt-8 pt-8 border-t border-white/[0.06] flex items-center justify-center gap-6 flex-wrap">
+              {[
+                { icon: <Brain className="w-4 h-4" />, label: '深度蒸馏' },
+                { icon: <GitMerge className="w-4 h-4" />, label: '多视角协作' },
+                { icon: <Target className="w-4 h-4" />, label: '解决实际问题' },
+              ].map((item) => (
+                <div key={item.label} className="flex items-center gap-2 text-text-muted text-sm">
+                  {item.icon}
+                  <span>{item.label}</span>
+                </div>
+              ))}
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* ── CTA ─────────────────────────────────────────────────────────── */}
+      <section className="py-24 px-6">
+        <div className="max-w-2xl mx-auto text-center">
+          <motion.div
+            initial={{ opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.7 }}
+            className="relative"
+          >
+            {/* Decorative background */}
+            <div className="absolute inset-0 rounded-3xl bg-gradient-to-b from-prism-blue/8 via-transparent to-transparent pointer-events-none" />
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] bg-prism-blue/10 rounded-full blur-[100px] pointer-events-none" />
+
             {/* Border */}
-            <div className="absolute inset-0 rounded-3xl border border-white/10" />
-            
-            <div className="relative">
-              <Crown className="w-12 h-12 text-amber-400/80 mx-auto mb-6" />
-              <h2 className="text-3xl md:text-4xl font-display font-bold text-text-primary mb-4 tracking-tight">
+            <div className="absolute inset-0 rounded-3xl border border-white/[0.08] pointer-events-none" />
+
+            <div className="relative py-16 px-8">
+              {/* Crown */}
+              <div className="w-14 h-14 rounded-2xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center mx-auto mb-8">
+                <Crown className="w-7 h-7 text-amber-400/80" />
+              </div>
+
+              <h2 className="text-3xl md:text-4xl font-display font-bold mb-4">
                 开始你的思维进化之旅
               </h2>
-              <p className="text-text-secondary mb-10 max-w-md mx-auto leading-relaxed">
-                无论是深入探索一个思想家的智慧，还是让多个领域的顶尖头脑同时为你思考，{APP_NAME} 都是你的认知升级工具
+              <p className="text-text-muted mb-10 max-w-sm mx-auto leading-relaxed">
+                {PERSONA_LIST.length} 位经过 Zero 引擎科学蒸馏的思维伙伴已经就位。
+                选择一位，开启真正有深度的认知协作。
               </p>
-              <div className="flex flex-wrap items-center justify-center gap-4">
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
                 <Link
                   href="/app"
                   className="inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-prism-gradient text-white font-semibold hover:opacity-90 transition-all shadow-xl shadow-prism-blue/25 text-base"
                 >
                   <Zap className="w-5 h-5" />
                   免费开始体验
+                </Link>
+                <Link
+                  href="/personas"
+                  className="inline-flex items-center gap-2 px-8 py-4 rounded-xl border border-white/10 text-text-secondary hover:text-text-primary hover:bg-white/5 transition-all text-base font-medium"
+                >
+                  <BookOpen className="w-5 h-5" />
+                  浏览人物库
                 </Link>
               </div>
             </div>

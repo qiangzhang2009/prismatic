@@ -17,6 +17,13 @@ export const dynamic = 'force-dynamic';
 import { NextRequest, NextResponse } from 'next/server';
 import { Pool } from '@neondatabase/serverless';
 
+// Slugs that are collections, literary works, or non-human entities — excluded from the library
+const NON_PERSONA_SLUGS = [
+  'greek-classics', 'chinese-classics', 'quantangshi',
+  'three-kingdoms', 'journey-west', 'tripitaka',
+  'sun-wukong', 'zhu-bajie',
+];
+
 export async function GET(req: NextRequest) {
   const connectionString = process.env.DATABASE_URL;
   if (!connectionString) {
@@ -41,6 +48,9 @@ export async function GET(req: NextRequest) {
     const orderBy = orderByMap[sortBy] ?? orderByMap.default;
 
     const conditions: string[] = ['"isActive" = true'];
+    // Exclude collections, literary works, and non-human entities from the library
+    const nonPersonaCondition = NON_PERSONA_SLUGS.map(s => `'${s}'`).join(', ');
+    conditions.push(`"slug" NOT IN (${nonPersonaCondition})`);
     const params: unknown[] = [];
     let paramIdx = 1;
 
@@ -79,41 +89,45 @@ export async function GET(req: NextRequest) {
     // By explicitly mapping known fields, we guarantee consumers find data under any casing.
     const items = personasResult.rows.map((row: Record<string, unknown>) => {
       const normalized: Record<string, unknown> = { ...row };
-      // Identity fields: provide all casing variants
-      if (row.namezh !== undefined) normalized.namezh = row.namezh;
+      // Identity fields: check lowercase DB keys first, then camelCase, provide both
+      if (row.namezh !== undefined) { normalized.namezh = row.namezh; normalized.nameZh = row.namezh; }
       if (row.nameZh !== undefined) normalized.nameZh = row.nameZh;
-      if (row.nameen !== undefined) normalized.nameen = row.nameen;
+      if (row.nameen !== undefined) { normalized.nameen = row.nameen; normalized.nameEn = row.nameen; }
       if (row.nameEn !== undefined) normalized.nameEn = row.nameEn;
+      if (row.name !== undefined) normalized.name = row.name;
       // Info fields
-      if (row.taglinezh !== undefined) normalized.taglinezh = row.taglinezh;
+      if (row.taglinezh !== undefined) { normalized.taglinezh = row.taglinezh; normalized.taglineZh = row.taglinezh; }
       if (row.taglineZh !== undefined) normalized.taglineZh = row.taglineZh;
-      if (row.briefzh !== undefined) normalized.briefzh = row.briefzh;
+      if (row.briefzh !== undefined) { normalized.briefzh = row.briefzh; normalized.briefZh = row.briefzh; }
       if (row.briefZh !== undefined) normalized.briefZh = row.briefZh;
+      // Identity prompt
+      if (row.identitypromptzh !== undefined) { normalized.identitypromptzh = row.identitypromptzh; normalized.identityPromptZh = row.identitypromptzh; }
+      if (row.identityPromptZh !== undefined) normalized.identityPromptZh = row.identityPromptZh;
       // Color fields
-      if (row.accentcolor !== undefined) normalized.accentcolor = row.accentcolor;
+      if (row.accentcolor !== undefined) { normalized.accentcolor = row.accentcolor; normalized.accentColor = row.accentcolor; }
       if (row.accentColor !== undefined) normalized.accentColor = row.accentColor;
-      if (row.gradientfrom !== undefined) normalized.gradientfrom = row.gradientfrom;
+      if (row.gradientfrom !== undefined) { normalized.gradientfrom = row.gradientfrom; normalized.gradientFrom = row.gradientfrom; }
       if (row.gradientFrom !== undefined) normalized.gradientFrom = row.gradientFrom;
-      if (row.gradientto !== undefined) normalized.gradientto = row.gradientto;
+      if (row.gradientto !== undefined) { normalized.gradientto = row.gradientto; normalized.gradientTo = row.gradientto; }
       if (row.gradientTo !== undefined) normalized.gradientTo = row.gradientTo;
       // Score fields
-      if (row.finalscore !== undefined) normalized.finalscore = row.finalscore;
+      if (row.finalscore !== undefined) { normalized.finalscore = row.finalscore; normalized.finalScore = row.finalscore; }
       if (row.finalScore !== undefined) normalized.finalScore = row.finalScore;
-      if (row.thresholdpassed !== undefined) normalized.thresholdpassed = row.thresholdpassed;
+      if (row.thresholdpassed !== undefined) { normalized.thresholdpassed = row.thresholdpassed; normalized.thresholdPassed = row.thresholdpassed; }
       if (row.thresholdPassed !== undefined) normalized.thresholdPassed = row.thresholdPassed;
-      if (row.qualitygateskipped !== undefined) normalized.qualitygateskipped = row.qualitygateskipped;
+      if (row.qualitygateskipped !== undefined) { normalized.qualitygateskipped = row.qualitygateskipped; normalized.qualityGateSkipped = row.qualitygateskipped; }
       if (row.qualityGateSkipped !== undefined) normalized.qualityGateSkipped = row.qualityGateSkipped;
-      if (row.corpusitemcount !== undefined) normalized.corpusitemcount = row.corpusitemcount;
+      if (row.corpusitemcount !== undefined) { normalized.corpusitemcount = row.corpusitemcount; normalized.corpusItemCount = row.corpusitemcount; }
       if (row.corpusItemCount !== undefined) normalized.corpusItemCount = row.corpusItemCount;
-      if (row.corputotalwords !== undefined) normalized.corputotalwords = row.corputotalwords;
+      if (row.corputotalwords !== undefined) { normalized.corputotalwords = row.corputotalwords; normalized.corpusTotalWords = row.corputotalwords; }
       if (row.corpusTotalWords !== undefined) normalized.corpusTotalWords = row.corpusTotalWords;
-      if (row.distillversion !== undefined) normalized.distillversion = row.distillversion;
+      if (row.distillversion !== undefined) { normalized.distillversion = row.distillversion; normalized.distillVersion = row.distillversion; }
       if (row.distillVersion !== undefined) normalized.distillVersion = row.distillVersion;
-      if (row.distilldate !== undefined) normalized.distilldate = row.distilldate;
+      if (row.distilldate !== undefined) { normalized.distilldate = row.distilldate; normalized.distillDate = row.distilldate; }
       if (row.distillDate !== undefined) normalized.distillDate = row.distillDate;
-      if (row.isactive !== undefined) normalized.isactive = row.isactive;
+      if (row.isactive !== undefined) { normalized.isactive = row.isactive; normalized.isActive = row.isactive; }
       if (row.isActive !== undefined) normalized.isActive = row.isActive;
-      if (row.ispublished !== undefined) normalized.ispublished = row.ispublished;
+      if (row.ispublished !== undefined) { normalized.ispublished = row.ispublished; normalized.isPublished = row.ispublished; }
       if (row.isPublished !== undefined) normalized.isPublished = row.isPublished;
       return normalized;
     });

@@ -154,6 +154,7 @@ export async function POST(req: NextRequest) {
               name: restored.name,
               role: 'FREE',
               plan: 'FREE',
+              credits: 10,
               avatar: null,
               canUseProFeatures: false,
               isAdmin: false,
@@ -197,10 +198,11 @@ export async function POST(req: NextRequest) {
           {
             user: {
               id: user.id,
-              email: user.email,
+              email: user.email || email.toLowerCase(),
               name: user.name || restored.name,
               role: user.role || 'FREE',
               plan: user.plan || 'FREE',
+              credits: user.credits ?? 0,
               avatar: user.avatar,
               canUseProFeatures: canUseProFeatures(user.role || 'FREE', user.plan || 'FREE'),
               isAdmin: user.role === 'ADMIN',
@@ -248,6 +250,7 @@ export async function POST(req: NextRequest) {
           name: user.name,
           role: user.role,
           plan: user.plan,
+          credits: user.credits ?? 0,
           avatar: user.avatar,
           canUseProFeatures: canUseProFeatures(user.role, user.plan),
           isAdmin: user.role === 'ADMIN',

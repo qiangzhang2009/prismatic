@@ -96,6 +96,8 @@ interface ModeButtonBarProps {
   onModePickerOpen?: () => void;
   /** Minimum participants for the current mode */
   minParticipants?: number;
+  /** Pre-resolved personas (merged hardcoded + DB). Falls back to getPersonasByIds. */
+  selectedPersonas?: any[];
 }
 
 export function ModeButtonBar({
@@ -106,8 +108,9 @@ export function ModeButtonBar({
   pickerOpen,
   onPickerOpen,
   minParticipants = 1,
+  selectedPersonas: resolvedPersonas,
 }: ModeButtonBarProps) {
-  const selectedPersonas = getPersonasByIds(selectedIds);
+  const personas = resolvedPersonas ?? getPersonasByIds(selectedIds);
 
   return (
     <div className="flex-shrink-0 border-b border-border-subtle bg-bg-surface/80 backdrop-blur-sm">
@@ -227,7 +230,7 @@ export function ModeButtonBar({
 
         {/* Selected personas — individual chips with name + X */}
         <div className="flex items-center gap-2 overflow-x-auto scrollbar-none">
-          {selectedPersonas.map((p) => {
+          {personas.map((p) => {
             const isLast = selectedIds[selectedIds.length - 1] === p.id;
             const canDeselect = selectedIds.length > minParticipants;
             return (

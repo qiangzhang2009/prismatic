@@ -117,6 +117,7 @@ function createPersonaStub(name: string): Persona {
     researchDate: new Date().toISOString().split('T')[0],
     version: '0.1.0',
     researchDimensions: [],
+    isAlive: true,
     systemPromptTemplate: `You are ${name}.`,
     identityPrompt: `I am ${name}.`,
   };

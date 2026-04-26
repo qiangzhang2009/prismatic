@@ -4,6 +4,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
 import { getAvatarUrl } from '@/lib/geo';
+import { PERSONAS } from '@/lib/personas';
 
 const prisma = new PrismaClient();
 
@@ -47,6 +48,9 @@ export async function GET(req: NextRequest) {
           updatedAt: r.updatedAt.toISOString(),
           mentionedGuardianReply: r.mentionedGuardianReply ?? null,
           mentionedGuardianId: r.mentionedGuardianId ?? null,
+          mentionedGuardianName: r.mentionedGuardianId
+            ? PERSONAS[r.mentionedGuardianId]?.nameZh ?? null
+            : null,
           ipHash: (r.ipHash as string) || null,
           userId: (r.userId as string) || null,
         };

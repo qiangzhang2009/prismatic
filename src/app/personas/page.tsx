@@ -19,11 +19,21 @@ import { DOMAINS } from '@/lib/constants';
 
 type SortKey = 'default' | 'confidence' | 'influence' | 'name' | 'domain';
 
+// Slugs that are collections, literary works, or non-human entities — excluded from the library
+const NON_PERSONA_SLUGS = new Set([
+  'greek-classics', 'chinese-classics', 'quantangshi',
+  'three-kingdoms', 'journey-west', 'tripitaka',
+  'sun-wukong', 'zhu-bajie',
+  'greek-classics-v4', 'chinese-classics-v4', 'quantangshi-v4',
+  'three-kingdoms-v4', 'journey-west-v4', 'tripitaka-v4',
+  'sun-wukong-v4', 'zhu-bajie-v4',
+]);
+
 interface DistilledPersona {
   slug: string;
   name: string;
-  namezh?: string;
-  nameen?: string;
+  nameZh?: string;
+  nameEn?: string;
   domain: string;
   tagline?: string;
   taglineZh?: string;
@@ -56,6 +66,11 @@ const CODE_PERSONA_MAP = new Map<string, any>(
   // Cast DB persona to Persona — DB personas have the display fields needed by PersonaCard
   // When DB mentalModels is empty but code has data, use code data instead.
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // Override map for slug-style DB names that need explicit Chinese name override
+  const SLUG_NAME_OVERRIDE: Record<string, string> = {
+    'lex-fridman': '莱克斯·弗里德曼',
+  };
+
   function dbToPersona(db: DistilledPersona): any {
     const score = personaScore(db.slug, db.finalScore);
     const domainStr = db.domain ?? 'philosophy';
@@ -81,9 +96,9 @@ const CODE_PERSONA_MAP = new Map<string, any>(
     const dbGradientTo = (unquote(db.gradientTo) as string) || '#8b5cf6';
 
     // Code persona display fields take priority when DB has placeholder values
-    // Only flag very short (1-2 char) standalone Chinese words as placeholders
+    // Only flag very short (1-2 char) standalone Chinese words or empty strings as placeholders
     const isPlaceholder = (v: string) =>
-      !v || (v.length <= 2 && /^[\u4e00-\u9fa5]+$/.test(v));
+      !v || v.trim().length === 0 || (v.length <= 2 && /^[\u4e00-\u9fa5]+$/.test(v));
 
     const tagline = !isPlaceholder(dbTagline) ? dbTagline : ( codePersona?.tagline ?? dbTagline);
     const taglineZh = !isPlaceholder(dbTaglineZh) ? dbTaglineZh : ( codePersona?.taglineZh ?? dbTaglineZh);
@@ -93,12 +108,24 @@ const CODE_PERSONA_MAP = new Map<string, any>(
     const gradientFrom = !isPlaceholder(dbGradientFrom) ? dbGradientFrom : ( codePersona?.gradientFrom ?? dbGradientFrom);
     const gradientTo = !isPlaceholder(dbGradientTo) ? dbGradientTo : ( codePersona?.gradientTo ?? dbGradientTo);
 
+    // DB doesn't have namezh/briefzh columns — name field is the only source.
+    // When DB name is empty or a slug, use code persona's Chinese name as fallback.
+    const dbName = unquote(db.name) || '';
+    const dbNameZh = decodeUnicodeEscapes(unquote(db.nameZh)) || '';
+    const isSlugName = /^[a-z][a-z0-9]*(-[a-z0-9]+)*$/.test(dbName);
+    // If db name is empty or looks like a slug, prefer code persona's Chinese name.
+    const codeNameZh = codePersona?.nameZh || '';
+    const overrideName = SLUG_NAME_OVERRIDE[db.slug];
+    const name = overrideName || ((dbName && !isSlugName) ? dbName : (codeNameZh || dbName));
+    const nameZh = overrideName || ((dbNameZh && !isSlugName) ? dbNameZh : (codeNameZh || dbNameZh || dbName));
+    const nameEn = unquote(db.nameEn) || (codePersona?.nameEn ?? dbName);
+
     return {
       id: db.slug,
       slug: db.slug,
-      name: unquote(db.name) || db.slug,
-      nameZh: decodeUnicodeEscapes(unquote(db.namezh)) || unquote(db.name) || db.slug,
-      nameEn: unquote(db.nameen) || unquote(db.name) || db.slug,
+      name,
+      nameZh,
+      nameEn,
       domain: domains,
       tagline,
       taglineZh,
@@ -151,6 +178,8 @@ export default function PersonasPage() {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const displayList = [...mergedPersonas]
     .filter((p: any) => {
+      // Exclude collections, literary works, and non-human entities
+      if (NON_PERSONA_SLUGS.has(p.slug)) return false;
       const domains = p.domain ?? [];
       const matchesDomain = selectedDomain === 'all' || (domains as string[]).includes(selectedDomain);
       const matchesSearch =

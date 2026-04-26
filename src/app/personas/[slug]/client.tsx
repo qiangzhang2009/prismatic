@@ -65,6 +65,11 @@ function MentalModelCard({ model, accentColor, personaId }: { model: Persona['me
     setExpanded(!expanded);
   };
 
+  // Prefer Chinese: if nameZh exists, show only the Chinese name.
+  // If oneLinerZh exists, show it; otherwise hide the English oneLiner.
+  const displayName = (model as any).nameZh || model.nameZh || model.name;
+  const displayOneLiner = ((model as any).oneLinerZh || model.oneLinerZh) || '';
+
   return (
     <motion.div
       className="rounded-2xl border border-border-subtle bg-bg-surface overflow-hidden"
@@ -81,12 +86,13 @@ function MentalModelCard({ model, accentColor, personaId }: { model: Persona['me
         />
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-3 mb-1">
-            <h4 className="font-medium text-sm">{model.nameZh}</h4>
-            <span className="text-xs text-text-muted">{model.name}</span>
+            <h4 className="font-medium text-sm">{displayName}</h4>
           </div>
-          <p className="text-sm text-text-secondary line-clamp-2">
-            {(model as any).oneLinerZh || (model as any).applicationZh || model.oneLiner}
-          </p>
+          {displayOneLiner && (
+            <p className="text-sm text-text-secondary line-clamp-2">
+              {displayOneLiner}
+            </p>
+          )}
         </div>
         <div className="flex-shrink-0 text-text-muted">
           {expanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
@@ -137,13 +143,17 @@ function MentalModelCard({ model, accentColor, personaId }: { model: Persona['me
           {/* Actual application */}
           <div>
             <h5 className="text-xs font-medium text-text-muted mb-2">实际应用</h5>
-            <p className="text-xs text-text-secondary">{(model as any).applicationZh || model.application}</p>
+            <p className="text-xs text-text-secondary">
+              {(model as any).applicationZh || model.applicationZh || '暂无'}
+            </p>
           </div>
 
           {/* Limitation */}
           <div className="rounded-lg p-3 bg-red-500/5 border border-red-500/15">
             <h5 className="text-xs font-medium text-red-400 mb-1">边界条件</h5>
-            <p className="text-xs text-text-secondary">{(model as any).limitationZh || model.limitation}</p>
+            <p className="text-xs text-text-secondary">
+              {(model as any).limitationZh || model.limitationZh || '暂无'}
+            </p>
           </div>
         </motion.div>
       )}
@@ -153,19 +163,21 @@ function MentalModelCard({ model, accentColor, personaId }: { model: Persona['me
 
 function DecisionHeuristicCard({ h, accentColor }: { h: Persona['decisionHeuristics'][0]; accentColor: string }) {
   const [expanded, setExpanded] = useState(false);
+  const zhName = (h as any).nameZh || h.nameZh;
+  const zhDesc = (h as any).descriptionZh || h.descriptionZh;
+  const zhApp = (h as any).applicationZh || h.applicationZh;
   return (
     <button
       onClick={() => setExpanded(!expanded)}
       className="w-full text-left rounded-xl border border-border-subtle bg-bg-surface p-4 hover:border-border-medium transition-colors"
     >
       <div className="flex items-center justify-between mb-1">
-        <span className="font-medium text-sm">{h.nameZh}</span>
-        <span className="text-xs text-text-muted">{h.name}</span>
+        <span className="font-medium text-sm">{zhName || h.name}</span>
       </div>
-      <p className="text-xs text-text-secondary">{(h as any).descriptionZh || h.description}</p>
+      {zhDesc && <p className="text-xs text-text-secondary">{zhDesc}</p>}
       {expanded && (
         <p className="text-xs text-text-muted mt-2 pt-2 border-t border-border-subtle">
-          应用于：{(h as any).applicationZh || h.application}
+          应用于：{zhApp || h.application || '暂无'}
         </p>
       )}
     </button>
@@ -175,13 +187,31 @@ function DecisionHeuristicCard({ h, accentColor }: { h: Persona['decisionHeurist
 export function PersonaDetailClient({ persona, colors }: Props) {
   const [activeTab, setActiveTab] = useState('mental-models');
 
+  // Defensive accessor for flexible persona data (DB personas may have fields as objects instead of strings)
+  const fp = persona as any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const getStr = (field: string, fallback = ''): string => {
+    const v = fp[field];
+    return typeof v === 'string' ? v : fallback;
+  };
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const getArr = (field: string): any[] => {
+    const v = fp[field];
+    return Array.isArray(v) ? v : [];
+  };
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const getObj = (field: string): any => {
+    const v = fp[field];
+    return typeof v === 'object' && v !== null ? v : null;
+  };
+
   // 追踪人物详情页浏览
   useEffect(() => {
     if (window.zxqTrackV2) {
       window.zxqTrackV2.track('persona_view', {
-        persona_id: persona.id,
-        persona_name: persona.nameZh,
-        domain: persona.domain?.[0],
+        persona_id: fp.id,
+        persona_name: fp.nameZh,
+        domain: (fp.domain ?? [])[0],
         page_path: window.location.pathname,
       });
     }
@@ -202,12 +232,12 @@ export function PersonaDetailClient({ persona, colors }: Props) {
               className="w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold text-white"
               style={{ background: `linear-gradient(135deg, ${colors.from}, ${colors.to})` }}
             >
-              {persona.nameZh.slice(0, 1)}
+              {fp.nameZh.slice(0, 1)}
             </div>
-            <span className="font-display font-semibold text-sm">{persona.nameZh}</span>
+            <span className="font-display font-semibold text-sm">{fp.nameZh}</span>
           </div>
           <Link
-            href={`/app?persona=${persona.id}`}
+            href={`/app?persona=${fp.id}`}
             className="ml-auto flex items-center gap-2 text-sm px-4 py-1.5 rounded-lg font-medium transition-colors"
             style={{
               background: `linear-gradient(135deg, ${colors.from}20, ${colors.to}20)`,
@@ -229,19 +259,21 @@ export function PersonaDetailClient({ persona, colors }: Props) {
               className="w-20 h-20 rounded-full flex items-center justify-center text-2xl font-bold text-white flex-shrink-0"
               style={{ background: `linear-gradient(135deg, ${colors.from}, ${colors.to})` }}
             >
-              {persona.nameZh.slice(0, 1)}
+              {fp.nameZh.slice(0, 1)}
             </div>
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-3 mb-2">
-                <h1 className="text-3xl font-display font-bold">{persona.nameZh}</h1>
-                <span className="text-lg text-text-muted">{persona.name}</span>
+                <h1 className="text-3xl font-display font-bold">{fp.nameZh}</h1>
+                {fp.name && fp.name !== fp.nameZh && (
+                  <span className="text-lg text-text-muted">{fp.name}</span>
+                )}
               </div>
-              <p className="text-text-secondary italic mb-3">&ldquo;{persona.taglineZh}&rdquo;</p>
-              <p className="text-sm text-text-secondary">{persona.briefZh}</p>
+              <p className="text-text-secondary italic mb-3">&ldquo;{fp.taglineZh || fp.tagline}&rdquo;</p>
+              <p className="text-sm text-text-secondary">{fp.briefZh || fp.brief}</p>
 
               {/* Domain tags */}
               <div className="flex flex-wrap gap-2 mt-3">
-                {persona.domain.map((d) => (
+                {getArr('domain').map((d: string) => (
                   <span
                     key={d}
                     className="text-xs px-2.5 py-0.5 rounded-full border"
@@ -251,14 +283,14 @@ export function PersonaDetailClient({ persona, colors }: Props) {
                   </span>
                 ))}
                 <span className="text-xs px-2.5 py-0.5 rounded-full bg-bg-elevated text-text-muted border border-border-subtle">
-                  {(persona as any).distillVersion || persona.version}
+                  {(persona as any).distillVersion || fp.version}
                 </span>
               </div>
 
               {/* Scroll CTA */}
               <div className="flex items-center gap-3 mt-4">
                 <Link
-                  href={`/personas/${persona.slug}/scroll`}
+                  href={`/personas/${fp.slug}/scroll`}
                   className="inline-flex items-center gap-2 text-xs px-3 py-1.5 rounded-lg font-medium transition-colors"
                   style={{
                     background: `${colors.accent}15`,
@@ -282,32 +314,50 @@ export function PersonaDetailClient({ persona, colors }: Props) {
             <div className="rounded-xl p-4 bg-green-500/5 border border-green-500/15">
               <h3 className="text-sm font-medium text-green-400 mb-2">擅长领域</h3>
               <div className="flex flex-wrap gap-1.5">
-                {persona.strengths.map((s) => (
-                  <span key={s} className="text-xs px-2 py-0.5 rounded-md bg-green-500/10 text-green-400">
-                    {s}
-                  </span>
-                ))}
+                {getArr('strengths').map((s) => {
+                  const textZh = typeof s === 'object' && s !== null ? ((s as Record<string, unknown>).textZh as string) : '';
+                  const text = typeof s === 'string' ? s : (typeof s === 'object' && s !== null ? ((s as Record<string, unknown>).text as string) || '' : '');
+                  // Only show if textZh exists AND contains predominantly Chinese characters.
+                  // This prevents mixed-content like "Control二分法" from being shown.
+                  const clean = textZh.replace(/[\s，。、：；！？""''（）【】.,:;!?()[\]"\/—–-]/g, '');
+                  const zhRatio = clean.replace(/[a-zA-Z]/g, '').length / (clean.length || 1);
+                  const hasZhContent = textZh && zhRatio > 0.4;
+                  if (!hasZhContent) return null;
+                  return (
+                    <span key={textZh} className="text-xs px-2 py-0.5 rounded-md bg-green-500/10 text-green-400">
+                      {textZh}
+                    </span>
+                  );
+                })}
               </div>
             </div>
             <div className="rounded-xl p-4 bg-yellow-500/5 border border-yellow-500/15">
               <h3 className="text-sm font-medium text-yellow-400 mb-2">认知盲区</h3>
               <div className="flex flex-wrap gap-1.5">
-                {persona.blindspots.map((b) => (
-                  <span key={b} className="text-xs px-2 py-0.5 rounded-md bg-yellow-500/10 text-yellow-400">
-                    {b}
-                  </span>
-                ))}
+                {getArr('blindspots').map((b) => {
+                  const textZh = typeof b === 'object' && b !== null ? ((b as Record<string, unknown>).textZh as string) : '';
+                  const text = typeof b === 'string' ? b : (typeof b === 'object' && b !== null ? ((b as Record<string, unknown>).text as string) || '' : '');
+                  const clean = textZh.replace(/[\s，。、：；！？""''（）【】.,:;!?()[\]"\/—–-]/g, '');
+                  const zhRatio = clean.replace(/[a-zA-Z]/g, '').length / (clean.length || 1);
+                  const hasZhContent = textZh && zhRatio > 0.4;
+                  if (!hasZhContent) return null;
+                  return (
+                    <span key={textZh} className="text-xs px-2 py-0.5 rounded-md bg-yellow-500/10 text-yellow-400">
+                      {textZh}
+                    </span>
+                  );
+                })}
               </div>
             </div>
           </div>
 
           {/* Research info */}
           <div className="mt-4 flex items-center gap-4 text-xs text-text-muted">
-            <span>研究日期：{persona.researchDate}</span>
+            <span>研究日期：{fp.researchDate}</span>
             <span>·</span>
-            <span>版本：{(persona as any).distillVersion || persona.version}</span>
+            <span>版本：{(persona as any).distillVersion || fp.version}</span>
             <span>·</span>
-            <span>心智模型：{persona.mentalModels.length}个</span>
+            <span>心智模型：{getArr('mentalModels').length}个</span>
           </div>
         </div>
       </section>
@@ -343,24 +393,28 @@ export function PersonaDetailClient({ persona, colors }: Props) {
           {/* Mental Models Tab */}
           {activeTab === 'mental-models' && (
             <div className="space-y-3">
-              {persona.mentalModels.map((m) => (
-                <MentalModelCard key={m.id} model={m} accentColor={colors.accent} personaId={persona.id} />
+              {((persona as any).mentalModels ?? []).map((m: any) => (
+                <MentalModelCard key={m.id} model={m} accentColor={colors.accent} personaId={fp.id as string} />
               ))}
             </div>
           )}
 
           {/* Voice DNA Tab */}
-          {activeTab === 'voice' && persona.expressionDNA && (
+          {activeTab === 'voice' && ((): React.ReactNode => {
+            const edna = (persona as any).expressionDNA ?? {};
+            const dhs = (persona as any).decisionHeuristics ?? [];
+            if (!edna || typeof edna !== 'object') return null;
+            return (
             <div className="space-y-6">
               {/* Sentence style */}
-              {(persona.expressionDNA.sentenceStyle ?? []).length > 0 && (
+              {(Array.isArray(edna.sentenceStyle) && edna.sentenceStyle.length > 0) && (
                 <div className="rounded-2xl border border-border-subtle bg-bg-surface p-6">
                   <h3 className="font-medium mb-4 flex items-center gap-2">
                     <Zap className="w-4 h-4" style={{ color: colors.accent }} />
                     句式特征
                   </h3>
                   <div className="flex flex-wrap gap-2">
-                    {persona.expressionDNA.sentenceStyle.map((s) => (
+                    {edna.sentenceStyle.map((s: string) => (
                       <span key={s} className="text-sm px-3 py-1 rounded-lg bg-bg-elevated text-text-secondary border border-border-subtle">
                         {s}
                       </span>
@@ -370,16 +424,12 @@ export function PersonaDetailClient({ persona, colors }: Props) {
               )}
 
               {/* Vocabulary */}
-              {persona.expressionDNA.vocabulary.length > 0 && (
+              {Array.isArray(edna.vocabulary) && edna.vocabulary.length > 0 && (
                 <div className="rounded-2xl border border-border-subtle bg-bg-surface p-6">
                   <h3 className="font-medium mb-4">标志性词汇</h3>
                   <div className="flex flex-wrap gap-2">
-                    {persona.expressionDNA.vocabulary.map((v) => (
-                      <span
-                        key={v}
-                        className="text-sm px-3 py-1 rounded-lg"
-                        style={{ backgroundColor: `${colors.accent}15`, color: colors.accent }}
-                      >
+                    {edna.vocabulary.map((v: string) => (
+                      <span key={v} className="text-sm px-3 py-1 rounded-lg" style={{ backgroundColor: `${colors.accent}15`, color: colors.accent }}>
                         {v}
                       </span>
                     ))}
@@ -388,14 +438,14 @@ export function PersonaDetailClient({ persona, colors }: Props) {
               )}
 
               {/* Forbidden words */}
-              {persona.expressionDNA.forbiddenWords.length > 0 && (
+              {Array.isArray(edna.forbiddenWords) && edna.forbiddenWords.length > 0 && (
                 <div className="rounded-2xl border border-red-500/15 bg-red-500/5 p-6">
                   <h3 className="font-medium mb-4 text-red-400 flex items-center gap-2">
                     <Shield className="w-4 h-4" />
                     禁用词汇（绝不应出现）
                   </h3>
                   <div className="flex flex-wrap gap-2">
-                    {persona.expressionDNA.forbiddenWords.map((w) => (
+                    {edna.forbiddenWords.map((w: string) => (
                       <span key={w} className="text-sm px-3 py-1 rounded-lg bg-red-500/10 text-red-400">
                         {w}
                       </span>
@@ -406,28 +456,28 @@ export function PersonaDetailClient({ persona, colors }: Props) {
 
               {/* Other DNA */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {persona.expressionDNA.certaintyLevel && (
+                {edna.certaintyLevel && (
                   <div className="rounded-xl border border-border-subtle bg-bg-surface p-4">
                     <h4 className="text-xs text-text-muted mb-1">确定性水平</h4>
-                    <p className="text-sm font-medium">{persona.expressionDNA.certaintyLevel}</p>
+                    <p className="text-sm font-medium">{edna.certaintyLevel}</p>
                   </div>
                 )}
-                {persona.expressionDNA.rhythm && (
+                {edna.rhythm && (
                   <div className="rounded-xl border border-border-subtle bg-bg-surface p-4">
                     <h4 className="text-xs text-text-muted mb-1">节奏特征</h4>
-                    <p className="text-sm text-text-secondary">{persona.expressionDNA.rhythm}</p>
+                    <p className="text-sm text-text-secondary">{edna.rhythm}</p>
                   </div>
                 )}
-                {persona.expressionDNA.humorStyle && (
+                {edna.humorStyle && (
                   <div className="rounded-xl border border-border-subtle bg-bg-surface p-4">
                     <h4 className="text-xs text-text-muted mb-1">幽默风格</h4>
-                    <p className="text-sm text-text-secondary">{persona.expressionDNA.humorStyle}</p>
+                    <p className="text-sm text-text-secondary">{edna.humorStyle}</p>
                   </div>
                 )}
-                {persona.expressionDNA.rhetoricalHabit && (
+                {edna.rhetoricalHabit && (
                   <div className="rounded-xl border border-border-subtle bg-bg-surface p-4">
                     <h4 className="text-xs text-text-muted mb-1">修辞习惯</h4>
-                    <p className="text-sm text-text-secondary">{persona.expressionDNA.rhetoricalHabit}</p>
+                    <p className="text-sm text-text-secondary">{edna.rhetoricalHabit}</p>
                   </div>
                 )}
               </div>
@@ -440,39 +490,40 @@ export function PersonaDetailClient({ persona, colors }: Props) {
                 </div>
               )}
 
-              {persona.expressionDNA.chineseAdaptation && (
+              {edna.chineseAdaptation && (
                 <div className="rounded-2xl border border-border-subtle bg-bg-surface p-6">
                   <h3 className="font-medium mb-3 text-sm text-text-muted">中文适配规则</h3>
-                  <p className="text-sm text-text-secondary">{persona.expressionDNA.chineseAdaptation}</p>
+                  <p className="text-sm text-text-secondary">{edna.chineseAdaptation}</p>
                 </div>
               )}
 
               {/* Decision Heuristics */}
-              {persona.decisionHeuristics.length > 0 && (
+              {Array.isArray(dhs) && dhs.length > 0 && (
                 <div>
                   <h3 className="font-medium mb-3">决策启发式</h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    {persona.decisionHeuristics.map((h) => (
+                    {dhs.map((h: any) => (
                       <DecisionHeuristicCard key={h.id} h={h} accentColor={colors.accent} />
                     ))}
                   </div>
                 </div>
               )}
             </div>
-          )}
+            );
+          })()}
 
           {/* Quotes Tab */}
           {activeTab === 'quotes' && (
             <div className="space-y-4">
               {/* Key Quotes */}
-              {persona.keyQuotes && persona.keyQuotes.length > 0 && (
+              {fp.keyQuotes && getArr('keyQuotes').length > 0 && (
                 <div className="rounded-2xl border border-border-subtle bg-bg-surface p-6">
                   <h3 className="font-medium mb-4 flex items-center gap-2">
                     <Quote className="w-4 h-4" style={{ color: colors.accent }} />
                     核心引用
                   </h3>
                   <div className="space-y-4">
-                    {persona.keyQuotes.map((q, i) => (
+                    {fp.keyQuotes.map((q: any, i: number) => (
                       <div key={i} className="border-l-2 border-border-subtle pl-4">
                         <p className="text-sm text-text-secondary italic leading-relaxed">&ldquo;{q.quote}&rdquo;</p>
                         {q.source && (
@@ -485,14 +536,14 @@ export function PersonaDetailClient({ persona, colors }: Props) {
               )}
 
               {/* Sources / Corpus */}
-              {persona.sources && persona.sources.length > 0 && (
+              {fp.sources && getArr('sources').length > 0 && (
                 <div className="rounded-2xl border border-border-subtle bg-bg-surface p-6">
                   <h3 className="font-medium mb-4 flex items-center gap-2">
                     <BookOpen className="w-4 h-4" style={{ color: colors.accent }} />
                     主要参考来源
                   </h3>
                   <div className="space-y-3">
-                    {persona.sources.map((s: any, i: number) => (
+                    {fp.sources.map((s: any, i: number) => (
                       <div key={i} className="flex items-start gap-3">
                         <span
                           className="text-xs px-2 py-0.5 rounded flex-shrink-0 mt-0.5"
@@ -524,16 +575,16 @@ export function PersonaDetailClient({ persona, colors }: Props) {
               )}
 
               {/* lifePhilosophy fallback */}
-              {!persona.sources?.length && !(persona.keyQuotes ?? []).length && persona.lifePhilosophy && (
+              {!fp.sources?.length && !getArr('keyQuotes').length && fp.lifePhilosophy && (
                 <div className="rounded-2xl border border-border-subtle bg-bg-surface p-6">
                   <h3 className="font-medium mb-3 text-sm text-text-muted flex items-center gap-2">
                     <Quote className="w-4 h-4" style={{ color: colors.accent }} />
                     人生哲学
                   </h3>
-                  {typeof persona.lifePhilosophy === 'string' ? (
-                    <p className="text-sm text-text-secondary italic leading-relaxed">&ldquo;{persona.lifePhilosophy}&rdquo;</p>
+                  {typeof fp.lifePhilosophy === 'string' ? (
+                    <p className="text-sm text-text-secondary italic leading-relaxed">&ldquo;{fp.lifePhilosophy}&rdquo;</p>
                   ) : (() => {
-                    const lp = persona.lifePhilosophy as { core: string; threeLevels?: { person: string; becoming: string; ultimate: string } };
+                    const lp = fp.lifePhilosophy as { core: string; threeLevels?: { person: string; becoming: string; ultimate: string } };
                     return (
                     <div className="space-y-3">
                       {lp.core && (
@@ -558,7 +609,7 @@ export function PersonaDetailClient({ persona, colors }: Props) {
               )}
 
               {/* Completely empty state */}
-              {!persona.sources?.length && !(persona.keyQuotes ?? []).length && !persona.lifePhilosophy && (
+              {!fp.sources?.length && !getArr('keyQuotes').length && !fp.lifePhilosophy && (
                 <div className="text-center py-12">
                   <Quote className="w-8 h-8 text-text-muted mx-auto mb-3" />
                   <p className="text-sm text-text-muted">暂无引用或来源数据</p>
@@ -568,9 +619,9 @@ export function PersonaDetailClient({ persona, colors }: Props) {
           )}
 
           {/* Tensions Tab */}
-          {activeTab === 'tensions' && persona.tensions && persona.tensions.length > 0 && (
+          {activeTab === 'tensions' && fp.tensions && getArr('tensions').length > 0 && (
             <div className="space-y-4">
-              {persona.tensions.map((t, i) => {
+              {fp.tensions.map((t: any, i: number) => {
                 const tensionText = typeof t.tensionZh === 'string' ? t.tensionZh
                   : typeof t.tension === 'string' ? t.tension
                   : typeof t === 'string' ? t
@@ -596,14 +647,14 @@ export function PersonaDetailClient({ persona, colors }: Props) {
               })}
 
               {/* Honest Boundaries */}
-              {persona.honestBoundaries && persona.honestBoundaries.length > 0 && (
+              {fp.honestBoundaries && getArr('honestBoundaries').length > 0 && (
                 <div className="rounded-2xl border border-red-500/15 bg-red-500/5 p-6">
                   <h3 className="font-medium mb-4 text-red-400 flex items-center gap-2">
                     <Shield className="w-4 h-4" />
                     诚实边界
                   </h3>
                   <div className="space-y-2">
-                    {persona.honestBoundaries.map((b, i) => {
+                    {fp.honestBoundaries.map((b: any, i: number) => {
                       const text = typeof b.textZh === 'string' ? b.textZh
                         : typeof b.text === 'string' ? b.text
                         : typeof b === 'string' ? b
@@ -623,7 +674,7 @@ export function PersonaDetailClient({ persona, colors }: Props) {
 
           {/* Confidence Tab */}
           {activeTab === 'confidence' && (() => {
-            const confidence = getPersonaConfidence(persona.id);
+            const confidence = getPersonaConfidence(fp.id);
             if (!confidence) {
               return (
                 <div className="text-center py-12 text-text-muted text-sm">
@@ -827,13 +878,13 @@ export function PersonaDetailClient({ persona, colors }: Props) {
       <section className="px-6 py-12 border-t border-border-subtle">
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="text-2xl font-display font-bold mb-3">
-            和{persona.nameZh}对话
+            和{fp.nameZh}对话
           </h2>
           <p className="text-text-secondary mb-6">
-            开启与{persona.nameZh}的深度思维协作，探索{persona.taglineZh}
+            开启与{fp.nameZh}的深度思维协作，探索{fp.taglineZh || fp.tagline}
           </p>
           <Link
-            href={`/app?persona=${persona.id}`}
+            href={`/app?persona=${fp.id}`}
             className="btn-primary inline-flex items-center gap-2"
             style={{
               background: `linear-gradient(135deg, ${colors.from}, ${colors.to})`,

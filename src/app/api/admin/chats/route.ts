@@ -50,9 +50,19 @@ export async function GET(req: NextRequest) {
     const mode = searchParams.get('mode') || '';
     const billingMode = searchParams.get('billingMode') || '';
     const personaId = searchParams.get('personaId') || '';
-    const dateFrom = searchParams.get('dateFrom') || '';
-    const dateTo = searchParams.get('dateTo') || '';
     const userId = searchParams.get('userId') || '';
+
+    // Support `days` parameter (rolling window, same as Dashboard) or explicit dateFrom/dateTo
+    const daysParam = parseInt(searchParams.get('days') || '0', 10);
+    let dateFrom = searchParams.get('dateFrom') || '';
+    let dateTo = searchParams.get('dateTo') || '';
+    if (!dateFrom && daysParam > 0) {
+      const ps = new Date(Date.now() - daysParam * 24 * 60 * 60 * 1000);
+      dateFrom = ps.toISOString();
+    }
+    if (!dateTo && daysParam > 0) {
+      dateTo = new Date().toISOString();
+    }
 
     const pool = getPool();
     const conditions: string[] = [];
@@ -62,8 +72,14 @@ export async function GET(req: NextRequest) {
     if (userId) { conditions.push(`c."userId" = $${p++}`); params.push(userId); }
     if (mode) { conditions.push(`c.mode = $${p++}`); params.push(mode); }
     if (searchParams.get('type')) { conditions.push(`c.type = $${p++}`); params.push(searchParams.get('type')); }
-    if (dateFrom) { conditions.push(`c."updatedAt" >= $${p++}`); params.push(new Date(dateFrom)); }
-    if (dateTo) { conditions.push(`c."updatedAt" <= $${p++}`); params.push(new Date(dateTo + 'T23:59:59Z')); }
+    const parsedDateFrom = dateFrom ? new Date(dateFrom) : null;
+    const parsedDateTo = dateTo ? new Date(dateTo) : null;
+    if (parsedDateFrom && !isNaN(parsedDateFrom.getTime())) { conditions.push(`c."updatedAt" >= $${p++}`); params.push(parsedDateFrom); }
+    if (parsedDateTo && !isNaN(parsedDateTo.getTime())) {
+      parsedDateTo.setUTCHours(23, 59, 59, 999);
+      conditions.push(`c."updatedAt" <= $${p++}`);
+      params.push(parsedDateTo);
+    }
     if (search) {
       conditions.push(`EXISTS (SELECT 1 FROM messages m WHERE m."conversationId" = c.id AND LOWER(m.content) LIKE LOWER($${p++}))`);
       params.push(`%${search}%`);

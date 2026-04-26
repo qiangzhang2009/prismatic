@@ -34,7 +34,7 @@ async function tableExists(tableName: string): Promise<boolean> {
 async function requireTable(tableName: string): Promise<void> {
   const exists = await tableExists(tableName);
   if (!exists) {
-    console.warn(`[Guardian] Table "${tableName}" not found — guardian features disabled`);
+    throw new Error(`[Guardian] Table "${tableName}" not found`);
   }
 }
 
@@ -173,22 +173,35 @@ export async function getTodayGuardians(): Promise<Array<{
   gradientTo: string;
   shiftTheme: string;
 }>> {
-  // Pre-check: require table so we get a clear error instead of silent []
-  await requireTable('prismatic_guardian_schedule');
+  try {
+    await requireTable('prismatic_guardian_schedule');
+  } catch {
+    // Table doesn't exist — return empty rather than crashing
+    return [];
+  }
   const sql = getSql();
   const today = new Date().toISOString().slice(0, 10);
 
   // Ensure this week's schedule exists
-  const weekStart = getWeekStart(new Date());
-  await ensureWeeklySchedule(weekStart);
+  try {
+    const weekStart = getWeekStart(new Date());
+    await ensureWeeklySchedule(weekStart);
+  } catch {
+    // Schedule generation failed — try querying anyway
+  }
 
   // Get guardian schedule (without persona JOIN)
-  const rows = await sql`
-    SELECT gs.slot, gs.persona_id, gs.shift_theme, gs.max_interactions
-    FROM prismatic_guardian_schedule gs
-    WHERE gs.date = ${today}
-    ORDER BY gs.slot ASC
-  `;
+  let rows: any[];
+  try {
+    rows = await sql`
+      SELECT gs.slot, gs.persona_id, gs.shift_theme, gs.max_interactions
+      FROM prismatic_guardian_schedule gs
+      WHERE gs.date = ${today}
+      ORDER BY gs.slot ASC
+    `;
+  } catch {
+    return [];
+  }
 
   if (rows.length === 0) return [];
 
@@ -355,8 +368,13 @@ export async function getCommentInteractions(commentId: string): Promise<Array<{
   emoji: string | null;
   createdAt: string;
 }>> {
-  await requireTable('prismatic_persona_interactions');
-  const sql = getSql();
+  let sql;
+  try {
+    await requireTable('prismatic_persona_interactions');
+    sql = getSql();
+  } catch {
+    return [];
+  }
   const rows = await sql`
     SELECT pi.id, pi.persona_id, pi.interaction_type, pi.content, pi.emoji, pi.created_at
     FROM prismatic_persona_interactions pi
@@ -421,17 +439,17 @@ export function buildPersonaInteractionPrompt(
 
   return `${persona.identityPrompt}
 
-你是"守望者计划"的今日值班者——${persona.nameZh}。
+你是"守望者计划"的值班者——${persona.nameZh}。
 今日值班主题：${shiftTheme}
 
 你正在浏览社区评论，你的任务是：
 - ${behavior}
 - 保持你的人物特色：${persona.strengths.join('、')}
 - 回复要简洁有力，30-80字以内
-- 可以适当使用 Markdown 格式
 - 不要机械地回复，要像这个人物真正在说话
+- 不要在回复中称呼对方姓名，不要使用加粗或斜体
 
-用户"${authorName}"的评论内容：
+评论内容：
 "${commentContent}"
 
 请生成你的回复（如果你认为不值得回复，返回"SKIP"）：

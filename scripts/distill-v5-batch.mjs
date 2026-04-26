@@ -19,7 +19,7 @@
  *   bun run scripts/distill-v5-batch.mjs --replace          # V5替换V4
  */
 
-import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'fs';
+import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync, statSync } from 'fs';
 import { join, dirname, basename } from 'path';
 import { fileURLToPath } from 'url';
 import * as dotenv from 'dotenv';
@@ -104,17 +104,25 @@ function scanPersonas() {
     const textsDir = join(CORPUS_ROOT, dir, 'texts');
     if (dir === 'distilled' || dir === 'corpus-manifest.json' || !existsSync(textsDir)) continue;
 
-    const files = readdirSync(textsDir).filter(f => !f.startsWith('.'));
+    let totalWords = 0;
+
+    function walkWords(dir, depth = 0) {
+      if (depth > 4) return;
+      for (const entry of readdirSync(dir)) {
+        if (entry.startsWith('.')) continue;
+        const filepath = join(dir, entry);
+        try {
+          if (statSync(filepath).isFile()) {
+            totalWords += readFileSync(filepath, 'utf-8').split(/\s+/).filter(Boolean).length;
+          } else if (statSync(filepath).isDirectory()) {
+            walkWords(filepath, depth + 1);
+          }
+        } catch {}
+      }
+    }
+    walkWords(textsDir);
     const v4File = join(V4_DIR, `${dir}-v4.json`);
     const v5File = join(V5_DIR, `${dir}-v5.json`);
-
-    let totalWords = 0;
-    for (const file of files) {
-      try {
-        const content = readFileSync(join(textsDir, file), 'utf-8');
-        totalWords += content.split(/\s+/).filter(Boolean).length;
-      } catch {}
-    }
 
     let v4Score = undefined;
     if (existsSync(v4File)) {
@@ -126,8 +134,8 @@ function scanPersonas() {
 
     results.push({
       personaId: dir,
-      hasCorpus: files.length > 0,
-      fileCount: files.length,
+      hasCorpus: totalWords > 0,
+      fileCount: 0,
       totalWords,
       v4Exists: existsSync(v4File),
       v5Exists: existsSync(v5File),
@@ -381,8 +389,14 @@ function parseArgs(argv) {
     else if (arg === '--dry-run') result.command = 'dry-run';
     else if (arg === '--replace') result.command = 'replace';
     else if (arg === '--parallel' || arg === '-p') result.parallel = parseInt(argv[++i]);
-    else if (arg.startsWith('--persona=')) result.personaId = arg.replace('--persona=', '');
-    else if (!arg.startsWith('--') && !arg.startsWith('-')) result.personaId = arg;
+    else if (arg.startsWith('--persona=')) {
+      result.personaId = arg.replace('--persona=', '');
+      if (result.command === 'batch') result.command = 'single';
+    }
+    else if (!arg.startsWith('--') && !arg.startsWith('-')) {
+      result.personaId = arg;
+      if (result.command === 'batch') result.command = 'single';
+    }
   }
 
   return result;

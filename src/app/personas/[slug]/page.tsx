@@ -55,6 +55,14 @@ function buildPersonaFromDB(db: Record<string, unknown>): Persona {
     // supplement from code only if DB is empty
     const isV4 = String(db.distillVersion || '').startsWith('v4');
 
+    // For v4 personas: DB has complete Chinese text for character-specific content
+    // For v5+ personas: DB (V5 JSON) has the best data — never override with code
+    // Only flag truly empty / whitespace-only / null values as placeholders.
+    // We intentionally do NOT treat short Chinese strings as placeholders —
+    // a 3-character tagline like "递弱代偿" is valid content, not a placeholder.
+    const isPlaceholder = (v: string) =>
+      !v || v.trim().length === 0;
+
     if (isV4) {
       // v4: DB has complete Chinese text for character-specific content
       if (!dbPersona.mentalModels.length && codePersona.mentalModels.length) {
@@ -108,12 +116,18 @@ function buildPersonaFromDB(db: Record<string, unknown>): Persona {
       dbPersona.sources = codePersona.sources;
     }
 
-    // Other display data
-    if (codePersona.domain.length > dbPersona.domain.length) dbPersona.domain = codePersona.domain;
-    if (dbPersona.accentColor === '#6366f1' && codePersona.accentColor !== '#6366f1') {
-      dbPersona.accentColor = codePersona.accentColor;
-      dbPersona.gradientFrom = codePersona.gradientFrom;
-      dbPersona.gradientTo = codePersona.gradientTo;
+    // Other display data — only fill in if DB has placeholder/default values
+    if (dbPersona.domain.length < codePersona.domain.length) dbPersona.domain = codePersona.domain;
+    if (isPlaceholder(dbPersona.tagline)) dbPersona.tagline = codePersona.tagline ?? dbPersona.tagline;
+    if (isPlaceholder(dbPersona.taglineZh)) dbPersona.taglineZh = codePersona.taglineZh ?? dbPersona.taglineZh;
+    if (isPlaceholder(dbPersona.brief)) dbPersona.brief = codePersona.brief ?? dbPersona.brief;
+    if (isPlaceholder(dbPersona.briefZh)) dbPersona.briefZh = codePersona.briefZh ?? dbPersona.briefZh;
+    if (isPlaceholder(dbPersona.accentColor) || dbPersona.accentColor === '#6366f1') {
+      if (!isPlaceholder(codePersona.accentColor)) {
+        dbPersona.accentColor = codePersona.accentColor;
+        dbPersona.gradientFrom = codePersona.gradientFrom;
+        dbPersona.gradientTo = codePersona.gradientTo;
+      }
     }
   }
 

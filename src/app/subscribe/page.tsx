@@ -229,7 +229,7 @@ export default function SubscribePage() {
             角色权限矩阵（Role = 功能权限）
           </h2>
           <p className="text-sm text-text-muted text-center mb-8">
-            角色决定你能使用哪些功能。与套餐（Plan）相互独立，可叠加
+            角色决定你能使用哪些功能。与套餐相互独立，可叠加
           </p>
 
           <div className="rounded-2xl border border-border-subtle overflow-hidden">
@@ -300,11 +300,11 @@ export default function SubscribePage() {
               </h3>
               <div className="space-y-2.5 text-sm">
                 {[
-                  { label: '模型', value: 'DeepSeek-V3.2 (deepseek-chat)' },
-                  { label: 'Input（缓存未命中）', value: '¥0.0020 / 1K tokens' },
-                  { label: 'Input（缓存命中）', value: '¥0.0002 / 1K tokens' },
-                  { label: 'Output', value: '¥0.0030 / 1K tokens' },
-                  { label: '单次对话估算', value: '≈ ¥0.00085（200 in + 150 out）' },
+                  { label: '模型', value: 'DeepSeek-V3.2' },
+                  { label: '输入（缓存未命中）', value: '¥0.0020 / 1K tokens' },
+                  { label: '输入（缓存命中）', value: '¥0.0002 / 1K tokens' },
+                  { label: '输出', value: '¥0.0030 / 1K tokens' },
+                  { label: '单次对话估算', value: '≈ ¥0.00085（200 输入 + 150 输出）' },
                   { label: '月度成本（10条/天）', value: '≈ ¥0.26 / 人/月' },
                   { label: '月度成本（无限制，日均50条）', value: '≈ ¥3.6 / 人/月' },
                 ].map(item => (

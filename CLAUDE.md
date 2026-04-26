@@ -1,7 +1,7 @@
 # Prismatic · 棱镜折射 — Agent 章程
 
-> **版本**: v1.1
-> **最后更新**: 2026-04-20
+> **版本**: v1.4
+> **最后更新**: 2026-04-26
 > **适用范围**: 所有 AI Agent 对 Prismatic 项目的所有修改
 
 ---
@@ -263,3 +263,238 @@ git push origin main             # 直接 push schema 变更
 - 自动备份：`.github/workflows/database-backup.yml`
 - 预迁移检查：`scripts/pre-migration-hook.ts`
 - RLS 设置：`scripts/setup-rls.ts`
+- 部署规范（第十章）：`CLAUDE.md` 第十节
+- 语料与人物系统：`docs/CORPUS_AND_PERSONA_SYSTEM.md`
+- 语料采集计划：`docs/corpus-collection-plan.md`
+- 语料污染复盘：`docs/corpus-pollution-post-mortem.md`
+
+---
+
+
+
+---
+
+## 十一、运行时知识边界系统（Runtime Knowledge Gap System）
+
+### 11.1 问题背景
+
+人物库中有些 persona 代表仍在世的人（如现代企业家、学者、公众人物）。用户若询问这些人物最近的动态，而蒸馏知识库中没有收录，就会产生**知识空白（Knowledge Gap）**。
+
+### 11.2 解决方案架构
+
+```
+User Question
+     ↓
+  L1: Metadata Enricher    — 提取 persona 的 corpusMetadata（cutoffDate、confidenceScore、gapSignals）
+     ↓
+  L2: Gap Detector         — 检测问题是否涉及知识空白（时间信号、近期事件词、蒸馏边界词）
+     ↓
+  L3: Graceful Router      — 决定降级策略（normal / extrapolate / honest_boundary / refer_sources / hybrid）
+     ↓
+  L3: Gap Handler         — 根据策略生成响应（前缀声明、推演内容、来源引用）
+     ↓
+ Enriched Response + _gap metadata
+```
+
+### 11.3 降级策略（DegradationMode）
+
+| 策略 | 触发条件 | 处理方式 |
+|------|---------|---------|
+| `normal` | 无知识空白 | 正常 LLM 回复 |
+| `extrapolate` | 有价值观/思维模式支撑 | 标注"推演声明"，基于价值观推演 |
+| `honest_boundary` | 近期事件超出知识范围 | 标注"知识边界"，诚实说明超出范围 |
+| `refer_sources` | 有引用来源可用 | 标注"来源引用"，引用已蒸馏来源 |
+| `hybrid` | 混合场景 | 部分推演 + 部分事实 + 混合声明 |
+
+### 11.4 关键文件
+
+| 文件 | 职责 |
+|------|------|
+| `src/lib/distillation-runtime-orchestrator.ts` | 统一入口，协调 L1/L2/L3 |
+| `src/lib/distillation-v2-gap-detector.ts` | 运行时知识空白检测 |
+| `src/lib/distillation-graceful-router.ts` | 降级路由决策 |
+| `src/lib/distillation-knowledge-gap-handler.ts` | 降级内容生成 |
+| `src/lib/distillation-v4-types.ts` | 类型定义（CorpusMetadata、DegradationMode 等） |
+| `src/app/api/chat/route.ts` | 集成入口（handleSolo、handlePrism、handleRoundtable、handleOracle、handleFiction） |
+
+### 11.5 Persona 元数据要求
+
+活人 persona（`isAlive: true`）必须在 corpusMetadata 中提供：
+
+```typescript
+{
+  isAlive: true,
+  corpusMetadata: {
+    cutoffDate: '2025-06-01',          // 知识截止日期
+    confidenceScore: 0.85,              // 置信度
+    knowledgeGapSignals: [               // 知识空白信号
+      '2024年公开演讲',
+      '2025年最新著作',
+    ],
+    knowledgeGapStrategy: 'honest_boundary',  // 默认策略
+    sensitiveTopics: ['个人生活'],       // 敏感话题
+    extrapolationBoundaries: {          // 推演边界
+      avoidTopics: ['未公开的私人决定'],
+      confidenceThreshold: 0.6,
+    },
+  }
+}
+```
+
+### 11.6 前端响应字段
+
+每个 AI 回复消息包含 `_gap` 字段供前端渲染警告标签：
+
+```typescript
+{
+  _gap: {
+    isGapAware: true,
+    degradationMode: 'honest_boundary',
+    warningLabel: '【知识边界】以下内容超出蒸馏知识范围',
+    corpusCutoffDate: '2025-06-01',
+    gapSignals: ['2024年公开演讲', '2025年最新著作'],
+    confidence: 0.85,
+  }
+}
+```
+
+### 11.7 运行时管道（Runtime Pipeline）
+
+多角色模式下（prism/roundtable/oracle/fiction），每个 persona 的 prompt 中会自动注入知识截止期提示：
+
+```typescript
+// 自动注入到各模式 systemPrompt 中
+const livingPersonas = speakers.filter(p => p.isAlive !== false && p.corpusMetadata?.cutoffDate);
+// 如果有活人 persona，prompt 末尾追加：
+// 【知识截止期提示】xxx 的知识截止到 yyy。
+// 如果话题涉及截止期之后的事件，应标注为"推演"而非"事实"。
+```
+
+---
+
+## 十、Vercel 部署规范
+
+### 10.1 部署前必查清单
+
+每次 `vercel --yes` 前，必须确认：
+
+- [ ] `.vercelignore` 是否已排除所有大文件目录？
+- [ ] 所有根目录 `*.js` 配置文件是否使用 ESM（`export default`）而非 CommonJS（`module.exports`）？
+- [ ] `package.json` 是否有 `"type": "module"`？若有，所有配置文件必须匹配
+- [ ] 是否有 Prisma schema 变更需要同步到 Neon 数据库？
+
+### 10.2 文件数量超限（> 15,000 个）
+
+Vercel 限制每个部署最多 15,000 个文件。常见原因和修复：
+
+```bash
+# 检查磁盘上各目录文件数
+find . -maxdepth 1 -type d | while read d; do echo "$d"; find "$d" -type f 2>/dev/null | wc -l; done | sort -rn
+```
+
+必须在 `.vercelignore` 中排除的大目录（2026-04-25 实测）：
+
+```
+# ─── Data & Research（占 ~178,000 个文件中的 ~120,000 个）───
+scrapers/          # 32,777 个文件
+corpus/           # 25,254 个文件
+.venv-ocr/       # 17,717 个文件
+newsnow-local/    # 44,254 个文件
+
+# ─── Build & Cache ───────────────────────────────────────────
+.next/
+node_modules/     # 虽然 Vercel 默认忽略，但显式写更安全
+.vercel/         # 部署产物缓存，220+ 文件
+.cache/
+
+# ─── Environment ───────────────────────────────────────────
+.env
+.env.*
+
+# ─── Docs & Temp ────────────────────────────────────────────
+docs/
+tmp_ocr/
+backups/
+reports/
+development/
+tmp/
+*.log
+```
+
+### 10.3 ESM / CommonJS 混用报错
+
+`package.json` 有 `"type": "module"` 时，所有根目录 `*.js` 配置文件必须使用 ESM。
+
+| 文件 | CommonJS（报错） | ESM（正确） |
+|------|-----------------|-------------|
+| `next.config.js` | `module.exports = {...}` | `export default {...}` |
+| `postcss.config.js` | `module.exports = {...}` | `export default {...}` |
+| `tailwind.config.ts` | `require('@tailwindcss/typography')` | `import typography from '@tailwindcss/typography'` |
+
+### 10.4 Next.js 14 构建错误
+
+**`useSearchParams` 缺少 Suspense：**
+
+Next.js 14 在静态生成（`generateStaticParams`）时要求 `useSearchParams` 必须包裹在 `<Suspense>` 中。
+
+```tsx
+// ❌ 错误
+export default function Page() {
+  const searchParams = useSearchParams(); // build error
+  ...
+}
+
+// ✅ 正确：拆分 + Suspense 包装
+function PageInner() {
+  const searchParams = useSearchParams();
+  ...
+}
+
+export default function Page() {
+  return (
+    <Suspense fallback={<div>加载中...</div>}>
+      <PageInner />
+    </Suspense>
+  );
+}
+```
+
+### 10.5 数据库 Schema 变更流程
+
+1. **本地开发**：修改 `prisma/schema.prisma` 后，本地用 `npx prisma migrate dev` 或直接 `npx prisma generate`
+2. **Neon 数据库同步**（无需迁移文件）：
+   ```bash
+   # 用 psql 直连 Neon（从 .env.local 获取 DATABASE_URL）
+   export PGPASSWORD='your_password'
+   psql "postgresql://user:pass@host/db?sslmode=require" \
+     -c "ALTER TABLE ... ADD COLUMN IF NOT EXISTS ..."
+   ```
+   或调用 `POST /api/migrate`（需要 admin token）
+3. **部署**：schema 变更后，`prisma generate` 会在 `npm run build` 中自动运行
+
+### 10.6 完整部署命令
+
+```bash
+# 1. 数据库迁移（如需要）
+#    a) psql 直连（推荐，无需登录 Vercel）
+#    b) 或 POST /api/migrate（需 admin token）
+
+# 2. 本地构建验证
+npm run build
+
+# 3. 预览部署
+vercel --yes
+
+# 4. 正式发布
+vercel --prod --yes
+```
+
+### 10.7 常见部署错误
+
+| 错误信息 | 原因 | 修复 |
+|---------|------|------|
+| `module is not defined in ES module scope` | 配置文件用了 CommonJS | 改 `module.exports` → `export default` |
+| `too many files (15,595)` | `.vercelignore` 缺少排除目录 | 添加 `scrapers/` `corpus/` 等 |
+| `useSearchParams() should be wrapped in suspense` | SSR 使用了 `useSearchParams` | 包裹 `<Suspense>` |
+| `DATABASE_URL not set` | Prisma 在构建时访问了数据库 | Vercel 构建时禁止 Prisma 连接，仅运行时连接 |
+| `prisma generate` 失败 | schema 有语法错误 | `npx prisma validate` 检查 |

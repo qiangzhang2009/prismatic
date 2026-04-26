@@ -151,6 +151,23 @@ export interface Persona {
   gradientTo: string;
   brief: string;
   briefZh: string;
+  /** Publicly-known nicknames/aliases that users might @mention (e.g. "乔布斯" for "史蒂夫·乔布斯", "马斯克" for "埃隆·马斯克") */
+  nicknames?: string[];
+
+  /** Whether the persona is still alive. Dead personas get lower gap severity. */
+  isAlive?: boolean;
+
+  /** L1 metadata: corpus coverage window and knowledge gap strategy. */
+  corpusMetadata?: {
+    cutoffDate?: string;
+    corpusLastUpdated?: string;
+    coverageSpan?: { startYear?: number; endYear?: number };
+    knowledgeGapStrategy?: 'extrapolate_identity' | 'honest_boundary' | 'refer_sources' | 'hybrid';
+    sensitiveTopics?: string[];
+    extrapolationBoundaries?: string[];
+    confidenceScore?: number;
+    knowledgeGapSignals?: string[];
+  };
 
   // Core cognitive data
   mentalModels: MentalModel[];
@@ -293,6 +310,17 @@ export interface AgentMessage {
   confidence?: number; // 0-1
   sources?: SourceAttribution[];
   tokenUsage?: number;
+  /** Knowledge gap metadata — present when response involves degraded/cutoff knowledge */
+  _gap?: {
+    isGapAware?: boolean;
+    degradationMode?: string;
+    warningLabel?: string;
+    corpusCutoffDate?: string;
+    gapSignals?: string[];
+    confidence?: number;
+    isExtrapolation?: boolean;
+    routingReason?: string;
+  };
 }
 
 export interface ConsensusStatement {

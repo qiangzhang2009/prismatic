@@ -64,6 +64,7 @@ export async function POST(req: NextRequest) {
           province: existing.province,
           role: existing.role,
           plan: existing.plan,
+          credits: existing.credits ?? 0,
         },
         message: '注册成功',
       },

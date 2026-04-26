@@ -2,6 +2,7 @@
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useState, useEffect, useRef, type ReactNode } from 'react';
+import { Toaster } from 'react-hot-toast';
 import { useAuthStore } from '@/lib/auth-store';
 import { TrackingInitializer } from '@/components/tracking-initializer';
 import { migrateLegacyStorage, isMigrationComplete } from '@/lib/migrate-legacy-storage';
@@ -26,6 +27,26 @@ export function Providers({ children }: { children: ReactNode }) {
 
   return (
     <QueryClientProvider client={queryClient}>
+      <Toaster
+        position="bottom-center"
+        toastOptions={{
+          duration: 3000,
+          style: {
+            background: 'rgba(15, 15, 25, 0.95)',
+            color: '#e2e8f0',
+            border: '1px solid rgba(255,255,255,0.1)',
+            borderRadius: '12px',
+            fontSize: '14px',
+            maxWidth: '360px',
+          },
+          success: {
+            iconTheme: { primary: '#10b981', secondary: '#fff' },
+          },
+          error: {
+            iconTheme: { primary: '#ef4444', secondary: '#fff' },
+          },
+        }}
+      />
       <AuthInitializer />
       <TrackingInitializer />
       {children}

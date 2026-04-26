@@ -468,6 +468,18 @@ export const PERSONA_CONFIDENCE: Record<string, {
     ],
     mainGaps: ['需要季度同步新增微博'],
   },
+  'wang-dongyue': {
+    overall: 72,
+    breakdown: { voiceFidelity: 75, knowledgeDepth: 68, reasoningPattern: 70, safetyCompliance: 80 },
+    version: 'v1-initial',
+    source: 'static',
+    dataSources: [
+      { type: '物演通论', source: 'epub 原文提取', quantity: '约 85 万字', quality: '5' },
+      { type: '国学堂对话', source: '梁冬对话王东岳 12 讲转录', quantity: '约 30 万字', quality: '4' },
+      { type: '告别大课', source: '归隐大课 docx 转录', quantity: '约 38 万字', quality: '4' },
+    ],
+    mainGaps: ['混沌大学课程音频（821个 MP3）未 ASR 转录', 'PDF 讲义（366个）未 OCR 处理', '知鱼之乐/人类的没落 电子版未入库'],
+  },
 };
 
 export function getPersonaConfidence(personaId: string): ConfidenceScore | null {

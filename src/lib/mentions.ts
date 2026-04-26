@@ -2,18 +2,20 @@
  * @mention Parsing Utility
  * Parses @mentions in comment content and renders them as clickable links.
  * Supports:
- *   - @人物名 → links to /personas/[slug] if it matches a persona nameZh
+ *   - @人物全名 → links to /personas/[slug]
+ *   - @大众昵称 → links to /personas/[slug] (via PERSONA_NICKNAMES)
  *   - @username → links to user profile
  */
 
 import { PERSONA_LIST } from './personas';
+import { resolvePersonaByNickname } from './persona-nicknames';
 
 export interface MentionSegment {
   type: 'text' | 'persona_mention' | 'user_mention';
   text: string;
-  slug?: string;      // for persona mentions
+  slug?: string;       // for persona mentions
   userId?: string;    // for user mentions
-  userName?: string;  // display name for user mentions
+  userName?: string;   // display name for user mentions
 }
 
 /**
@@ -37,7 +39,7 @@ export function parseMentions(content: string): MentionSegment[] {
       segments.push({ type: 'text', text: content.slice(lastIndex, index) });
     }
 
-    // Try to match against persona names
+    // Try to match against persona names (exact first)
     const persona = PERSONA_LIST.find(
       (p) =>
         p.nameZh === name ||
@@ -53,12 +55,32 @@ export function parseMentions(content: string): MentionSegment[] {
         slug: persona.slug,
       });
     } else {
-      // Treat as user mention
-      segments.push({
-        type: 'user_mention',
-        text: `@${name}`,
-        userName: name,
-      });
+      // Try nickname / alias lookup (大众昵称)
+      const nicknameId = resolvePersonaByNickname(name);
+      if (nicknameId) {
+        const nicknamePersona = PERSONA_LIST.find((p) => p.slug === nicknameId);
+        if (nicknamePersona) {
+          segments.push({
+            type: 'persona_mention',
+            text: `@${name}`,
+            slug: nicknamePersona.slug,
+          });
+        } else {
+          // Nickname resolved but persona not found — treat as user mention
+          segments.push({
+            type: 'user_mention',
+            text: `@${name}`,
+            userName: name,
+          });
+        }
+      } else {
+        // Treat as user mention
+        segments.push({
+          type: 'user_mention',
+          text: `@${name}`,
+          userName: name,
+        });
+      }
     }
 
     lastIndex = index + match[0].length;

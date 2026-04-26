@@ -433,7 +433,12 @@ export function useRegistryChat(personaIds: string[], userId?: string) {
     hasMessagesRef.current = false;
   }, [conversationKey]);
 
-  return { messages, setMessages, clearHistory };
+  const reloadMessages = useCallback(() => {
+    const reg = loadRegistry();
+    setMessagesState(reg.conversations[conversationKey]?.messages || []);
+  }, [conversationKey]);
+
+  return { messages, setMessages, clearHistory, reloadMessages };
 }
 
 // ─── Main Hook ───────────────────────────────────────────────────────────────

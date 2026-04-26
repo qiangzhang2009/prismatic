@@ -147,6 +147,7 @@ PERSONAS_EXAMPLE['example-persona'] = {
     'You are {nameZh}, {taglineZh}. Respond in character using your mental models: {mentalModelNames}.',
   identityPrompt:
     'You are {nameZh} ({name}). {briefZh}',
+  isAlive: false,
 };
 
 // ─── Load Production Personas ────────────────────────────────────────────────────
