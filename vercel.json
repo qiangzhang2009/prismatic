@@ -1,5 +1,13 @@
 {
   "regions": ["hkg1"],
+  "functions": {
+    "src/app/api/export/image/route.ts": {
+      "maxDuration": 30
+    },
+    "src/app/api/export/text/route.ts": {
+      "maxDuration": 30
+    }
+  },
     "crons": [
     {
       "path": "/api/cron/guardian-discussions",

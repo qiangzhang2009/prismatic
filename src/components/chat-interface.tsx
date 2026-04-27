@@ -18,7 +18,7 @@ import type { Mode, Persona, AgentMessage } from '@/lib/types';
 import { nanoid } from 'nanoid';
 import { trackChatStart, trackChatMessage } from '@/lib/use-tracking';
 import { LimitReachedModal, type LimitModalType } from '@/components/limit-reached-modal';
-import { exportChatAsImage, exportChatAsText } from '@/lib/export-chat';
+import { exportChatAsImage, generateChatText, downloadTextViaAPI } from '@/lib/export-chat';
 import { ExportPanel } from '@/components/export-panel';
 import { KnowledgeGapBanner } from '@/components/knowledge-gap-banner';
 
@@ -382,11 +382,13 @@ export function ChatInterface({ className, initialPersona, initialMode }: ChatIn
     }
   };
 
-  const handleExportAsText = () => {
+  const handleExportAsText = async () => {
     setShowExportMenu(false);
     setIsExporting(true);
     try {
-      exportChatAsText(messages, selectedIds, mode);
+      const content = generateChatText(messages, selectedIds, mode);
+      const filename = `棱镜对话_${new Date().toISOString().slice(0, 10)}.txt`;
+      await downloadTextViaAPI(content, filename);
     } catch (error) {
       console.error('Export failed:', error);
     } finally {
@@ -493,12 +495,11 @@ export function ChatInterface({ className, initialPersona, initialMode }: ChatIn
       if (data.creditsRemaining !== undefined) {
         const { updateUser } = useAuthStore.getState();
         updateUser({ credits: data.creditsRemaining });
-        // Credits exhausted: show appropriate modal based on plan type.
-        // - Paid users (LIFETIME/MONTHLY/YEARLY): they should have unlimited access;
-        //   if credits ran out, show the modal to alert (edge case).
-        // - FREE users: show 'credits_exhausted' when purchased credits hit 0, so
-        //   the user knows they now fall back to the daily free quota.
-        if (data.creditsRemaining === 0 && (isPaid || plan === 'FREE')) {
+        // Credits exhausted: only show this modal when the user was actively using
+        // purchased credits and just hit 0 (i.e. hasCredits was true at the start of
+        // this message). FREE users who never had credits have creditsRemaining===0
+        // by default — that is NOT an "exhaustion" event and must not trigger the modal.
+        if (data.creditsRemaining === 0 && hasCredits && plan === 'FREE') {
           setLimitModalType('credits_exhausted');
           setShowLimitModal(true);
         }
@@ -892,17 +893,10 @@ export function ChatInterface({ className, initialPersona, initialMode }: ChatIn
             额度已用完
           </Link>
         ) : hasCredits ? (
-          /* 有积分用户：显示积分余额 + 今日免费剩余（两轨并行说明） */
-          <div className="flex items-center gap-2">
-            <div className="flex items-center gap-1 bg-prism-blue/10 px-2 py-1 rounded-full">
-              <Zap className="w-3 h-3 text-prism-blue" />
-              <span className="text-xs text-prism-blue font-medium">{user?.credits} 条积分</span>
-            </div>
-            {dailyCount < dailyLimit && (
-              <div className="flex items-center gap-1 text-text-muted">
-                <span className="text-xs">+ 今日免费 {dailyLimit - dailyCount} 条</span>
-              </div>
-            )}
+          /* 有积分用户：只显示积分余额（积分通道与每日免费互斥，不应同时显示） */
+          <div className="flex items-center gap-1 bg-prism-blue/10 px-2 py-1 rounded-full">
+            <Zap className="w-3 h-3 text-prism-blue" />
+            <span className="text-xs text-prism-blue font-medium">{user?.credits} 条积分</span>
           </div>
         ) : isPaid ? (
           <span className="text-xs text-green-400 font-medium">无限制</span>
