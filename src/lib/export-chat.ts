@@ -567,8 +567,21 @@ export async function downloadTextViaAPI(content: string, filename: string): Pro
   });
   if (!res.ok) throw new Error(`Server error: ${res.status}`);
   const { id, filename: serverFilename } = await res.json() as { id: string; filename: string };
-  const downloadUrl = `/api/export/text?id=${encodeURIComponent(id)}&filename=${encodeURIComponent(serverFilename)}`;
-  location.href = downloadUrl;
+
+  // Detect Android WeChat (X5 browser) — use preview page with copy button
+  const ua = navigator.userAgent.toLowerCase();
+  const isAndroid = ua.includes('android');
+  const isWeChat = /MicroMessenger/i.test(navigator.userAgent);
+
+  const baseUrl = `/api/export/text?id=${encodeURIComponent(id)}&filename=${encodeURIComponent(serverFilename)}`;
+
+  if (isAndroid && isWeChat) {
+    // X5 browser blocks all downloads — open preview page with clipboard copy
+    location.href = baseUrl + '&preview=1';
+  } else {
+    // Normal direct download for desktop/iOS/other browsers
+    location.href = baseUrl;
+  }
 }
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
