@@ -6,10 +6,10 @@ import {
   X, Check, Square, Image, FileText, Calendar,
   Download, Loader2, CheckSquare, Search, RotateCcw,
   User, Bot, Cpu, ChevronsUpDown, ArrowUpDown,
-  Hash, SlidersHorizontal
+  Hash, SlidersHorizontal, Camera
 } from 'lucide-react';
 import type { AgentMessage, Mode } from '@/lib/types';
-import { exportChatAsImage, exportChatAsText } from '@/lib/export-chat';
+import { exportChatAsImage, generateChatText, downloadTextViaAPI } from '@/lib/export-chat';
 
 type DateFilter = 'all' | 'today' | 'week';
 type ExportFormat = 'image' | 'text';
@@ -70,6 +70,7 @@ export function ExportPanel({
   const [searchQuery, setSearchQuery] = useState('');
   const [lastClickedId, setLastClickedId] = useState<string | null>(null);
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
+  const [previewImage, setPreviewImage] = useState<{ url: string; filename: string } | null>(null);
   const [sortOrder, setSortOrder] = useState<'desc' | 'asc'>('desc');
   const searchInputRef = useRef<HTMLInputElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
@@ -240,19 +241,54 @@ export function ExportPanel({
     return () => document.removeEventListener('keydown', handler);
   }, [open, filteredMessages, clearSelection]);
 
+// ─── handleExport ────────────────────────────────────────────────────────────
+
   const handleExport = async () => {
     if (selectedCount === 0) return;
     setIsExporting(true);
+    const ua = navigator.userAgent.toLowerCase();
+    const isAndroid = ua.includes('android');
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+      (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
     try {
       const msgsToExport = messages.filter((m) => selected.has(m.id));
       if (format === 'image') {
-        await exportChatAsImage(msgsToExport, selectedPersonaIds, mode);
+        const dataUrl = await Promise.race([
+          exportChatAsImage(msgsToExport, selectedPersonaIds, mode),
+          new Promise<never>((_, reject) =>
+            setTimeout(() => reject(new Error('图片生成超时，请重试')), 30000)
+          ),
+        ]);
+        if (!dataUrl) throw new Error('Image generation returned empty');
+        const filename = `棱镜对话_${new Date().toISOString().slice(0, 10)}.jpg`;
+        const res = await fetch('/api/export/image', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ dataUrl, filename }),
+        });
+        if (!res.ok) throw new Error(`Server error: ${res.status}`);
+        const { id, filename: safeFilename } = await res.json() as { id: string; filename: string };
+        const imageUrl = `/api/export/image?id=${encodeURIComponent(id)}&filename=${encodeURIComponent(safeFilename)}`;
+
+        const previewUrl = imageUrl + (imageUrl.includes('?') ? '&preview=1' : '?preview=1');
+        if (isAndroid) {
+          window.open(previewUrl, '_blank');
+        } else if (isIOS) {
+          location.href = previewUrl;
+        } else {
+          location.href = imageUrl;
+        }
+        setTimeout(onClose, 800);
       } else {
-        exportChatAsText(msgsToExport, selectedPersonaIds, mode);
+        const content = generateChatText(msgsToExport, selectedPersonaIds, mode);
+        const txtFilename = `棱镜对话_${new Date().toISOString().slice(0, 10)}.txt`;
+        await downloadTextViaAPI(content, txtFilename);
+        setTimeout(onClose, 800);
       }
-      onClose();
     } catch (err) {
       console.error('[ExportPanel] Export failed:', err);
+      setIsExporting(false);
+      alert(`导出失败：${err instanceof Error ? err.message : String(err)}`);
     } finally {
       setIsExporting(false);
     }
@@ -295,11 +331,14 @@ export function ExportPanel({
             <div className="flex-shrink-0 px-5 py-4 border-b border-border-subtle flex items-center justify-between">
               <div>
                 <h2 className="text-base font-semibold text-text-primary">导出对话记录</h2>
-                <p className="text-xs text-text-muted mt-0.5">
+                <p className="text-xs text-text-muted mt-0.5 hidden sm:block">
                   已选 {selectedCount} / {selectableCount} 条消息
                   {selectedCount > 0 && selectedCount !== selectableCount && (
                     <span className="ml-1 text-prism-blue">· 按 Enter 导出</span>
                   )}
+                </p>
+                <p className="text-xs text-text-muted mt-0.5 sm:hidden">
+                  已选 {selectedCount} / {selectableCount} 条
                 </p>
               </div>
               <button
@@ -401,9 +440,9 @@ export function ExportPanel({
                 批量
               </button>
 
-              {/* Clear search hint */}
+              {/* Clear search hint — desktop only */}
               {filteredMessages.length > 0 && (
-                <span className="ml-auto text-[10px] text-text-muted flex-shrink-0">
+                <span className="ml-auto text-[10px] text-text-muted flex-shrink-0 hidden sm:block">
                   ⌘F 搜索 · ⌘A 全选 · Esc 清除
                 </span>
               )}
@@ -544,29 +583,66 @@ export function ExportPanel({
                     return (
                       <div
                         key={msg.id}
-                        className={`flex items-start gap-3 rounded-xl px-3 py-2.5 cursor-pointer transition-all group ${
+                        role={isSystemMsg ? undefined : 'button'}
+                        tabIndex={isSystemMsg ? -1 : 0}
+                        aria-checked={!isSystemMsg ? checked : undefined}
+                        className={`flex items-start gap-3 rounded-xl px-3 py-2.5 transition-all select-none ${
                           checked
                             ? 'bg-prism-blue/10 border border-prism-blue/25'
                             : 'hover:bg-bg-surface border border-transparent'
-                        } ${isSystemMsg && !checked ? 'opacity-50' : ''}`}
-                        onClick={(e) => {
-                          if (isSystemMsg) return;
-                          toggleOne(msg.id, e.shiftKey);
+                        } ${isSystemMsg && !checked ? 'opacity-50' : ''} ${
+                          !isSystemMsg ? 'cursor-pointer active:bg-prism-blue/5' : ''
+                        }`}
+                        onClick={isSystemMsg ? undefined : (e) => {
+                          if (e.shiftKey && lastClickedId) {
+                            const msgIds = filteredMessages.map(m => m.id);
+                            const fromIdx = msgIds.indexOf(lastClickedId);
+                            const toIdx = msgIds.indexOf(msg.id);
+                            if (fromIdx !== -1 && toIdx !== -1) {
+                              setSelected(prev => {
+                                const next = new Set(prev);
+                                const [start, end] = fromIdx < toIdx ? [fromIdx, toIdx] : [toIdx, fromIdx];
+                                for (let i = start; i <= end; i++) next.add(msgIds[i]);
+                                return next;
+                              });
+                              setLastClickedId(msg.id);
+                            }
+                          } else {
+                            setSelected(prev => {
+                              const next = new Set(prev);
+                              if (next.has(msg.id)) next.delete(msg.id);
+                              else next.add(msg.id);
+                              setLastClickedId(msg.id);
+                              return next;
+                            });
+                          }
+                        }}
+                        onKeyDown={isSystemMsg ? undefined : (e) => {
+                          if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            setSelected(prev => {
+                              const next = new Set(prev);
+                              if (next.has(msg.id)) next.delete(msg.id);
+                              else next.add(msg.id);
+                              setLastClickedId(msg.id);
+                              return next;
+                            });
+                          }
                         }}
                       >
-                        <button
+                        {/* Visual checkbox indicator — not a nested button, no touch ambiguity */}
+                        <div
                           className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-colors flex-shrink-0 mt-0.5 ${
                             checked
                               ? 'bg-prism-blue border-prism-blue'
+                              : isSystemMsg
+                              ? 'border-border-subtle opacity-30'
                               : 'border-border-subtle group-hover:border-prism-blue/50'
-                          } ${isSystemMsg ? 'opacity-30 cursor-not-allowed' : ''}`}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            if (!isSystemMsg) toggleOne(msg.id, e.shiftKey);
-                          }}
+                          }`}
+                          aria-hidden="true"
                         >
                           {checked && <Check className="w-3 h-3 text-white" />}
-                        </button>
+                        </div>
 
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 mb-0.5">
@@ -588,15 +664,15 @@ export function ExportPanel({
                           </p>
                         </div>
 
-                        {/* Quick select buttons on hover */}
+                        {/* Quick select buttons — always visible on mobile, hover on desktop */}
                         {!checked && !isSystemMsg && (
-                          <div className="flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1">
+                          <div className="flex-shrink-0 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity flex items-center gap-1">
                             <button
                               onClick={(e) => {
                                 e.stopPropagation();
                                 selectRecent(5);
                               }}
-                              className="text-[10px] text-text-muted hover:text-prism-blue transition-colors px-1.5 py-0.5 rounded bg-bg-surface"
+                              className="text-[10px] text-text-muted hover:text-prism-blue transition-colors px-1.5 py-0.5 rounded bg-bg-surface active:bg-prism-blue/10"
                               title="选中此条及之前的5条"
                             >
                               +5

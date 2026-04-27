@@ -39,256 +39,303 @@ function getModeName(mode: Mode): string {
   return names[mode] || mode;
 }
 
+// ─── Canvas Layout Constants ────────────────────────────────────────────────────
+const CANVAS_WIDTH = 720;
+const PADDING = 50;
+const CONTENT_WIDTH = CANVAS_WIDTH - PADDING * 2; // 620px
+
+const HEADER_HEIGHT = 140;
+const FOOTER_CONTENT_HEIGHT = 95; // actual footer content height (text + QR)
+const FOOTER_BG_HEIGHT = FOOTER_CONTENT_HEIGHT + 30; // 125px — enough room for gradient line + content
+const MESSAGE_SPACING = 28;
+const LINE_HEIGHT = 26;
+const AVATAR_SIZE = 36;
+const CANVAS_MIN_HEIGHT = 700;
+
+// ─── Message height measurement (pixel-accurate via canvas) ──────────────────
+
+function measureMessageHeights(messages: AgentMessage[], fontFamily: string): number[] {
+  const measureCanvas = document.createElement('canvas');
+  const ctx = measureCanvas.getContext('2d')!;
+  ctx.font = `15px ${fontFamily}`;
+
+  // These MUST match the actual draw dimensions exactly:
+  // User bubble: bubbleX = 370, bubbleWidth = CANVAS_WIDTH/2 - PADDING - 10 = 290
+  //   textWidth = bubbleWidth - 30 = 260
+  // Agent bubble: textWidth = CONTENT_WIDTH - AVATAR_SIZE - 20 = 568
+  const USER_TEXT_WIDTH = CANVAS_WIDTH / 2 - PADDING - 10 - 30; // 260
+  const AGENT_TEXT_WIDTH = CONTENT_WIDTH - AVATAR_SIZE - 20;     // 568
+
+  return messages.map(msg => {
+    if (msg.role === 'user') {
+      const lines = wrapTextToLines(ctx, msg.content, USER_TEXT_WIDTH);
+      return Math.max(lines.length * LINE_HEIGHT + 50, 70);
+    } else if (msg.role === 'system') {
+      const contentLines = msg.content.split('\n').filter(l => l.trim());
+      return Math.max(contentLines.length * LINE_HEIGHT, 20) + 50;
+    } else {
+      const lines = wrapTextToLines(ctx, msg.content, AGENT_TEXT_WIDTH);
+      return Math.max(lines.length * LINE_HEIGHT + 50, 70);
+    }
+  });
+}
+
+// ─── Pair-counting helpers ────────────────────────────────────────────────────
+
 /**
- * 导出聊天记录为图片
+ * Count complete Q&A pairs in the message list (user + following agent messages).
+ * A pair starts with a user message.
  */
+function countCompletePairs(messages: AgentMessage[], maxPairs: number): number {
+  const chatMessages = messages.filter(m => m.content?.trim());
+  let pairs = 0;
+  for (const msg of chatMessages) {
+    if (msg.role === 'user') {
+      pairs++;
+      if (pairs >= maxPairs) break;
+    }
+  }
+  return Math.min(pairs, maxPairs);
+}
+
+/**
+ * Find the index (exclusive) of the last chat message to include for a given
+ * number of complete Q&A pairs. Includes the AI reply after each user message.
+ */
+function findLastChatMsgIndexForPairs(
+  messages: AgentMessage[],
+  targetPairs: number
+): number {
+  const chatMessages = messages.filter(m => m.content?.trim());
+  let pairs = 0;
+  for (let i = 0; i < chatMessages.length; i++) {
+    if (chatMessages[i].role === 'user') {
+      pairs++;
+      if (pairs >= targetPairs) {
+        // include all messages up to and including this user
+        // (the AI reply after it naturally follows)
+        return i + 1;
+      }
+    }
+  }
+  return chatMessages.length;
+}
+
+// ─── Image Export ─────────────────────────────────────────────────────────────
+
 export async function exportChatAsImage(
   messages: AgentMessage[],
   selectedPersonaIds: string[],
   mode: Mode,
-  conversationTitle?: string
-): Promise<void> {
+  _conversationTitle?: string
+): Promise<string> {
+  console.log('[exportChatAsImage] START', { messageCount: messages.length, personaCount: selectedPersonaIds.length });
   const personas = getPersonasByIds(selectedPersonaIds);
   const modeName = getModeName(mode);
   const personaNames = personas.map(p => p.nameZh).join('、');
 
-  // ─── Layout Constants ───────────────────────────────────────────────
-  const canvasWidth = 720;
-  const padding = 50;
-  const contentWidth = canvasWidth - padding * 2; // 620px
-
-  const headerHeight = 140;
-  const footerHeight = 140; // 固定 footer 高度，避免被遮挡
-  const messageSpacing = 28;
-  const lineHeight = 26;
-  const avatarSize = 36;
-
-  // ─── Filter Messages ───────────────────────────────────────────────
-  const chatMessages = messages.filter(msg => msg.content && msg.content.trim());
-
-  // ─── Calculate Message Heights ──────────────────────────────────────
-  // Use a temporary canvas context for accurate text measurement
-  const measureCanvas = document.createElement('canvas');
-  const measureCtx = measureCanvas.getContext('2d');
+  const chatMessages = messages.filter(m => m.content && m.content.trim());
+  console.log('[exportChatAsImage] filtered messages:', chatMessages.length);
   const fontFamily = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
-  measureCtx!.font = `15px ${fontFamily}`;
 
-  const messageHeights: number[] = [];
-  for (const msg of chatMessages) {
-    if (msg.role === 'user') {
-      const lines = wrapTextToLines(measureCtx!, msg.content, contentWidth / 2 - 35);
-      const textHeight = lines.length * lineHeight;
-      messageHeights.push(Math.max(textHeight + 50, 70));
-    } else if (msg.role === 'system') {
-      const lines = msg.content.split('\n').filter(l => l.trim());
-      const textHeight = Math.max(lines.length - 1, 0) * lineHeight;
-      messageHeights.push(textHeight + 50);
-    } else {
-      const lines = wrapTextToLines(measureCtx!, msg.content, contentWidth - avatarSize - 20);
-      const textHeight = lines.length * lineHeight;
-      messageHeights.push(Math.max(textHeight + 50, 70));
-    }
-  }
+  // ── How many complete pairs to attempt ────────────────────────────────
+  const MAX_PAIRS = 4;
+  const pairCount = countCompletePairs(messages, MAX_PAIRS);
+  const lastChatIdx = findLastChatMsgIndexForPairs(messages, MAX_PAIRS);
+  const messagesToShow = chatMessages.slice(0, lastChatIdx);
+  const totalChatMessages = chatMessages.length;
 
-  const totalMessagesHeight = messageHeights.reduce((a, b) => a + b, 0);
-  const totalContentHeight = headerHeight + totalMessagesHeight;
-  const minCanvasHeight = 700;
+  // ── Measure heights ───────────────────────────────────────────────────
+  console.log('[exportChatAsImage] measuring heights...');
+  const messageHeights = measureMessageHeights(messagesToShow, fontFamily);
+  const totalMessagesHeight = messageHeights.reduce((a, b) => a + b, 0)
+    + Math.max(messagesToShow.length - 1, 0) * MESSAGE_SPACING;
 
-  // 关键修复：canvas 高度必须同时容纳 header + 消息 + footer，三段相加
+  // ── Canvas dimensions ──────────────────────────────────────────────────
+  console.log('[exportChatAsImage] building canvas dimensions...');
+  const footerY = HEADER_HEIGHT + totalMessagesHeight + PADDING * 2;
+  // Reserve: gap after last message, then footer background
   const canvasHeight = Math.max(
-    minCanvasHeight,
-    totalContentHeight + footerHeight + padding * 2
+    CANVAS_MIN_HEIGHT,
+    footerY + FOOTER_BG_HEIGHT + PADDING
   );
 
-  // ─── Create Canvas ─────────────────────────────────────────────────
+  // The truncation boundary is the top of the footer background
+  const truncationBoundary = canvasHeight - FOOTER_BG_HEIGHT;
+
+  // ── Create Canvas ─────────────────────────────────────────────────────
+  console.log('[exportChatAsImage] creating canvas element...');
   const canvas = document.createElement('canvas');
-  canvas.width = canvasWidth;
+  canvas.width = CANVAS_WIDTH;
   canvas.height = canvasHeight;
-
-  const ctx = canvas.getContext('2d');
-  if (!ctx) return;
-
-  // Measure context for actual rendering
+  const ctx = canvas.getContext('2d')!;
   ctx.font = `15px ${fontFamily}`;
 
-  // ─── Draw Background ────────────────────────────────────────────────
+  console.log('[exportChatAsImage] drawing background...');
+  // Background
   ctx.fillStyle = '#0a0a1a';
-  ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+  ctx.fillRect(0, 0, CANVAS_WIDTH, canvasHeight);
 
-  // ─── Draw Top Gradient Bar ──────────────────────────────────────────
-  const gradient = ctx.createLinearGradient(0, 0, canvasWidth, 0);
+  // Top gradient bar
+  const gradient = ctx.createLinearGradient(0, 0, CANVAS_WIDTH, 0);
   gradient.addColorStop(0, '#4d96ff');
   gradient.addColorStop(0.5, '#9b6dff');
   gradient.addColorStop(1, '#c77dff');
   ctx.fillStyle = gradient;
-  ctx.fillRect(0, 0, canvasWidth, 5);
+  ctx.fillRect(0, 0, CANVAS_WIDTH, 5);
 
-  // ─── Draw Header ───────────────────────────────────────────────────
+  console.log('[exportChatAsImage] drawing header...');
+  // Header
   ctx.fillStyle = '#ffffff';
   ctx.font = `bold 32px ${fontFamily}`;
-  ctx.fillText('棱镜对话记录', padding, 60);
+  ctx.fillText('棱镜对话记录', PADDING, 60);
 
-  // Header meta box
   ctx.fillStyle = '#1a1a30';
-  roundRect(ctx, padding, 75, canvasWidth - padding * 2, 55, 10);
+  roundRect(ctx, PADDING, 75, CANVAS_WIDTH - PADDING * 2, 55, 10);
   ctx.fill();
 
   ctx.font = `15px ${fontFamily}`;
   ctx.fillStyle = '#a0a0c0';
-  ctx.fillText(`📌 ${modeName}`, padding + 15, 100);
-  ctx.fillText(`👥 ${personaNames}`, padding + 200, 100);
-  ctx.fillText(`💬 ${chatMessages.length} 条消息`, padding + 420, 100);
+  ctx.fillText(`📌 ${modeName}`, PADDING + 15, 100);
+  ctx.fillText(`👥 ${personaNames}`, PADDING + 200, 100);
+  ctx.fillText(`💬 ${totalChatMessages} 条消息`, PADDING + 420, 100);
 
-  // Header divider
   ctx.strokeStyle = '#2a2a4a';
   ctx.lineWidth = 1;
   ctx.beginPath();
-  ctx.moveTo(padding, headerHeight);
-  ctx.lineTo(canvasWidth - padding, headerHeight);
+  ctx.moveTo(PADDING, HEADER_HEIGHT);
+  ctx.lineTo(CANVAS_WIDTH - PADDING, HEADER_HEIGHT);
   ctx.stroke();
 
-  // ─── Draw Messages ──────────────────────────────────────────────────
-  let yPos = headerHeight + 25;
+  console.log('[exportChatAsImage] drawing messages...', messagesToShow.length);
+  // ── Draw messages ─────────────────────────────────────────────────────
+  let yPos = HEADER_HEIGHT + 25;
+  let drawnCount = 0;
+  let truncatedCount = totalChatMessages - messagesToShow.length;
 
-  for (let i = 0; i < chatMessages.length; i++) {
-    const msg = chatMessages[i];
+  for (let i = 0; i < messagesToShow.length; i++) {
+    const msg = messagesToShow[i];
     const msgHeight = messageHeights[i];
 
-    // Safety check: if we're too close to the footer area, stop drawing
-    if (yPos + msgHeight > canvasHeight - footerHeight - padding) {
-      // Draw a "truncated" notice and stop
-      ctx.fillStyle = '#2a2a4a';
-      roundRect(ctx, padding, yPos, contentWidth, 40, 8);
-      ctx.fill();
-      ctx.fillStyle = '#8080a0';
-      ctx.font = `14px ${fontFamily}`;
-      ctx.fillText('... 对话记录过长，已截断', padding + 15, yPos + 26);
-      break;
+    // Stop before overlapping the footer
+    if (yPos + msgHeight > truncationBoundary) {
+      drawnCount = i;
+      truncatedCount = totalChatMessages - drawnCount;
+      console.log('[exportChatAsImage] truncating at msg', i, 'truncatedCount:', truncatedCount);
+      drawTruncationNotice(ctx, truncatedCount, yPos);
+      console.log('[exportChatAsImage] drawing footer...');
+      await drawFooter(ctx, canvasHeight);
+      console.log('[exportChatAsImage] returning dataURL');
+      return canvas.toDataURL('image/jpeg', 0.92);
     }
 
     if (msg.role === 'user') {
-      // User message — right-aligned light blue bubble
-      const bubbleX = canvasWidth / 2 + 10;
-      const bubbleWidth = canvasWidth / 2 - padding - 10;
-
-      ctx.fillStyle = '#1e3a5f';
-      roundRect(ctx, bubbleX, yPos, bubbleWidth, msgHeight - 10, 12);
-      ctx.fill();
-
-      ctx.fillStyle = '#60a5fa';
-      ctx.font = `bold 13px ${fontFamily}`;
-      ctx.fillText('👤 你', canvasWidth - padding - 40, yPos + 22);
-
-      ctx.fillStyle = '#e0e8f0';
-      ctx.font = `15px ${fontFamily}`;
-      const lines = wrapTextToLines(ctx, msg.content, bubbleWidth - 30);
-      for (let j = 0; j < lines.length; j++) {
-        ctx.fillText(lines[j], bubbleX + 15, yPos + 48 + j * lineHeight);
-      }
+      drawUserMessage(ctx, msg.content, yPos, msgHeight);
     } else if (msg.role === 'system') {
-      // System message — centered purple box
-      const contentLines = msg.content.split('\n').filter(l => l.trim());
-      const totalHeight = contentLines.length * lineHeight + 40;
-
-      ctx.fillStyle = '#2a1f4a';
-      roundRect(ctx, padding, yPos, contentWidth, totalHeight, 12);
-      ctx.fill();
-
-      ctx.fillStyle = '#c77dff';
-      ctx.font = `bold 14px ${fontFamily}`;
-      ctx.fillText(contentLines[0]?.slice(0, 40) || '系统', padding + 15, yPos + 24);
-
-      ctx.fillStyle = '#c0b0d8';
-      ctx.font = `14px ${fontFamily}`;
-      for (let j = 1; j < contentLines.length; j++) {
-        const lines = wrapTextToLines(ctx, contentLines[j], contentWidth - 40);
-        for (let k = 0; k < lines.length; k++) {
-          ctx.fillText(lines[k], padding + 15, yPos + 48 + (j - 1) * lineHeight + k * lineHeight);
-        }
-      }
+      drawSystemMessage(ctx, msg.content, yPos, msgHeight);
     } else {
-      // AI agent message — left-aligned with avatar
       const persona = personas.find(p => p.id === msg.personaId);
-      const speakerName = persona?.nameZh || 'AI';
-
-      // Avatar circle
-      ctx.fillStyle = persona?.gradientFrom || '#4d96ff';
-      ctx.beginPath();
-      ctx.arc(padding + avatarSize / 2, yPos + avatarSize / 2, avatarSize / 2, 0, Math.PI * 2);
-      ctx.fill();
-
-      ctx.fillStyle = '#ffffff';
-      ctx.font = `bold 16px ${fontFamily}`;
-      ctx.fillText(speakerName.charAt(0), padding + avatarSize / 2 - 6, yPos + avatarSize / 2 + 5);
-
-      // Speaker name
-      ctx.fillStyle = persona?.accentColor || '#4d96ff';
-      ctx.font = `bold 14px ${fontFamily}`;
-      ctx.fillText(speakerName, padding + avatarSize + 12, yPos + 16);
-
-      // Message content
-      ctx.fillStyle = '#e8e8f0';
-      ctx.font = `15px ${fontFamily}`;
-      const lines = wrapTextToLines(ctx, msg.content, contentWidth - avatarSize - 20);
-      for (let j = 0; j < lines.length; j++) {
-        ctx.fillText(lines[j], padding + avatarSize + 12, yPos + 40 + j * lineHeight);
-      }
+      drawAgentMessage(ctx, msg.content, yPos, msgHeight, persona);
     }
 
-    yPos += msgHeight + messageSpacing;
+    yPos += msgHeight + MESSAGE_SPACING;
+    drawnCount = i + 1;
   }
 
-  // ─── Draw Footer ───────────────────────────────────────────────────
-  const footerY = canvasHeight - footerHeight;
+  const finalTruncatedCount = totalChatMessages - drawnCount;
+  if (finalTruncatedCount > 0) {
+    drawTruncationNotice(ctx, finalTruncatedCount, yPos);
+  }
+
+  console.log('[exportChatAsImage] drawing footer...');
+  await drawFooter(ctx, canvasHeight);
+  console.log('[exportChatAsImage] returning dataURL');
+  return canvas.toDataURL('image/jpeg', 0.92);
+}
+
+function drawTruncationNotice(
+  ctx: CanvasRenderingContext2D,
+  truncatedCount: number,
+  yPos: number
+) {
+  ctx.fillStyle = '#1a1a30';
+  roundRect(ctx, PADDING, yPos, CONTENT_WIDTH, 44, 10);
+  ctx.fill();
+  ctx.fillStyle = '#8080a0';
+  ctx.font = `14px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif`;
+  ctx.fillText(
+    `还有 ${truncatedCount} 条消息未显示 · 导出更多请使用文本格式`,
+    PADDING + 15,
+    yPos + 28
+  );
+}
+
+async function drawFooter(
+  ctx: CanvasRenderingContext2D,
+  canvasHeight: number
+): Promise<void> {
+  const footerY = canvasHeight - FOOTER_BG_HEIGHT;
+  const fontFamily = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
 
   // Footer background
   ctx.fillStyle = '#0d0d20';
-  ctx.fillRect(0, footerY, canvasWidth, footerHeight);
+  ctx.fillRect(0, footerY, CANVAS_WIDTH, FOOTER_BG_HEIGHT);
 
-  // Footer top border
+  // Top border
   ctx.strokeStyle = '#2a2a4a';
   ctx.lineWidth = 1;
   ctx.beginPath();
   ctx.moveTo(0, footerY);
-  ctx.lineTo(canvasWidth, footerY);
+  ctx.lineTo(CANVAS_WIDTH, footerY);
   ctx.stroke();
 
-  // ── Brand info (left side of footer) ──
+  // Gradient line
+  const grad = ctx.createLinearGradient(0, footerY, CANVAS_WIDTH, footerY);
+  grad.addColorStop(0, '#4d96ff');
+  grad.addColorStop(0.5, '#9b6dff');
+  grad.addColorStop(1, '#c77dff');
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, footerY, CANVAS_WIDTH, 3);
+
+  // Brand info
   ctx.fillStyle = '#ffffff';
   ctx.font = `bold 16px ${fontFamily}`;
-  ctx.fillText('✨ 由「棱镜」导出', padding, footerY + 32);
+  ctx.fillText('✨ 由「棱镜」导出', PADDING, footerY + 28);
 
   ctx.fillStyle = '#6060a0';
   ctx.font = `13px ${fontFamily}`;
-  ctx.fillText(WEBSITE_URL, padding, footerY + 55);
+  ctx.fillText(WEBSITE_URL, PADDING, footerY + 48);
 
   ctx.fillStyle = '#404060';
   ctx.font = `12px ${fontFamily}`;
-  ctx.fillText(`对话时间：${formatDate(new Date())}`, padding, footerY + 76);
+  ctx.fillText(`导出时间：${formatDate(new Date())}`, PADDING, footerY + 68);
 
-  // ── QR Code (right side of footer) ──
+  // QR Code — with timeout fallback for cross-origin image loading (Safari)
   const qrSize = 100;
-  const qrX = canvasWidth - padding - qrSize;
-  const qrY = footerY + (footerHeight - qrSize) / 2; // vertically centered in footer
+  const qrX = CANVAS_WIDTH - PADDING - qrSize;
+  const qrY = footerY + (FOOTER_BG_HEIGHT - 3 - qrSize) / 2;
 
-  // White QR border / background
   ctx.fillStyle = '#ffffff';
-  roundRect(ctx, qrX - 6, qrY - 6, qrSize + 12, qrSize + 12, 6);
+  roundRect(ctx, qrX - 5, qrY - 5, qrSize + 10, qrSize + 10, 6);
   ctx.fill();
 
-  // Load and draw QR code
-  const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=${qrSize * 2}x${qrSize * 2}&data=${encodeURIComponent(WEBSITE_URL)}&margin=5&format=png`;
+  const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=${qrSize * 2}x${qrSize * 2}&data=${encodeURIComponent(WEBSITE_URL)}&margin=5&format=png`;
   try {
-    const qrImage = new Image();
-    qrImage.crossOrigin = 'anonymous';
-    await new Promise<void>((resolve, reject) => {
-      qrImage.onload = () => resolve();
-      qrImage.onerror = reject;
-      qrImage.src = qrCodeUrl;
-    });
-    ctx.drawImage(qrImage, qrX, qrY, qrSize, qrSize);
+    const qrImg = new Image();
+    qrImg.crossOrigin = 'anonymous';
+    await Promise.race([
+      new Promise<void>((resolve, reject) => {
+        qrImg.onload = () => resolve();
+        qrImg.onerror = () => reject(new Error('QR image load failed'));
+        qrImg.src = qrUrl;
+      }),
+      new Promise<never>((_, reject) =>
+        setTimeout(() => reject(new Error('QR image load timeout')), 5000)
+      ),
+    ]);
+    ctx.drawImage(qrImg, qrX, qrY, qrSize, qrSize);
   } catch {
-    // Fallback: placeholder if QR loading fails
+    // Fallback: draw a placeholder box
     ctx.fillStyle = '#0a0a1a';
     roundRect(ctx, qrX, qrY, qrSize, qrSize, 4);
     ctx.fill();
@@ -297,22 +344,178 @@ export async function exportChatAsImage(
     ctx.fillText('扫码', qrX + qrSize / 2 - 15, qrY + qrSize / 2 - 5);
     ctx.fillText('访问', qrX + qrSize / 2 - 15, qrY + qrSize / 2 + 10);
   }
+}
 
-  // ─── Download ───────────────────────────────────────────────────────
-  const link = document.createElement('a');
-  link.download = `棱镜对话_${formatDateForFile(new Date())}.png`;
-  link.href = canvas.toDataURL('image/png');
-  link.click();
+function drawUserMessage(
+  ctx: CanvasRenderingContext2D,
+  content: string,
+  yPos: number,
+  msgHeight: number
+) {
+  const bubbleX = CANVAS_WIDTH / 2 + 10;
+  const bubbleWidth = CANVAS_WIDTH / 2 - PADDING - 10;
+  const fontFamily = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+
+  ctx.fillStyle = '#1e3a5f';
+  roundRect(ctx, bubbleX, yPos, bubbleWidth, msgHeight - 10, 12);
+  ctx.fill();
+
+  ctx.fillStyle = '#60a5fa';
+  ctx.font = `bold 13px ${fontFamily}`;
+  ctx.fillText('👤 你', CANVAS_WIDTH - PADDING - 40, yPos + 22);
+
+  ctx.fillStyle = '#e0e8f0';
+  ctx.font = `15px ${fontFamily}`;
+  const lines = wrapTextToLines(ctx, content, bubbleWidth - 30);
+  for (let j = 0; j < lines.length; j++) {
+    ctx.fillText(lines[j], bubbleX + 15, yPos + 48 + j * LINE_HEIGHT);
+  }
+}
+
+function drawSystemMessage(
+  ctx: CanvasRenderingContext2D,
+  content: string,
+  yPos: number,
+  msgHeight: number
+) {
+  const contentLines = content.split('\n').filter(l => l.trim());
+  const fontFamily = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+
+  ctx.fillStyle = '#2a1f4a';
+  roundRect(ctx, PADDING, yPos, CONTENT_WIDTH, msgHeight, 12);
+  ctx.fill();
+
+  ctx.fillStyle = '#c77dff';
+  ctx.font = `bold 14px ${fontFamily}`;
+  ctx.fillText(contentLines[0]?.slice(0, 40) || '系统', PADDING + 15, yPos + 24);
+
+  ctx.fillStyle = '#c0b0d8';
+  ctx.font = `14px ${fontFamily}`;
+  for (let j = 1; j < contentLines.length; j++) {
+    const lines = wrapTextToLines(ctx, contentLines[j], CONTENT_WIDTH - 40);
+    for (let k = 0; k < lines.length; k++) {
+      ctx.fillText(lines[k], PADDING + 15, yPos + 48 + (j - 1) * LINE_HEIGHT + k * LINE_HEIGHT);
+    }
+  }
+}
+
+function drawAgentMessage(
+  ctx: CanvasRenderingContext2D,
+  content: string,
+  yPos: number,
+  msgHeight: number,
+  persona: any
+) {
+  const speakerName = persona?.nameZh || 'AI';
+  const fontFamily = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+
+  // Avatar
+  ctx.fillStyle = persona?.gradientFrom || '#4d96ff';
+  ctx.beginPath();
+  ctx.arc(PADDING + AVATAR_SIZE / 2, yPos + AVATAR_SIZE / 2, AVATAR_SIZE / 2, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.fillStyle = '#ffffff';
+  ctx.font = `bold 16px ${fontFamily}`;
+  ctx.fillText(speakerName.charAt(0), PADDING + AVATAR_SIZE / 2 - 6, yPos + AVATAR_SIZE / 2 + 5);
+
+  // Speaker name
+  ctx.fillStyle = persona?.accentColor || '#4d96ff';
+  ctx.font = `bold 14px ${fontFamily}`;
+  ctx.fillText(speakerName, PADDING + AVATAR_SIZE + 12, yPos + 16);
+
+  // Content
+  ctx.fillStyle = '#e8e8f0';
+  ctx.font = `15px ${fontFamily}`;
+  const lines = wrapTextToLines(ctx, content, CONTENT_WIDTH - AVATAR_SIZE - 20);
+  for (let j = 0; j < lines.length; j++) {
+    ctx.fillText(lines[j], PADDING + AVATAR_SIZE + 12, yPos + 40 + j * LINE_HEIGHT);
+  }
 }
 
 /**
- * 导出聊天记录为文本
+ * Cross-platform download:
+ * - Image: POST dataUrl → get server URL → location.href navigation (WeChat allows this)
+ * - Text: link.click() with blob URL
  */
-export function exportChatAsText(
+function triggerDownload(href: string, filename: string, isImage: boolean): void {
+  if (isImage) {
+    // POST to server → get download URL → navigate (location.href works in WeChat)
+    fetch('/api/export/image', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ dataUrl: href, filename }),
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error('Server error');
+        return res.json() as Promise<{ downloadUrl: string }>;
+      })
+      .then(({ downloadUrl }) => {
+        // location.href navigates to the server URL; server responds with
+        // Content-Disposition: attachment → triggers download in WeChat WebView
+        location.href = downloadUrl;
+      })
+      .catch((e) => {
+        console.warn('[Export] Server download failed, falling back:', e);
+        triggerDownloadDirect(href, filename);
+      });
+  } else {
+    triggerDownloadDirect(href, filename);
+  }
+}
+
+function triggerDownloadDirect(href: string, filename: string): void {
+  // Strategy 1: link.click() with data/blob URL
+  try {
+    const link = document.createElement('a');
+    link.download = filename;
+    link.href = href;
+    link.style.cssText = 'position:fixed;top:0;left:0;width:1px;height:1px;opacity:0;';
+    document.body.appendChild(link);
+    link.click();
+    setTimeout(() => document.body.removeChild(link), 100);
+    return;
+  } catch (e) {
+    console.warn('[Export] click failed:', e);
+  }
+
+  // Strategy 2: dispatchEvent
+  try {
+    const link = document.createElement('a');
+    link.download = filename;
+    link.href = href;
+    document.body.appendChild(link);
+    link.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+    setTimeout(() => document.body.removeChild(link), 100);
+    return;
+  } catch (e) {
+    console.warn('[Export] dispatchEvent failed:', e);
+  }
+
+  // Strategy 3: window.open
+  try {
+    const win = window.open(href, '_blank');
+    if (win) setTimeout(() => win.close(), 300);
+  } catch (e) {
+    console.warn('[Export] window.open failed:', e);
+  }
+}
+
+function downloadCanvas(canvas: HTMLCanvasElement): void {
+  const filename = `棱镜对话_${formatDateForFile(new Date())}.jpg`;
+  const dataUrl = canvas.toDataURL('image/jpeg', 0.92);
+  triggerDownload(dataUrl, filename, true);
+}
+
+
+// ─── Text Export (unlimited) ─────────────────────────────────────────────────
+
+// Returns text content string for caller to handle (enables server-API download on Android)
+export async function generateChatText(
   messages: AgentMessage[],
   selectedPersonaIds: string[],
-  mode: Mode
-): void {
+  mode: Mode,
+): Promise<string> {
   const personas = getPersonasByIds(selectedPersonaIds);
   const modeName = getModeName(mode);
   const personaNames = personas.map(p => p.nameZh).join('、');
@@ -351,17 +554,25 @@ export function exportChatAsText(
   content += `🌐 ${WEBSITE_URL}\n`;
   content += `═══════════════════════════════════════\n`;
 
-  const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
-  const link = document.createElement('a');
-  link.download = `棱镜对话_${formatDateForFile(new Date())}.txt`;
-  link.href = URL.createObjectURL(blob);
-  link.click();
-  URL.revokeObjectURL(link.href);
+  return content;
 }
 
-/**
- * 辅助函数：绘制圆角矩形
- */
+// Downloads text content via server API (works reliably on Android WeChat)
+export async function downloadTextViaAPI(content: string, filename: string): Promise<void> {
+  const safeFilename = filename.replace(/[^a-zA-Z0-9_\u4e00-\u9fff.-]/g, '_');
+  const res = await fetch('/api/export/text', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ content, filename: safeFilename }),
+  });
+  if (!res.ok) throw new Error(`Server error: ${res.status}`);
+  const { id, filename: serverFilename } = await res.json() as { id: string; filename: string };
+  const downloadUrl = `/api/export/text?id=${encodeURIComponent(id)}&filename=${encodeURIComponent(serverFilename)}`;
+  location.href = downloadUrl;
+}
+
+// ─── Helpers ────────────────────────────────────────────────────────────────
+
 function roundRect(
   ctx: CanvasRenderingContext2D,
   x: number,
@@ -383,23 +594,16 @@ function roundRect(
   ctx.closePath();
 }
 
-/**
- * 辅助函数：自动换行（返回行数组）
- */
 function wrapTextToLines(ctx: CanvasRenderingContext2D, text: string, maxWidth: number): string[] {
   const cleanText = text.replace(/[*_`#\[\]()>]/g, '');
   const paragraphs = cleanText.split('\n');
   const lines: string[] = [];
 
   for (const paragraph of paragraphs) {
-    if (!paragraph.trim()) {
-      lines.push('');
-      continue;
-    }
+    if (!paragraph.trim()) { lines.push(''); continue; }
 
     let currentLine = '';
     const chars = paragraph.split('');
-
     for (const char of chars) {
       const testLine = currentLine + char;
       const metrics = ctx.measureText(testLine);
@@ -410,17 +614,12 @@ function wrapTextToLines(ctx: CanvasRenderingContext2D, text: string, maxWidth: 
         currentLine = testLine;
       }
     }
-    if (currentLine) {
-      lines.push(currentLine);
-    }
+    if (currentLine) lines.push(currentLine);
   }
 
   return lines.length > 0 ? lines : [''];
 }
 
-/**
- * 格式化日期用于文件名
- */
 function formatDateForFile(date: Date): string {
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
 }
