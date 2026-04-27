@@ -365,7 +365,7 @@ export function ChatInterface({ className, initialPersona, initialMode }: ChatIn
     setShowExportMenu(false);
     setIsExporting(true);
     try {
-      const content = generateChatText(messages, selectedIds, mode);
+      const content = await generateChatText(messages, selectedIds, mode);
       const filename = `棱镜对话_${new Date().toISOString().slice(0, 10)}.txt`;
       await downloadTextViaAPI(content, filename);
     } catch (error) {

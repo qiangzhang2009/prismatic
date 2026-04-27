@@ -67,7 +67,7 @@ export async function GET(req: NextRequest) {
 
   // Default: direct download — triggers browser/OS download prompt
   if (preview !== '1') {
-    return new NextResponse(entry.imageData, {
+    return new NextResponse(new Uint8Array(entry.imageData), {
       status: 200,
       headers: {
         'Content-Type': entry.contentType,

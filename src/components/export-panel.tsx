@@ -280,7 +280,7 @@ export function ExportPanel({
         }
         setTimeout(onClose, 800);
       } else {
-        const content = generateChatText(msgsToExport, selectedPersonaIds, mode);
+        const content = await generateChatText(msgsToExport, selectedPersonaIds, mode);
         const txtFilename = `棱镜对话_${new Date().toISOString().slice(0, 10)}.txt`;
         await downloadTextViaAPI(content, txtFilename);
         setTimeout(onClose, 800);
