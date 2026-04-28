@@ -282,21 +282,27 @@ export function PersonaDetailClient({ persona, colors }: Props) {
             <div className="rounded-xl p-4 bg-green-500/5 border border-green-500/15">
               <h3 className="text-sm font-medium text-green-400 mb-2">擅长领域</h3>
               <div className="flex flex-wrap gap-1.5">
-                {persona.strengths.map((s) => (
-                  <span key={s} className="text-xs px-2 py-0.5 rounded-md bg-green-500/10 text-green-400">
-                    {s}
-                  </span>
-                ))}
+                {persona.strengths.map((s) => {
+                  const text = typeof s === 'string' ? s : ((s as any).textZh || (s as any).text || (s as any).description || '');
+                  return (
+                    <span key={text || String(s)} className="text-xs px-2 py-0.5 rounded-md bg-green-500/10 text-green-400">
+                      {text}
+                    </span>
+                  );
+                })}
               </div>
             </div>
             <div className="rounded-xl p-4 bg-yellow-500/5 border border-yellow-500/15">
               <h3 className="text-sm font-medium text-yellow-400 mb-2">认知盲区</h3>
               <div className="flex flex-wrap gap-1.5">
-                {persona.blindspots.map((b) => (
-                  <span key={b} className="text-xs px-2 py-0.5 rounded-md bg-yellow-500/10 text-yellow-400">
-                    {b}
-                  </span>
-                ))}
+                {persona.blindspots.map((b) => {
+                  const text = typeof b === 'string' ? b : ((b as any).textZh || (b as any).text || (b as any).reason || '');
+                  return (
+                    <span key={text || String(b)} className="text-xs px-2 py-0.5 rounded-md bg-yellow-500/10 text-yellow-400">
+                      {text}
+                    </span>
+                  );
+                })}
               </div>
             </div>
           </div>

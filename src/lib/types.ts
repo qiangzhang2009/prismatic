@@ -157,13 +157,13 @@ export interface Persona {
   decisionHeuristics: DecisionHeuristic[];
   expressionDNA: ExpressionDNA;
   values: Value[];
-  antiPatterns: string[];
+  antiPatterns: (string | { text: string; textZh?: string; description?: string; descriptionZh?: string })[];
   tensions: Tension[];
 
   // Boundaries
   honestBoundaries: HonestBoundary[];
-  strengths: string[];
-  blindspots: string[];
+  strengths: (string | { text: string; textZh?: string; description?: string; descriptionZh?: string })[];
+  blindspots: (string | { text: string; textZh?: string; reason?: string; reasonZh?: string })[];
 
   // Research
   sources: Source[];
