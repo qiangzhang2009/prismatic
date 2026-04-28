@@ -67,7 +67,7 @@ export async function GET(req: NextRequest) {
           id: row.slug,
           slug: row.slug,
           name: row.name || row.nameen || '',
-          nameZh: row.namezh || row.name || '',
+          nameZh: row.nameZh || row.namezh || row.name || '',
           domain: row.domain ?? [],
           accentColor: row.accentColor || '#4d96ff',
           gradientFrom: row.gradientFrom || '#4d96ff',

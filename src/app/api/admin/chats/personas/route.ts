@@ -37,7 +37,7 @@ async function getDbPersonaMeta(pool: any, personaId: string): Promise<{ name: s
   if (result.rows[0]) {
     return {
       name: result.rows[0].name || personaId,
-      nameZh: result.rows[0].namezh || result.rows[0].name || personaId,
+      nameZh: (result.rows[0].nameZh || result.rows[0].namezh || result.rows[0].name || personaId) as string,
       domain: Array.isArray(result.rows[0].domain) ? result.rows[0].domain[0] : (result.rows[0].domain || 'unknown'),
     };
   }
