@@ -218,9 +218,9 @@ export async function trackEvents(events: EventData[]): Promise<string[]> {
 /**
  * 追踪对话开始事件。
  */
-export async function trackChatStart(personaId: string, personaName?: string): Promise<string | null> {
+export async function trackChatStart(personaId: string, personaName?: string, userId?: string): Promise<string | null> {
   return trackEvent({
-    userId: '', // 需要在调用时填充
+    userId: userId || '',
     eventType: 'chat_start',
     eventName: 'chat_start',
     personaId,
@@ -231,9 +231,9 @@ export async function trackChatStart(personaId: string, personaName?: string): P
 /**
  * 追踪对话结束事件。
  */
-export async function trackChatEnd(conversationId: string, properties?: Record<string, unknown>): Promise<string | null> {
+export async function trackChatEnd(conversationId: string, properties?: Record<string, unknown>, userId?: string): Promise<string | null> {
   return trackEvent({
-    userId: '', // 需要在调用时填充
+    userId: userId || '',
     eventType: 'chat_end',
     eventName: 'chat_end',
     conversationId,
