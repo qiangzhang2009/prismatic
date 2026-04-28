@@ -768,7 +768,7 @@ export function useConversationSync() {
       // Diagnostic: ping our debug endpoints to confirm requests reach the server and check cookies
       fetch('/api/debug/ping?deviceId=' + encodeURIComponent(deviceId))
         .catch(() => {});
-      fetch('/api/debug/cookie-test')
+      fetch('/api/debug/cookie-test?deviceId=' + encodeURIComponent(deviceId))
         .catch(() => {});
       runFullSync();
     }, 1500);
