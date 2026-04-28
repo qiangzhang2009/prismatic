@@ -147,8 +147,8 @@ export function buildConversationId(userId: string, personaIds: string[]): strin
  *   - Guest/legacy:  "{sorted personaIds}"  (no prefix, backward compatible)
  */
 export function buildConversationKey(personaIds: string[], userId?: string): string {
-  const base = [...personaIds].sort().join('-');
-  return userId ? `u:${userId}:${base}` : base;
+  const base = [...personaIds].sort().join(':');
+  return userId ? `u:${userId}|${base}` : base;
 }
 
 /** SHA-256 hash of a JSON-serializable value */

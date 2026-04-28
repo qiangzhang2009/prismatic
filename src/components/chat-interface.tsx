@@ -390,9 +390,17 @@ export function ChatInterface({ className, initialPersona, initialMode }: ChatIn
   const handleSend = async () => {
     if (!input.trim() || isLoading) return;
 
+    // Read fresh auth state from store (handles restored accounts with server-synced credits)
+    const { user } = useAuthStore.getState();
+    const currentCredits = user?.credits ?? 0;
+    const currentPlan = user?.plan ?? 'FREE';
+    const currentIsPaid = currentPlan !== 'FREE';
+    const currentHasCredits = currentCredits > 0;
+
     // 每日限制检查：有积分的用户不受 localStorage 每日限制约束
     const { count } = getDailyCount();
-    if (!isPaid && !hasCredits && count >= dailyLimit) {
+    const limits = getFeatureLimit(currentPlan);
+    if (!currentIsPaid && !currentHasCredits && count >= limits.dailyMessages) {
       setLimitModalType('daily_limit');
       setShowLimitModal(true);
       return;
