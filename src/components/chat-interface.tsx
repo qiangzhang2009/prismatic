@@ -472,13 +472,14 @@ export function ChatInterface({ className, initialPersona, initialMode }: ChatIn
         } else if (response.status === 401) {
           router.push('/auth/signin');
         } else {
+          console.error('[handleSend] Chat API error:', response.status, data);
           setMessages((prev) => [
             ...prev,
             {
               id: nanoid(),
               personaId: 'system',
               role: 'system',
-              content: '抱歉，发生了错误。请稍后重试。',
+              content: `抱歉，发生了错误 (${response.status})。请稍后重试。`,
               timestamp: new Date(),
             },
           ]);
