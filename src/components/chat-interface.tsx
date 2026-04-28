@@ -42,6 +42,15 @@ function getDailyCount(): { count: number; date: string } {
   }
 }
 
+function resetDailyCount(): void {
+  try {
+    localStorage.setItem(DAILY_LIMIT_KEY, '0');
+    localStorage.setItem(DAILY_DATE_KEY, new Date().toDateString());
+  } catch {
+    // ignore
+  }
+}
+
 function incrementDailyCount(): number {
   try {
     const { count } = getDailyCount();
@@ -397,6 +406,11 @@ export function ChatInterface({ className, initialPersona, initialMode }: ChatIn
     const currentPlan = user?.plan ?? 'FREE';
     const currentIsPaid = currentPlan !== 'FREE';
     const currentHasCredits = currentCredits > 0;
+
+    // 有积分的用户：重置 localStorage 每日计数器（避免旧计数器阻止积分用户）
+    if (currentHasCredits) {
+      resetDailyCount();
+    }
 
     // 每日限制检查：有积分的用户不受 localStorage 每日限制约束
     const { count } = getDailyCount();
