@@ -174,7 +174,12 @@ export async function runSync(
   const { deviceId, localSnapshots, deviceInfo } = request;
 
   // ── Step 1: Register or update the device ──────────────────────────────
-  // deviceId IS the Device.id (browser fingerprint → used as primary key)
+  // Critical: if this device was previously registered by a visitor (visitor deviceIds = userIds = same value),
+  // and now a logged-in user is using it, we must update the userId. Otherwise the visitor's
+  // userId (which equals deviceId) pollutes all subsequent sync operations.
+  const existingDevice = await prisma.device.findUnique({ where: { id: deviceId } });
+  const isVisitorDevice = existingDevice && existingDevice.userId === deviceId;
+
   const device = await prisma.device.upsert({
     where: { id: deviceId },
     create: {
@@ -189,13 +194,15 @@ export async function runSync(
     },
     update: {
       lastActiveAt: new Date(),
+      // Claim this device for the logged-in user (fixes visitor-device ownership issue)
+      ...(isVisitorDevice ? { userId } : {}),
       ...(deviceInfo?.deviceName && { deviceName: deviceInfo.deviceName }),
       ...(deviceInfo?.deviceType && { deviceType: deviceInfo.deviceType as any }),
       ...(deviceInfo?.platform && { platform: deviceInfo.platform }),
       ...(deviceInfo?.browser && { browser: deviceInfo.browser }),
     },
   });
-  console.log('[runSync] Device upserted. id=' + device.id + ' userId=' + device.userId + ' platform=' + device.platform + ' localSnapshots=' + (localSnapshots?.length || 0));
+  console.log('[runSync] Device upserted. id=' + device.id + ' userId=' + device.userId + ' platform=' + device.platform + ' localSnapshots=' + (localSnapshots?.length || 0) + ' claimedFromVisitor=' + (!!isVisitorDevice));
 
   // ── Step 2: Get all server-side local_conversations for this device ──
   const serverSnapshots = await prisma.localConversation.findMany({
@@ -235,7 +242,9 @@ export async function runSync(
       toPush.push(local);
     } else if (!local && server) {
       // Case B: Server only → pull to device
-      const messages = await getServerMessages(server.syncedConversationId, key, server.personaIds);
+      const messages = server.syncedConversationId
+        ? await getServerMessages(server.syncedConversationId, key, server.personaIds)
+        : [];
       toPull.push({
         conversationKey: key,
         personaIds: server.personaIds,
@@ -251,18 +260,16 @@ export async function runSync(
       const serverHash = server.contentHash || '';
 
       const localTime = local.lastMessageAt ? new Date(local.lastMessageAt).getTime() : 0;
-      const serverTime = server.lastLocalUpdateAt.getTime();
+      const serverTime = server.lastLocalUpdateAt ? new Date(server.lastLocalUpdateAt).getTime() : 0;
 
       if (localHash === serverHash) {
         // Case C1: Identical hash → already in sync
         acknowledged.push(key);
       } else if (Math.abs(localTime - serverTime) < 30000) {
         // Case C2: Modified within 30 seconds of each other → conflict (simultaneous edits)
-        const serverMessages = await getServerMessages(
-          server.syncedConversationId,
-          key,
-          server.personaIds
-        );
+        const serverMessages = server.syncedConversationId
+          ? await getServerMessages(server.syncedConversationId, key, server.personaIds)
+          : [];
         const serverSnapshot: LocalConversationSnapshot = {
           conversationKey: key,
           personaIds: server.personaIds,
@@ -270,9 +277,9 @@ export async function runSync(
           tags: server.localTags,
           messageCount: server.localMessageCount,
           contentHash: serverHash,
-          lastMessageAt: server.lastLocalUpdateAt.toISOString(),
+          lastMessageAt: server.lastLocalUpdateAt ? server.lastLocalUpdateAt.toISOString() : new Date().toISOString(),
           messages: serverMessages,
-          snapshotAt: server.lastLocalUpdateAt.toISOString(),
+          snapshotAt: server.lastLocalUpdateAt ? server.lastLocalUpdateAt.toISOString() : new Date().toISOString(),
         };
 
         const conflict = detectConflict(local, serverSnapshot);
@@ -282,18 +289,16 @@ export async function runSync(
         toPush.push(local);
       } else {
         // Case C4: Server is newer → pull server
-        const serverMessages = await getServerMessages(
-          server.syncedConversationId,
-          key,
-          server.personaIds
-        );
+        const serverMessages = server.syncedConversationId
+          ? await getServerMessages(server.syncedConversationId, key, server.personaIds)
+          : [];
         toUpdateLocal.push({
           conversationKey: key,
           personaIds: server.personaIds,
           title: server.localTitle || undefined,
           tags: server.localTags,
           messages: serverMessages,
-          serverUpdatedAt: server.lastLocalUpdateAt.toISOString(),
+          serverUpdatedAt: server.lastLocalUpdateAt ? server.lastLocalUpdateAt.toISOString() : new Date().toISOString(),
           isNew: false,
         });
       }
@@ -398,6 +403,16 @@ export async function pushConversations(
   deviceId: string,
   snapshots: LocalConversationSnapshot[]
 ): Promise<{ success: boolean; acknowledged: string[] }> {
+  // Claim device for this user if it was previously a visitor device
+  const existingDevice = await prisma.device.findUnique({ where: { id: deviceId } });
+  const isVisitorDevice = existingDevice && existingDevice.userId === deviceId;
+  if (isVisitorDevice) {
+    await prisma.device.update({
+      where: { id: deviceId },
+      data: { userId, lastActiveAt: new Date() },
+    });
+  }
+
   const device = await prisma.device.findUnique({ where: { id: deviceId } });
   if (!device || device.userId !== userId) {
     return { success: false, acknowledged: [] };
@@ -440,19 +455,16 @@ export async function pullConversationsForDevice(
 
   const conversations: PullItem[] = [];
   for (const server of serverSnapshots) {
-    const messages = await getServerMessages(
-      server.syncedConversationId,
-      server.conversationKey,
-      server.personaIds
-    );
+    const messages = server.syncedConversationId
+      ? await getServerMessages(server.syncedConversationId, server.conversationKey, server.personaIds)
+      : [];
     conversations.push({
       conversationKey: server.conversationKey,
       personaIds: server.personaIds,
       title: server.localTitle || undefined,
       tags: server.localTags,
       messages,
-      serverUpdatedAt: server.lastLocalUpdateAt.toISOString(),
-      isNew: true,
+      serverUpdatedAt: server.lastLocalUpdateAt ? server.lastLocalUpdateAt.toISOString() : new Date().toISOString(),
     });
   }
 
