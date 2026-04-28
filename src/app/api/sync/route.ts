@@ -64,6 +64,7 @@ export async function POST(request: NextRequest) {
     }
 
     const result = await runSync(userId, body);
+    console.log('[Sync API] POST success for user=' + userId + ' device=' + body.deviceId + ' localSnapshots=' + (body.localSnapshots?.length || 0) + ' deviceInfo=' + JSON.stringify(body.deviceInfo));
     return NextResponse.json(result);
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Unknown error';

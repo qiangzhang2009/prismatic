@@ -195,6 +195,7 @@ export async function runSync(
       ...(deviceInfo?.browser && { browser: deviceInfo.browser }),
     },
   });
+  console.log('[runSync] Device upserted. id=' + device.id + ' userId=' + device.userId + ' platform=' + device.platform + ' localSnapshots=' + (localSnapshots?.length || 0));
 
   // ── Step 2: Get all server-side local_conversations for this device ──
   const serverSnapshots = await prisma.localConversation.findMany({
@@ -300,9 +301,11 @@ export async function runSync(
   }
 
   // ── Step 4: Execute pushes ────────────────────────────────────────────
+  console.log('[runSync] toPush count=' + toPush.length + ' keys=' + toPush.map(s => s.conversationKey.split(':').pop()).join(','));
   for (const snapshot of toPush) {
     await upsertLocalConversation(device.id, snapshot);
   }
+  console.log('[runSync] pushes done. toPull count=' + pullConversations.length + ' toUpdateLocal count=' + toUpdateLocal.length);
 
   // ── Step 5: Build pull list (deduplicated) ───────────────────────────
   // Deduplicate: if both toPull (server-only) and toUpdateLocal (server-newer) have the same key, keep only one
@@ -346,6 +349,8 @@ export async function runSync(
       durationMs: Date.now() - startMs,
     },
   });
+
+  console.log('[runSync] Done. result: acknowledged=' + acknowledged.length + ' toPull=' + pullConversations.length + ' conflicts=' + conflicts.length + ' pushed=' + toPush.length + ' duration=' + (Date.now() - startMs) + 'ms');
 
   // ── Step 8: Create conflict records for unresolved conflicts ─────────
   if (conflicts.length > 0) {
