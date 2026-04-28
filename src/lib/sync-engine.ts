@@ -310,7 +310,7 @@ export async function runSync(
   for (const snapshot of toPush) {
     await upsertLocalConversation(device.id, snapshot);
   }
-  console.log('[runSync] pushes done. toPull count=' + pullConversations.length + ' toUpdateLocal count=' + toUpdateLocal.length);
+  console.log('[runSync] pushes done. toPull count=' + toPull.length + ' toUpdateLocal count=' + toUpdateLocal.length);
 
   // ── Step 5: Build pull list (deduplicated) ───────────────────────────
   // Deduplicate: if both toPull (server-only) and toUpdateLocal (server-newer) have the same key, keep only one
