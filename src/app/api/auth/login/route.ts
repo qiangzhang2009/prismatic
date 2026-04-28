@@ -28,6 +28,7 @@ const DEMO_ACCOUNTS = [
 const RESTORED_ACCOUNTS = [
   { email: '164539079@qq.com',      name: 'Rinkon' },
   { email: 'wuxiang@163.com',       name: 'shondianyuan' },
+  { email: 'rachelzhou_yt@163.com', name: 'Rachel' },
   { email: 'rachelhou_yt@163.com',  name: 'Rachel' },
   { email: '50043741@aq.com',       name: 'coolnetboy' },
   { email: '0309@163.com',           name: 'Leoaibo' },

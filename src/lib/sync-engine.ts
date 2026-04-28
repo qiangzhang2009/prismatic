@@ -476,14 +476,29 @@ async function upsertLocalConversation(
   // Create or find the actual Conversation record
   let conversationId: string | null = existing?.syncedConversationId || null;
 
-  if (!conversationId && snapshot.messages && snapshot.messages.length > 0) {
-    // First time this conversation is synced → create Conversation + Messages in DB
+  if (conversationId && snapshot.messages && snapshot.messages.length > 0) {
+    // Update existing conversation with new messages
+    const device = await prisma.device.findUnique({ where: { id: deviceId } });
+    if (device) {
+      await updateServerConversation(
+        conversationId,
+        snapshot.messages,
+        snapshot.lastMessageAt,
+        device.userId
+      );
+    }
+  }
+
+  // Always try to create/update the Conversation record if we have enough info.
+  // This ensures syncedConversationId is set on the first push (before messages exist)
+  // and subsequent pushes can update it with messages.
+  if (!conversationId && snapshot.personaIds && snapshot.personaIds.length > 0) {
     conversationId = await createServerConversation(
       snapshot.conversationKey,
       snapshot.personaIds,
       snapshot.title,
       snapshot.tags,
-      snapshot.messages,
+      snapshot.messages && snapshot.messages.length > 0 ? snapshot.messages : [],
       deviceId,
       snapshot.mode
     );

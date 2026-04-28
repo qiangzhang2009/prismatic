@@ -461,8 +461,14 @@ export function useConversationSync() {
   // ── Push a conversation snapshot ───────────────────────────────────────
 
   /** Call this after every message to push a snapshot to the server */
-  const pushSnapshot = useCallback(async (personaIds: string[], messages: AgentMessage[], title?: string, tags?: string[], mode?: string, userId?: string) => {
+  const pushSnapshot = useCallback(async (personaIds: string[], _messages: AgentMessage[], title?: string, tags?: string[], mode?: string, userId?: string) => {
     const conversationKey = buildConversationKey(personaIds, userId);
+
+    // Always read fresh messages from the registry (avoids stale closures from setTimeout timing)
+    const reg = loadRegistry();
+    const freshConv = reg.conversations[conversationKey];
+    const messages = freshConv?.messages || _messages;
+
     const contentHash = computeContentHash(messages);
     const lastMsgAt = messages.length > 0
       ? ((messages[messages.length - 1] as any).timestamp as string || new Date().toISOString())
@@ -478,10 +484,10 @@ export function useConversationSync() {
       lastMessageAt: lastMsgAt,
       snapshotAt: new Date().toISOString(),
       mode,
+      messages,
     };
 
     // Update registry immediately (optimistic update)
-    const reg = loadRegistry();
     reg.conversations[conversationKey] = {
       messages,
       title: title || '',

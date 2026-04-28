@@ -12,7 +12,7 @@ import { ModeButtonBar } from '@/components/mode-button-bar';
 import { ModePickerOverlay } from '@/components/mode-picker-overlay';
 import { PERSONA_LIST, getPersonasByIds } from '@/lib/personas';
 import { MODES } from '@/lib/constants';
-import { useConversationSync, migrateUserConversations, useRegistryChat } from '@/lib/use-conversation-sync';
+import { useConversationSync, migrateUserConversations, useRegistryChat, loadRegistry } from '@/lib/use-conversation-sync';
 import { useAuthStore, getFeatureLimit } from '@/lib/auth-store';
 import type { Mode, Persona, AgentMessage } from '@/lib/types';
 import { nanoid } from 'nanoid';
