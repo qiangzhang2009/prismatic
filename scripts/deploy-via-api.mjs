@@ -17,6 +17,7 @@ const body = JSON.stringify({
   gitSource: {
     type: 'github',
     repo: 'johnzhangs-projects/prismatic',
+    repoId: '1001369669',
     ref: commitSHA,
     sha: commitSHA,
   },

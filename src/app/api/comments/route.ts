@@ -9,6 +9,9 @@ import { cookies } from 'next/headers';
 import { processCommentInteractions } from '@/lib/guardian-engine';
 import { verifyJWTToken } from '@/lib/user-management';
 import { lookupIP, generateAvatarSeed, getAvatarUrl, COUNTRY_NAMES } from '@/lib/geo';
+import { getTodayGuardians } from '@/lib/guardian';
+import { extractGuardianMention, getMentionHint } from '@/lib/guardian-mention';
+import { PERSONAS } from '@/lib/personas';
 
 /**
  * Extract the real client IP from request headers.
@@ -91,7 +94,6 @@ export async function GET(req: NextRequest) {
   const limit = Math.min(parseInt(searchParams.get('limit') || '20'), 50);
   const offset = parseInt(searchParams.get('offset') || '0');
   const sort = searchParams.get('sort') || 'latest';
-  const dateFilter = searchParams.get('date'); // YYYY-MM-DD format
 
   try {
     const cookieStore = await cookies();
@@ -104,24 +106,6 @@ export async function GET(req: NextRequest) {
     }
     // eslint-disable-next-line
     const sql = neon(connectionString) as NeonQueryFunction<false, false>;
-
-    // Date range for filter
-    let dateStart: Date | null = null;
-    let dateEnd: Date | null = null;
-    if (dateFilter) {
-      const d = new Date(dateFilter + 'T00:00:00.000Z');
-      if (!isNaN(d.getTime())) {
-        dateStart = d;
-        dateEnd = new Date(d);
-        dateEnd.setDate(dateEnd.getDate() + 1);
-      }
-    }
-
-    // Build WHERE conditions
-    const whereStatus = sql`c.status = 'published' AND c."parentId" IS NULL`;
-    const whereDate = dateStart && dateEnd
-      ? sql`AND c."createdAt" >= ${dateStart} AND c."createdAt" < ${dateEnd}`
-      : sql``;
 
     const rows = await sql`
       SELECT
@@ -138,13 +122,16 @@ export async function GET(req: NextRequest) {
         c."updatedAt",
         c.reactions,
         c."personaSlug",
+        c."mentionedGuardianId",
+        c."mentionedGuardianReply",
+        c."mentionedGuardianRepliedAt",
         (
-          SELECT COUNT(*)::int
+          SELECT COUNT(*)
           FROM comments r
           WHERE r."parentId" = c.id AND r.status = 'published'
-        ) AS "replyCount"
+        ) AS reply_count
       FROM comments c
-      WHERE ${whereStatus} ${whereDate}
+      WHERE c.status = 'published' AND c."parentId" IS NULL
       ORDER BY c."createdAt" DESC
       LIMIT ${limit}
       OFFSET ${offset}
@@ -153,7 +140,7 @@ export async function GET(req: NextRequest) {
     const countRows = await sql`
       SELECT COUNT(*) as total
       FROM comments c
-      WHERE ${whereStatus} ${whereDate}
+      WHERE c.status = 'published' AND c."parentId" IS NULL
     `;
 
     const total = Number(countRows[0]?.total ?? 0);
@@ -208,8 +195,18 @@ export async function GET(req: NextRequest) {
         userReaction,
         view_count: 0,
         report_count: 0,
-        replyCount: c.replyCount ?? 0,
+        replyCount: Number(c.reply_count ?? 0),
         personaSlug: c.personaSlug,
+        mentionedGuardianId: c.mentionedGuardianId ?? null,
+        mentionedGuardianReply: c.mentionedGuardianReply ?? null,
+        mentionedGuardianRepliedAt: c.mentionedGuardianRepliedAt
+          ? new Date(c.mentionedGuardianRepliedAt).toISOString()
+          : null,
+        mentionedGuardianName: c.mentionedGuardianId
+          ? PERSONAS[c.mentionedGuardianId]?.nameZh ?? null
+          : null,
+        ipHash: (c.ipHash as string) || null,
+        userId: (c.userId as string) || null,
       });
     }
 
@@ -245,7 +242,8 @@ export async function POST(req: NextRequest) {
 
   try {
     const body = await req.json();
-    const { content, parentId, gender, personaSlug } = body;
+    const { content, parentId, gender, personaSlug, mentionedGuardianId: incomingGuardianId } = body;
+    const visitorIdFromHeader = req.headers.get('x-visitor-id');
 
     if (!content || typeof content !== 'string' || content.trim().length === 0) {
       return NextResponse.json({ error: 'Content is required' }, { status: 400 });
@@ -274,12 +272,12 @@ export async function POST(req: NextRequest) {
         } else {
           nickname = randomNickname();
           avatarSeed = generateAvatarSeed(ip, gender);
-          ipHash = ip.slice(0, 64);
+          ipHash = visitorIdFromHeader || ip.slice(0, 64);
         }
       } else {
         nickname = randomNickname();
         avatarSeed = generateAvatarSeed(ip, gender);
-        ipHash = ip.slice(0, 64);
+        ipHash = visitorIdFromHeader || ip.slice(0, 64);
       }
     } else {
       nickname = randomNickname();
@@ -287,20 +285,44 @@ export async function POST(req: NextRequest) {
       ipHash = ip.slice(0, 64);
     }
 
+    // ── Parallel: geo lookup + guardian detection (both with timeout) ─────
+    // Geo lookup runs for ALL users (admin or not) — location is part of the comment data
     let geoCountryCode: string | null = null;
     let geoCountry: string | null = null;
     let geoRegion: string | null = null;
     let geoCity: string | null = null;
+    let mentionedGuardianId: string | null = null;
+    let mentionHint: string | null = null;
 
-    try {
-      const geo = await lookupIP(ip);
-      if (geo) {
-        geoCountry = geo.country;
-        geoRegion = geo.region;
-        geoCity = geo.city;
-        geoCountryCode = geo.countryCode;
+    const geoPromiseTimed = Promise.race([
+      lookupIP(ip),
+      new Promise<null>((resolve) => setTimeout(() => resolve(null), 500)),
+    ]).catch(() => null);
+
+    const guardianPromise = getTodayGuardians().catch(() => []);
+
+    // Wait for both in parallel, but with a short timeout
+    const [geo, guardians] = await Promise.all([geoPromiseTimed, guardianPromise]);
+
+    if (geo) {
+      geoCountryCode = geo.countryCode;
+      geoCountry = geo.country;
+      geoRegion = geo.region;
+      geoCity = geo.city;
+    }
+
+    // Determine the guardian to respond: prefer explicit mentionId, else auto-detect from @ in content
+    // When replying to a guardian via "继续追问", the guardian is already known (passed explicitly)
+    if (incomingGuardianId) {
+      mentionedGuardianId = incomingGuardianId;
+    } else if (guardians.length > 0) {
+      const guardianIds = guardians.map((g) => g.personaId);
+      const mentionResult = extractGuardianMention(content, guardianIds);
+      if (mentionResult.mentionedPersonaId) {
+        mentionedGuardianId = mentionResult.mentionedPersonaId;
       }
-    } catch { /* geo lookup failed */ }
+      mentionHint = getMentionHint(mentionResult);
+    }
 
     const newComment = await prisma.comment.create({
       data: {
@@ -318,16 +340,46 @@ export async function POST(req: NextRequest) {
         type: parentId ? 'reply' : 'comment',
         personaSlug: personaSlug || null,
         status: 'published',
-          reactions: [],
+        reactions: [],
+        mentionedGuardianId,
       },
     });
 
     const avatarUrl = avatarSeed ? getAvatarUrl(avatarSeed, gender || undefined) : null;
     const location = [geoCountry, geoRegion, geoCity].filter(Boolean).join(' · ') || null;
 
-    if (!parentId) {
-      processCommentInteractions(newComment.id, content.trim(), nickname).catch(console.error);
+    // ── Fire-and-forget: guardian LLM reply ─────────────────────────────────
+    // The LLM call is expensive (3-15s). We return immediately and let it run
+    // in the background. The frontend polls /api/comments/[id] to pick up the
+    // reply once it's ready.
+    //
+    // Rules for triggering guardian reply:
+    // 1. Root comments (no parentId) with @mention → reply to THAT guardian
+    // 2. Replies (has parentId) → NEVER trigger guardian engine.
+    //    Replies are part of an existing conversation thread and should NOT
+    //    spawn additional guardian responses. The parent comment's guardian is
+    //    already engaged with the thread.
+    // 3. Organic comments (no mention) → probabilistic engagement (handled async)
+    //
+    // NOTE: `mentionedGuardianId` can be set in three ways:
+    //   a. Explicit incoming value (from "继续追问" — caller passes parent's guardianId)
+    //   b. @-mention detection in content (only for root comments)
+    //   c. Empty → organic engagement (only for root comments without @mention)
+    const isRootComment = !parentId;
+    if (isRootComment && mentionedGuardianId) {
+      // Root comment with explicit or @-mention guardian → sync reply from that guardian
+      processCommentInteractions(newComment.id, content.trim(), nickname, mentionedGuardianId)
+        .catch((e) => console.error('[Comments] Guardian reply (mention) failed:', e));
+    } else if (isRootComment && !mentionedGuardianId) {
+      // Root comment without @mention → organic probabilistic engagement
+      processCommentInteractions(newComment.id, content.trim(), nickname, null)
+        .catch((e) => console.error('[Comments] Guardian reply (organic) failed:', e));
+    } else if (!isRootComment && mentionedGuardianId) {
+      // Reply to a guardian (继续追问) → guardian should respond with follow-up
+      processCommentInteractions(newComment.id, content.trim(), nickname, mentionedGuardianId)
+        .catch((e) => console.error('[Comments] Guardian follow-up reply failed:', e));
     }
+    // Replies without a mentionedGuardianId → never trigger guardian engine
 
     return NextResponse.json({
       success: true,
@@ -345,13 +397,20 @@ export async function POST(req: NextRequest) {
         is_pinned: false,
         is_edited: false,
         likes: 0,
-          reactions: [],
+        reactions: [],
         reactionCount: 0,
         userReaction: null,
         view_count: 0,
         report_count: 0,
         replyCount: 0,
         personaSlug: newComment.personaSlug,
+        mentionedGuardianId,
+        mentionedGuardianReply: null,   // will be picked up by frontend polling
+        mentionedGuardianRepliedAt: null,
+        mentionHint: mentionedGuardianId
+          ? `${PERSONAS[mentionedGuardianId]?.nameZh || '守望者'}正在思考中...`
+          : null,
+        ipHash: ipHash,
       }
     });
   } catch (error) {
