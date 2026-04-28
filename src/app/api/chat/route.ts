@@ -46,6 +46,12 @@ function makeLLM(type: 'deepseek' | 'openai' | 'anthropic', key?: string) {
 
 // ─── Persistence ────────────────────────────────────────────────────────────────
 
+function getDbPool() {
+  const url = process.env.DATABASE_URL;
+  if (!url) throw new Error('DATABASE_URL not set');
+  return new Pool({ connectionString: url });
+}
+
 /**
  * 持久化对话和消息记录到数据库。
  * 使用 raw SQL + 事务保证原子性，避免 Prisma nested write 在 skipDuplicates 时的兼容性问题。
@@ -85,27 +91,22 @@ async function persistConversation(
 
   console.log(`[persistConversation] START conversation=${conversationId} mode=${mode} messages=${messages.length} tokens=${totalTokensNum} cost=${totalCostNum}`);
 
-  // Use pg Client directly for reliable transactions in serverless environment.
-  // Neon serverless with Pool can have connection issues in Vercel Edge/serverless contexts.
-  // pg Client provides a persistent connection for the duration of the function.
-  const { Client } = await import('pg');
-  const client = new Client({ connectionString, ssl: { rejectUnauthorized: false } });
-  let clientConnected = false;
-  const connect = async () => {
-    if (!clientConnected) {
-      await client.connect();
-      clientConnected = true;
-    }
-  };
-  const cleanup = async () => {
-    if (clientConnected) {
-      try { await client.end(); } catch { /* ignore */ }
-      clientConnected = false;
+  const pool = getDbPool();
+  let poolEnded = false;
+
+  // Helper to safely end the pool
+  const endPool = async () => {
+    if (!poolEnded) {
+      poolEnded = true;
+      try { await pool.end(); } catch { /* ignore */ }
     }
   };
 
+  try {
+    // Use a transaction so conversation + messages are atomic
+    const client = await pool.connect();
+
     try {
-      await connect();
       await client.query('BEGIN');
 
       // Note: DB column order is: id, userId, title, mode, participants, archived, tags,
@@ -136,7 +137,7 @@ async function persistConversation(
       // ── Upsert conversation: guarantee record exists + set messageCount from DB (authoritative) ──
       // Query real count FIRST (before messages are inserted this round), so ON CONFLICT
       // uses the previous state. Then re-query after insert to get the true final count.
-      const preInsertCount = await client.query(
+      const preInsertCount = await pool.query(
         `SELECT COUNT(*) as cnt FROM messages WHERE "conversationId" = $1`,
         [actualConvId]
       );
@@ -147,7 +148,7 @@ async function persistConversation(
         VALUES ($1, $2, NULL, $3, $4, $5::text[], false, '{}'::text[],
                 $6, $7, $8, $5::text[], NOW(), NOW())
         ON CONFLICT (id) DO UPDATE SET
-          "userId" = CASE WHEN conversations."userId" = $2 THEN EXCLUDED."userId" ELSE conversations."userId" END,
+          "userId" = CASE WHEN "userId" = $2 THEN EXCLUDED."userId" ELSE "userId" END,
           mode = EXCLUDED.mode,
           participants = EXCLUDED.participants,
           "personaIds" = EXCLUDED."personaIds",
@@ -252,11 +253,12 @@ async function persistConversation(
       );
 
       await client.query('COMMIT');
-      await cleanup();
+      client.release();
+      await endPool();
       return { id: actualConvId, inserted: totalInserted, skipped: totalSkipped };
     } catch (innerErr) {
       await client.query('ROLLBACK').catch(() => {});
-      await cleanup();
+      client.release();
       throw innerErr;
     }
   } catch (error) {
@@ -269,7 +271,7 @@ async function persistConversation(
       : errMsg.includes('invalid input syntax for type json') ? ' → metadata field has invalid JSON'
       : '';
     console.error(`[persistConversation] STEP_FATAL error=${errMsg} hint=${hint} stack=${errStack} messages=${messages.length}`);
-    await cleanup();
+    await endPool();
     return null;
   }
 }
