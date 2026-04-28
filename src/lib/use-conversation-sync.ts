@@ -291,7 +291,7 @@ interface ConversationRegistry {
   }>;
 }
 
-function loadRegistry(): ConversationRegistry {
+export function loadRegistry(): ConversationRegistry {
   try {
     const raw = localStorage.getItem(REGISTRY_KEY);
     if (!raw) return { version: STORAGE_VERSION, conversations: {} };
@@ -460,6 +460,49 @@ export function useConversationSync() {
   const syncInProgressRef = useRef(false);
   const syncIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const registryRef = useRef<ConversationRegistry>(loadRegistry());
+  // Track conversations with pending sync (for UI indicator)
+  const pendingKeysRef = useRef<Set<string>>(new Set());
+  // Retry state per conversation key
+  const retryCountRef = useRef<Map<string, number>>(new Map());
+
+  // ── Reliable fetch with retry (critical for WeChat WebView) ──────────────
+
+  /** Fetch that retries up to 3 times with exponential backoff — designed for unreliable mobile networks */
+  async function reliableFetch(url: string, options: RequestInit, key?: string, maxRetries = 3): Promise<Response> {
+    let lastError: Error | null = null;
+    for (let attempt = 0; attempt < maxRetries; attempt++) {
+      try {
+        // WeChat/X5 WebView is known to silently drop background fetch requests.
+        // Using a short timeout forces the request to complete or fail fast,
+        // avoiding the "hanging" state where the request is sent but never resolves.
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 12000); // 12s timeout
+
+        const res = await fetch(url, {
+          ...options,
+          signal: controller.signal,
+        });
+        clearTimeout(timeout);
+        return res;
+      } catch (err) {
+        lastError = err as Error;
+        const isAbort = err instanceof DOMException && err.name === 'AbortError';
+        const isNetErr = err instanceof TypeError && (err.message.includes('fetch') || err.message.includes('network') || err.message.includes('Failed'));
+
+        if (isAbort || isNetErr) {
+          // Retry with backoff: 1s, 2s, 4s
+          if (attempt < maxRetries - 1) {
+            const delay = (1 << attempt) * 1000;
+            await new Promise(r => setTimeout(r, delay));
+            continue;
+          }
+        }
+        // 4xx/5xx or unexpected error — don't retry
+        throw err;
+      }
+    }
+    throw lastError || new Error('Max retries exceeded');
+  }
 
   // ── Push a conversation snapshot ───────────────────────────────────────
 
@@ -487,7 +530,13 @@ export function useConversationSync() {
       lastMessageAt: lastMsgAt,
       snapshotAt: new Date().toISOString(),
       mode,
-      messages,
+      messages: messages.map(m => ({
+        id: m.id,
+        role: m.role === 'agent' ? 'assistant' : m.role as 'user' | 'assistant' | 'system',
+        content: m.content,
+        personaId: m.personaId,
+        timestamp: (m as any).timestamp || m.timestamp.toString(),
+      })),
     };
 
     // Update registry immediately (optimistic update)
@@ -506,17 +555,24 @@ export function useConversationSync() {
 
     if (!isOnlineRef.current) {
       addToOfflineQueue(conversationKey, snapshot);
+      pendingKeysRef.current.add(conversationKey);
       return;
     }
 
+    // Track pending
+    pendingKeysRef.current.add(conversationKey);
+
     try {
-      const res = await fetch('/api/sync/push', {
+      // Use reliableFetch with retries (critical for WeChat WebView)
+      const res = await reliableFetch('/api/sync/push', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ deviceId, snapshots: [snapshot] }),
       });
+
       if (res.ok) {
-        // Sync succeeded — mark synced
+        // Sync succeeded — mark synced, clear retry count
+        retryCountRef.current.delete(conversationKey);
         const reg2 = loadRegistry();
         if (reg2.conversations[conversationKey]) {
           reg2.conversations[conversationKey].syncStatus = 'synced';
@@ -524,11 +580,17 @@ export function useConversationSync() {
           saveRegistry(reg2);
           registryRef.current = reg2;
         }
-      } else {
+        pendingKeysRef.current.delete(conversationKey);
+      } else if (res.status >= 500) {
+        // Server error — retry with backoff
         throw new Error(`HTTP ${res.status}`);
+      } else {
+        // 4xx error — don't retry
+        pendingKeysRef.current.delete(conversationKey);
       }
     } catch {
-      // Network error — mark pending, queue for retry
+      // Network or server error — add to offline queue for later retry
+      retryCountRef.current.set(conversationKey, (retryCountRef.current.get(conversationKey) || 0) + 1);
       addToOfflineQueue(conversationKey, snapshot);
     }
   }, [deviceId]);
@@ -548,7 +610,8 @@ export function useConversationSync() {
         new Map(Object.entries(registryRef.current.conversations))
       );
 
-      const result = await fetch('/api/sync', {
+      // Use reliableFetch with retries (critical for WeChat WebView)
+      const result = await reliableFetch('/api/sync', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -657,7 +720,7 @@ export function useConversationSync() {
     if (queue.length === 0) return;
 
     try {
-      await fetch('/api/sync/push', {
+      const res = await reliableFetch('/api/sync/push', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -665,6 +728,7 @@ export function useConversationSync() {
           snapshots: queue.map(q => q.snapshot),
         }),
       });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
     } catch {
       // Re-queue on failure
       for (const item of queue) {
@@ -695,6 +759,17 @@ export function useConversationSync() {
     };
   }, []); // Intentionally empty: use refs for callbacks to avoid stale closures
 
+  // ── On-mount full sync (critical for WeChat WebView) ─────────────────────
+  // WeChat WebView doesn't trigger visibilitychange when you enter from an external link
+  // (the page is already visible). Without this, sync never fires on first visit.
+  // Delay slightly to let the component tree settle, then sync all local conversations.
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      runFullSync();
+    }, 1500);
+    return () => clearTimeout(timer);
+  }, []); // run once on mount
+
   // ── App focus listener (incremental sync) ────────────────────────────
 
   useEffect(() => {
@@ -709,25 +784,24 @@ export function useConversationSync() {
     return () => document.removeEventListener('visibilitychange', handleVisibility);
   }, []); // Intentionally empty: runFullSync is stable via refs
 
-  // ── Periodic background sync (every 5 minutes) ──────────────────────
+  // ── Periodic background sync (every 2 minutes, reliable fetch) ─────────────
 
   useEffect(() => {
     syncIntervalRef.current = setInterval(() => {
       if (isOnlineRef.current && !syncInProgressRef.current) {
-        // Re-read registry from localStorage to get the latest state
         const reg = loadRegistry();
         const allSnapshots = getAllLocalSnapshots(
           new Map(Object.entries(reg.conversations))
         );
         if (allSnapshots.length > 0) {
-          fetch('/api/sync/push', {
+          reliableFetch('/api/sync/push', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ deviceId, snapshots: allSnapshots }),
           }).catch(() => {});
         }
       }
-    }, 5 * 60 * 1000); // 5 minutes
+    }, 2 * 60 * 1000); // 2 minutes — reduced from 5 min for faster retry
 
     return () => {
       if (syncIntervalRef.current) clearInterval(syncIntervalRef.current);
