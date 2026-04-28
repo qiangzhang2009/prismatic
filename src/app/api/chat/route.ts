@@ -229,11 +229,21 @@ async function persistConversation(
 
       console.log(`[persistConversation] STEP_done conversation=${actualConvId} messages=${messages.length} inserted=${totalInserted} skipped=${totalSkipped}`);
 
+      // ── Sync messageCount from messages table (authoritative count, not local counter) ──
+      const msgCountResult = await client.query(
+        `SELECT COUNT(*) as cnt FROM messages WHERE "conversationId" = $1`,
+        [actualConvId]
+      );
+      const realMsgCount = parseInt(msgCountResult.rows[0]?.cnt ?? '0', 10);
+
       // ── Set updatedAt to last message timestamp (fixes admin list ordering) ──
       const lastTs = validMessages.length > 0
         ? new Date(Math.max(...validMessages.map(m => m.ts.getTime())))
         : new Date();
-      await client.query(`UPDATE conversations SET "updatedAt" = $1 WHERE id = $2`, [lastTs, actualConvId]);
+      await client.query(
+        `UPDATE conversations SET "updatedAt" = $1, "messageCount" = $2 WHERE id = $3`,
+        [lastTs, realMsgCount, actualConvId]
+      );
 
       await client.query('COMMIT');
       client.release();
