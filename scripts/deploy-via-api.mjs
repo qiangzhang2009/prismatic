@@ -14,6 +14,7 @@ console.log('Commit SHA:', commitSHA);
 
 // Create deployment using git source
 const body = JSON.stringify({
+  name: 'prismatic-app',
   gitSource: {
     type: 'github',
     repo: 'johnzhangs-projects/prismatic',
