@@ -765,8 +765,10 @@ export function useConversationSync() {
   // Delay slightly to let the component tree settle, then sync all local conversations.
   useEffect(() => {
     const timer = setTimeout(() => {
-      // Diagnostic: ping our debug endpoint first to confirm requests reach the server
+      // Diagnostic: ping our debug endpoints to confirm requests reach the server and check cookies
       fetch('/api/debug/ping?deviceId=' + encodeURIComponent(deviceId))
+        .catch(() => {});
+      fetch('/api/debug/cookie-test')
         .catch(() => {});
       runFullSync();
     }, 1500);
