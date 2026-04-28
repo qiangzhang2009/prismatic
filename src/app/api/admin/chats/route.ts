@@ -77,32 +77,37 @@ export async function GET(req: NextRequest) {
     } else if (billingMode === 'B') {
       conditions.push(`(u."apiKeyEncrypted" IS NULL OR u."apiKeyStatus" != 'valid')`);
     }
-    conditions.push(`c."messageCount" > 0`);
+    conditions.push(`(SELECT COUNT(*) FROM messages m WHERE m."conversationId" = c.id) > 0`);
 
     const where = conditions.length ? `WHERE ${conditions.join(' AND ')}` : '';
     const offset = (page - 1) * pageSize;
     params.push(pageSize, offset);
 
     // Use LATERAL join + slice in JS (Neon doesn't support LIMIT inside subqueries)
+    // Use COUNT(*) OVER () to get the real message count from the messages table
+    // (conversations.messageCount can be stale due to ON CONFLICT bugs)
     const q = `
       SELECT c.id, c."userId", c.title, c.type, c.mode, c.participants, c.tags,
-             c."messageCount", c."totalTokens", c."totalCost", c."personaIds",
+             c."totalTokens", c."totalCost", c."personaIds",
              c."createdAt", c."updatedAt",
              c."deviceIds", c."lastSyncedAt",
              u.id as "user.id", u.name as "user.name", u.email as "user.email",
              u.plan as "user.plan", u."apiKeyEncrypted" as "user.apiKeyEncrypted",
              u."apiKeyStatus" as "user.apiKeyStatus",
-             msgs.data as messages
+             msgs.data as messages,
+             msgs.real_message_count
       FROM conversations c
       LEFT JOIN users u ON u.id = c."userId"
       LEFT JOIN LATERAL (
-        SELECT json_agg(json_build_object(
-          'id', m.id, 'role', m.role, 'content', m.content,
-          'personaId', m."personaId", 'tokensInput', m."tokensInput",
-          'tokensOutput', m."tokensOutput", 'apiCost', m."apiCost",
-          'modelUsed', m."modelUsed", 'createdAt', m."createdAt",
-          'metadata', m.metadata
-        ) ORDER BY m."createdAt" DESC) as data
+        SELECT
+          COUNT(*) OVER () as real_message_count,
+          json_agg(json_build_object(
+            'id', m.id, 'role', m.role, 'content', m.content,
+            'personaId', m."personaId", 'tokensInput', m."tokensInput",
+            'tokensOutput', m."tokensOutput", 'apiCost', m."apiCost",
+            'modelUsed', m."modelUsed", 'createdAt', m."createdAt",
+            'metadata', m.metadata
+          ) ORDER BY m."createdAt" DESC) as data
         FROM messages m WHERE m."conversationId" = c.id
       ) msgs ON true
       ${where}
@@ -129,7 +134,7 @@ export async function GET(req: NextRequest) {
       mode: r.mode,
       participants: r.participants,
       tags: r.tags,
-      messageCount: r.messageCount,
+      messageCount: r.real_message_count ?? 0,
       totalTokens: r.totalTokens,
       totalCost: r.totalCost,
       personaIds: r.personaIds,

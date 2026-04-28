@@ -33,17 +33,20 @@ export async function GET(req: NextRequest) {
     const pool = getPool();
 
     const [countResult, convResult] = await Promise.all([
-      pool.query(`SELECT COUNT(*) as cnt FROM conversations WHERE "updatedAt" >= $1 AND "messageCount" >= 2`, [startDate]),
+      pool.query(`SELECT COUNT(*) as cnt FROM conversations WHERE "updatedAt" >= $1 AND (SELECT COUNT(*) FROM messages m WHERE m."conversationId" = conversations.id) >= 2`, [startDate]),
       pool.query(`
         SELECT c.id, c.mode, c."createdAt",
-               msgs.data as messages
+               msgs.data as messages,
+               msgs.real_msg_count
         FROM conversations c
         LEFT JOIN LATERAL (
-          SELECT json_agg(json_build_object('content', m.content) ORDER BY m."createdAt" ASC) as data
+          SELECT
+            COUNT(*) OVER () as real_msg_count,
+            json_agg(json_build_object('content', m.content) ORDER BY m."createdAt" ASC) as data
           FROM messages m WHERE m."conversationId" = c.id
         ) msgs ON true
-        WHERE c."updatedAt" >= $1 AND c."messageCount" >= 2
-        ORDER BY c."messageCount" DESC
+        WHERE c."updatedAt" >= $1 AND (SELECT COUNT(*) FROM messages m WHERE m."conversationId" = c.id) >= 2
+        ORDER BY (SELECT COUNT(*) FROM messages m WHERE m."conversationId" = c.id) DESC
         LIMIT 500
       `, [startDate]),
     ]);

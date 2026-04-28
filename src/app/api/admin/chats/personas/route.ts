@@ -74,7 +74,8 @@ export async function GET(req: NextRequest) {
       ORDER BY msg_count DESC
     `, [startDate]),
     pool.query(`
-      SELECT id, participants, "personaIds", "messageCount", "totalCost", "totalTokens"
+      SELECT id, participants, "personaIds", "totalCost", "totalTokens",
+             (SELECT COUNT(*) FROM messages m WHERE m."conversationId" = conversations.id) as real_message_count
       FROM conversations
       WHERE "updatedAt" >= $1
       LIMIT 500
@@ -104,7 +105,7 @@ export async function GET(req: NextRequest) {
         convPersonaStats[pid] = { name: meta.name, nameZh: meta.nameZh, domain: meta.domain, convCount: 0, messageCount: 0, totalCost: 0, totalTokens: 0 };
       }
       convPersonaStats[pid].convCount += 1;
-      convPersonaStats[pid].messageCount += conv.messageCount || 0;
+      convPersonaStats[pid].messageCount += conv.real_message_count || 0;
       convPersonaStats[pid].totalCost += Number(conv.totalCost || 0);
       convPersonaStats[pid].totalTokens += conv.totalTokens || 0;
     }
@@ -142,7 +143,7 @@ export async function GET(req: NextRequest) {
       nameZh: conv?.nameZh ?? msg?.nameZh ?? meta.nameZh,
       domain: conv?.domain ?? msg?.domain ?? meta.domain,
       conversationCount: conv?.convCount ?? 0,
-      messageCount: (conv?.messageCount ?? 0) || (msg?.messageCount ?? 0),
+      messageCount: (conv?.real_message_count ?? 0) || (msg?.messageCount ?? 0),
       totalTokens: (conv?.totalTokens ?? 0) || (msg?.totalTokens ?? 0),
       totalCost: Number((conv?.totalCost ?? 0) || (msg?.totalCost ?? 0)),
     };

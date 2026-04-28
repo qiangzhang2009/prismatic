@@ -35,7 +35,7 @@ export async function GET(req: NextRequest) {
     const groupResult = await pool.query(`
       SELECT c."userId",
              COUNT(*) as "convCount",
-             COALESCE(SUM(c."messageCount"), 0) as "msgCount",
+             COALESCE((SELECT COUNT(*) FROM messages m WHERE m."conversationId" = c.id), 0) as "msgCount",
              COALESCE(SUM(c."totalCost"::numeric), 0) as "costSum"
       FROM conversations c
       WHERE c."updatedAt" >= $1

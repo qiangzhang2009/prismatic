@@ -134,9 +134,17 @@ async function persistConversation(
       const participantArray = participantIds.length > 0
         ? '{' + participantIds.map(p => '"' + p.replace(/"/g, '\\"') + '"').join(',') + '}'
         : '{}';
+      // ── Upsert conversation: guarantee record exists + set messageCount from DB (authoritative) ──
+      // Query real count FIRST (before messages are inserted this round), so ON CONFLICT
+      // uses the previous state. Then re-query after insert to get the true final count.
+      const preInsertCount = await pool.query(
+        `SELECT COUNT(*) as cnt FROM messages WHERE "conversationId" = $1`,
+        [actualConvId]
+      );
+      const preCount = parseInt(preInsertCount.rows[0]?.cnt ?? '0', 10);
       await client.query(`
         INSERT INTO conversations (id, "userId", title, type, mode, participants, archived, tags,
-                                 "messageCount", "totalTokens", "totalCost", "personaIds", "createdAt", "updatedAt")
+                               "messageCount", "totalTokens", "totalCost", "personaIds", "createdAt", "updatedAt")
         VALUES ($1, $2, NULL, $3, $4, $5::text[], false, '{}'::text[],
                 $6, $7, $8, $5::text[], NOW(), NOW())
         ON CONFLICT (id) DO UPDATE SET
@@ -144,12 +152,11 @@ async function persistConversation(
           mode = EXCLUDED.mode,
           participants = EXCLUDED.participants,
           "personaIds" = EXCLUDED."personaIds",
-          "messageCount" = EXCLUDED."messageCount",
           "totalTokens" = EXCLUDED."totalTokens",
           "totalCost" = EXCLUDED."totalCost",
           "updatedAt" = NOW()
-      `, [actualConvId, userId, type, mode, participantArray, messages.length, totalTokensNum, totalCostNum]);
-      console.log(`[persistConversation] STEP_upsert_ok conversation=${conversationId}, messages=${messages.length}`);
+      `, [actualConvId, userId, type, mode, participantArray, preCount, totalTokensNum, totalCostNum]);
+      console.log(`[persistConversation] STEP_upsert_ok conversation=${actualConvId} preCount=${preCount} messages_param=${messages.length}`);
 
       // ── Insert messages in a single batch ──────────────────────────────────────
       // Collect all valid messages and insert them in ONE query to avoid the overhead
