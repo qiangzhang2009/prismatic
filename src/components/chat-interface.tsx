@@ -476,9 +476,10 @@ export function ChatInterface({ className, initialPersona, initialMode }: ChatIn
       const data = await response.json();
 
       // Update credits display after successful deduction
+      // Only show credits_exhausted modal if the user had credits before this message
+      // (prevents confusing "credits exhausted" popup when user already had 0 credits)
       if (data.creditsRemaining !== undefined) {
-        if (data.creditsRemaining === 0) {
-          // Credits exhausted after this conversation
+        if (data.creditsRemaining === 0 && currentCredits > 0) {
           setLimitModalType('credits_exhausted');
           setShowLimitModal(true);
         }
@@ -488,7 +489,8 @@ export function ChatInterface({ className, initialPersona, initialMode }: ChatIn
       }
 
       // Increment daily counter for non-credits users (so toolbar shows new remaining count immediately)
-      if (!hasCredits && !isPaid) {
+      // Use currentCredits (captured before the API call) to avoid incrementing when user has credits
+      if (currentCredits <= 0 && !currentIsPaid) {
         incrementDailyCount();
       }
 

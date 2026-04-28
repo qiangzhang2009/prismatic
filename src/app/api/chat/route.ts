@@ -218,12 +218,13 @@ async function persistConversation(
                                "personaId", "modelUsed", "tokensInput", "tokensOutput",
                                "apiCost", metadata, "createdAt")
           VALUES ${rows.join(', ')}
-          ON CONFLICT (id) DO NOTHING
+          ON CONFLICT (id) DO UPDATE SET
+            content = EXCLUDED.content
         `;
 
         const result = await client.query(batchInsert, params);
-        totalInserted = result.rowCount ?? 0;
-        totalSkipped = validMessages.length - totalInserted;
+        totalInserted = result.rowCount ?? validMessages.length;
+        totalSkipped = 0;
       }
 
       console.log(`[persistConversation] STEP_done conversation=${actualConvId} messages=${messages.length} inserted=${totalInserted} skipped=${totalSkipped}`);
