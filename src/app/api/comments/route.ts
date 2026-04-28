@@ -91,6 +91,7 @@ export async function GET(req: NextRequest) {
   const limit = Math.min(parseInt(searchParams.get('limit') || '20'), 50);
   const offset = parseInt(searchParams.get('offset') || '0');
   const sort = searchParams.get('sort') || 'latest';
+  const dateFilter = searchParams.get('date'); // YYYY-MM-DD format
 
   try {
     const cookieStore = await cookies();
@@ -103,6 +104,24 @@ export async function GET(req: NextRequest) {
     }
     // eslint-disable-next-line
     const sql = neon(connectionString) as NeonQueryFunction<false, false>;
+
+    // Date range for filter
+    let dateStart: Date | null = null;
+    let dateEnd: Date | null = null;
+    if (dateFilter) {
+      const d = new Date(dateFilter + 'T00:00:00.000Z');
+      if (!isNaN(d.getTime())) {
+        dateStart = d;
+        dateEnd = new Date(d);
+        dateEnd.setDate(dateEnd.getDate() + 1);
+      }
+    }
+
+    // Build WHERE conditions
+    const whereStatus = sql`c.status = 'published' AND c."parentId" IS NULL`;
+    const whereDate = dateStart && dateEnd
+      ? sql`AND c."createdAt" >= ${dateStart} AND c."createdAt" < ${dateEnd}`
+      : sql``;
 
     const rows = await sql`
       SELECT
@@ -118,9 +137,14 @@ export async function GET(req: NextRequest) {
         c."createdAt",
         c."updatedAt",
         c.reactions,
-        c."personaSlug"
+        c."personaSlug",
+        (
+          SELECT COUNT(*)::int
+          FROM comments r
+          WHERE r."parentId" = c.id AND r.status = 'published'
+        ) AS "replyCount"
       FROM comments c
-      WHERE c.status = 'published' AND c."parentId" IS NULL
+      WHERE ${whereStatus} ${whereDate}
       ORDER BY c."createdAt" DESC
       LIMIT ${limit}
       OFFSET ${offset}
@@ -129,7 +153,7 @@ export async function GET(req: NextRequest) {
     const countRows = await sql`
       SELECT COUNT(*) as total
       FROM comments c
-      WHERE c.status = 'published' AND c."parentId" IS NULL
+      WHERE ${whereStatus} ${whereDate}
     `;
 
     const total = Number(countRows[0]?.total ?? 0);
@@ -184,7 +208,7 @@ export async function GET(req: NextRequest) {
         userReaction,
         view_count: 0,
         report_count: 0,
-        replyCount: 0,
+        replyCount: c.replyCount ?? 0,
         personaSlug: c.personaSlug,
       });
     }
