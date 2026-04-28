@@ -275,7 +275,7 @@ function flushOfflineQueue(): QueuedSnapshot[] {
 // (not just the active one like useChatHistory does)
 
 const REGISTRY_KEY = 'prismatic-conversation-registry';
-const STORAGE_VERSION = 5;
+const STORAGE_VERSION = 6;
 
 interface ConversationRegistry {
   version: number;
@@ -309,10 +309,21 @@ function migrateRegistry(old: any): ConversationRegistry {
   // v2→v3: add metadata fields
   // v3→v4: conversation keys are now user-isolated (prefixed with userId)
   // v4→v5: add contentHash, lastSyncedAt, syncStatus fields
+  // v5→v6: fix conversationKey delimiter from "|" to ":" for userId/personaIds separation
   const conversations: ConversationRegistry['conversations'] = {};
   for (const [key, data] of Object.entries(old.conversations || {})) {
     const d = data as any;
-    conversations[key] = {
+
+    // v5 migration: fix conversationKey format
+    // Old: "u:{userId}|{sorted persona IDs}" → New: "u:{userId}:{sorted persona IDs}"
+    let migratedKey = key;
+    if (key.startsWith('u:') && key.includes('|')) {
+      const firstPipeIdx = key.indexOf('|');
+      migratedKey = key.slice(0, firstPipeIdx) + ':' + key.slice(firstPipeIdx + 1);
+      console.log(`[Sync] Migrated conversationKey: "${key}" → "${migratedKey}"`);
+    }
+
+    conversations[migratedKey] = {
       messages: d.messages || [],
       title: d.title || '',
       tags: d.tags || [],
