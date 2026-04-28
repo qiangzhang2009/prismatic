@@ -180,10 +180,10 @@ function getAllLocalSnapshots(messagesMap: Map<string, { messages: AgentMessage[
     const { messages, title, tags } = conversationData;
     if (!messages || messages.length === 0) return;
 
-    // Extract persona IDs from conversationKey (e.g. "u:userId|steve-jobs:confucius" → ["steve-jobs", "confucius"])
-    // Format: authenticated = "u:{userId}|{sorted persona IDs joined by :}", guest = "{sorted persona IDs joined by :}"
+    // Extract persona IDs from conversationKey (e.g. "u:userId:steve-jobs:confucius" → ["steve-jobs", "confucius"])
+    // Format: authenticated = "u:{userId}:{sorted persona IDs joined by :}", guest = "{sorted persona IDs joined by :}"
     const personaIds = conversationKey.startsWith('u:')
-      ? conversationKey.split('|')[1]?.split(':') ?? []
+      ? conversationKey.split(':').slice(2)
       : conversationKey.split(':');
 
     // Quick content hash for localStorage (use last message id + count as proxy)
@@ -794,10 +794,10 @@ export async function migrateVisitorConversationsToServer(
   for (const [conversationKey, data] of Object.entries(registry.conversations)) {
     if (!data.messages || data.messages.length === 0) continue;
 
-    // Extract persona IDs from conversationKey (e.g. "u:userId|steve-jobs:confucius" → ["steve-jobs", "confucius"])
-    // Format: authenticated = "u:{userId}|{sorted persona IDs joined by :}", guest = "{sorted persona IDs joined by :}"
+    // Extract persona IDs from conversationKey (e.g. "u:userId:steve-jobs:confucius" → ["steve-jobs", "confucius"])
+    // Format: authenticated = "u:{userId}:{sorted persona IDs joined by :}", guest = "{sorted persona IDs joined by :}"
     const personaIds = conversationKey.startsWith('u:')
-      ? conversationKey.split('|')[1]?.split(':') ?? []
+      ? conversationKey.split(':').slice(2)
       : conversationKey.split(':');
 
     const snapshot: LocalConversationSnapshot = {

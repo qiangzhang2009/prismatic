@@ -148,7 +148,7 @@ export function buildConversationId(userId: string, personaIds: string[]): strin
  */
 export function buildConversationKey(personaIds: string[], userId?: string): string {
   const base = [...personaIds].sort().join(':');
-  return userId ? `u:${userId}|${base}` : base;
+  return userId ? `u:${userId}:${base}` : base;
 }
 
 /** SHA-256 hash of a JSON-serializable value */

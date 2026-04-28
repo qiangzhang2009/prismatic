@@ -65,6 +65,7 @@ export async function GET(req: NextRequest) {
     } else if (billingMode === 'B') {
       conditions.push(`(u."apiKeyEncrypted" IS NULL OR u."apiKeyStatus" != 'valid')`);
     }
+    conditions.push(`c."messageCount" > 0`);
 
     const where = conditions.length ? `WHERE ${conditions.join(' AND ')}` : '';
 
