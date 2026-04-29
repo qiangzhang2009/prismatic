@@ -157,6 +157,7 @@ export interface Persona {
   decisionHeuristics: DecisionHeuristic[];
   expressionDNA: ExpressionDNA;
   values: Value[];
+  signatureWords?: Array<{ word: string; wordZh: string; context?: string; contextZh?: string; source?: string }>;
   antiPatterns: (string | { text: string; textZh?: string; description?: string; descriptionZh?: string })[];
   tensions: Tension[];
 

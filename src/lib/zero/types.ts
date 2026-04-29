@@ -284,8 +284,8 @@ export interface KnowledgeLayer {
   tensions: Tension[];
   antiPatterns: AntiPattern[];
   honestBoundaries: HonestBoundary[];
-  strengths: string[];
-  blindspots: string[];
+  strengths: (string | { text: string; textZh?: string; description?: string; descriptionZh?: string })[];
+  blindspots: (string | { text: string; textZh?: string; reason?: string; reasonZh?: string })[];
   sources: Source[];
   // 双语文本
   identityPrompt_Zh?: string;

@@ -217,10 +217,11 @@ function getExpectedTraits(persona: Persona, category: string): string[] {
 
   // 基于 strengths 的特征
   for (const strength of persona.strengths ?? []) {
-    if (strength.includes('分析')) traits.push('analytical');
-    if (strength.includes('幽默')) traits.push('humorous');
-    if (strength.includes('哲学')) traits.push('philosophical');
-    if (strength.includes('务实')) traits.push('practical');
+    const sText = typeof strength === 'string' ? strength : (strength.textZh || strength.text || strength.description || '');
+    if (sText.includes('分析')) traits.push('analytical');
+    if (sText.includes('幽默')) traits.push('humorous');
+    if (sText.includes('哲学')) traits.push('philosophical');
+    if (sText.includes('务实')) traits.push('practical');
   }
 
   // 基于 category 的默认特征
@@ -239,9 +240,10 @@ function getAvoidedTraits(persona: Persona): string[] {
 
   // 基于 antiPatterns
   for (const anti of persona.antiPatterns ?? []) {
-    if (anti.includes('傲慢')) avoided.push('arrogance');
-    if (anti.includes('空泛')) avoided.push('generic');
-    if (anti.includes('逃避')) avoided.push('evasive');
+    const antiText = typeof anti === 'string' ? anti : (anti.textZh || anti.text || anti.description || anti.descriptionZh || '');
+    if (antiText.includes('傲慢')) avoided.push('arrogance');
+    if (antiText.includes('空泛')) avoided.push('generic');
+    if (antiText.includes('逃避')) avoided.push('evasive');
   }
 
   return avoided;

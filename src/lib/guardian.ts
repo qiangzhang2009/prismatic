@@ -422,7 +422,7 @@ export function buildPersonaInteractionPrompt(
   persona: {
     nameZh: string;
     identityPrompt: string;
-    strengths: string[];
+    strengths: (string | { text: string; textZh?: string; description?: string; descriptionZh?: string })[];
   },
   shiftTheme: string,
   commentContent: string,
@@ -444,7 +444,7 @@ export function buildPersonaInteractionPrompt(
 
 你正在浏览社区评论，你的任务是：
 - ${behavior}
-- 保持你的人物特色：${persona.strengths.join('、')}
+- 保持你的人物特色：${persona.strengths.map(s => typeof s === 'string' ? s : (s.textZh || s.text || s.description || '')).join('、')}
 - 回复要简洁有力，30-80字以内
 - 不要机械地回复，要像这个人物真正在说话
 - 不要在回复中称呼对方姓名，不要使用加粗或斜体

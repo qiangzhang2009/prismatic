@@ -397,7 +397,7 @@ async function generateRound(
 ): Promise<Array<{ speakerId: string; speakerName: string; content: string; tone: string }>> {
   if (isOpening) {
     const speakerList = speakers
-      .map((p) => `【${p.nameZh}】${p.identityPrompt}（擅长：${(p.strengths ?? []).slice(0, 2).join('、')}）`)
+      .map((p) => `【${p.nameZh}】${p.identityPrompt}（擅长：${(p.strengths ?? []).slice(0, 2).map((s: any) => typeof s === 'string' ? s : (s.textZh || s.text || s.description || '')).join('、')}）`)
       .join('\n');
 
     const result = await llm.chat({

@@ -60,8 +60,8 @@ export function buildSoloPrompt(persona: Persona, userMessage: string): string {
   return `${persona.systemPromptTemplate}
 
 Identity: ${persona.identityPrompt}
-Strengths: ${persona.strengths.join(', ')}
-Blindspots: ${persona.blindspots.join(', ')}
+Strengths: ${persona.strengths.map((s: string | { text: string; textZh?: string; description?: string; descriptionZh?: string }) => typeof s === 'string' ? s : (s.textZh || s.text || s.description || '')).join(', ')}
+Blindspots: ${persona.blindspots.map((b: string | { text: string; textZh?: string; reason?: string; reasonZh?: string }) => typeof b === 'string' ? b : (b.textZh || b.text || b.reason || '')).join(', ')}
 
 Use "I" not "this persona would...". Keep response under 300 words.`;
 }
@@ -101,10 +101,12 @@ export function estimateConfidence(persona: Persona, question: string): number {
   const q = question.toLowerCase();
   let score = 0.5;
   for (const s of persona.strengths) {
-    if (q.includes(s.toLowerCase())) score += 0.15;
+    const sText = typeof s === 'string' ? s : (s.text || s.description || '');
+    if (q.includes(sText.toLowerCase())) score += 0.15;
   }
   for (const b of persona.blindspots) {
-    if (q.includes(b.toLowerCase())) score -= 0.2;
+    const bText = typeof b === 'string' ? b : (b.text || b.reason || '');
+    if (q.includes(bText.toLowerCase())) score -= 0.2;
   }
   return Math.max(0.3, Math.min(0.95, score));
 }

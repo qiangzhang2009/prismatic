@@ -272,8 +272,8 @@ export class PromptBuilder {
 
     // Dynamic substitutions
     template = template.replace('{{core_claim}}', knowledge.identity.coreClaim || '（未提取）');
-    template = template.replace('{{strengths}}', knowledge.strengths.slice(0, 3).join('、') || '（未提取）');
-    template = template.replace('{{blindspots}}', knowledge.blindspots.slice(0, 3).join('、') || '（未提取）');
+    template = template.replace('{{strengths}}', (knowledge.strengths as (string | { text: string; textZh?: string; description?: string; descriptionZh?: string })[]).slice(0, 3).map(s => typeof s === 'string' ? s : (s.textZh || s.text || s.description || '')).join('、') || '（未提取）');
+    template = template.replace('{{blindspots}}', (knowledge.blindspots as (string | { text: string; textZh?: string; reason?: string; reasonZh?: string })[]).slice(0, 3).map(b => typeof b === 'string' ? b : (b.textZh || b.text || b.reason || '')).join('、') || '（未提取）');
     template = template.replace('{{honest_boundaries}}',
       knowledge.honestBoundaries.slice(0, 2).map((b) => b.description).join('；') || '（未提取）');
     template = template.replace('{{tensions_block}}',

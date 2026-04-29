@@ -23,7 +23,8 @@ interface Props {
 
 function deriveArchetype(persona: Persona): { title: string; desc: string; traits: string[]; symbol: string } {
   const domain = persona.domain[0] ?? '';
-  const strength = persona.strengths[0] ?? '';
+  const firstStrength = persona.strengths[0];
+  const strength = typeof firstStrength === 'string' ? firstStrength : (firstStrength?.textZh || firstStrength?.text || firstStrength?.description || '');
   const values = persona.values.map(v => v.name).join('');
 
   // Derive archetype from domain + values

@@ -465,6 +465,7 @@ export async function pullConversationsForDevice(
       tags: server.localTags,
       messages,
       serverUpdatedAt: server.lastLocalUpdateAt ? server.lastLocalUpdateAt.toISOString() : new Date().toISOString(),
+      isNew: false,
     });
   }
 

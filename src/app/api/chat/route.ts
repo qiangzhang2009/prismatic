@@ -401,7 +401,7 @@ async function handleSolo(
 
   const systemPrompt = `${persona.systemPromptTemplate}
 Identity: ${persona.identityPrompt}
-Strengths: ${persona.strengths.join(', ')}
+Strengths: ${persona.strengths.map((s: string | { text: string; textZh?: string; description?: string; descriptionZh?: string }) => typeof s === 'string' ? s : (s.textZh || s.text || s.description || '')).join(', ')}
 Use "I" not "this persona would...".`;
 
   const msgs: any[] = [{ role: 'system', content: systemPrompt }];
@@ -513,7 +513,7 @@ async function handleRoundtable(
 
   // Minimal persona descriptions to keep input token count low
   const speakerList = speakers.map((p, i) =>
-    `${i + 1}. ${p.nameZh}（${p.strengths.slice(0, 2).join('、')}）`
+    `${i + 1}. ${p.nameZh}（${p.strengths.slice(0, 2).map((s: any) => typeof s === 'string' ? s : (s.textZh || s.text || s.description || '')).join('、')}）`
   ).join('\n');
 
   const systemPrompt = `你是圆桌辩论主持人。多个思想家就话题展开对话，每人说一句（60字以内），2轮，共${speakers.length * 2}条发言，最后一段50字以内的总结。
@@ -628,7 +628,7 @@ async function handleMission(
   const participants = personas.slice(0, 4);
 
   const personaList = participants.map((p, i) =>
-    `${i + 1}. 【${p.nameZh}】${p.identityPrompt}（擅长：${p.strengths.slice(0, 2).join('、')}）`
+    `${i + 1}. 【${p.nameZh}】${p.identityPrompt}（擅长：${p.strengths.slice(0, 2).map((s: any) => typeof s === 'string' ? s : (s.textZh || s.text || s.description || '')).join('、')}）`
   ).join('\n');
 
   const systemPrompt = `你是任务协作专家，将复杂任务分解并由多个专家角色协作完成，最终整合为完整输出。
@@ -875,7 +875,7 @@ async function handleCouncil(
   const speakers = personas.slice(0, 4);
 
   const speakerList = speakers.map((p, i) =>
-    `${i + 1}. 【${p.nameZh}】${p.identityPrompt}（专长：${p.strengths.slice(0, 2).join('、')}）`
+    `${i + 1}. 【${p.nameZh}】${p.identityPrompt}（专长：${p.strengths.slice(0, 2).map((s: any) => typeof s === 'string' ? s : (s.textZh || s.text || s.description || '')).join('、')}）`
   ).join('\n');
 
   const systemPrompt = `你是顾问团主席，主持多位顾问就用户的问题给出专业建议。

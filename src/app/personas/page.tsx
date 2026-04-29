@@ -23,6 +23,7 @@ interface DistilledPersona {
   slug: string;
   name: string;
   namezh?: string;
+  nameZh?: string;
   nameen?: string;
   domain: string;
   tagline?: string;
@@ -97,7 +98,7 @@ const CODE_PERSONA_MAP = new Map<string, any>(
       id: db.slug,
       slug: db.slug,
       name: unquote(db.name) || db.slug,
-            nameZh: decodeUnicodeEscapes(unquote(db.nameZh)) || decodeUnicodeEscapes(unquote(db.namezh)) || unquote(db.name) || db.slug,
+            nameZh: decodeUnicodeEscapes(unquote(db.namezh)) || decodeUnicodeEscapes(unquote(db.nameZh)) || unquote(db.name) || db.slug,
       nameEn: unquote(db.nameen) || unquote(db.name) || db.slug,
       domain: domains,
       tagline,
