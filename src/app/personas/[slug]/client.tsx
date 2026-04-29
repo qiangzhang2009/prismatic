@@ -804,7 +804,8 @@ export function PersonaDetailClient({ persona, colors, dbConfidence }: Props) {
                     <div className="space-y-2">
                       {confidence.dataSources.map((src, i) => {
                         // Handle both static format (type/source/quantity/quality) and DB corpusSources format
-                        const rawType = (src as any).type ?? (src as any).title ?? (src as any).source ?? String(src);
+                        const srcAny = src as any;
+                        const rawType = srcAny.type ?? srcAny.title ?? srcAny.source ?? String(src);
                         const srcType: Record<string, string> = {
                           primary: '一手来源',
                           corpus: '语料库',
@@ -819,14 +820,29 @@ export function PersonaDetailClient({ persona, colors, dbConfidence }: Props) {
                           manuscript: '原始手稿',
                         };
                         const srcTypeLabel = srcType[rawType] ?? srcType[rawType.toLowerCase()] ?? rawType;
-                        const srcSource = (src as any).source ?? (src as any).author ?? '';
-                        const srcQuantity = (src as any).quantity ?? (src as any).wordCount ? `${(src as any).wordCount} 字` : '';
-                        const srcQuality = String((src as any).quality ?? (src as any).quality ?? '3');
+
+                        // Static format: { source, quantity, quality }
+                        const staticSource = srcAny.source ?? srcAny.author ?? '';
+                        const staticQuantity = srcAny.quantity ?? (srcAny.wordCount ? `${srcAny.wordCount} 字` : '');
+                        // DB corpusSources format: { title, description }
+                        const dbTitle = srcAny.title ?? '';
+                        const dbDescription = srcAny.description ?? '';
+                        const srcQuality = String(srcAny.quality ?? '3');
+                        const hasStaticSource = Boolean(staticSource);
+
                         return (
                           <div key={i} className="flex items-start justify-between p-3 bg-bg-base rounded-lg border border-border-subtle">
                             <div className="min-w-0">
-                              <p className="text-xs font-medium text-text-primary">{srcTypeLabel}</p>
-                              <p className="text-xs text-text-muted">{[srcSource, srcQuantity].filter(Boolean).join(' · ')}</p>
+                              <div className="flex items-center gap-2 mb-0.5">
+                                <span className="text-xs px-1.5 py-0.5 rounded bg-bg-elevated text-text-muted border border-border-subtle">{srcTypeLabel}</span>
+                                {hasStaticSource && staticQuantity && (
+                                  <span className="text-xs text-text-muted">{staticQuantity}</span>
+                                )}
+                              </div>
+                              <p className="text-xs font-medium text-text-primary truncate">{dbTitle || staticSource}</p>
+                              {dbDescription && dbDescription !== dbTitle && (
+                                <p className="text-xs text-text-muted mt-0.5 line-clamp-1">{dbDescription}</p>
+                              )}
                             </div>
                             <div className="flex items-center gap-0.5 flex-shrink-0 ml-2">
                               {[1, 2, 3, 4, 5].map((s) => (
