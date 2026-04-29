@@ -124,8 +124,9 @@ jobs:
             '${{ secrets.VERCEL_PROJECT_ID }}' \
             '${{ secrets.VERCEL_ORG_ID }}' > .vercel/project.json
 
-      - name: Deploy to Vercel Production
+      - name: Build and Deploy to Vercel Production
         env:
-          # Disable Next.js build cache to ensure fresh builds
-          NEXT_DISABLE_SWC_WASM_CACHE: '1'
-        run: vercel deploy . --prod --yes --token=${{ secrets.VERCEL_TOKEN }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: |
+          npx vercel build --token=${{ secrets.VERCEL_TOKEN }}
+          npx vercel deploy . --prebuilt --prod --yes --token=${{ secrets.VERCEL_TOKEN }}
