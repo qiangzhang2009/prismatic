@@ -342,7 +342,7 @@ export default function PersonasClient({ dbPersonas, codePersonas }: Props) {
               >
                 <PersonaCard
                   persona={p as unknown as Persona}
-                  confidence={PERSONA_CONFIDENCE[p.id]?.overall}
+                  confidence={p.finalScore ?? PERSONA_CONFIDENCE[p.id]?.overall}
                   showDistillBadge={p.isDistilled}
                   distillGrade={p.qualityGrade}
                   distillScore={p.finalScore}

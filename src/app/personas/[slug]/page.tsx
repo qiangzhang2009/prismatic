@@ -120,24 +120,50 @@ function buildPersonaFromDB(db: Record<string, unknown>): Persona {
   return dbPersona;
 }
 
-async function fetchFromDB(slug: string): Promise<Persona | null> {
-  try {
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL ?? 'https://prismatic.zxqconsulting.com';
-    const res = await fetch(`${baseUrl}/api/persona-library/${slug}`, { cache: 'no-store' });
-    if (!res.ok) return null;
-    const data = await res.json();
-    if (data.source !== 'distilled' || !data.persona) return null;
-    return buildPersonaFromDB(data.persona as Record<string, unknown>);
-  } catch {
-    return null;
+interface DBConfidenceData {
+  overall: number;
+  breakdown: Record<string, number>;
+  findings: unknown[];
+  grade: string;
+  starRating: number;
+  dataSources: unknown[];
+  source: string;
+}
+
+async function fetchFromDB(slug: string): Promise<{ persona: Persona | null; confidence: DBConfidenceData | null }> {
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL ?? 'https://prismatic.zxqconsulting.com';
+
+  const [personaRes, confidenceRes] = await Promise.all([
+    fetch(`${baseUrl}/api/persona-library/${slug}`, { cache: 'no-store' }),
+    fetch(`${baseUrl}/api/personas/${slug}/confidence`, { cache: 'no-store' }),
+  ]);
+
+  let persona: Persona | null = null;
+
+  if (personaRes.ok) {
+    try {
+      const data = await personaRes.json();
+      if (data.source === 'distilled' && data.persona) {
+        persona = buildPersonaFromDB(data.persona as Record<string, unknown>);
+      }
+    } catch { /* ignore */ }
   }
+
+  let confidence: DBConfidenceData | null = null;
+  if (confidenceRes.ok) {
+    try {
+      confidence = await confidenceRes.json();
+    } catch { /* ignore */ }
+  }
+
+  return { persona, confidence };
 }
 
 export default async function PersonaDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
 
   // Try DB first for scores + system prompts, then fill with code data
-  let persona = await fetchFromDB(slug);
+  let { persona, confidence: dbConfidence } = await fetchFromDB(slug);
 
   // Fall back to code persona if not in DB
   if (!persona) {
@@ -155,5 +181,5 @@ export default async function PersonaDetailPage({ params }: { params: Promise<{ 
     to: color.to,
   };
 
-  return <PersonaDetailClient persona={persona} colors={colors} />;
+  return <PersonaDetailClient persona={persona} colors={colors} dbConfidence={dbConfidence} />;
 }

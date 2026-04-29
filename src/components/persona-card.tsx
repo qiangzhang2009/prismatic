@@ -31,6 +31,9 @@ export function PersonaCard({
   onClick,
   showGradient = true,
   confidence,
+  showDistillBadge,
+  distillGrade,
+  distillScore,
 }: PersonaCardProps) {
   const gradient = showGradient
     ? `linear-gradient(135deg, ${persona.gradientFrom}18, ${persona.gradientTo}18)`
@@ -116,14 +119,21 @@ export function PersonaCard({
           <div className="min-w-0 flex-1 pt-0.5">
             <div className="flex items-center gap-2">
               <h3 className="font-semibold text-base leading-snug truncate">{persona.nameZh || persona.name || '?'}</h3>
-              {confidence !== undefined && confidence > 0 && (() => {
+              {(distillScore !== undefined && distillScore > 0) ? (() => {
+                const level = getConfidenceLevel(distillScore);
+                return (
+                  <span className="text-[11px] font-bold flex-shrink-0" style={{ color: level.color }}>
+                    {distillScore}{distillGrade ? ` (${distillGrade})` : ''}
+                  </span>
+                );
+              })() : confidence !== undefined && confidence > 0 ? (() => {
                 const level = getConfidenceLevel(confidence);
                 return (
                   <span className="text-[11px] font-bold flex-shrink-0" style={{ color: level.color }}>
                     {confidence}
                   </span>
                 );
-              })()}
+              })() : null}
             </div>
             <p className="text-[11px] text-text-muted leading-snug mt-0.5 line-clamp-2">{persona.taglineZh || persona.tagline || ''}</p>
           </div>

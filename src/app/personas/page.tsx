@@ -317,7 +317,7 @@ export default function PersonasPage() {
                   </div>
                 )}
                 <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, delay: i * 0.03 }}>
-                  <PersonaCard persona={persona} />
+                  <PersonaCard persona={persona} distillScore={persona._score} />
                 </motion.div>
                 {sortKey === 'influence' && (
                   <div className="mt-1 px-1">

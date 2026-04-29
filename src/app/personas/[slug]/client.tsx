@@ -45,6 +45,15 @@ import { trackModelExpand } from '@/lib/use-tracking';
 interface Props {
   persona: Persona;
   colors: { accent: string; from: string; to: string };
+  dbConfidence?: {
+    overall: number;
+    breakdown: Record<string, number>;
+    findings: unknown[];
+    grade: string;
+    starRating: number;
+    dataSources: unknown[];
+    source: string;
+  } | null;
 }
 
 const TABS = [
@@ -172,7 +181,7 @@ function DecisionHeuristicCard({ h, accentColor }: { h: Persona['decisionHeurist
   );
 }
 
-export function PersonaDetailClient({ persona, colors }: Props) {
+export function PersonaDetailClient({ persona, colors, dbConfidence }: Props) {
   const [activeTab, setActiveTab] = useState('mental-models');
 
   // 追踪人物详情页浏览
@@ -629,7 +638,22 @@ export function PersonaDetailClient({ persona, colors }: Props) {
 
           {/* Confidence Tab */}
           {activeTab === 'confidence' && (() => {
-            const confidence = getPersonaConfidence(persona.id);
+            // Priority: server-fetched DB confidence > static fallback
+            const dbConf = dbConfidence && dbConfidence.overall > 0 ? dbConfidence : null;
+            const staticConf = dbConf ? null : getPersonaConfidence(persona.id);
+            const confidence = dbConf
+              ? {
+                  overall: dbConf.overall,
+                  breakdown: dbConf.breakdown as Record<string, number>,
+                  grade: dbConf.grade,
+                  starRating: dbConf.starRating as 1 | 2 | 3 | 4 | 5,
+                  source: 'db' as const,
+                  dataSources: dbConf.dataSources as ConfidenceScore['dataSources'],
+                  mainGaps: [] as string[],
+                  version: 'distillation-v5',
+                }
+              : staticConf;
+
             if (!confidence) {
               return (
                 <div className="text-center py-12 text-text-muted text-sm">
@@ -778,21 +802,28 @@ export function PersonaDetailClient({ persona, colors }: Props) {
                       数据来源
                     </h4>
                     <div className="space-y-2">
-                      {confidence.dataSources.map((src, i) => (
-                        <div key={i} className="flex items-start justify-between p-3 bg-bg-base rounded-lg border border-border-subtle">
-                          <div className="min-w-0">
-                            <p className="text-xs font-medium text-text-primary">{src.type}</p>
-                            <p className="text-xs text-text-muted">{src.source} · {src.quantity}</p>
+                      {confidence.dataSources.map((src, i) => {
+                        // Handle both static format (type/source/quantity/quality) and DB corpusSources format
+                        const srcType = (src as any).type ?? (src as any).title ?? (src as any).source ?? String(src);
+                        const srcSource = (src as any).source ?? (src as any).author ?? '';
+                        const srcQuantity = (src as any).quantity ?? (src as any).wordCount ? `${(src as any).wordCount} 字` : '';
+                        const srcQuality = String((src as any).quality ?? (src as any).quality ?? '3');
+                        return (
+                          <div key={i} className="flex items-start justify-between p-3 bg-bg-base rounded-lg border border-border-subtle">
+                            <div className="min-w-0">
+                              <p className="text-xs font-medium text-text-primary">{srcType}</p>
+                              <p className="text-xs text-text-muted">{[srcSource, srcQuantity].filter(Boolean).join(' · ')}</p>
+                            </div>
+                            <div className="flex items-center gap-0.5 flex-shrink-0 ml-2">
+                              {[1, 2, 3, 4, 5].map((s) => (
+                                <Star key={s} className="w-2.5 h-2.5"
+                                  fill={parseInt(srcQuality) >= s ? '#f59e0b' : 'transparent'}
+                                  stroke={parseInt(srcQuality) >= s ? '#f59e0b' : 'rgba(255,255,255,0.15)'} />
+                              ))}
+                            </div>
                           </div>
-                          <div className="flex items-center gap-0.5 flex-shrink-0 ml-2">
-                            {[1, 2, 3, 4, 5].map((s) => (
-                              <Star key={s} className="w-2.5 h-2.5"
-                                fill={parseInt(src.quality) >= s ? '#f59e0b' : 'transparent'}
-                                stroke={parseInt(src.quality) >= s ? '#f59e0b' : 'rgba(255,255,255,0.15)'} />
-                            ))}
-                          </div>
-                        </div>
-                      ))}
+                        );
+                      })}
                     </div>
                   </div>
                 )}

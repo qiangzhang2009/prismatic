@@ -497,6 +497,38 @@ export function getPersonaConfidence(personaId: string): ConfidenceScore | null 
   };
 }
 
+/**
+ * 批量从 DB 获取置信度数据（用于人物库页面，避免 N+1 问题）
+ * 返回 { slug -> confidence } 映射
+ */
+export async function fetchAllConfidenceFromDB(): Promise<Record<string, ConfidenceScore>> {
+  try {
+    const res = await fetch(`/api/personas/confidence`, {
+      cache: 'no-store',
+    });
+    if (!res.ok) return {};
+    const data = await res.json();
+    return data.scores ?? {};
+  } catch {
+    return {};
+  }
+}
+
+/**
+ * 获取单个人物的置信度，优先 DB 数据，回退到静态数据
+ */
+export async function fetchPersonaConfidence(slug: string): Promise<ConfidenceScore | null> {
+  try {
+    const res = await fetch(`/api/personas/${slug}/confidence`, {
+      cache: 'no-store',
+    });
+    if (!res.ok) return null;
+    return await res.json();
+  } catch {
+    return null;
+  }
+}
+
 export const TOP_PERSONAS = [
   'wittgenstein', 'elon-musk', 'peter-thiel', 'steve-jobs',
   'naval-ravikant', 'jeff-bezos', 'ray-dalio', 'jensen-huang',
