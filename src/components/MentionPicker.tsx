@@ -173,7 +173,7 @@ export default function MentionPicker({
 
         {candidates.length === 0 && query.length > 0 && (
           <div className="px-3 py-4 text-center text-xs text-text-muted">
-            未找到 "{query}"
+            未找到 &ldquo;{query}&rdquo;
           </div>
         )}
       </div>

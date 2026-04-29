@@ -1165,7 +1165,7 @@ function ReplyForm({
         <div className="mb-3 px-3 py-2 rounded-lg bg-prism-blue/5 border border-prism-blue/20 flex items-start gap-2">
           <Sparkles className="w-3.5 h-3.5 text-prism-blue flex-shrink-0 mt-0.5" />
           <p className="text-xs text-prism-blue/80 italic line-clamp-2">
-            引用守望者回复："{quotedGuardianReply}"
+            引用守望者回复：&ldquo;{quotedGuardianReply}&rdquo;
           </p>
         </div>
       )}
