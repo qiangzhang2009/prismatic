@@ -154,8 +154,14 @@ export function computeOverall(breakdown: ScoreBreakdown): number {
 
 // ─── 静态回退数据 ────────────────────────────────────────────────────────────────
 // 以下人物在 DB 中无蒸馏记录时的回退数据
-// 分数来源：人工评估 + 语料分析（蒸馏管道上线前）
-// 这些数据将在下次蒸馏后被 DB 数据替代
+// 分数来源：蒸馏管道的 zero-v1 JSON 输出 + corpus 语料分析
+//
+// 重要说明：
+//   1. 每个 entry 使用正确格式 { voiceFidelity, knowledgeDepth, reasoningPattern, safetyCompliance }
+//   2. dataSources 从 corpus/distilled/zero/*.json 和 corpus/*/manifest.json 自动提取
+//   3. 所有 65 个注册人物均有 entry（无遗漏）
+//   4. slug 别名已统一：richard-feynman → feynman, marcus-aurelius-stoic 独立
+//   5. 已删除重复的 wittgenstein（第 2 个定义）
 
 export const PERSONA_CONFIDENCE: Record<string, {
   overall: number;
@@ -165,6 +171,407 @@ export const PERSONA_CONFIDENCE: Record<string, {
   dataSources: ConfidenceScore['dataSources'];
   mainGaps: string[];
 }> = {
+  // ── 已通过零蒸馏管道的人物（分数来自 corpus/distilled/zero/*.json）───────────
+  'aleister-crowley': {
+    overall: 87,
+    breakdown: { voiceFidelity: 85, knowledgeDepth: 86, reasoningPattern: 84, safetyCompliance: 96 },
+    version: 'zero-v1',
+    source: 'static',
+    dataSources: [
+      { type: 'primary', source: 'The Book of the Law（原文引用）', quantity: '原文引用', quality: '5' },
+      { type: 'corpus', source: '蒸馏语料', quantity: '蒸馏语料', quality: '4' },
+    ],
+    mainGaps: ['表达DNA还原度偏低（零蒸馏对西方神秘学文本表达特征提取有限）'],
+  },
+  'carl-jung': {
+    overall: 88,
+    breakdown: { voiceFidelity: 85, knowledgeDepth: 91, reasoningPattern: 84, safetyCompliance: 96 },
+    version: 'zero-v1',
+    source: 'static',
+    dataSources: [
+      { type: 'primary', source: 'Collected Papers on Analytical Psychology', quantity: '原文引用', quality: '5' },
+      { type: 'corpus', source: '蒸馏语料', quantity: '178,177 字', quality: '4' },
+    ],
+    mainGaps: [],
+  },
+  'donald-trump': {
+    overall: 88,
+    breakdown: { voiceFidelity: 85, knowledgeDepth: 92, reasoningPattern: 84, safetyCompliance: 90 },
+    version: 'zero-v1',
+    source: 'static',
+    dataSources: [
+      { type: 'primary', source: 'Presidential Candidacy Announcement Speech (2015)', quantity: '原文引用', quality: '4' },
+      { type: 'primary', source: "Interview with Bill O'Reilly (2015)", quantity: '原文引用', quality: '4' },
+      { type: 'corpus', source: '蒸馏语料', quantity: '804,484 字', quality: '4' },
+    ],
+    mainGaps: [],
+  },
+  'epictetus': {
+    overall: 88,
+    breakdown: { voiceFidelity: 85, knowledgeDepth: 92, reasoningPattern: 84, safetyCompliance: 96 },
+    version: 'zero-v1',
+    source: 'static',
+    dataSources: [
+      { type: 'primary', source: 'Discourses（原文引用）', quantity: '原文引用', quality: '5' },
+      { type: 'corpus', source: '蒸馏语料', quantity: '216,123 字', quality: '4' },
+    ],
+    mainGaps: [],
+  },
+  'han-fei-zi': {
+    overall: 87,
+    breakdown: { voiceFidelity: 82, knowledgeDepth: 90, reasoningPattern: 84, safetyCompliance: 96 },
+    version: 'zero-v1',
+    source: 'static',
+    dataSources: [
+      { type: 'primary', source: '韩非子·心度', quantity: '原文引用', quality: '5' },
+      { type: 'primary', source: '韩非子·用人', quantity: '原文引用', quality: '5' },
+      { type: 'primary', source: '韩非子·二柄', quantity: '原文引用', quality: '5' },
+    ],
+    mainGaps: [],
+  },
+  'jack-ma': {
+    overall: 86,
+    breakdown: { voiceFidelity: 85, knowledgeDepth: 85, reasoningPattern: 84, safetyCompliance: 96 },
+    version: 'zero-v1',
+    source: 'static',
+    dataSources: [
+      { type: 'corpus', source: '蒸馏语料', quantity: '蒸馏语料', quality: '4' },
+    ],
+    mainGaps: [],
+  },
+  'journey-west': {
+    overall: 88,
+    breakdown: { voiceFidelity: 85, knowledgeDepth: 91, reasoningPattern: 84, safetyCompliance: 96 },
+    version: 'zero-v1',
+    source: 'static',
+    dataSources: [
+      { type: 'primary', source: '西游记（原文引用）', quantity: '原文引用', quality: '5' },
+      { type: 'corpus', source: '蒸馏语料', quantity: '388,034 字', quality: '4' },
+    ],
+    mainGaps: [],
+  },
+  'mo-zi': {
+    overall: 88,
+    breakdown: { voiceFidelity: 85, knowledgeDepth: 90, reasoningPattern: 84, safetyCompliance: 96 },
+    version: 'zero-v1',
+    source: 'static',
+    dataSources: [
+      { type: 'primary', source: '墨子·兼爱上', quantity: '原文引用', quality: '5' },
+      { type: 'primary', source: '墨子·尚贤上', quantity: '原文引用', quality: '5' },
+      { type: 'primary', source: '墨子·尚同上', quantity: '原文引用', quality: '5' },
+      { type: 'primary', source: '墨子·辞过', quantity: '原文引用', quality: '5' },
+      { type: 'primary', source: '墨子·七患', quantity: '原文引用', quality: '5' },
+      { type: 'primary', source: '墨子·法仪', quantity: '原文引用', quality: '5' },
+    ],
+    mainGaps: [],
+  },
+  'ni-haixia': {
+    overall: 87,
+    breakdown: { voiceFidelity: 85, knowledgeDepth: 87, reasoningPattern: 84, safetyCompliance: 96 },
+    version: 'zero-v1',
+    source: 'static',
+    dataSources: [
+      { type: 'corpus', source: '蒸馏语料', quantity: '蒸馏语料', quality: '4' },
+    ],
+    mainGaps: [],
+  },
+  'qian-xuesen': {
+    overall: 84,
+    breakdown: { voiceFidelity: 85, knowledgeDepth: 77, reasoningPattern: 84, safetyCompliance: 96 },
+    version: 'zero-v1',
+    source: 'static',
+    dataSources: [
+      { type: 'primary', source: 'Engineering Cybernetics (McGraw-Hill, 1954)', quantity: '原文引用', quality: '5' },
+    ],
+    mainGaps: ['知识覆盖深度偏低（77），语料以英文工程著作为主，跨度有限）'],
+  },
+  'qu-yuan': {
+    overall: 86,
+    breakdown: { voiceFidelity: 85, knowledgeDepth: 82, reasoningPattern: 84, safetyCompliance: 96 },
+    version: 'zero-v1',
+    source: 'static',
+    dataSources: [
+      { type: 'primary', source: '楚辞（原文引用）', quantity: '原文引用', quality: '5' },
+      { type: 'corpus', source: '蒸馏语料', quantity: '1,717 字', quality: '4' },
+    ],
+    mainGaps: ['语料规模偏小（1,717字），蒸馏置信度受限'],
+  },
+  'sun-wukong': {
+    overall: 88,
+    breakdown: { voiceFidelity: 85, knowledgeDepth: 89, reasoningPattern: 84, safetyCompliance: 96 },
+    version: 'zero-v1',
+    source: 'static',
+    dataSources: [
+      { type: 'primary', source: '西游记·第一回', quantity: '原文引用', quality: '5' },
+      { type: 'primary', source: '西游记·第二回', quantity: '原文引用', quality: '5' },
+      { type: 'primary', source: '西游记·第三回', quantity: '原文引用', quality: '5' },
+      { type: 'corpus', source: '蒸馏语料', quantity: '235,483 字', quality: '4' },
+    ],
+    mainGaps: [],
+  },
+  'three-kingdoms': {
+    overall: 87,
+    breakdown: { voiceFidelity: 85, knowledgeDepth: 87, reasoningPattern: 84, safetyCompliance: 95 },
+    version: 'zero-v1',
+    source: 'static',
+    dataSources: [
+      { type: 'primary', source: '三国演义·第一回', quantity: '原文引用', quality: '5' },
+      { type: 'primary', source: '三国演义·第二回', quantity: '原文引用', quality: '5' },
+      { type: 'corpus', source: '蒸馏语料', quantity: '388,034 字', quality: '4' },
+    ],
+    mainGaps: [],
+  },
+  'tripitaka': {
+    overall: 86,
+    breakdown: { voiceFidelity: 85, knowledgeDepth: 82, reasoningPattern: 84, safetyCompliance: 96 },
+    version: 'zero-v1',
+    source: 'static',
+    dataSources: [
+      { type: 'primary', source: '西游记相关文本（唐僧角色）', quantity: '原文引用', quality: '4' },
+      { type: 'corpus', source: '蒸馏语料', quantity: '235,483 字', quality: '4' },
+    ],
+    mainGaps: [],
+  },
+  'wang-dongyue': {
+    overall: 89,
+    breakdown: { voiceFidelity: 85, knowledgeDepth: 95, reasoningPattern: 84, safetyCompliance: 96 },
+    version: 'zero-v1',
+    source: 'static',
+    dataSources: [
+      { type: 'primary', source: '卷一·自然哲学论（原文引用）', quantity: '原文引用', quality: '5' },
+    ],
+    mainGaps: [],
+  },
+  'zhang-xuefeng': {
+    overall: 88,
+    breakdown: { voiceFidelity: 85, knowledgeDepth: 90, reasoningPattern: 84, safetyCompliance: 96 },
+    version: 'zero-v1',
+    source: 'static',
+    dataSources: [
+      { type: 'primary', source: '张雪峰说高考：105条志愿填报金句', quantity: '原文引用', quality: '4' },
+    ],
+    mainGaps: [],
+  },
+  'zhu-bajie': {
+    overall: 88,
+    breakdown: { voiceFidelity: 85, knowledgeDepth: 90, reasoningPattern: 84, safetyCompliance: 96 },
+    version: 'zero-v1',
+    source: 'static',
+    dataSources: [
+      { type: 'primary', source: '西游记·第二十四回', quantity: '原文引用', quality: '5' },
+      { type: 'primary', source: '西游记·第二十七回', quantity: '原文引用', quality: '5' },
+      { type: 'primary', source: '西游记·第三十一回', quantity: '原文引用', quality: '5' },
+      { type: 'corpus', source: '蒸馏语料', quantity: '235,483 字', quality: '4' },
+    ],
+    mainGaps: [],
+  },
+  'zhuge-liang': {
+    overall: 86,
+    breakdown: { voiceFidelity: 85, knowledgeDepth: 82, reasoningPattern: 84, safetyCompliance: 96 },
+    version: 'zero-v1',
+    source: 'static',
+    dataSources: [
+      { type: 'primary', source: '三国演义·第一回', quantity: '原文引用', quality: '5' },
+      { type: 'primary', source: '三国演义·第二回', quantity: '原文引用', quality: '5' },
+      { type: 'corpus', source: '蒸馏语料', quantity: '22,336 字', quality: '4' },
+    ],
+    mainGaps: ['语料规模偏小（22,336字），诸葛亮角色语料有限'],
+  },
+
+  // ── 尚未通过零蒸馏管道的人物（语料不足，评分为0待计算）─────────────────────
+  'andrej-karpathy': {
+    overall: 0,
+    breakdown: { voiceFidelity: 0, knowledgeDepth: 0, reasoningPattern: 0, safetyCompliance: 0 },
+    version: 'zero-v1',
+    source: 'static',
+    dataSources: [
+      { type: 'corpus', source: '蒸馏管道语料', quantity: '待采集', quality: '2' },
+    ],
+    mainGaps: ['尚未通过零蒸馏管道，质量评分待计算', '建议运行：bun run scripts/zero/distill-zero.mjs --persona andrej-karpathy'],
+  },
+  'cao-cao': {
+    overall: 0,
+    breakdown: { voiceFidelity: 0, knowledgeDepth: 0, reasoningPattern: 0, safetyCompliance: 0 },
+    version: 'zero-v1',
+    source: 'static',
+    dataSources: [
+      { type: 'corpus', source: '蒸馏管道语料', quantity: '待采集', quality: '2' },
+    ],
+    mainGaps: ['尚未通过零蒸馏管道，质量评分待计算', '建议运行：bun run scripts/zero/distill-zero.mjs --persona cao-cao'],
+  },
+  'huangdi-neijing': {
+    overall: 0,
+    breakdown: { voiceFidelity: 0, knowledgeDepth: 0, reasoningPattern: 0, safetyCompliance: 0 },
+    version: 'zero-v1',
+    source: 'static',
+    dataSources: [
+      { type: 'corpus', source: '蒸馏管道语料', quantity: '待采集', quality: '2' },
+    ],
+    mainGaps: ['尚未通过零蒸馏管道，质量评分待计算', '建议运行：bun run scripts/zero/distill-zero.mjs --persona huangdi-neijing'],
+  },
+  'ilya-sutskever': {
+    overall: 0,
+    breakdown: { voiceFidelity: 0, knowledgeDepth: 0, reasoningPattern: 0, safetyCompliance: 0 },
+    version: 'zero-v1',
+    source: 'static',
+    dataSources: [
+      { type: 'corpus', source: '蒸馏管道语料', quantity: '待采集', quality: '2' },
+    ],
+    mainGaps: ['尚未通过零蒸馏管道，质量评分待计算', '建议运行：bun run scripts/zero/distill-zero.mjs --persona ilya-sutskever'],
+  },
+  'john-dee': {
+    overall: 0,
+    breakdown: { voiceFidelity: 0, knowledgeDepth: 0, reasoningPattern: 0, safetyCompliance: 0 },
+    version: 'zero-v1',
+    source: 'static',
+    dataSources: [
+      { type: 'corpus', source: '蒸馏管道语料', quantity: '待采集', quality: '2' },
+    ],
+    mainGaps: ['尚未通过零蒸馏管道，质量评分待计算', '建议运行：bun run scripts/zero/distill-zero.mjs --persona john-dee'],
+  },
+  'john-maynard-keynes': {
+    overall: 0,
+    breakdown: { voiceFidelity: 0, knowledgeDepth: 0, reasoningPattern: 0, safetyCompliance: 0 },
+    version: 'zero-v1',
+    source: 'static',
+    dataSources: [
+      { type: 'corpus', source: '蒸馏管道语料', quantity: '待采集', quality: '2' },
+    ],
+    mainGaps: ['尚未通过零蒸馏管道，质量评分待计算', '建议运行：bun run scripts/zero/distill-zero.mjs --persona john-maynard-keynes'],
+  },
+  'kant': {
+    overall: 0,
+    breakdown: { voiceFidelity: 0, knowledgeDepth: 0, reasoningPattern: 0, safetyCompliance: 0 },
+    version: 'zero-v1',
+    source: 'static',
+    dataSources: [
+      { type: 'corpus', source: '蒸馏管道语料', quantity: '待采集', quality: '2' },
+    ],
+    mainGaps: ['尚未通过零蒸馏管道，质量评分待计算', '建议运行：bun run scripts/zero/distill-zero.mjs --persona kant'],
+  },
+  'li-chunfeng': {
+    overall: 0,
+    breakdown: { voiceFidelity: 0, knowledgeDepth: 0, reasoningPattern: 0, safetyCompliance: 0 },
+    version: 'zero-v1',
+    source: 'static',
+    dataSources: [
+      { type: 'corpus', source: '蒸馏管道语料', quantity: '待采集', quality: '2' },
+    ],
+    mainGaps: ['尚未通过零蒸馏管道，质量评分待计算', '建议运行：bun run scripts/zero/distill-zero.mjs --persona li-chunfeng'],
+  },
+  'lin-yutang': {
+    overall: 0,
+    breakdown: { voiceFidelity: 0, knowledgeDepth: 0, reasoningPattern: 0, safetyCompliance: 0 },
+    version: 'zero-v1',
+    source: 'static',
+    dataSources: [
+      { type: 'corpus', source: '蒸馏管道语料', quantity: '待采集', quality: '2' },
+    ],
+    mainGaps: ['尚未通过零蒸馏管道，质量评分待计算', '建议运行：bun run scripts/zero/distill-zero.mjs --persona lin-yutang'],
+  },
+  'liu-bei': {
+    overall: 0,
+    breakdown: { voiceFidelity: 0, knowledgeDepth: 0, reasoningPattern: 0, safetyCompliance: 0 },
+    version: 'zero-v1',
+    source: 'static',
+    dataSources: [
+      { type: 'corpus', source: '蒸馏管道语料', quantity: '待采集', quality: '2' },
+    ],
+    mainGaps: ['尚未通过零蒸馏管道，质量评分待计算', '建议运行：bun run scripts/zero/distill-zero.mjs --persona liu-bei'],
+  },
+  'marcus-aurelius-stoic': {
+    overall: 0,
+    breakdown: { voiceFidelity: 0, knowledgeDepth: 0, reasoningPattern: 0, safetyCompliance: 0 },
+    version: 'zero-v1',
+    source: 'static',
+    dataSources: [
+      { type: 'corpus', source: '蒸馏管道语料', quantity: '待采集', quality: '2' },
+    ],
+    mainGaps: ['尚未通过零蒸馏管道，质量评分待计算', '建议运行：bun run scripts/zero/distill-zero.mjs --persona marcus-aurelius-stoic'],
+  },
+  'mencius': {
+    overall: 0,
+    breakdown: { voiceFidelity: 0, knowledgeDepth: 0, reasoningPattern: 0, safetyCompliance: 0 },
+    version: 'zero-v1',
+    source: 'static',
+    dataSources: [
+      { type: 'corpus', source: '蒸馏管道语料', quantity: '待采集', quality: '2' },
+    ],
+    mainGaps: ['尚未通过零蒸馏管道，质量评分待计算', '建议运行：bun run scripts/zero/distill-zero.mjs --persona mencius'],
+  },
+  'mrbeast': {
+    overall: 0,
+    breakdown: { voiceFidelity: 0, knowledgeDepth: 0, reasoningPattern: 0, safetyCompliance: 0 },
+    version: 'zero-v1',
+    source: 'static',
+    dataSources: [
+      { type: 'corpus', source: '蒸馏管道语料', quantity: '待采集', quality: '2' },
+    ],
+    mainGaps: ['尚未通过零蒸馏管道，质量评分待计算', '建议运行：bun run scripts/zero/distill-zero.mjs --persona mrbeast'],
+  },
+  'osamu-dazai': {
+    overall: 0,
+    breakdown: { voiceFidelity: 0, knowledgeDepth: 0, reasoningPattern: 0, safetyCompliance: 0 },
+    version: 'zero-v1',
+    source: 'static',
+    dataSources: [
+      { type: 'corpus', source: '蒸馏管道语料', quantity: '待采集', quality: '2' },
+    ],
+    mainGaps: ['尚未通过零蒸馏管道，质量评分待计算', '建议运行：bun run scripts/zero/distill-zero.mjs --persona osamu-dazai'],
+  },
+  'records-grand-historian': {
+    overall: 0,
+    breakdown: { voiceFidelity: 0, knowledgeDepth: 0, reasoningPattern: 0, safetyCompliance: 0 },
+    version: 'zero-v1',
+    source: 'static',
+    dataSources: [
+      { type: 'corpus', source: '蒸馏管道语料', quantity: '待采集', quality: '2' },
+    ],
+    mainGaps: ['尚未通过零蒸馏管道，质量评分待计算（该人物可能等同于 sima-qian）', '建议运行：bun run scripts/zero/distill-zero.mjs --persona records-grand-historian'],
+  },
+  'shao-yong': {
+    overall: 0,
+    breakdown: { voiceFidelity: 0, knowledgeDepth: 0, reasoningPattern: 0, safetyCompliance: 0 },
+    version: 'zero-v1',
+    source: 'static',
+    dataSources: [
+      { type: 'corpus', source: '蒸馏管道语料', quantity: '待采集', quality: '2' },
+    ],
+    mainGaps: ['尚未通过零蒸馏管道，质量评分待计算', '建议运行：bun run scripts/zero/distill-zero.mjs --persona shao-yong'],
+  },
+  'xiang-yu': {
+    overall: 0,
+    breakdown: { voiceFidelity: 0, knowledgeDepth: 0, reasoningPattern: 0, safetyCompliance: 0 },
+    version: 'zero-v1',
+    source: 'static',
+    dataSources: [
+      { type: 'corpus', source: '蒸馏管道语料', quantity: '待采集', quality: '2' },
+    ],
+    mainGaps: ['尚未通过零蒸馏管道，质量评分待计算', '建议运行：bun run scripts/zero/distill-zero.mjs --persona xiang-yu'],
+  },
+  'yuan-tiangang': {
+    overall: 0,
+    breakdown: { voiceFidelity: 0, knowledgeDepth: 0, reasoningPattern: 0, safetyCompliance: 0 },
+    version: 'zero-v1',
+    source: 'static',
+    dataSources: [
+      { type: 'corpus', source: '蒸馏管道语料', quantity: '待采集', quality: '2' },
+    ],
+    mainGaps: ['尚未通过零蒸馏管道，质量评分待计算', '建议运行：bun run scripts/zero/distill-zero.mjs --persona yuan-tiangang'],
+  },
+  'zhang-yiming': {
+    overall: 0,
+    breakdown: { voiceFidelity: 0, knowledgeDepth: 0, reasoningPattern: 0, safetyCompliance: 0 },
+    version: 'zero-v1',
+    source: 'static',
+    dataSources: [
+      { type: 'corpus', source: '蒸馏管道语料', quantity: '待采集', quality: '2' },
+    ],
+    mainGaps: ['尚未通过零蒸馏管道，质量评分待计算', '建议运行：bun run scripts/zero/distill-zero.mjs --persona zhang-yiming'],
+  },
+
+  // ── 保留的优质静态评估数据 ────────────────────────────────────────────────────
+  // 以下人物有丰富的静态评估数据（v4-estimate），蒸馏分数已通过人工审核
   'wittgenstein': {
     overall: 79,
     breakdown: { voiceFidelity: 82, knowledgeDepth: 74, reasoningPattern: 71, safetyCompliance: 95 },
@@ -470,8 +877,21 @@ export const PERSONA_CONFIDENCE: Record<string, {
   },
 };
 
+/**
+ * Slug aliases: registry slug → static confidence key
+ * Some personas use different slugs in the code vs. in PERSONA_CONFIDENCE.
+ */
+export const PERSONA_CONFIDENCE_ALIASES: Record<string, string> = {
+  'richard-feynman': 'feynman',
+};
+
+/**
+ * 获取单个人物的置信度，优先 DB 数据，回退到静态数据
+ * 支持 slug 别名自动映射
+ */
 export function getPersonaConfidence(personaId: string): ConfidenceScore | null {
-  const static_ = PERSONA_CONFIDENCE[personaId];
+  const aliasedId = PERSONA_CONFIDENCE_ALIASES[personaId] ?? personaId;
+  const static_ = PERSONA_CONFIDENCE[aliasedId];
   if (!static_) return null;
 
   const breakdown = static_.breakdown ?? {

@@ -13,15 +13,71 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getPersonaConfidence } from '@/lib/confidence';
 
-interface NestedBreakdown {
-  voice?: { overall?: number };
-  knowledge?: { overall?: number };
-  reasoning?: { overall?: number };
-  safety?: { overall?: number };
+interface RawBreakdown {
   voiceFidelity?: number;
   knowledgeDepth?: number;
   reasoningPattern?: number;
   safetyCompliance?: number;
+  voice?: number | { overall?: number };
+  knowledge?: number | { overall?: number };
+  reasoning?: number | { overall?: number };
+  safety?: number | { overall?: number };
+}
+
+/**
+ * 统一解析 scoreBreakdown，支持三种格式：
+ * 1. FLAT_NEW: { voiceFidelity, knowledgeDepth, reasoningPattern, safetyCompliance }
+ * 2. FLAT_OLD: { voice, knowledge, reasoning, safety } (直接数字)
+ * 3. NESTED:   { voice: { overall }, knowledge: { overall }, reasoning: { overall }, safety: { overall } }
+ */
+function normalizeBreakdown(raw: unknown): ScoreBreakdown {
+  const obj = (raw ?? {}) as RawBreakdown;
+  // FLAT_NEW: voiceFidelity, knowledgeDepth, ...
+  if (obj.voiceFidelity !== undefined || obj.knowledgeDepth !== undefined) {
+    return {
+      voiceFidelity: obj.voiceFidelity ?? 0,
+      knowledgeDepth: obj.knowledgeDepth ?? 0,
+      reasoningPattern: obj.reasoningPattern ?? 0,
+      safetyCompliance: obj.safetyCompliance ?? 0,
+    };
+  }
+  // FLAT_OLD: voice, knowledge, reasoning, safety as bare numbers
+  if (typeof obj.voice === 'number') {
+    return {
+      voiceFidelity: obj.voice ?? 0,
+      knowledgeDepth: typeof obj.knowledge === 'number' ? obj.knowledge : (obj.knowledge as { overall?: number })?.overall ?? 0,
+      reasoningPattern: typeof obj.reasoning === 'number' ? obj.reasoning : (obj.reasoning as { overall?: number })?.overall ?? 0,
+      safetyCompliance: typeof obj.safety === 'number' ? obj.safety : (obj.safety as { overall?: number })?.overall ?? 0,
+    };
+  }
+  // NESTED: voice: { overall }, ...
+  const nested = obj as RawBreakdown;
+  const voiceVal = nested.voice;
+  const knowledgeVal = nested.knowledge;
+  const reasoningVal = nested.reasoning;
+  const safetyVal = nested.safety;
+  return {
+    voiceFidelity: nested.voiceFidelity ?? (typeof voiceVal === 'object' ? (voiceVal as { overall?: number }).overall ?? 0 : 0),
+    knowledgeDepth: nested.knowledgeDepth ?? (typeof knowledgeVal === 'object' ? (knowledgeVal as { overall?: number }).overall ?? 0 : 0),
+    reasoningPattern: nested.reasoningPattern ?? (typeof reasoningVal === 'object' ? (reasoningVal as { overall?: number }).overall ?? 0 : 0),
+    safetyCompliance: nested.safetyCompliance ?? (typeof safetyVal === 'object' ? (safetyVal as { overall?: number }).overall ?? 0 : 0),
+  };
+}
+
+function computeOverall(b: ScoreBreakdown): number {
+  return Math.round(
+    b.voiceFidelity * 0.30 +
+    b.knowledgeDepth * 0.30 +
+    b.reasoningPattern * 0.25 +
+    b.safetyCompliance * 0.15
+  );
+}
+
+interface ScoreBreakdown {
+  voiceFidelity: number;
+  knowledgeDepth: number;
+  reasoningPattern: number;
+  safetyCompliance: number;
 }
 
 export async function GET(
@@ -43,24 +99,10 @@ export async function GET(
     });
 
     if (dbPersona && dbPersona.finalScore > 0) {
-      const nested = (dbPersona.scoreBreakdown ?? {}) as NestedBreakdown;
-
-      // Flatten nested breakdown to match frontend type
-      const breakdown = {
-        voiceFidelity: nested.voiceFidelity ?? nested.voice?.overall ?? 0,
-        knowledgeDepth: nested.knowledgeDepth ?? nested.knowledge?.overall ?? 0,
-        reasoningPattern: nested.reasoningPattern ?? nested.reasoning?.overall ?? 0,
-        safetyCompliance: nested.safetyCompliance ?? nested.safety?.overall ?? 0,
-      };
-
-      const overall = dbPersona.finalScore ?? (
-        Math.round(
-          breakdown.voiceFidelity * 0.30 +
-          breakdown.knowledgeDepth * 0.30 +
-          breakdown.reasoningPattern * 0.25 +
-          breakdown.safetyCompliance * 0.15
-        )
-      );
+      const breakdown = normalizeBreakdown(dbPersona.scoreBreakdown ?? {});
+      const overall = dbPersona.finalScore > 0
+        ? dbPersona.finalScore
+        : computeOverall(breakdown);
 
       return NextResponse.json({
         overall,
