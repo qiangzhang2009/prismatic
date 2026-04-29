@@ -83,7 +83,7 @@ export async function GET(req: NextRequest) {
       ${where}
     `;
 
-    const [result] = await pool.query(q, params);
+    const result = await pool.query(q, params);
     await pool.end();
 
     const r = result.rows[0];
