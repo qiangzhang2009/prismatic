@@ -864,6 +864,36 @@ function UsersSection() {
   );
 }
 
+// ─── User filter dropdown for AssetsSection ───────────────────────────────────
+
+function UserFilterDropdown({ value, onChange }: { value: string; onChange: (id: string) => void }) {
+  const { data, isLoading } = useQuery({
+    queryKey: ['admin', 'users', 'filter-list'],
+    queryFn: () => fetch('/api/admin/users?pageSize=500&status=ACTIVE', { credentials: 'include' }).then(r => r.json()),
+    staleTime: 1000 * 60 * 5,
+  });
+
+  const users: any[] = data?.items || [];
+
+  return (
+    <select
+      value={value}
+      onChange={e => onChange(e.target.value)}
+      className="bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white min-w-36"
+    >
+      <option value="">全部用户</option>
+      {isLoading ? (
+        <option value="" disabled>加载中...</option>
+      ) : users.map(u => (
+        <option key={u.id} value={u.id}>
+          {u.name || u.email || u.id.slice(0, 8)}
+          {u.plan && u.plan !== 'FREE' ? ` [${u.plan}]` : ''}
+        </option>
+      ))}
+    </select>
+  );
+}
+
 // ─── Tab 3: 对话资产 ──────────────────────────────────────────────────────────
 /**
  * 对话资产管理 — 合并浏览与分析于单一视图
@@ -880,6 +910,7 @@ function AssetsSection() {
   const [mode, setMode] = useState('');
   const [dateFrom, setDateFrom] = useState('');
   const [dateTo, setDateTo] = useState('');
+  const [selectedUserId, setSelectedUserId] = useState('');
   const [page, setPage] = useState(1);
 
   // Quick date buttons: set dateFrom to N days ago, dateTo to today; 0 = no limit (all time)
@@ -907,13 +938,29 @@ function AssetsSection() {
     ...(mode && { mode }),
     ...(dateFrom && { dateFrom }),
     ...(dateTo && { dateTo }),
-  }), [page, search, billingMode, mode, dateFrom, dateTo]);
+    ...(selectedUserId && { userId: selectedUserId }),
+  }), [page, search, billingMode, mode, dateFrom, dateTo, selectedUserId]);
 
   const { data: convData, isLoading: convLoading, refetch, isError: convError } = useQuery({
     queryKey: ['admin', 'chats', params.toString()],
     queryFn: () => fetch(`/api/admin/chats?${params}`, { credentials: 'include' }).then(r => r.json()),
     staleTime: 0,
     refetchOnWindowFocus: true,
+  });
+
+  // Totals API: full-data aggregates (not page-limited) for AssetOverview KPIs
+  const totalsParams = useMemo(() => new URLSearchParams({
+    ...(billingMode && { billingMode }),
+    ...(mode && { mode }),
+    ...(dateFrom && { dateFrom }),
+    ...(dateTo && { dateTo }),
+    ...(selectedUserId && { userId: selectedUserId }),
+  }), [billingMode, mode, dateFrom, dateTo, selectedUserId]);
+
+  const { data: totalsData } = useQuery({
+    queryKey: ['admin', 'chats', 'totals', totalsParams.toString()],
+    queryFn: () => fetch(`/api/admin/chats/totals?${totalsParams}`, { credentials: 'include' }).then(r => r.json()),
+    staleTime: 1000 * 60,
   });
 
   const { data: userChatsData, isLoading: userChatsLoading, refetch: refetchUserChats } = useQuery({
@@ -979,7 +1026,7 @@ function AssetsSection() {
       {/* ── 分析面板 ── */}
       <div className="bg-gray-900/80 border border-gray-800 rounded-2xl p-6">
         <AnimatePresence mode="wait">
-          {dim === 'overview' && <AssetOverview key="overview" convData={convData} />}
+          {dim === 'overview' && <AssetOverview key="overview" convData={convData} totalsData={totalsData} />}
           {dim === 'cost' && <AssetCostAnalysis key="cost" days={30} />}
           {dim === 'topics' && <AssetTopics key="topics" days={30} />}
           {dim === 'personas' && <AssetPersonas key="personas" days={0} />}
@@ -1027,6 +1074,8 @@ function AssetsSection() {
             className="bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white" />
           <input type="date" value={dateTo} onChange={e => { setDateTo(e.target.value); setPage(1); }}
             className="bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white" />
+          {/* User filter dropdown */}
+          <UserFilterDropdown value={selectedUserId} onChange={uid => { setSelectedUserId(uid); setPage(1); }} />
           <button onClick={() => refetch()} className="px-3 py-2 bg-purple-600 hover:bg-purple-500 text-white text-sm rounded-lg transition-colors">
             搜索
           </button>
@@ -1267,20 +1316,32 @@ function ConversationCard({ conv }: { conv: any }) {
 
 // ─── 分析维度: 总览 ─────────────────────────────────────────────────────────
 
-function AssetOverview({ convData }: { convData: any }) {
+function AssetOverview({ convData, totalsData }: { convData: any; totalsData: any }) {
   const convs = convData?.conversations || [];
-  const total = convData?.total || 0;
 
-  const totalMessages = convs.reduce((s: number, c: any) => s + (c.messageCount || 0), 0);
-  const totalCost = convs.reduce((s: number, c: any) => s + (c.totalCost || 0), 0);
-  const totalTokens = convs.reduce((s: number, c: any) => s + (c.totalTokens || 0), 0);
-  const apiKeyCount = convs.filter((c: any) => c.billingMode === 'A').length;
-  const platformCount = convs.filter((c: any) => c.billingMode === 'B').length;
-  const modeCount = convs.reduce((acc: Record<string, number>, c: any) => {
-    const m = c.mode || 'unknown';
-    acc[m] = (acc[m] || 0) + 1;
-    return acc;
-  }, {} as Record<string, number>);
+  // Use totalsData (full-data aggregates) for KPI display, falling back to page-level convData
+  const t = totalsData;
+  const totalConversations = t?.totalConversations ?? 0;
+  const totalMessages = t?.totalMessages ?? 0;
+  const totalCost = t?.totalCost ?? 0;
+  const totalTokens = t?.totalTokens ?? 0;
+  const apiKeyCount = t?.billing?.apiKey ?? 0;
+  const platformCount = t?.billing?.platform ?? 0;
+  const soloCount = t?.mode?.solo ?? 0;
+  const roundtableCount = t?.mode?.roundtable ?? 0;
+  const mirrorCount = t?.mode?.mirror ?? 0;
+
+  const modeCount: Record<string, number> = {};
+  if (soloCount > 0) modeCount['solo'] = soloCount;
+  if (roundtableCount > 0) modeCount['roundtable'] = roundtableCount;
+  if (mirrorCount > 0) modeCount['mirror'] = mirrorCount;
+  // Fallback: aggregate from current page data if totals API not yet loaded
+  if (totalConversations === 0) {
+    for (const c of convs) {
+      const m = c.mode || 'unknown';
+      modeCount[m] = (modeCount[m] || 0) + 1;
+    }
+  }
 
   const topModes = (Object.entries(modeCount) as [string, number][])
     .sort(([, a], [, b]) => b - a)
@@ -1289,11 +1350,11 @@ function AssetOverview({ convData }: { convData: any }) {
 
   return (
     <div className="space-y-5">
-      <h4 className="text-sm font-semibold text-white">当前页面 · 总览</h4>
+      <h4 className="text-sm font-semibold text-white">全部 · 总览</h4>
       {/* KPI row */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         {[
-          { label: '对话数', value: total.toLocaleString(), color: 'text-white', icon: MessageSquare },
+          { label: '对话数', value: totalConversations.toLocaleString(), color: 'text-white', icon: MessageSquare },
           { label: '消息数', value: totalMessages.toLocaleString(), color: 'text-cyan-400', icon: Zap },
           { label: 'API 成本', value: `¥${Number(totalCost || 0).toFixed(4)}`, color: 'text-amber-400', icon: DollarSign },
           { label: 'Token 消耗', value: `${Number((totalTokens || 0) / 1000).toFixed(1)}K`, color: 'text-purple-400', icon: Activity },
@@ -1323,7 +1384,7 @@ function AssetOverview({ convData }: { convData: any }) {
             </div>
           </div>
           <div className="mt-3 h-1.5 bg-gray-700 rounded-full overflow-hidden flex">
-            {total > 0 && (
+            {totalConversations > 0 && (
               <>
                 <div className="bg-blue-500" style={{ width: `${(apiKeyCount / total) * 100}%` }} />
                 <div className="bg-green-500" style={{ width: `${(platformCount / total) * 100}%` }} />

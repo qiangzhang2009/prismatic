@@ -44,6 +44,7 @@ export async function GET(req: NextRequest) {
   const mode = searchParams.get('mode') || '';
   const billingMode = searchParams.get('billingMode') || '';
   const search = searchParams.get('search') || '';
+  const userId = searchParams.get('userId') || '';
   const page = Math.max(1, parseInt(searchParams.get('page') || '1', 10));
   const pageSize = Math.min(100, parseInt(searchParams.get('pageSize') || '20', 10));
 
@@ -53,11 +54,12 @@ export async function GET(req: NextRequest) {
     const params: unknown[] = [];
     let p = 1;
 
+    if (userId) { conditions.push(`c."userId" = $${p++}`); params.push(userId); }
     if (mode) { conditions.push(`c.mode = $${p++}`); params.push(mode); }
     if (dateFrom) { conditions.push(`c."updatedAt" >= $${p++}`); params.push(new Date(dateFrom)); }
     if (dateTo) { conditions.push(`c."updatedAt" <= $${p++}`); params.push(new Date(dateTo + 'T23:59:59Z')); }
     if (search) {
-      conditions.push(`EXISTS (SELECT 1 FROM messages m WHERE m."conversationId" = c.id AND LOWER(m.content) LIKE LOWER($${p++}))`);
+      conditions.push(`EXISTS (SELECT 1 FROM messages m WHERE m."conversationId" = c.id AND m.content != '[message-counted]' AND LOWER(m.content) LIKE LOWER($${p++}))`);
       params.push(`%${search}%`);
     }
     if (billingMode === 'A') {
@@ -65,7 +67,8 @@ export async function GET(req: NextRequest) {
     } else if (billingMode === 'B') {
       conditions.push(`(u."apiKeyEncrypted" IS NULL OR u."apiKeyStatus" != 'valid')`);
     }
-    conditions.push(`(SELECT COUNT(*) FROM messages m WHERE m."conversationId" = c.id) > 0`);
+    // Exclude [message-counted] sentinel rows
+    conditions.push(`(SELECT COUNT(*) FROM messages m WHERE m."conversationId" = c.id AND m.content != '[message-counted]') > 0`);
 
     const where = conditions.length ? `WHERE ${conditions.join(' AND ')}` : '';
 
@@ -91,7 +94,7 @@ export async function GET(req: NextRequest) {
             'modelUsed', m."modelUsed", 'createdAt', m."createdAt",
             'metadata', m.metadata
           ) ORDER BY m."createdAt" DESC) as data
-        FROM messages m WHERE m."conversationId" = c.id
+        FROM messages m WHERE m."conversationId" = c.id AND m.content != '[message-counted]'
       ) msgs ON true
       ${where}
       ORDER BY c."updatedAt" DESC
