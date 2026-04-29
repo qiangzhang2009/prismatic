@@ -125,4 +125,7 @@ jobs:
             '${{ secrets.VERCEL_ORG_ID }}' > .vercel/project.json
 
       - name: Deploy to Vercel Production
-        run: vercel deploy . --prod --yes --no-cache --token=${{ secrets.VERCEL_TOKEN }}
+        env:
+          # Disable Next.js build cache to ensure fresh builds
+          NEXT_DISABLE_SWC_WASM_CACHE: '1'
+        run: vercel deploy . --prod --yes --token=${{ secrets.VERCEL_TOKEN }}

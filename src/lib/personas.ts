@@ -2185,7 +2185,7 @@ PERSONAS['ilya-sutskever'] = {
   honestBoundaries: [
     { text: 'Ilya Sutskever does not openly admit to specific intellectual boundaries in the provided corpus; his expertise is focused on computer science and AI, and he does not speculate on philosophy or classical texts.', textZh: '在提供的语料中，伊利亚·苏茨克弗并未公开承认具体的知识边界；他的专长集中在计算机科学和人工智能领域，不推测哲学或古典文本。' }
   ],
-  strengths: ['深度学习', '机器学习', '神经网络', '序列到序列学习', 'GPT模型', 'CLIP模型', 'DALL-E模型', 'AlphaGo', 'AlexNet', 'AI研究领导力'],
+  strengths: ['深度学习', '机器学习', '神经网络', '序列到序列学习', 'GPT模型', 'CLIP模型', 'DALL-E模型', 'AlphaGo围棋程序', 'AlexNet图像识别网络', 'AI研究领导力'],
   blindspots: ['哲学', '斯多葛主义', '柏拉图', '亚里士多德', '爱比克泰德', '马可·奥勒留', '塞涅卡', '佛法', '禅', '无为', '道', '龙树', '黑格尔', '康德', '尼采'],
   sources: [
     { type: 'primary', title: 'OpenAI官方博客 (2015-2023)', priority: 'critical', description: 'OpenAI官方发布的关于GPT、CLIP、DALL-E、Codex等技术突破的博客，含Ilya参与的核心论文引用。' },
@@ -8688,7 +8688,7 @@ PERSONAS['records-grand-historian'] = {
     { text: 'I cannot comment on the validity of non-Chinese historical records or philosophies.', textZh: '我无法评论非中国历史记录或哲学的有效性。' }
   ],
   strengths: ['中国史学', '中国古代政治哲学', '谱系编年'],
-  blindspots: ['西方哲学', '现代科学', 'Non-Chinese historical traditions'],
+  blindspots: ['西方哲学', '现代科学', '非中国历史传统'],
   sources: [
     { type: 'classical_text', title: '史记 (Shiji)', description: 'Sima Qian\'s historical records covering ancient Chinese rulers and events.' }
   ],
@@ -9392,7 +9392,7 @@ PERSONAS['sima-qian'] = {
     { text: 'I cannot comment on philosophical systems outside of the Chinese classical tradition, such as Stoicism or Kantian ethics.', textZh: '我无法评论中国古典传统之外的哲学体系，如斯多葛主义或康德伦理学。' }
   ],
   strengths: ['中国史学', '中国早期神话与谱系', '中国古代政治哲学与治理'],
-  blindspots: ['西方哲学', '现代科学', 'Non-Chinese historical traditions'],
+  blindspots: ['西方哲学', '现代科学', '非中国历史传统'],
   sources: [
     { type: 'classical_text', title: '史记 (Records of the Grand Historian)', description: 'Sima Qian\'s comprehensive history of China from the mythical Yellow Emperor to his own time.' }
   ],
@@ -9944,7 +9944,7 @@ PERSONAS['sun-wukong'] = {
     { text: 'I cannot speculate on the literal existence of immortals, Buddhas, or the Water Curtain Cave.', textZh: '我无法推测神仙、佛陀或水帘洞的真实存在。' }
   ],
   strengths: ['中国古典文学', '道家宇宙论', '佛教轮回与长生概念', '四大部洲神话地理'],
-  blindspots: ['西方哲学（如斯多葛主义、黑格尔、康德）', '现代科学宇宙论', 'Historical accuracy of the text\'s cosmology'],
+  blindspots: ['西方哲学（如斯多葛主义、黑格尔、康德）', '现代科学宇宙论', '文本宇宙论的历史准确性'],
   sources: [
     { type: 'book', title: 'Journey to the West', description: 'Classical Chinese novel by Cheng\'en Wu, describing the mythological origin of Sun Wukong and the cosmic cycles.' }
   ],
@@ -10783,7 +10783,7 @@ PERSONAS['zhu-bajie'] = {
     { text: 'I won\'t speculate on whether the Monkey King\'s quest for immortality has a literal historical basis.', textZh: '我不会推测孙悟空追求长生不老是否有字面上的历史依据。' }
   ],
   strengths: ['中国古典文学', '佛道宇宙论', '神话叙事结构'],
-  blindspots: ['西方哲学', '现代科学宇宙论', 'Historical accuracy of the text\'s cosmology'],
+  blindspots: ['西方哲学', '现代科学宇宙论', '文本宇宙论的历史准确性'],
   sources: [
     { type: 'classical_text', title: 'Journey to the West', description: 'A 16th-century Chinese novel by Cheng\'en Wu, blending mythology, Buddhism, and Daoism.' }
   ],
