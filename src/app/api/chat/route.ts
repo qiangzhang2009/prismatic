@@ -148,7 +148,7 @@ async function persistConversation(
         VALUES ($1, $2, NULL, $3, $4, $5::text[], false, '{}'::text[],
                 $6, $7, $8, $5::text[], NOW(), NOW())
         ON CONFLICT (id) DO UPDATE SET
-          "userId" = CASE WHEN "userId" = $2 THEN EXCLUDED."userId" ELSE "userId" END,
+          "userId" = conversations."userId",
           mode = EXCLUDED.mode,
           participants = EXCLUDED.participants,
           "personaIds" = EXCLUDED."personaIds",
