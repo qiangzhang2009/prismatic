@@ -97,17 +97,17 @@ function buildPersonaFromDB(db: Record<string, unknown>): Persona {
       if (codePersona.blindspots.length) dbPersona.blindspots = codePersona.blindspots;
     }
 
-    // For v5+ personas: if DB strengths/blindspots have empty textZh, the items are English-only.
-    // Prefer code data (which has proper Chinese) for these cases.
+    // For v5+ personas: if any DB strengths/blindspots have empty textZh, use code data entirely.
+    // Mixed Chinese/English is worse than all-Chinese code data.
     if (!isV4 && dbPersona.strengths.length > 0 && codePersona.strengths.length > 0) {
-      const allEmptyTextZh = dbPersona.strengths.every((s: any) => !s.textZh);
-      if (allEmptyTextZh) {
+      const anyEmptyTextZh = dbPersona.strengths.some((s: any) => !s.textZh);
+      if (anyEmptyTextZh) {
         dbPersona.strengths = codePersona.strengths;
       }
     }
     if (!isV4 && dbPersona.blindspots.length > 0 && codePersona.blindspots.length > 0) {
-      const allEmptyTextZh = dbPersona.blindspots.every((b: any) => !b.textZh);
-      if (allEmptyTextZh) {
+      const anyEmptyTextZh = dbPersona.blindspots.some((b: any) => !b.textZh);
+      if (anyEmptyTextZh) {
         dbPersona.blindspots = codePersona.blindspots;
       }
     }

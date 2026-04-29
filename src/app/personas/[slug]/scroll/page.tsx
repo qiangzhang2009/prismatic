@@ -62,14 +62,14 @@ function buildScrollPersonaFromDB(db: Record<string, unknown>): Persona {
     if (isV4 && !dbPersona.blindspots.length && codePersona.blindspots.length) {
       dbPersona.blindspots = codePersona.blindspots;
     }
-    // v5+: if DB strengths/blindspots have empty textZh, use code data
+    // v5+: if any DB strengths/blindspots have empty textZh, use code data entirely
     if (!isV4 && dbPersona.strengths.length > 0 && codePersona.strengths.length > 0) {
-      const allEmptyTextZh = dbPersona.strengths.every((s: any) => !s.textZh);
-      if (allEmptyTextZh) dbPersona.strengths = codePersona.strengths;
+      const anyEmptyTextZh = dbPersona.strengths.some((s: any) => !s.textZh);
+      if (anyEmptyTextZh) dbPersona.strengths = codePersona.strengths;
     }
     if (!isV4 && dbPersona.blindspots.length > 0 && codePersona.blindspots.length > 0) {
-      const allEmptyTextZh = dbPersona.blindspots.every((b: any) => !b.textZh);
-      if (allEmptyTextZh) dbPersona.blindspots = codePersona.blindspots;
+      const anyEmptyTextZh = dbPersona.blindspots.some((b: any) => !b.textZh);
+      if (anyEmptyTextZh) dbPersona.blindspots = codePersona.blindspots;
     }
   }
 
