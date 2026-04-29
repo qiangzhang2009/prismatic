@@ -88,26 +88,18 @@ function buildPersonaFromDB(db: Record<string, unknown>): Persona {
       }
     }
 
-    // For v4 personas: DB has Chinese content — supplement from code only if DB empty
-    // For v5+ personas: DB (V5 JSON) has the best data — never override with code
-    if (isV4 && !dbPersona.strengths.length) {
-      if (codePersona.strengths.length) dbPersona.strengths = codePersona.strengths;
-    }
-    if (isV4 && !dbPersona.blindspots.length) {
-      if (codePersona.blindspots.length) dbPersona.blindspots = codePersona.blindspots;
-    }
-
-    // For v5+ personas: if any DB strengths/blindspots have empty textZh, use code data entirely.
-    // Mixed Chinese/English is worse than all-Chinese code data.
-    if (!isV4 && dbPersona.strengths.length > 0 && codePersona.strengths.length > 0) {
-      const anyEmptyTextZh = dbPersona.strengths.some((s: any) => !s.textZh);
-      if (anyEmptyTextZh) {
+    // If DB has strengths/blindspots with empty textZh, prefer code data (which has proper Chinese).
+    // Strategy: use code entirely if ANY item is missing translation. This is simpler and more robust
+    // than trying to merge at the item level (which would need fuzzy text matching between DB and code items).
+    if (dbPersona.strengths.length > 0 && codePersona.strengths.length > 0) {
+      const hasEmptyTextZh = dbPersona.strengths.some((s: any) => !s.textZh);
+      if (hasEmptyTextZh) {
         dbPersona.strengths = codePersona.strengths;
       }
     }
-    if (!isV4 && dbPersona.blindspots.length > 0 && codePersona.blindspots.length > 0) {
-      const anyEmptyTextZh = dbPersona.blindspots.some((b: any) => !b.textZh);
-      if (anyEmptyTextZh) {
+    if (dbPersona.blindspots.length > 0 && codePersona.blindspots.length > 0) {
+      const hasEmptyTextZh = dbPersona.blindspots.some((b: any) => !b.textZh);
+      if (hasEmptyTextZh) {
         dbPersona.blindspots = codePersona.blindspots;
       }
     }
