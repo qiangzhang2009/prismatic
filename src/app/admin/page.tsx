@@ -1386,8 +1386,8 @@ function AssetOverview({ convData, totalsData }: { convData: any; totalsData: an
           <div className="mt-3 h-1.5 bg-gray-700 rounded-full overflow-hidden flex">
             {totalConversations > 0 && (
               <>
-                <div className="bg-blue-500" style={{ width: `${(apiKeyCount / total) * 100}%` }} />
-                <div className="bg-green-500" style={{ width: `${(platformCount / total) * 100}%` }} />
+                <div className="bg-blue-500" style={{ width: `${(apiKeyCount / totalConversations) * 100}%` }} />
+                <div className="bg-green-500" style={{ width: `${(platformCount / totalConversations) * 100}%` }} />
               </>
             )}
           </div>
@@ -1402,7 +1402,7 @@ function AssetOverview({ convData, totalsData }: { convData: any; totalsData: an
                 <span className="w-4 text-xs text-gray-500 text-right">{i + 1}</span>
                 <span className="w-20 text-gray-300 truncate">{m.name}</span>
                 <div className="flex-1 bg-gray-700 rounded-full h-1.5 overflow-hidden">
-                  <div className="h-full bg-purple-500 rounded-full" style={{ width: `${total > 0 ? (m.count / total) * 100 : 0}%` }} />
+                  <div className="h-full bg-purple-500 rounded-full" style={{ width: `${totalConversations > 0 ? (m.count / totalConversations) * 100 : 0}%` }} />
                 </div>
                 <span className="w-8 text-right text-gray-400 text-xs">{m.count}</span>
               </div>
