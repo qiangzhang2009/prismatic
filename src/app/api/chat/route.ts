@@ -1304,6 +1304,10 @@ export async function POST(request: NextRequest) {
     console.log(`[Chat API] persistConversation RETURNED result=${JSON.stringify(persistResult)}`);
     if (!persistResult) {
       console.warn(`[Chat API] persistConversation returned null for conv=${convId}, mode=${mode}, messages=${allMessages.length} — data NOT saved to DB`);
+      return NextResponse.json(
+        { error: '抱歉，发生了错误，消息未能保存。请稍后重试。' },
+        { status: 500 }
+      );
     }
 
     // Tokens and cost are already set by the upsert in persistConversation
