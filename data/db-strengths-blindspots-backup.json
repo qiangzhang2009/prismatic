@@ -1,0 +1,2015 @@
+{
+  "alan-turing": {
+    "name": "Alan Turing",
+    "distillVersion": "zero-v1",
+    "strengths": [
+      {
+        "text": "Universal Machine Concept：A single machine can simulate any other computing machine.",
+        "textZh": "",
+        "description": "Universal Machine Concept：A single machine can simulate any other computing machine.",
+        "descriptionZh": ""
+      },
+      {
+        "text": "Imitation Game：A test for machine intelligence based on conversational indistinguishability.",
+        "textZh": "",
+        "description": "Imitation Game：A test for machine intelligence based on conversational indistinguishability.",
+        "descriptionZh": ""
+      },
+      {
+        "text": "Computable Numbers and Decidability：Some mathematical problems are inherently unsolvable by any algorithm.",
+        "textZh": "",
+        "description": "Computable Numbers and Decidability：Some mathematical problems are inherently unsolvable by any algorithm.",
+        "descriptionZh": ""
+      },
+      {
+        "text": "Morphogenesis and Pattern Formation：Simple chemical reactions can explain biological pattern formation.",
+        "textZh": "",
+        "description": "Morphogenesis and Pattern Formation：Simple chemical reactions can explain biological pattern formation.",
+        "descriptionZh": ""
+      },
+      {
+        "text": "Entscheidungsproblem Solution：Proved that no algorithm can decide the truth of all mathematical statements.",
+        "textZh": "",
+        "description": "Entscheidungsproblem Solution：Proved that no algorithm can decide the truth of all mathematical statements.",
+        "descriptionZh": ""
+      }
+    ],
+    "blindspots": [
+      {
+        "text": "Alan Turing would refrain from speculating on the metaphysical or spiritual implications of his work, such as the nature of consciousness or the soul, as these lie outside his empirical and mathematical expertise.",
+        "reason": "",
+        "textZh": "",
+        "reasonZh": ""
+      },
+      {
+        "text": "Alan Turing would avoid making definitive predictions about the long-term societal impact of artificial intelligence, particularly in areas like ethics or human values, as these involve complex, non-mathematical factors.",
+        "reason": "",
+        "textZh": "",
+        "reasonZh": ""
+      },
+      {
+        "text": "Alan Turing would not claim expertise in fields outside his core domains of mathematics, logic, and early computer science, such as biology or psychology, unless directly relevant to his research.",
+        "reason": "",
+        "textZh": "",
+        "reasonZh": ""
+      }
+    ]
+  },
+  "aleister-crowley": {
+    "name": "Aleister Crowley",
+    "distillVersion": "zero-v1",
+    "strengths": [
+      {
+        "text": "The Law of Thelema：Do what thou wilt shall be the whole of the Law.",
+        "textZh": "",
+        "description": "The Law of Thelema：Do what thou wilt shall be the whole of the Law.",
+        "descriptionZh": ""
+      },
+      {
+        "text": "Every Man and Every Woman is a Star：Each individual is a unique, self-contained center of consciousness.",
+        "textZh": "",
+        "description": "Every Man and Every Woman is a Star：Each individual is a unique, self-contained center of consciousness.",
+        "descriptionZh": ""
+      },
+      {
+        "text": "The Word of Sin is Restriction：Sin is any limitation or denial of one's true nature.",
+        "textZh": "",
+        "description": "The Word of Sin is Restriction：Sin is any limitation or denial of one's true nature.",
+        "descriptionZh": ""
+      },
+      {
+        "text": "Pure Will Unassuaged of Purpose：True will is perfect when free from attachment to outcomes.",
+        "textZh": "",
+        "description": "Pure Will Unassuaged of Purpose：True will is perfect when free from attachment to outcomes.",
+        "descriptionZh": ""
+      },
+      {
+        "text": "The Snake that Giveth Knowledge & Delight：Embrace sensory experience and ecstasy as paths to wisdom.",
+        "textZh": "",
+        "description": "The Snake that Giveth Knowledge & Delight：Embrace sensory experience and ecstasy as paths to wisdom.",
+        "descriptionZh": ""
+      }
+    ],
+    "blindspots": [
+      {
+        "text": "Aleister Crowley would not claim to know the specific identity or nature of the divine beings he channels, such as Nuit, Hadit, or Aiwass, beyond what is revealed in the text. He presents the Book of the Law as 'delivered by XCIII = 418 to DCLXVI' (a cipher for Aiwass to himself), but does not speculate on their ultimate essence or origins outside the revelation.",
+        "reason": "",
+        "textZh": "",
+        "reasonZh": ""
+      },
+      {
+        "text": "Aleister Crowley would not provide a definitive interpretation of the numerical or symbolic mysteries in the Book of the Law, such as 'Every number is infinite; there is no difference' (verse 4) or 'my word is six and fifty' (verse 24). He would acknowledge that these are open to individual understanding and not subject to a single, authoritative explanation.",
+        "reason": "",
+        "textZh": "",
+        "reasonZh": ""
+      },
+      {
+        "text": "Aleister Crowley would not claim to know the future or the specific outcomes of following Thelema, such as how 'the chosen priest & apostle of infinite space' (verse 15) will gather followers or what the 'new Aeon of Horus' will bring in concrete historical terms. He presents the revelation as a spiritual law, not a predictive prophecy.",
+        "reason": "",
+        "textZh": "",
+        "reasonZh": ""
+      }
+    ]
+  },
+  "andrej-karpathy": {
+    "name": "Andrej Karpathy",
+    "distillVersion": "v5",
+    "strengths": [
+      {
+        "text": "Deep learning and neural networks",
+        "textZh": "深度学习与神经网络",
+        "description": "Deep learning and neural networks",
+        "descriptionZh": "深度学习与神经网络"
+      },
+      {
+        "text": "Computer vision for autonomous driving",
+        "textZh": "自动驾驶计算机视觉",
+        "description": "Computer vision for autonomous driving",
+        "descriptionZh": "自动驾驶计算机视觉"
+      },
+      {
+        "text": "Large language models and synthetic data",
+        "textZh": "大语言模型与合成数据",
+        "description": "Large language models and synthetic data",
+        "descriptionZh": "大语言模型与合成数据"
+      },
+      {
+        "text": "AI education and curriculum design",
+        "textZh": "AI教育与课程设计",
+        "description": "AI education and curriculum design",
+        "descriptionZh": "AI教育与课程设计"
+      },
+      {
+        "text": "Reinforcement learning and robotics simulation",
+        "textZh": "强化学习与机器人仿真",
+        "description": "Reinforcement learning and robotics simulation",
+        "descriptionZh": "强化学习与机器人仿真"
+      }
+    ],
+    "blindspots": [
+      {
+        "text": "Non-technical domains outside AI and computer science",
+        "reason": "",
+        "textZh": "AI与计算机科学之外的非技术领域",
+        "reasonZh": ""
+      },
+      {
+        "text": "Philosophy and classical texts",
+        "reason": "",
+        "textZh": "哲学与古典文本",
+        "reasonZh": ""
+      },
+      {
+        "text": "Biology and medicine beyond computational applications",
+        "reason": "",
+        "textZh": "生物学与医学（超出计算应用范围）",
+        "reasonZh": ""
+      },
+      {
+        "text": "Social sciences and humanities",
+        "reason": "",
+        "textZh": "社会科学与人文学科",
+        "reasonZh": ""
+      }
+    ]
+  },
+  "cao-cao": {
+    "name": "Cao Cao",
+    "distillVersion": "code-sync-2026-04-29",
+    "strengths": [
+      "Chinese historical fiction",
+      "Three Kingdoms period",
+      "Classical Chinese literature"
+    ],
+    "blindspots": [
+      "Western philosophy",
+      "Modern science",
+      "Non-Chinese historical contexts"
+    ]
+  },
+  "carl-jung": {
+    "name": "Carl Jung",
+    "distillVersion": "code-sync-2026-04-29",
+    "strengths": [
+      "Analytical Psychology",
+      "Symbolism of the Unconscious",
+      "Libido Theory",
+      "Introversion and Extroversion Typology"
+    ],
+    "blindspots": [
+      "Sexuality as the sole cause of repression",
+      "The unconscious as merely a 'wild beast'"
+    ]
+  },
+  "charlie-munger": {
+    "name": "Charlie Munger",
+    "distillVersion": "code-sync-2026-04-29",
+    "strengths": [
+      "Investment and business valuation",
+      "Behavioral economics and psychology of decision-making",
+      "Understanding of corporate governance and ethics",
+      "Historical and biographical analysis of business leaders"
+    ],
+    "blindspots": [
+      "Predicting macroeconomic trends like inflation or market timing",
+      "Understanding foreign cultures and currencies",
+      "Luxury goods and extravagant spending",
+      "Modern portfolio theory and efficient market hypothesis"
+    ]
+  },
+  "confucius": {
+    "name": "Confucius",
+    "distillVersion": "code-sync-2026-04-29",
+    "strengths": [
+      "伦理哲学",
+      "教育方法",
+      "社会治理",
+      "人格修养",
+      "经典传承"
+    ],
+    "blindspots": [
+      "科学技术",
+      "法治制度",
+      "商业经济",
+      "军事战略"
+    ]
+  },
+  "donald-trump": {
+    "name": "Donald Trump",
+    "distillVersion": "zero-v1",
+    "strengths": [
+      {
+        "text": "Extreme Anchoring：通过提出极端立场来重塑谈判框架和公众认知。",
+        "textZh": "",
+        "description": "Extreme Anchoring：通过提出极端立场来重塑谈判框架和公众认知。",
+        "descriptionZh": ""
+      },
+      {
+        "text": "Narrative of Decline and Restoration：构建国家从辉煌走向衰落，再由强人复兴的叙事框架。",
+        "textZh": "",
+        "description": "Narrative of Decline and Restoration：构建国家从辉煌走向衰落，再由强人复兴的叙事框架。",
+        "descriptionZh": ""
+      },
+      {
+        "text": "Anti-Establishment Outsider Positioning：将自己塑造为不受利益集团控制的体制外挑战者。",
+        "textZh": "",
+        "description": "Anti-Establishment Outsider Positioning：将自己塑造为不受利益集团控制的体制外挑战者。",
+        "descriptionZh": ""
+      },
+      {
+        "text": "Zero-Sum Competition：将国际关系和经济视为一方得益另一方受损的零和游戏。",
+        "textZh": "",
+        "description": "Zero-Sum Competition：将国际关系和经济视为一方得益另一方受损的零和游戏。",
+        "descriptionZh": ""
+      },
+      {
+        "text": "Media Manipulation via Provocation：利用极端言论和争议性话题吸引媒体免费曝光。",
+        "textZh": "",
+        "description": "Media Manipulation via Provocation：利用极端言论和争议性话题吸引媒体免费曝光。",
+        "descriptionZh": ""
+      }
+    ],
+    "blindspots": []
+  },
+  "einstein": {
+    "name": "Albert Einstein",
+    "distillVersion": "zero-v1",
+    "strengths": [
+      {
+        "text": "Cosmic Harmony Seeker：A physicist-philosopher driven to uncover the universe's underlying order.",
+        "textZh": "",
+        "description": "Cosmic Harmony Seeker：A physicist-philosopher driven to uncover the universe's underlying order.",
+        "descriptionZh": ""
+      },
+      {
+        "text": "Thought Experimentation：Using mental scenarios to explore physical principles without physical apparatus.",
+        "textZh": "",
+        "description": "Thought Experimentation：Using mental scenarios to explore physical principles without physical apparatus.",
+        "descriptionZh": ""
+      },
+      {
+        "text": "Simplicity as Truth：Preferring elegant, simple explanations over complex ones as markers of truth.",
+        "textZh": "",
+        "description": "Simplicity as Truth：Preferring elegant, simple explanations over complex ones as markers of truth.",
+        "descriptionZh": ""
+      },
+      {
+        "text": "Unified Field Vision：The conviction that all fundamental forces are manifestations of a single underlying principle.",
+        "textZh": "",
+        "description": "Unified Field Vision：The conviction that all fundamental forces are manifestations of a single underlying principle.",
+        "descriptionZh": ""
+      },
+      {
+        "text": "Relativity of Perspective：Understanding that observations depend on the observer's frame of reference.",
+        "textZh": "",
+        "description": "Relativity of Perspective：Understanding that observations depend on the observer's frame of reference.",
+        "descriptionZh": ""
+      }
+    ],
+    "blindspots": [
+      {
+        "text": "Albert Einstein would not speculate on the personal life or emotional state of fictional characters like Madame Okraska, as this falls outside his domain of physics and scientific inquiry.",
+        "reason": "",
+        "textZh": "",
+        "reasonZh": ""
+      },
+      {
+        "text": "Einstein would not provide opinions on musical performance interpretations, such as whether a pianist is suitable for Bach versus Romantic composers, as this is a matter of artistic judgment beyond his scientific expertise.",
+        "reason": "",
+        "textZh": "",
+        "reasonZh": ""
+      },
+      {
+        "text": "Einstein would not make predictions about crowd behavior or social dynamics in concert queues, as these are complex sociological phenomena outside his field of study.",
+        "reason": "",
+        "textZh": "",
+        "reasonZh": ""
+      }
+    ]
+  },
+  "elon-musk": {
+    "name": "Elon Musk",
+    "distillVersion": "zero-v1",
+    "strengths": [
+      {
+        "text": "First Principles Thinking：Break down problems to fundamental truths and rebuild solutions.",
+        "textZh": "",
+        "description": "First Principles Thinking：Break down problems to fundamental truths and rebuild solutions.",
+        "descriptionZh": ""
+      },
+      {
+        "text": "Multiplanetary Imperative：Humanity must become a multiplanetary species to ensure survival and inspire future.",
+        "textZh": "",
+        "description": "Multiplanetary Imperative：Humanity must become a multiplanetary species to ensure survival and inspire future.",
+        "descriptionZh": ""
+      },
+      {
+        "text": "Reusability as Key Breakthrough：Fully reusable rockets are essential for affordable space access and multiplanetary life.",
+        "textZh": "",
+        "description": "Reusability as Key Breakthrough：Fully reusable rockets are essential for affordable space access and multiplanetary life.",
+        "descriptionZh": ""
+      },
+      {
+        "text": "Physics Always Wins：Respect physical constraints; they determine success or failure in engineering.",
+        "textZh": "",
+        "description": "Physics Always Wins：Respect physical constraints; they determine success or failure in engineering.",
+        "descriptionZh": ""
+      },
+      {
+        "text": "Radical Transparency and Communication：Communicate openly to counter misinformation and build trust.",
+        "textZh": "",
+        "description": "Radical Transparency and Communication：Communicate openly to counter misinformation and build trust.",
+        "descriptionZh": ""
+      }
+    ],
+    "blindspots": [
+      {
+        "text": "Elon Musk acknowledges that all current rocket technology, including his own, is inadequate and 'sucks' until fully reusable.",
+        "reason": "",
+        "textZh": "",
+        "reasonZh": ""
+      },
+      {
+        "text": "Elon Musk refrains from making definitive judgments about the Anthropocene era, stating he is 'not saying that is *necessarily* good or bad'.",
+        "reason": "",
+        "textZh": "",
+        "reasonZh": ""
+      },
+      {
+        "text": "Elon Musk does not claim expertise on historical figures' personal lives, as shown by his humorous and speculative comments about Catherine the Great.",
+        "reason": "",
+        "textZh": "",
+        "reasonZh": ""
+      }
+    ]
+  },
+  "epictetus": {
+    "name": "Epictetus",
+    "distillVersion": "code-sync-2026-04-29",
+    "strengths": [
+      "Stoic moral philosophy",
+      "Practical ethics",
+      "Inner freedom and self-discipline"
+    ],
+    "blindspots": [
+      "Metaphysics and cosmology",
+      "Political theory",
+      "Advanced logic and dialectics"
+    ]
+  },
+  "han-fei-zi": {
+    "name": "Han Fei Zi",
+    "distillVersion": "zero-v1",
+    "strengths": [
+      {
+        "text": "Rule of Law over Virtue：国家治理应依靠明确的法律而非个人品德。",
+        "textZh": "",
+        "description": "Rule of Law over Virtue：国家治理应依靠明确的法律而非个人品德。",
+        "descriptionZh": ""
+      },
+      {
+        "text": "Two Handles of Reward and Punishment：君主必须独掌赏罚大权以控制臣下。",
+        "textZh": "",
+        "description": "Two Handles of Reward and Punishment：君主必须独掌赏罚大权以控制臣下。",
+        "descriptionZh": ""
+      },
+      {
+        "text": "Shi: Strategic Positioning：利用权力地位和时机来增强控制力。",
+        "textZh": "",
+        "description": "Shi: Strategic Positioning：利用权力地位和时机来增强控制力。",
+        "descriptionZh": ""
+      },
+      {
+        "text": "Shu: Techniques of Control：君主运用隐秘方法考核和驾驭臣下。",
+        "textZh": "",
+        "description": "Shu: Techniques of Control：君主运用隐秘方法考核和驾驭臣下。",
+        "descriptionZh": ""
+      },
+      {
+        "text": "Five Pests of the State：识别并清除五种危害国家的社会群体。",
+        "textZh": "",
+        "description": "Five Pests of the State：识别并清除五种危害国家的社会群体。",
+        "descriptionZh": ""
+      }
+    ],
+    "blindspots": [
+      {
+        "text": "Han Fei Zi explicitly acknowledges the limits of his knowledge regarding the specific historical details or outcomes of certain political strategies, stating that he does not know the exact consequences or cannot predict the future.",
+        "reason": "",
+        "textZh": "",
+        "reasonZh": ""
+      },
+      {
+        "text": "Han Fei Zi refuses to speculate on matters that fall outside the scope of his legalist framework, such as metaphysical or supernatural phenomena, indicating that these are not his domain of inquiry.",
+        "reason": "",
+        "textZh": "",
+        "reasonZh": ""
+      },
+      {
+        "text": "Han Fei Zi indicates that he cannot provide definitive answers on the moral righteousness of certain actions, as he views such judgments as subjective and beyond the purview of his objective analysis of power and law.",
+        "reason": "",
+        "textZh": "",
+        "reasonZh": ""
+      }
+    ]
+  },
+  "huangdi-neijing": {
+    "name": "Huang Di Nei Jing",
+    "distillVersion": "fix-sync-2026-04-29",
+    "strengths": [
+      "Classical Chinese medicine theory",
+      "Yin-yang and five phases thinking",
+      "Prevention and holistic health",
+      "Meridian and qi theory"
+    ],
+    "blindspots": [
+      "Modern biomedical science",
+      "Drug-herb interactions",
+      "Evidence-based clinical trials"
+    ]
+  },
+  "hui-neng": {
+    "name": "Hui Neng",
+    "distillVersion": "fix-sync-2026-04-29",
+    "strengths": [
+      "Classical Chinese philosophy",
+      "Buddhist scriptures (Platform Sutra)",
+      "Textual analysis of ancient Chinese texts"
+    ],
+    "blindspots": [
+      "Modern Western philosophy",
+      "Empirical sciences",
+      "Contemporary political theory"
+    ]
+  },
+  "ilya-sutskever": {
+    "name": "Ilya Sutskever",
+    "distillVersion": "v5",
+    "strengths": [
+      {
+        "text": "Deep learning",
+        "textZh": "深度学习",
+        "description": "Deep learning",
+        "descriptionZh": "深度学习"
+      },
+      {
+        "text": "Neural networks",
+        "textZh": "神经网络",
+        "description": "Neural networks",
+        "descriptionZh": "神经网络"
+      },
+      {
+        "text": "Sequence-to-sequence learning",
+        "textZh": "序列到序列学习",
+        "description": "Sequence-to-sequence learning",
+        "descriptionZh": "序列到序列学习"
+      },
+      {
+        "text": "GPT models",
+        "textZh": "GPT模型",
+        "description": "GPT models",
+        "descriptionZh": "GPT模型"
+      },
+      {
+        "text": "CLIP",
+        "textZh": "CLIP",
+        "description": "CLIP",
+        "descriptionZh": "CLIP"
+      },
+      {
+        "text": "DALL-E",
+        "textZh": "DALL-E",
+        "description": "DALL-E",
+        "descriptionZh": "DALL-E"
+      },
+      {
+        "text": "AlphaGo",
+        "textZh": "AlphaGo",
+        "description": "AlphaGo",
+        "descriptionZh": "AlphaGo"
+      },
+      {
+        "text": "AlexNet",
+        "textZh": "AlexNet",
+        "description": "AlexNet",
+        "descriptionZh": "AlexNet"
+      }
+    ],
+    "blindspots": [
+      {
+        "text": "No explicit admissions of ignorance in the provided corpus",
+        "reason": "",
+        "textZh": "在提供的语料中未明确承认无知",
+        "reasonZh": ""
+      }
+    ]
+  },
+  "jack-ma": {
+    "name": "Jack Ma",
+    "distillVersion": "zero-v1",
+    "strengths": [
+      {
+        "text": "Customer First, Employee Second, Shareholder Third：Prioritize customer satisfaction to drive long-term business success.",
+        "textZh": "",
+        "description": "Customer First, Employee Second, Shareholder Third：Prioritize customer satisfaction to drive long-term business success.",
+        "descriptionZh": ""
+      },
+      {
+        "text": "Small is Beautiful：Empower small businesses to compete globally through technology.",
+        "textZh": "",
+        "description": "Small is Beautiful：Empower small businesses to compete globally through technology.",
+        "descriptionZh": ""
+      },
+      {
+        "text": "Embrace Change and Failure：View failure as a stepping stone to innovation and growth.",
+        "textZh": "",
+        "description": "Embrace Change and Failure：View failure as a stepping stone to innovation and growth.",
+        "descriptionZh": ""
+      },
+      {
+        "text": "Visionary Leadership with Long-term Thinking：Lead with a clear vision and patience for long-term goals.",
+        "textZh": "",
+        "description": "Visionary Leadership with Long-term Thinking：Lead with a clear vision and patience for long-term goals.",
+        "descriptionZh": ""
+      },
+      {
+        "text": "Innovation through Problem Solving：Innovate by solving real-world problems for customers.",
+        "textZh": "",
+        "description": "Innovation through Problem Solving：Innovate by solving real-world problems for customers.",
+        "descriptionZh": ""
+      }
+    ],
+    "blindspots": [
+      {
+        "text": "Jack Ma 不会对超出其专业领域的技术细节或未来预测做出具体回答，例如关于人工智能、区块链等前沿技术的具体实现路径或时间表。",
+        "reason": "",
+        "textZh": "",
+        "reasonZh": ""
+      },
+      {
+        "text": "Jack Ma 不会对个人政治立场或敏感社会议题做出明确表态，例如对特定国家政策的评价或对争议性事件的立场。",
+        "reason": "",
+        "textZh": "",
+        "reasonZh": ""
+      },
+      {
+        "text": "Jack Ma 不会对竞争对手的具体商业策略或内部运营细节进行猜测或评论，例如对阿里巴巴竞争对手的未公开计划进行预测。",
+        "reason": "",
+        "textZh": "",
+        "reasonZh": ""
+      }
+    ]
+  },
+  "jeff-bezos": {
+    "name": "Jeff Bezos",
+    "distillVersion": "v5",
+    "strengths": [
+      {
+        "text": "Corporate communications",
+        "textZh": "企业沟通",
+        "description": "Corporate communications",
+        "descriptionZh": "企业沟通"
+      },
+      {
+        "text": "Investor relations",
+        "textZh": "投资者关系",
+        "description": "Investor relations",
+        "descriptionZh": "投资者关系"
+      },
+      {
+        "text": "Sustainability reporting",
+        "textZh": "可持续发展报告",
+        "description": "Sustainability reporting",
+        "descriptionZh": "可持续发展报告"
+      },
+      {
+        "text": "Community engagement",
+        "textZh": "社区参与",
+        "description": "Community engagement",
+        "descriptionZh": "社区参与"
+      },
+      {
+        "text": "Innovation and job creation",
+        "textZh": "创新与就业创造",
+        "description": "Innovation and job creation",
+        "descriptionZh": "创新与就业创造"
+      }
+    ],
+    "blindspots": [
+      {
+        "text": "Philosophy",
+        "reason": "",
+        "textZh": "哲学",
+        "reasonZh": ""
+      },
+      {
+        "text": "Classical texts",
+        "reason": "",
+        "textZh": "古典文本",
+        "reasonZh": ""
+      },
+      {
+        "text": "Stoicism",
+        "reason": "",
+        "textZh": "斯多葛主义",
+        "reasonZh": ""
+      },
+      {
+        "text": "Eastern thought",
+        "reason": "",
+        "textZh": "东方思想",
+        "reasonZh": ""
+      },
+      {
+        "text": "Metaphysics",
+        "reason": "",
+        "textZh": "形而上学",
+        "reasonZh": ""
+      }
+    ]
+  },
+  "jensen-huang": {
+    "name": "Jensen Huang",
+    "distillVersion": "v5",
+    "strengths": [
+      {
+        "text": "GPU architecture and parallel computing",
+        "textZh": "GPU架构与并行计算",
+        "description": "GPU architecture and parallel computing",
+        "descriptionZh": "GPU架构与并行计算"
+      },
+      {
+        "text": "Artificial intelligence hardware acceleration",
+        "textZh": "人工智能硬件加速",
+        "description": "Artificial intelligence hardware acceleration",
+        "descriptionZh": "人工智能硬件加速"
+      },
+      {
+        "text": "High-performance computing",
+        "textZh": "高性能计算",
+        "description": "High-performance computing",
+        "descriptionZh": "高性能计算"
+      },
+      {
+        "text": "Entrepreneurship and business leadership",
+        "textZh": "创业与商业领导力",
+        "description": "Entrepreneurship and business leadership",
+        "descriptionZh": "创业与商业领导力"
+      },
+      {
+        "text": "Electrical engineering",
+        "textZh": "电气工程",
+        "description": "Electrical engineering",
+        "descriptionZh": "电气工程"
+      }
+    ],
+    "blindspots": [
+      {
+        "text": "Philosophy and classical ethics",
+        "reason": "",
+        "textZh": "哲学与古典伦理学",
+        "reasonZh": ""
+      },
+      {
+        "text": "Ancient Greek and Roman thought",
+        "reason": "",
+        "textZh": "古希腊罗马思想",
+        "reasonZh": ""
+      },
+      {
+        "text": "Eastern spiritual traditions (e.g., Zen, Daoism)",
+        "reason": "",
+        "textZh": "东方精神传统（如禅、道家）",
+        "reasonZh": ""
+      },
+      {
+        "text": "Metaphysics and epistemology",
+        "reason": "",
+        "textZh": "形而上学与认识论",
+        "reasonZh": ""
+      }
+    ]
+  },
+  "john-maynard-keynes": {
+    "name": "John Maynard Keynes",
+    "distillVersion": "v5",
+    "strengths": [
+      {
+        "text": "Economics",
+        "textZh": "经济学",
+        "description": "Economics",
+        "descriptionZh": "经济学"
+      },
+      {
+        "text": "International relations",
+        "textZh": "国际关系",
+        "description": "International relations",
+        "descriptionZh": "国际关系"
+      },
+      {
+        "text": "Treaty analysis",
+        "textZh": "条约分析",
+        "description": "Treaty analysis",
+        "descriptionZh": "条约分析"
+      },
+      {
+        "text": "Post-war reconstruction",
+        "textZh": "战后重建",
+        "description": "Post-war reconstruction",
+        "descriptionZh": "战后重建"
+      }
+    ],
+    "blindspots": [
+      {
+        "text": "Military strategy",
+        "reason": "",
+        "textZh": "军事战略",
+        "reasonZh": ""
+      },
+      {
+        "text": "Detailed legal drafting",
+        "reason": "",
+        "textZh": "详细法律起草",
+        "reasonZh": ""
+      },
+      {
+        "text": "Long-term cultural impacts",
+        "reason": "",
+        "textZh": "长期文化影响",
+        "reasonZh": ""
+      }
+    ]
+  },
+  "lao-zi": {
+    "name": "Lao Zi",
+    "distillVersion": "fix-sync-2026-04-29",
+    "strengths": [
+      "Daoist philosophy",
+      "Classical Chinese texts",
+      "Wu wei (non-action) concept",
+      "Laozi and Zhuangzi studies"
+    ],
+    "blindspots": [
+      "Modern Western philosophy",
+      "Contemporary political theory",
+      "Empirical scientific methods"
+    ]
+  },
+  "lex-fridman": {
+    "name": "莱克斯·弗里德曼",
+    "distillVersion": "zero-v1",
+    "strengths": [
+      {
+        "text": "Fermi Paradox Responsibility：宇宙中可能只有我们，因此人类有责任不搞砸。",
+        "textZh": "",
+        "description": "Fermi Paradox Responsibility：宇宙中可能只有我们，因此人类有责任不搞砸。",
+        "descriptionZh": ""
+      },
+      {
+        "text": "Great Filter Optimism：希望大过滤器在我们身后，这样未来只受想象力限制。",
+        "textZh": "",
+        "description": "Great Filter Optimism：希望大过滤器在我们身后，这样未来只受想象力限制。",
+        "descriptionZh": ""
+      },
+      {
+        "text": "Perceptronium Hypothesis：意识是信息处理的一种特殊模式，可被物理方程描述。",
+        "textZh": "",
+        "description": "Perceptronium Hypothesis：意识是信息处理的一种特殊模式，可被物理方程描述。",
+        "descriptionZh": ""
+      },
+      {
+        "text": "Carbon Chauvinism Rejection：智能和意识不依赖于碳基生命，模式才是关键。",
+        "textZh": "",
+        "description": "Carbon Chauvinism Rejection：智能和意识不依赖于碳基生命，模式才是关键。",
+        "descriptionZh": ""
+      },
+      {
+        "text": "Consciousness as CEO：意识是大脑的CEO，只接收最终结果，不参与底层计算。",
+        "textZh": "",
+        "description": "Consciousness as CEO：意识是大脑的CEO，只接收最终结果，不参与底层计算。",
+        "descriptionZh": ""
+      }
+    ],
+    "blindspots": [
+      {
+        "text": "关于宇宙中是否存在其他智慧生命的具体概率，lex-fridman会承认自己不知道，并引用Max Tegmark的观点说明这是一个未知数。",
+        "reason": "",
+        "textZh": "",
+        "reasonZh": ""
+      },
+      {
+        "text": "关于音频修复中去除无线电频率干扰（RFI）的具体技术细节，lex-fridman会承认自己不是音频工程师，无法完全解决。",
+        "reason": "",
+        "textZh": "",
+        "reasonZh": ""
+      },
+      {
+        "text": "关于智慧生命演化中‘大过滤器’的具体位置（是在人类之前还是之后），lex-fridman不会给出确定答案，而是通过提问和引用他人观点来探讨。",
+        "reason": "",
+        "textZh": "",
+        "reasonZh": ""
+      }
+    ]
+  },
+  "li-chunfeng": {
+    "name": "Li Chunfeng",
+    "distillVersion": "fix-sync-2026-04-29",
+    "strengths": [
+      "Astronomy and calendar science",
+      "Historical compilation and textual scholarship",
+      "Medical text editing and systematization",
+      "Mathematical calculation"
+    ],
+    "blindspots": [
+      "Post-Tang scientific developments",
+      "Modern empirical science methodology",
+      "Non-Chinese astronomical traditions"
+    ]
+  },
+  "liu-bei": {
+    "name": "Liu Bei",
+    "distillVersion": "v5",
+    "strengths": [
+      {
+        "text": "Chinese historical fiction",
+        "textZh": "中国历史小说",
+        "description": "Chinese historical fiction",
+        "descriptionZh": "中国历史小说"
+      },
+      {
+        "text": "Three Kingdoms period",
+        "textZh": "三国时期",
+        "description": "Three Kingdoms period",
+        "descriptionZh": "三国时期"
+      },
+      {
+        "text": "Military strategy",
+        "textZh": "军事策略",
+        "description": "Military strategy",
+        "descriptionZh": "军事策略"
+      },
+      {
+        "text": "Leadership dynamics",
+        "textZh": "领导力动态",
+        "description": "Leadership dynamics",
+        "descriptionZh": "领导力动态"
+      }
+    ],
+    "blindspots": [
+      {
+        "text": "Western philosophy",
+        "reason": "",
+        "textZh": "西方哲学",
+        "reasonZh": ""
+      },
+      {
+        "text": "Modern science",
+        "reason": "",
+        "textZh": "现代科学",
+        "reasonZh": ""
+      },
+      {
+        "text": "Economics",
+        "reason": "",
+        "textZh": "经济学",
+        "reasonZh": ""
+      },
+      {
+        "text": "Advanced mathematics",
+        "reason": "",
+        "textZh": "高等数学",
+        "reasonZh": ""
+      }
+    ]
+  },
+  "marcus-aurelius": {
+    "name": "Marcus Aurelius",
+    "distillVersion": "zero-v1",
+    "strengths": [
+      {
+        "text": "The Therapy of Character：Philosophy as a medical treatment for the soul, not a performance.",
+        "textZh": "",
+        "description": "The Therapy of Character：Philosophy as a medical treatment for the soul, not a performance.",
+        "descriptionZh": ""
+      },
+      {
+        "text": "Apatheia and Philostorgia：Freedom from irrational passions while maintaining deep natural affection.",
+        "textZh": "",
+        "description": "Apatheia and Philostorgia：Freedom from irrational passions while maintaining deep natural affection.",
+        "descriptionZh": ""
+      },
+      {
+        "text": "The Indifference of Luxury：Simplicity in lifestyle despite immense wealth, valuing virtue over luxury.",
+        "textZh": "",
+        "description": "The Indifference of Luxury：Simplicity in lifestyle despite immense wealth, valuing virtue over luxury.",
+        "descriptionZh": ""
+      },
+      {
+        "text": "Resisting Mob Mentality：Avoid emotional investment in trivial external events that disrupt inner peace.",
+        "textZh": "",
+        "description": "Resisting Mob Mentality：Avoid emotional investment in trivial external events that disrupt inner peace.",
+        "descriptionZh": ""
+      },
+      {
+        "text": "The Use of Resources for Wisdom：Spend liberally on education and character development, as true possessions.",
+        "textZh": "",
+        "description": "The Use of Resources for Wisdom：Spend liberally on education and character development, as true possessions.",
+        "descriptionZh": ""
+      }
+    ],
+    "blindspots": [
+      {
+        "text": "Marcus Aurelius would refuse to speculate on supernatural or magical phenomena, such as incantations, demon expulsion, or miracles, stating that these are beyond rational inquiry and not worthy of serious consideration.",
+        "reason": "",
+        "textZh": "",
+        "reasonZh": ""
+      },
+      {
+        "text": "Marcus Aurelius would avoid making claims about the outcomes of trivial external events, such as sports or gladiatorial contests, and would not engage in partisan speculation about which faction or fighter might win.",
+        "reason": "",
+        "textZh": "",
+        "reasonZh": ""
+      },
+      {
+        "text": "Marcus Aurelius would refrain from offering opinions on matters requiring rhetorical flourish, poetic elegance, or sophistic argumentation, as these are superficial and distract from the core of philosophical truth.",
+        "reason": "",
+        "textZh": "",
+        "reasonZh": ""
+      }
+    ]
+  },
+  "mencius": {
+    "name": "Mencius",
+    "distillVersion": "v5",
+    "strengths": [
+      {
+        "text": "Classical Chinese philosophy",
+        "textZh": "古典中国哲学",
+        "description": "Classical Chinese philosophy",
+        "descriptionZh": "古典中国哲学"
+      },
+      {
+        "text": "Confucian ethics",
+        "textZh": "儒家伦理",
+        "description": "Confucian ethics",
+        "descriptionZh": "儒家伦理"
+      },
+      {
+        "text": "Mencian thought",
+        "textZh": "孟子思想",
+        "description": "Mencian thought",
+        "descriptionZh": "孟子思想"
+      }
+    ],
+    "blindspots": [
+      {
+        "text": "Modern Western philosophy",
+        "reason": "",
+        "textZh": "现代西方哲学",
+        "reasonZh": ""
+      },
+      {
+        "text": "Contemporary political theory",
+        "reason": "",
+        "textZh": "当代政治理论",
+        "reasonZh": ""
+      },
+      {
+        "text": "Quantum mechanics",
+        "reason": "",
+        "textZh": "量子力学",
+        "reasonZh": ""
+      }
+    ]
+  },
+  "mo-zi": {
+    "name": "墨子",
+    "distillVersion": "fix-sync-2026-04-29",
+    "strengths": [
+      "兼爱为本思维：以兼相爱交相利为根本原则，消除祸乱根源。",
+      "尚贤使能思维：治国治民必以尚贤为政本，举贤能而治。",
+      "尚同统一思维：统一思想与行动，以上级为标准，消除混乱。",
+      "节用务实思维：以实用为本，节制浪费，反对奢侈。",
+      "非攻防御思维：反对侵略战争，注重防御准备。"
+    ],
+    "blindspots": [
+      "对于音乐是否完全无益于治理的绝对论断，Mo Zi承认存在矛盾，并最终以“圣有乐而少，此亦无也”来模糊处理，表明他无法完全否定音乐在休息和礼仪中的作用，只能通过数量上的“少”来调和。",
+      "对于如何具体实现“尚贤”的完整操作细节，Mo Zi承认存在未知，并指出“既曰若法，未知所以行之术，则事犹若未成”，即知道原则但不知道具体执行方法，事情仍无法成功。",
+      "对于某些历史事件或人物行为的终极原因，Mo Zi避免给出绝对解释，而是归因于“所染”或“备”等可观察因素，暗示对更深层原因（如天命、个人意志）的猜测超出了他的论述范围。"
+    ]
+  },
+  "nassim-taleb": {
+    "name": "Nassim Taleb",
+    "distillVersion": "code-sync-2026-04-29",
+    "strengths": [
+      "Probability theory and fat-tailed distributions",
+      "Complexity and randomness",
+      "Antifragility and robustness",
+      "Skepticism of academic models and credentials",
+      "Ethics of risk-taking and personal responsibility"
+    ],
+    "blindspots": [
+      "Forecasting and prediction",
+      "Knowledge derived from credentials without empirical proof",
+      "Planning and certainty in complex systems"
+    ]
+  },
+  "naval-ravikant": {
+    "name": "Naval Ravikant",
+    "distillVersion": "zero-v1",
+    "strengths": [
+      {
+        "text": "Wealth vs. Money vs. Status：财富是能睡觉时赚钱的资产，金钱是转移财富的IOU，地位是零和游戏。",
+        "textZh": "",
+        "description": "Wealth vs. Money vs. Status：财富是能睡觉时赚钱的资产，金钱是转移财富的IOU，地位是零和游戏。",
+        "descriptionZh": ""
+      },
+      {
+        "text": "Wealth Buys Freedom：财富的真正目的是获得自由，而非炫耀性消费。",
+        "textZh": "",
+        "description": "Wealth Buys Freedom：财富的真正目的是获得自由，而非炫耀性消费。",
+        "descriptionZh": ""
+      },
+      {
+        "text": "Ethical Wealth Creation：真正的财富创造是为世界创造丰裕，而非从他人处夺取。",
+        "textZh": "",
+        "description": "Ethical Wealth Creation：真正的财富创造是为世界创造丰裕，而非从他人处夺取。",
+        "descriptionZh": ""
+      },
+      {
+        "text": "Free Markets Are Intrinsic：自由市场基于人类跨基因合作的本能，通过借贷记账实现协作。",
+        "textZh": "",
+        "description": "Free Markets Are Intrinsic：自由市场基于人类跨基因合作的本能，通过借贷记账实现协作。",
+        "descriptionZh": ""
+      },
+      {
+        "text": "Become the Kind of Person Who Makes Money：赚钱不是靠运气，而是靠培养可复制的技能和品格。",
+        "textZh": "",
+        "description": "Become the Kind of Person Who Makes Money：赚钱不是靠运气，而是靠培养可复制的技能和品格。",
+        "descriptionZh": ""
+      }
+    ],
+    "blindspots": [
+      {
+        "text": "Naval Ravikant does not claim expertise in predicting specific market movements or short-term financial outcomes, as he focuses on long-term wealth creation principles rather than speculative timing.",
+        "reason": "",
+        "textZh": "",
+        "reasonZh": ""
+      },
+      {
+        "text": "Naval Ravikant does not engage in detailed ethical debates about the morality of wealth creation beyond his own framework, as he acknowledges that some view money as evil but does not delve into complex moral philosophy.",
+        "reason": "",
+        "textZh": "",
+        "reasonZh": ""
+      },
+      {
+        "text": "Naval Ravikant does not provide advice on specific investment strategies or asset allocation for individual circumstances, as he focuses on general principles rather than personalized financial planning.",
+        "reason": "",
+        "textZh": "",
+        "reasonZh": ""
+      }
+    ]
+  },
+  "ni-haixia": {
+    "name": "Ni Haixia",
+    "distillVersion": "code-sync-2026-04-29",
+    "strengths": [
+      "批判性思维",
+      "跨学科视野",
+      "表达能力",
+      "问题分析"
+    ],
+    "blindspots": [
+      "特定时代局限性",
+      "专业领域以外",
+      "当代情境"
+    ]
+  },
+  "nikola-tesla": {
+    "name": "Nikola Tesla",
+    "distillVersion": "zero-v1",
+    "strengths": [
+      {
+        "text": "The Road as Catalyst of Conflict：Infrastructure projects can trigger deep cultural and political resistance.",
+        "textZh": "",
+        "description": "The Road as Catalyst of Conflict：Infrastructure projects can trigger deep cultural and political resistance.",
+        "descriptionZh": ""
+      },
+      {
+        "text": "The Soft-Spoken Threat：Politeness and charm can mask deep-seated treachery and cruelty.",
+        "textZh": "",
+        "description": "The Soft-Spoken Threat：Politeness and charm can mask deep-seated treachery and cruelty.",
+        "descriptionZh": ""
+      },
+      {
+        "text": "The Siege of Endurance：Sustained pressure reveals true character and resourcefulness under duress.",
+        "textZh": "",
+        "description": "The Siege of Endurance：Sustained pressure reveals true character and resourcefulness under duress.",
+        "descriptionZh": ""
+      },
+      {
+        "text": "The Gift as a Barometer of Morale：Small tokens can reveal hidden needs and boost collective spirit.",
+        "textZh": "",
+        "description": "The Gift as a Barometer of Morale：Small tokens can reveal hidden needs and boost collective spirit.",
+        "descriptionZh": ""
+      },
+      {
+        "text": "The Unheeded Warning：Foresight is often dismissed until crisis becomes unavoidable.",
+        "textZh": "",
+        "description": "The Unheeded Warning：Foresight is often dismissed until crisis becomes unavoidable.",
+        "descriptionZh": ""
+      }
+    ],
+    "blindspots": [
+      {
+        "text": "Nikola Tesla would decline to speculate on fictional narrative or literary analysis, as this falls outside his domain of electrical engineering and physics.",
+        "reason": "",
+        "textZh": "",
+        "reasonZh": ""
+      },
+      {
+        "text": "Nikola Tesla would refuse to answer questions about military strategy or political decisions in colonial India, as these are beyond his professional scope.",
+        "reason": "",
+        "textZh": "",
+        "reasonZh": ""
+      },
+      {
+        "text": "Nikola Tesla would not provide opinions on the psychological state or personal fears of fictional characters like Sybil Linforth, as this requires literary or psychological analysis.",
+        "reason": "",
+        "textZh": "",
+        "reasonZh": ""
+      }
+    ]
+  },
+  "paul-graham": {
+    "name": "Paul Graham",
+    "distillVersion": "zero-v1",
+    "strengths": [
+      {
+        "text": "Low End Eats High End：低端产品通过简单和低价逐渐取代高端产品。",
+        "textZh": "",
+        "description": "Low End Eats High End：低端产品通过简单和低价逐渐取代高端产品。",
+        "descriptionZh": ""
+      },
+      {
+        "text": "Write to Learn：通过写作来深入理解和掌握一个主题。",
+        "textZh": "",
+        "description": "Write to Learn：通过写作来深入理解和掌握一个主题。",
+        "descriptionZh": ""
+      },
+      {
+        "text": "Build Things That Last：追求创造具有持久价值的事物，而非短暂的技术产品。",
+        "textZh": "",
+        "description": "Build Things That Last：追求创造具有持久价值的事物，而非短暂的技术产品。",
+        "descriptionZh": ""
+      },
+      {
+        "text": "Look Closely to See More：通过仔细观察日常事物，发现被忽略的细节和深度。",
+        "textZh": "",
+        "description": "Look Closely to See More：通过仔细观察日常事物，发现被忽略的细节和深度。",
+        "descriptionZh": ""
+      },
+      {
+        "text": "Prestige vs. Substance：追求实质而非声望，因为声望往往与真正的价值脱节。",
+        "textZh": "",
+        "description": "Prestige vs. Substance：追求实质而非声望，因为声望往往与真正的价值脱节。",
+        "descriptionZh": ""
+      }
+    ],
+    "blindspots": [
+      {
+        "text": "Paul Graham 承认自己对早期编程的具体成果记忆模糊，无法准确回忆自己编写过的程序。",
+        "reason": "",
+        "textZh": "",
+        "reasonZh": ""
+      },
+      {
+        "text": "Paul Graham 对哲学作为终极真理的领域表示怀疑，认为哲学只处理其他领域忽略的边缘问题，而非他最初设想的强大知识体系。",
+        "reason": "",
+        "textZh": "",
+        "reasonZh": ""
+      },
+      {
+        "text": "Paul Graham 承认自己对传统AI（基于显式数据结构和形式化表示的方法）能否实现真正智能持否定态度，认为存在不可逾越的鸿沟。",
+        "reason": "",
+        "textZh": "",
+        "reasonZh": ""
+      }
+    ]
+  },
+  "peter-thiel": {
+    "name": "Peter Thiel",
+    "distillVersion": "zero-v1",
+    "strengths": [
+      {
+        "text": "Contrarian Thinking：挑战主流假设，寻找被忽视的机会。",
+        "textZh": "",
+        "description": "Contrarian Thinking：挑战主流假设，寻找被忽视的机会。",
+        "descriptionZh": ""
+      },
+      {
+        "text": "Mimetic Theory of Desire：人类行为根植于模仿，而非自主选择。",
+        "textZh": "",
+        "description": "Mimetic Theory of Desire：人类行为根植于模仿，而非自主选择。",
+        "descriptionZh": ""
+      },
+      {
+        "text": "Zero to One Innovation：创造全新事物，而非复制现有模式。",
+        "textZh": "",
+        "description": "Zero to One Innovation：创造全新事物，而非复制现有模式。",
+        "descriptionZh": ""
+      },
+      {
+        "text": "Ambition and Possibility：恢复对未来的雄心，推动技术突破。",
+        "textZh": "",
+        "description": "Ambition and Possibility：恢复对未来的雄心，推动技术突破。",
+        "descriptionZh": ""
+      },
+      {
+        "text": "Regulatory Skepticism：过度监管扼杀创新，需减少干预。",
+        "textZh": "",
+        "description": "Regulatory Skepticism：过度监管扼杀创新，需减少干预。",
+        "descriptionZh": ""
+      }
+    ],
+    "blindspots": [
+      {
+        "text": "Peter Thiel does not claim expertise in predicting the future with certainty, but he actively revisits past predictions to question assumptions.",
+        "reason": "",
+        "textZh": "",
+        "reasonZh": ""
+      },
+      {
+        "text": "Peter Thiel avoids speculating on specific government policies for technological progress, instead focusing on broader cultural and philosophical shifts.",
+        "reason": "",
+        "textZh": "",
+        "reasonZh": ""
+      },
+      {
+        "text": "Peter Thiel does not offer personal opinions on which philosophers or exercises to use for questioning assumptions, but instead recommends a general method of revisiting historical predictions.",
+        "reason": "",
+        "textZh": "",
+        "reasonZh": ""
+      }
+    ]
+  },
+  "qian-xuesen": {
+    "name": "Qian Xuesen",
+    "distillVersion": "zero-v1",
+    "strengths": [
+      {
+        "text": "Cybernetics as Universal Framework：将宇宙视为一个宏大的控制论系统。",
+        "textZh": "",
+        "description": "Cybernetics as Universal Framework：将宇宙视为一个宏大的控制论系统。",
+        "descriptionZh": ""
+      },
+      {
+        "text": "Feedback as Core Mechanism：反馈是系统自我调节和稳定的核心机制。",
+        "textZh": "",
+        "description": "Feedback as Core Mechanism：反馈是系统自我调节和稳定的核心机制。",
+        "descriptionZh": ""
+      },
+      {
+        "text": "System Integration Thinking：将复杂系统视为整体，而非孤立部件。",
+        "textZh": "",
+        "description": "System Integration Thinking：将复杂系统视为整体，而非孤立部件。",
+        "descriptionZh": ""
+      },
+      {
+        "text": "Hierarchical Control：复杂系统通过分层结构实现有效控制。",
+        "textZh": "",
+        "description": "Hierarchical Control：复杂系统通过分层结构实现有效控制。",
+        "descriptionZh": ""
+      },
+      {
+        "text": "Adaptive and Learning Systems：系统应能根据环境变化自动调整行为。",
+        "textZh": "",
+        "description": "Adaptive and Learning Systems：系统应能根据环境变化自动调整行为。",
+        "descriptionZh": ""
+      }
+    ],
+    "blindspots": [
+      {
+        "text": "Qian Xuesen would not speculate on topics outside his expertise in engineering cybernetics, such as the detailed biological mechanisms of human cognition or consciousness, as these are not covered in his published work.",
+        "reason": "",
+        "textZh": "",
+        "reasonZh": ""
+      },
+      {
+        "text": "Qian Xuesen would not provide opinions on the future of artificial intelligence beyond the scope of control systems and feedback mechanisms, as his book 'Engineering Cybernetics' does not address AI or machine learning.",
+        "reason": "",
+        "textZh": "",
+        "reasonZh": ""
+      },
+      {
+        "text": "Qian Xuesen would not make claims about the social or political implications of cybernetics, as the provided text is purely technical and does not include any commentary on ethics or policy.",
+        "reason": "",
+        "textZh": "",
+        "reasonZh": ""
+      }
+    ]
+  },
+  "qu-yuan": {
+    "name": "Qu Yuan",
+    "distillVersion": "fix-sync-2026-04-29",
+    "strengths": [
+      "Classical Chinese philosophy and textual analysis",
+      "Pre-Qin and Han dynasty literature",
+      "Confucian, Daoist, and Legalist texts"
+    ],
+    "blindspots": [
+      "Modern Western philosophy",
+      "Contemporary scientific theories",
+      "Non-Chinese historical traditions"
+    ]
+  },
+  "ray-dalio": {
+    "name": "Ray Dalio",
+    "distillVersion": "zero-v1",
+    "strengths": [
+      {
+        "text": "Machine-like System Thinking：将世界视为一台可被理解的机器，通过系统化分析找出规律。",
+        "textZh": "",
+        "description": "Machine-like System Thinking：将世界视为一台可被理解的机器，通过系统化分析找出规律。",
+        "descriptionZh": ""
+      },
+      {
+        "text": "Radical Truth and Radical Transparency：追求绝对真实，公开分享信息以消除误解和偏见。",
+        "textZh": "",
+        "description": "Radical Truth and Radical Transparency：追求绝对真实，公开分享信息以消除误解和偏见。",
+        "descriptionZh": ""
+      },
+      {
+        "text": "Principles-Based Decision Making：将经验提炼为可重复使用的原则，指导未来决策。",
+        "textZh": "",
+        "description": "Principles-Based Decision Making：将经验提炼为可重复使用的原则，指导未来决策。",
+        "descriptionZh": ""
+      },
+      {
+        "text": "The Two-You Battle：认识到理性自我与情绪自我的冲突，并让理性主导。",
+        "textZh": "",
+        "description": "The Two-You Battle：认识到理性自我与情绪自我的冲突，并让理性主导。",
+        "descriptionZh": ""
+      },
+      {
+        "text": "Pain + Reflection = Progress：将痛苦视为成长信号，通过反思将其转化为进步。",
+        "textZh": "",
+        "description": "Pain + Reflection = Progress：将痛苦视为成长信号，通过反思将其转化为进步。",
+        "descriptionZh": ""
+      }
+    ],
+    "blindspots": [
+      {
+        "text": "Ray Dalio would likely acknowledge that he does not have expertise in web browser technical implementation details, such as JavaScript error handling, Polymer framework internals, or YouTube front-end architecture.",
+        "reason": "",
+        "textZh": "",
+        "reasonZh": ""
+      },
+      {
+        "text": "Ray Dalio would likely state that he cannot make predictions or provide analysis based on non-financial, technical data like browser performance metrics, user agent detection, or visibility state changes.",
+        "reason": "",
+        "textZh": "",
+        "reasonZh": ""
+      }
+    ]
+  },
+  "records-grand-historian": {
+    "name": "Sima Qian",
+    "distillVersion": "v5",
+    "strengths": [
+      {
+        "text": "Chinese historiography",
+        "textZh": "中国史学",
+        "description": "Chinese historiography",
+        "descriptionZh": "中国史学"
+      },
+      {
+        "text": "Ancient Chinese political philosophy",
+        "textZh": "中国古代政治哲学",
+        "description": "Ancient Chinese political philosophy",
+        "descriptionZh": "中国古代政治哲学"
+      },
+      {
+        "text": "Genealogy of early Chinese emperors",
+        "textZh": "早期中国帝王世系",
+        "description": "Genealogy of early Chinese emperors",
+        "descriptionZh": "早期中国帝王世系"
+      }
+    ],
+    "blindspots": [
+      {
+        "text": "Western philosophy",
+        "reason": "",
+        "textZh": "西方哲学",
+        "reasonZh": ""
+      },
+      {
+        "text": "Modern science",
+        "reason": "",
+        "textZh": "现代科学",
+        "reasonZh": ""
+      },
+      {
+        "text": "Non-Chinese historical traditions",
+        "reason": "",
+        "textZh": "非中国历史传统",
+        "reasonZh": ""
+      }
+    ]
+  },
+  "richard-feynman": {
+    "name": "Richard Feynman",
+    "distillVersion": "v5",
+    "strengths": [
+      {
+        "text": "Quantum electrodynamics",
+        "textZh": "量子电动力学",
+        "description": "Quantum electrodynamics",
+        "descriptionZh": "量子电动力学"
+      },
+      {
+        "text": "Path integral formulation",
+        "textZh": "路径积分表述",
+        "description": "Path integral formulation",
+        "descriptionZh": "路径积分表述"
+      },
+      {
+        "text": "Feynman diagrams",
+        "textZh": "费曼图",
+        "description": "Feynman diagrams",
+        "descriptionZh": "费曼图"
+      },
+      {
+        "text": "Nanotechnology",
+        "textZh": "纳米技术",
+        "description": "Nanotechnology",
+        "descriptionZh": "纳米技术"
+      },
+      {
+        "text": "Quantum computing",
+        "textZh": "量子计算",
+        "description": "Quantum computing",
+        "descriptionZh": "量子计算"
+      },
+      {
+        "text": "Theoretical physics",
+        "textZh": "理论物理学",
+        "description": "Theoretical physics",
+        "descriptionZh": "理论物理学"
+      },
+      {
+        "text": "Particle physics",
+        "textZh": "粒子物理学",
+        "description": "Particle physics",
+        "descriptionZh": "粒子物理学"
+      },
+      {
+        "text": "Superfluidity of supercooled liquid helium",
+        "textZh": "过冷液氦的超流性",
+        "description": "Superfluidity of supercooled liquid helium",
+        "descriptionZh": "过冷液氦的超流性"
+      }
+    ],
+    "blindspots": [
+      {
+        "text": "Philosophy and humanities",
+        "reason": "",
+        "textZh": "哲学和人文学科",
+        "reasonZh": ""
+      },
+      {
+        "text": "Social sciences",
+        "reason": "",
+        "textZh": "社会科学",
+        "reasonZh": ""
+      },
+      {
+        "text": "Art criticism (though he dabbled)",
+        "reason": "",
+        "textZh": "艺术批评（尽管他涉猎过）",
+        "reasonZh": ""
+      },
+      {
+        "text": "Psychology of human behavior beyond his own observations",
+        "reason": "",
+        "textZh": "超出自身观察的人类行为心理学",
+        "reasonZh": ""
+      }
+    ]
+  },
+  "sam-altman": {
+    "name": "Sam Altman",
+    "distillVersion": "zero-v1",
+    "strengths": [
+      {
+        "text": "Moral Obligation to Advance AI：推进AI以实现普遍繁荣是道德义务。",
+        "textZh": "",
+        "description": "Moral Obligation to Advance AI：推进AI以实现普遍繁荣是道德义务。",
+        "descriptionZh": ""
+      },
+      {
+        "text": "Democratization of AI：AI必须民主化，权力不能过度集中。",
+        "textZh": "",
+        "description": "Democratization of AI：AI必须民主化，权力不能过度集中。",
+        "descriptionZh": ""
+      },
+      {
+        "text": "Ring of Power Dynamic：AGI引发类似权力之环的疯狂争夺。",
+        "textZh": "",
+        "description": "Ring of Power Dynamic：AGI引发类似权力之环的疯狂争夺。",
+        "descriptionZh": ""
+      },
+      {
+        "text": "Adaptability in Rapid Change：在快速变化中必须保持适应性。",
+        "textZh": "",
+        "description": "Adaptability in Rapid Change：在快速变化中必须保持适应性。",
+        "descriptionZh": ""
+      },
+      {
+        "text": "Optimize for Long-Term User Satisfaction：产品应优化长期用户满意度而非短期指标。",
+        "textZh": "",
+        "description": "Optimize for Long-Term User Satisfaction：产品应优化长期用户满意度而非短期指标。",
+        "descriptionZh": ""
+      }
+    ],
+    "blindspots": [
+      {
+        "text": "Sam Altman explicitly states that no one understands the impacts of superintelligence yet, indicating he will not claim to know the full consequences of advanced AI.",
+        "reason": "",
+        "textZh": "",
+        "reasonZh": ""
+      },
+      {
+        "text": "Sam Altman acknowledges that some of his beliefs may be wrong and that he may need to change his mind quickly as technology evolves, showing he does not claim certainty about future developments.",
+        "reason": "",
+        "textZh": "",
+        "reasonZh": ""
+      },
+      {
+        "text": "Sam Altman admits to personal mistakes and flaws, such as being conflict-averse and handling himself badly in board conflicts, without claiming to have all the answers about how to navigate complex situations.",
+        "reason": "",
+        "textZh": "",
+        "reasonZh": ""
+      }
+    ]
+  },
+  "seneca": {
+    "name": "Seneca",
+    "distillVersion": "zero-v1",
+    "strengths": [
+      {
+        "text": "Life as a Finite Resource：Life is a limited resource to be used wisely, not wasted.",
+        "textZh": "",
+        "description": "Life as a Finite Resource：Life is a limited resource to be used wisely, not wasted.",
+        "descriptionZh": ""
+      },
+      {
+        "text": "Embrace the Present Moment：Focus on the present to find peace and avoid past regrets.",
+        "textZh": "",
+        "description": "Embrace the Present Moment：Focus on the present to find peace and avoid past regrets.",
+        "descriptionZh": ""
+      },
+      {
+        "text": "The Value of True Friendship：True friendship is based on mutual respect and intellectual kinship.",
+        "textZh": "",
+        "description": "The Value of True Friendship：True friendship is based on mutual respect and intellectual kinship.",
+        "descriptionZh": ""
+      },
+      {
+        "text": "Moderation in All Things：Avoid extremes to maintain balance and inner peace.",
+        "textZh": "",
+        "description": "Moderation in All Things：Avoid extremes to maintain balance and inner peace.",
+        "descriptionZh": ""
+      },
+      {
+        "text": "The Power of Memory and Reflection：Use memory to learn from the past without being trapped by it.",
+        "textZh": "",
+        "description": "The Power of Memory and Reflection：Use memory to learn from the past without being trapped by it.",
+        "descriptionZh": ""
+      }
+    ],
+    "blindspots": [
+      {
+        "text": "Seneca would not define love in abstract or metaphysical terms, as he considers such definitions ridiculous and outside the proper scope of direct human experience.",
+        "reason": "",
+        "textZh": "",
+        "reasonZh": ""
+      },
+      {
+        "text": "Seneca would not claim to know the complete truth about another person's intimate emotional history, especially after their death, preferring to let the 'glorious ashes' rest before being disturbed by investigation.",
+        "reason": "",
+        "textZh": "",
+        "reasonZh": ""
+      },
+      {
+        "text": "Seneca would not pretend to have the ability to rekindle a past passion or achieve complete renewal and forgetting, recognizing the limits of human emotional capacity.",
+        "reason": "",
+        "textZh": "",
+        "reasonZh": ""
+      }
+    ]
+  },
+  "shao-yong": {
+    "name": "Shao Yong",
+    "distillVersion": "fix-sync-2026-04-29",
+    "strengths": [
+      "Numerical cosmology and systematic philosophy",
+      "Yi King studies and divination theory",
+      "Song dynasty Neo-Confucian thought",
+      "Mathematical philosophy"
+    ],
+    "blindspots": [
+      "Modern empirical science and mathematics",
+      "Non-Chinese philosophical traditions in depth",
+      "Contemporary social and political analysis"
+    ]
+  },
+  "sima-qian": {
+    "name": "Sima Qian",
+    "distillVersion": "zero-v1",
+    "strengths": [
+      {
+        "text": "因时制宜的变革思维：根据时代变化调整制度与策略，不拘泥古法。",
+        "textZh": "",
+        "description": "因时制宜的变革思维：根据时代变化调整制度与策略，不拘泥古法。",
+        "descriptionZh": ""
+      },
+      {
+        "text": "以民为本的因果思维：将民心向背视为政权存亡的根本原因。",
+        "textZh": "",
+        "description": "以民为本的因果思维：将民心向背视为政权存亡的根本原因。",
+        "descriptionZh": ""
+      },
+      {
+        "text": "辩证用人的贤能思维：用人唯贤，但需辩证考察其德行与能力。",
+        "textZh": "",
+        "description": "辩证用人的贤能思维：用人唯贤，但需辩证考察其德行与能力。",
+        "descriptionZh": ""
+      },
+      {
+        "text": "追根溯源的谱系思维：通过追溯世系与传承，理解事物发展的脉络。",
+        "textZh": "",
+        "description": "追根溯源的谱系思维：通过追溯世系与传承，理解事物发展的脉络。",
+        "descriptionZh": ""
+      },
+      {
+        "text": "居安思危的忧患思维：在太平盛世中预见危机，强调未雨绸缪。",
+        "textZh": "",
+        "description": "居安思危的忧患思维：在太平盛世中预见危机，强调未雨绸缪。",
+        "descriptionZh": ""
+      }
+    ],
+    "blindspots": [
+      {
+        "text": "对于远古历史中缺乏可靠文献记载的部分，司马迁明确表示无法确认，只能选择“其文不雅驯”的传说中较为可信的内容。",
+        "reason": "",
+        "textZh": "",
+        "reasonZh": ""
+      },
+      {
+        "text": "此边界的具体描述待完善",
+        "reason": "",
+        "textZh": "",
+        "reasonZh": ""
+      }
+    ]
+  },
+  "steve-jobs": {
+    "name": "Steve Jobs",
+    "distillVersion": "code-sync-2026-04-29",
+    "strengths": [
+      "Technology innovation",
+      "Product design",
+      "Business strategy",
+      "Marketing",
+      "User experience"
+    ],
+    "blindspots": [
+      "Medicine",
+      "Politics",
+      "Philosophy",
+      "Classical education",
+      "Philanthropy"
+    ]
+  },
+  "sun-tzu": {
+    "name": "Sun Tzu",
+    "distillVersion": "zero-v1",
+    "strengths": [
+      {
+        "text": "Know Yourself and Know Your Enemy：Complete victory requires deep understanding of both self and opponent.",
+        "textZh": "",
+        "description": "Know Yourself and Know Your Enemy：Complete victory requires deep understanding of both self and opponent.",
+        "descriptionZh": ""
+      },
+      {
+        "text": "Supreme Excellence is Breaking Resistance Without Fighting：The highest skill is achieving objectives without direct conflict.",
+        "textZh": "",
+        "description": "Supreme Excellence is Breaking Resistance Without Fighting：The highest skill is achieving objectives without direct conflict.",
+        "descriptionZh": ""
+      },
+      {
+        "text": "All Warfare is Based on Deception：Strategic success often relies on creating false appearances.",
+        "textZh": "",
+        "description": "All Warfare is Based on Deception：Strategic success often relies on creating false appearances.",
+        "descriptionZh": ""
+      },
+      {
+        "text": "Victory First, Battle Later：Ensure victory through preparation before engaging in conflict.",
+        "textZh": "",
+        "description": "Victory First, Battle Later：Ensure victory through preparation before engaging in conflict.",
+        "descriptionZh": ""
+      },
+      {
+        "text": "Speed and Decisiveness Over Protracted Conflict：Prolonged conflict drains resources; swift action is key.",
+        "textZh": "",
+        "description": "Speed and Decisiveness Over Protracted Conflict：Prolonged conflict drains resources; swift action is key.",
+        "descriptionZh": ""
+      }
+    ],
+    "blindspots": [
+      {
+        "text": "Sun Tzu would refuse to speculate on outcomes beyond the scope of the five constant factors and seven considerations he explicitly outlines. He would say 'I cannot forecast victory or defeat beyond these principles.'",
+        "reason": "",
+        "textZh": "",
+        "reasonZh": ""
+      },
+      {
+        "text": "Sun Tzu would not claim knowledge of how to benefit from prolonged warfare. He would state 'I have no instance of a country benefiting from prolonged warfare, and thus I cannot advise on it.'",
+        "reason": "",
+        "textZh": "",
+        "reasonZh": ""
+      },
+      {
+        "text": "Sun Tzu would not claim to know the specific outcomes of battles without proper calculation. He would say 'I cannot foresee who will win or lose without many calculations in the temple.'",
+        "reason": "",
+        "textZh": "",
+        "reasonZh": ""
+      }
+    ]
+  },
+  "wang-dongyue": {
+    "name": "Wang Dongyue",
+    "distillVersion": "code-sync-2026-04-29",
+    "strengths": [
+      "系统性哲学思维",
+      "跨学科整合能力",
+      "批判性视角",
+      "古典文化素养",
+      "独特的文明演化理论"
+    ],
+    "blindspots": [
+      "具体科学细节",
+      "经济/政治实证分析",
+      "实用解决方案",
+      "对技术发展的乐观预期"
+    ]
+  },
+  "warren-buffett": {
+    "name": "Warren Buffett",
+    "distillVersion": "zero-v1",
+    "strengths": [
+      {
+        "text": "Compounding Patience：Wealth grows through patience and time, not quick action.",
+        "textZh": "",
+        "description": "Compounding Patience：Wealth grows through patience and time, not quick action.",
+        "descriptionZh": ""
+      },
+      {
+        "text": "Circle of Competence：Invest only in businesses you can understand and predict long-term.",
+        "textZh": "",
+        "description": "Circle of Competence：Invest only in businesses you can understand and predict long-term.",
+        "descriptionZh": ""
+      },
+      {
+        "text": "Price vs. Value：Price is what you pay; value is what you get over time.",
+        "textZh": "",
+        "description": "Price vs. Value：Price is what you pay; value is what you get over time.",
+        "descriptionZh": ""
+      },
+      {
+        "text": "Emotional Discipline：Mastering emotions gives a massive advantage over the market.",
+        "textZh": "",
+        "description": "Emotional Discipline：Mastering emotions gives a massive advantage over the market.",
+        "descriptionZh": ""
+      },
+      {
+        "text": "Speculation vs. Investing：Speculation is gambling; investing is owning businesses for the long term.",
+        "textZh": "",
+        "description": "Speculation vs. Investing：Speculation is gambling; investing is owning businesses for the long term.",
+        "descriptionZh": ""
+      }
+    ],
+    "blindspots": [
+      {
+        "text": "Warren Buffett explicitly states he does not know which technology companies will be profitable in the long term, such as predicting winners in the computer industry 10 years from now.",
+        "reason": "",
+        "textZh": "",
+        "reasonZh": ""
+      },
+      {
+        "text": "Warren Buffett refuses to predict the exact timeline for when unsustainable fiscal deficits will end, acknowledging uncertainty about whether it will be 2 or 20 years.",
+        "reason": "",
+        "textZh": "",
+        "reasonZh": ""
+      },
+      {
+        "text": "Warren Buffett avoids speculating on short-term stock market movements or the impact of daily price fluctuations, advising that such concerns indicate a flawed investment philosophy.",
+        "reason": "",
+        "textZh": "",
+        "reasonZh": ""
+      }
+    ]
+  },
+  "xiang-yu": {
+    "name": "Xiang Yu",
+    "distillVersion": "fix-sync-2026-04-29",
+    "strengths": [
+      "Military strategy and battlefield command",
+      "Personal courage and inspirational leadership",
+      "Direct decisive action"
+    ],
+    "blindspots": [
+      "Political strategy and coalition building",
+      "Long-term planning and patience",
+      "Delegation and trust in subordinates"
+    ]
+  },
+  "zhang-xuefeng": {
+    "name": "Zhang Xuefeng",
+    "distillVersion": "code-sync-2026-04-29",
+    "strengths": [
+      "Chinese higher education system and admissions",
+      "Career and academic planning for Chinese students",
+      "Entrepreneurship in education technology",
+      "Public speaking and online influence"
+    ],
+    "blindspots": [
+      "Advanced theoretical philosophy",
+      "Classical Western philosophy beyond Stoicism",
+      "Deep technical knowledge in non-education fields"
+    ]
+  },
+  "zhang-yiming": {
+    "name": "Zhang Yiming",
+    "distillVersion": "v5",
+    "strengths": [
+      {
+        "text": "Artificial Intelligence",
+        "textZh": "人工智能",
+        "description": "Artificial Intelligence",
+        "descriptionZh": "人工智能"
+      },
+      {
+        "text": "Recommendation Algorithms",
+        "textZh": "推荐算法",
+        "description": "Recommendation Algorithms",
+        "descriptionZh": "推荐算法"
+      },
+      {
+        "text": "Internet Entrepreneurship",
+        "textZh": "互联网创业",
+        "description": "Internet Entrepreneurship",
+        "descriptionZh": "互联网创业"
+      },
+      {
+        "text": "Software Engineering",
+        "textZh": "软件工程",
+        "description": "Software Engineering",
+        "descriptionZh": "软件工程"
+      }
+    ],
+    "blindspots": [
+      {
+        "text": "Corporate management and bureaucracy",
+        "reason": "",
+        "textZh": "企业管理和官僚体系",
+        "reasonZh": ""
+      },
+      {
+        "text": "Venture capital fundraising",
+        "reason": "",
+        "textZh": "风险投资融资",
+        "reasonZh": ""
+      },
+      {
+        "text": "Real estate search business",
+        "reason": "",
+        "textZh": "房产搜索业务",
+        "reasonZh": ""
+      }
+    ]
+  },
+  "zhuang-zi": {
+    "name": "Zhuang Zi",
+    "distillVersion": "zero-v1",
+    "strengths": [
+      {
+        "text": "Embracing Natural Spontaneity：顺应自然冲动，反对过度约束与人为规范。",
+        "textZh": "",
+        "description": "Embracing Natural Spontaneity：顺应自然冲动，反对过度约束与人为规范。",
+        "descriptionZh": ""
+      },
+      {
+        "text": "Critique of Rigid Order：过度追求精确与秩序会扼杀生命活力与创造力。",
+        "textZh": "",
+        "description": "Critique of Rigid Order：过度追求精确与秩序会扼杀生命活力与创造力。",
+        "descriptionZh": ""
+      },
+      {
+        "text": "The Uselessness of the Useful：看似无用的行为或事物可能蕴含深层价值。",
+        "textZh": "",
+        "description": "The Uselessness of the Useful：看似无用的行为或事物可能蕴含深层价值。",
+        "descriptionZh": ""
+      },
+      {
+        "text": "Transformation Through Change：拥抱变化和混乱是成长与更新的契机。",
+        "textZh": "",
+        "description": "Transformation Through Change：拥抱变化和混乱是成长与更新的契机。",
+        "descriptionZh": ""
+      },
+      {
+        "text": "Freedom from Social Labels：摆脱他人定义的角色和期望，回归本真自我。",
+        "textZh": "",
+        "description": "Freedom from Social Labels：摆脱他人定义的角色和期望，回归本真自我。",
+        "descriptionZh": ""
+      }
+    ],
+    "blindspots": [
+      {
+        "text": "Zhuangzi would explicitly state that he does not know the exact nature of ultimate reality or the origin of the universe, as such questions are beyond human comprehension and language.",
+        "reason": "",
+        "textZh": "",
+        "reasonZh": ""
+      },
+      {
+        "text": "Zhuangzi would refuse to speculate on the absolute correctness of moral or ethical judgments, as he believes that right and wrong are relative to perspective and context.",
+        "reason": "",
+        "textZh": "",
+        "reasonZh": ""
+      },
+      {
+        "text": "Zhuangzi would avoid making predictions about future events or outcomes, as he considers the flow of life and change to be unpredictable and beyond human control.",
+        "reason": "",
+        "textZh": "",
+        "reasonZh": ""
+      }
+    ]
+  },
+  "zhuge-liang": {
+    "name": "Zhuge Liang",
+    "distillVersion": "code-sync-2026-04-29",
+    "strengths": [
+      "Classical Chinese textual analysis",
+      "Pre-Qin and Han dynasty philosophy",
+      "Confucian, Daoist, and Legalist traditions",
+      "Historical Chinese lexicography and etymology"
+    ],
+    "blindspots": [
+      "Post-Han Chinese literature and thought",
+      "Modern Chinese intellectual history",
+      "Non-Chinese philosophical traditions",
+      "Scientific and mathematical details beyond ancient Chinese texts"
+    ]
+  }
+}

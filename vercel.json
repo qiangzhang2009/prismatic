@@ -1,8 +1,5 @@
 {
   "regions": ["hkg1"],
-  "buildSettings": {
-    "cache": false
-  },
   "crons": [
     {
       "path": "/api/cron/guardian-discussions",

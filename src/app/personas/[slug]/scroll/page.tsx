@@ -11,7 +11,7 @@ import { unquote, decodeUnicodeEscapes } from '@/lib/utils';
 import type { Persona } from '@/lib/types';
 import { PersonaScrollClient } from './client';
 
-// Build persona from DB record, merging with code data where DB textZh is empty
+// Build persona from DB record, merging with code data where DB is incomplete
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function buildScrollPersonaFromDB(db: Record<string, unknown>): Persona {
   const domainStr = (db.domain as string) ?? 'philosophy';
@@ -29,7 +29,7 @@ function buildScrollPersonaFromDB(db: Record<string, unknown>): Persona {
     taglineZh: (decodeUnicodeEscapes(unquote(db.taglineZh)) as string) || (decodeUnicodeEscapes(unquote(db.taglinezh)) as string) || (unquote(db.tagline) as string) || '',
     brief: (unquote(db.brief) as string) || '',
     briefZh: (decodeUnicodeEscapes(unquote(db.briefZh)) as string) || (decodeUnicodeEscapes(unquote(db.briefzh)) as string) || (unquote(db.brief) as string) || '',
-    accentColor: (unquote(db.accentColor) as string) || '#6366f1',
+    accentColor: (unquote(db.accentColor) as string) as string || '#6366f1',
     gradientFrom: (unquote(db.gradientFrom) as string) || '#6366f1',
     gradientTo: (unquote(db.gradientTo) as string) || '#8b5cf6',
     avatar: (unquote(db.avatar) as string) || '',
@@ -40,8 +40,9 @@ function buildScrollPersonaFromDB(db: Record<string, unknown>): Persona {
     antiPatterns: (db.antiPatterns as Persona['antiPatterns']) ?? [],
     tensions: (db.tensions as Persona['tensions']) ?? [],
     honestBoundaries: (db.honestBoundaries as Persona['honestBoundaries']) ?? [],
-    strengths: (db.strengths as Persona['strengths']) ?? [],
-    blindspots: (db.blindspots as Persona['blindspots']) ?? [],
+    // DB's strengths/blindspots are ignored — always use code data (in Chinese)
+    strengths: [] as Persona['strengths'],
+    blindspots: [] as Persona['blindspots'],
     sources: (db.corpusSources as Persona['sources']) ?? [],
     researchDate: db.distillDate ? new Date(db.distillDate as string).toISOString().split('T')[0] : '2026-04-20',
     version: (db.distillVersion as string) ?? '1.0.0',
@@ -52,25 +53,15 @@ function buildScrollPersonaFromDB(db: Record<string, unknown>): Persona {
 
   const codePersona = getPersona(db.slug as string);
   if (codePersona) {
-    // If DB has strengths/blindspots with missing/empty textZh, prefer code data (which has proper Chinese).
-    // Also check for English-only textZh (DB was populated by copying English text to textZh without translation).
-    // If ANY item lacks Chinese in textZh, replace the entire array with code data.
-    function hasAnyNonZhTextZh(items: any[]): boolean {
-      const zhRegex = /[\u4e00-\u9fff]/;
-      return items.some((s) => !s.textZh || !s.textZh.trim() || !zhRegex.test(s.textZh));
-    }
-    if (dbPersona.strengths.length > 0 && codePersona.strengths.length > 0) {
-      if (hasAnyNonZhTextZh(dbPersona.strengths)) dbPersona.strengths = codePersona.strengths;
-    }
-    if (dbPersona.blindspots.length > 0 && codePersona.blindspots.length > 0) {
-      if (hasAnyNonZhTextZh(dbPersona.blindspots)) dbPersona.blindspots = codePersona.blindspots;
-    }
-    if (isV4 && !dbPersona.mentalModels.length && codePersona.mentalModels.length) {
+    if (!dbPersona.mentalModels.length && codePersona.mentalModels.length) {
       dbPersona.mentalModels = codePersona.mentalModels;
     }
     if (isV4 && !dbPersona.values.length && codePersona.values.length) {
       dbPersona.values = codePersona.values;
     }
+    // Always use code data for strengths/blindspots — they are fully translated in personas.ts
+    dbPersona.strengths = codePersona.strengths;
+    dbPersona.blindspots = codePersona.blindspots;
   }
 
   return dbPersona;

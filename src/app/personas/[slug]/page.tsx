@@ -1,7 +1,9 @@
 /**
  * Prismatic — Individual Persona Detail Page
- * Strategy: code personas.ts has complete Chinese text.
- * DB has scores + system prompts. Always prefer code for display data.
+ * Strategy:
+ *   - DB holds: scores, system prompts, corpus sources, mentalModels
+ *   - personas.ts holds: strengths, blindspots (always in Chinese)
+ *   - Display: always prefer code data for strengths/blindspots
  */
 
 import { notFound } from 'next/navigation';
@@ -12,7 +14,7 @@ import { PersonaDetailClient } from './client';
 
 export const dynamic = 'force-dynamic';
 
-// Build Persona from DB record, then prefer code data for all display fields
+// Build Persona from DB record, merging code data where DB is incomplete
 function buildPersonaFromDB(db: Record<string, unknown>): Persona {
   const domainStr = (db.domain as string) ?? 'philosophy';
   const domains = domainStr.includes(',') ? domainStr.split(',') : [domainStr];
@@ -39,8 +41,9 @@ function buildPersonaFromDB(db: Record<string, unknown>): Persona {
     antiPatterns: (db.antiPatterns as Persona['antiPatterns']) ?? [],
     tensions: (db.tensions as Persona['tensions']) ?? [],
     honestBoundaries: (db.honestBoundaries as Persona['honestBoundaries']) ?? [],
-    strengths: (db.strengths as Persona['strengths']) ?? [],
-    blindspots: (db.blindspots as Persona['blindspots']) ?? [],
+    // DB's strengths/blindspots are ignored — always use code data (in Chinese)
+    strengths: [],
+    blindspots: [],
     sources: (db.corpusSources as Persona['sources']) ?? [],
     researchDate: db.distillDate ? new Date(db.distillDate as string).toISOString().split('T')[0] : '2026-04-20',
     version: (db.distillVersion as string) ?? '1.0.0',
@@ -51,71 +54,31 @@ function buildPersonaFromDB(db: Record<string, unknown>): Persona {
 
   const codePersona = getPersona(db.slug as string);
   if (codePersona) {
-    // Display fields with Chinese: prefer DB (v4 JSON has complete Chinese content),
-    // supplement from code only if DB is empty
+    // DB may have partial Chinese for mentalModels/decisionHeuristics — supplement if empty
     const isV4 = String(db.distillVersion || '').startsWith('v4');
-
+    if (!dbPersona.mentalModels.length && codePersona.mentalModels.length) {
+      dbPersona.mentalModels = codePersona.mentalModels;
+    }
+    if (!dbPersona.decisionHeuristics.length && codePersona.decisionHeuristics.length) {
+      dbPersona.decisionHeuristics = codePersona.decisionHeuristics;
+    }
+    if (!dbPersona.tensions.length && codePersona.tensions.length) {
+      dbPersona.tensions = codePersona.tensions;
+    }
+    if (!dbPersona.honestBoundaries.length && codePersona.honestBoundaries.length) {
+      dbPersona.honestBoundaries = codePersona.honestBoundaries;
+    }
     if (isV4) {
-      // v4: DB has complete Chinese text for character-specific content
-      if (!dbPersona.mentalModels.length && codePersona.mentalModels.length) {
-        dbPersona.mentalModels = codePersona.mentalModels;
-      }
-      if (!dbPersona.decisionHeuristics.length && codePersona.decisionHeuristics.length) {
-        dbPersona.decisionHeuristics = codePersona.decisionHeuristics;
-      }
-      if (!dbPersona.tensions.length && codePersona.tensions.length) {
-        dbPersona.tensions = codePersona.tensions;
-      }
-      if (!dbPersona.honestBoundaries.length && codePersona.honestBoundaries.length) {
-        dbPersona.honestBoundaries = codePersona.honestBoundaries;
-      }
-    } else {
-      // v5+: DB (V5 JSON) has complete Chinese fields (oneLinerZh, applicationZh,
-      // limitationZh, identityPromptZh, etc.) — treat DB as source of truth.
-      // Code (personas.ts) has English-only fields and missing _Zh variants.
-      // Only supplement from code if DB field is empty.
-      if (!dbPersona.mentalModels.length && codePersona.mentalModels.length) {
-        dbPersona.mentalModels = codePersona.mentalModels;
-      }
-      if (!dbPersona.decisionHeuristics.length && codePersona.decisionHeuristics.length) {
-        dbPersona.decisionHeuristics = codePersona.decisionHeuristics;
-      }
-      if (!dbPersona.tensions.length && codePersona.tensions.length) {
-        dbPersona.tensions = codePersona.tensions;
-      }
-      if (!dbPersona.honestBoundaries.length && codePersona.honestBoundaries.length) {
-        dbPersona.honestBoundaries = codePersona.honestBoundaries;
-      }
+      if (!dbPersona.values.length && codePersona.values.length) dbPersona.values = codePersona.values;
+      if (!dbPersona.antiPatterns.length && codePersona.antiPatterns.length) dbPersona.antiPatterns = codePersona.antiPatterns;
     }
-
-    // If DB has strengths/blindspots with missing/empty textZh, prefer code data (which has proper Chinese).
-    // Also check for English-only textZh (DB was populated by copying English text to textZh without translation).
-    // If ANY item lacks Chinese in textZh, replace the entire array with code data.
-    function hasAnyNonZhTextZh(items: any[]): boolean {
-      const zhRegex = /[\u4e00-\u9fff]/;
-      return items.some((s) => !s.textZh || !s.textZh.trim() || !zhRegex.test(s.textZh));
-    }
-    if (dbPersona.strengths.length > 0 && codePersona.strengths.length > 0) {
-      if (hasAnyNonZhTextZh(dbPersona.strengths)) {
-        dbPersona.strengths = codePersona.strengths;
-      }
-    }
-    if (dbPersona.blindspots.length > 0 && codePersona.blindspots.length > 0) {
-      if (hasAnyNonZhTextZh(dbPersona.blindspots)) {
-        dbPersona.blindspots = codePersona.blindspots;
-      }
-    }
-    if (isV4 && !dbPersona.values.length) {
-      if (codePersona.values.length) dbPersona.values = codePersona.values;
-    }
-    if (isV4 && !dbPersona.antiPatterns.length) {
-      if (codePersona.antiPatterns.length) dbPersona.antiPatterns = codePersona.antiPatterns;
-    }
-
-    // Sources: v5+ prefer DB (distillation corpusSources), v4 fallback to code
     if (isV4 && codePersona.sources?.length) {
       dbPersona.sources = codePersona.sources;
     }
+
+    // Always use code data for strengths/blindspots — they are fully translated in personas.ts
+    dbPersona.strengths = codePersona.strengths;
+    dbPersona.blindspots = codePersona.blindspots;
 
     // Other display data
     if (codePersona.domain.length > dbPersona.domain.length) dbPersona.domain = codePersona.domain;

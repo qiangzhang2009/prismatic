@@ -76,6 +76,15 @@ jobs:
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
 
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: vercel-build
+          path: |
+            .next/
+            .vercel/
+          retention-days: 1
+
   # ─── Deploy Preview ────────────────────────────────────────────────
   deploy-preview:
     name: Deploy Preview
@@ -124,9 +133,10 @@ jobs:
             '${{ secrets.VERCEL_PROJECT_ID }}' \
             '${{ secrets.VERCEL_ORG_ID }}' > .vercel/project.json
 
-      - name: Build and Deploy to Vercel Production
-        env:
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-        run: |
-          npx vercel build --token=${{ secrets.VERCEL_TOKEN }}
-          npx vercel deploy . --prebuilt --prod --yes --token=${{ secrets.VERCEL_TOKEN }}
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: vercel-build
+
+      - name: Deploy to Vercel Production
+        run: vercel deploy . --prebuilt --prod --yes --token=${{ secrets.VERCEL_TOKEN }}
