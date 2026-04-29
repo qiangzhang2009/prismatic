@@ -247,7 +247,93 @@ git push origin main             # 直接 push schema 变更
 
 ---
 
-## 九、相关文件索引
+## 十、部署流程
+
+### 10.1 唯一正确的部署方式：GitHub Actions CI/CD
+
+**禁止使用本地 `vercel --prod` 部署。** 原因：本地部署会尝试上传所有文件（包括 corpus、node_modules 等），超过 Vercel 15000 文件上限导致部署失败。
+
+所有代码变更必须通过 GitHub 推送到 `main` 分支，CI/CD 自动完成构建和部署：
+
+```
+git add <changed-files>
+git commit -m "<描述>"
+git push origin main
+```
+
+推送后约 6 分钟内完成：Quality Check → Unit Tests → Build → Deploy Production。
+
+CI/CD 配置：`.github/workflows/ci-cd.yml`
+
+### 10.2 CI/CD 流水线说明
+
+| Job | 触发条件 | 说明 |
+|-----|---------|------|
+| Quality Check | push/PR | `npm run type-check` + `npm run lint` |
+| Unit Tests | push/PR | `npm test` |
+| Build | quality + test 通过后 | `npm run build`，需要 `OPENAI_API_KEY` |
+| Deploy Preview | 仅 PR | 自动部署预览链接 |
+| Deploy Production | 仅 push 到 main | `vercel deploy . --prod` |
+
+### 10.3 GitHub Secrets 依赖
+
+部署 production 需要以下 Secrets（在 GitHub 仓库 Settings → Secrets 配置）：
+
+| Secret | 用途 |
+|--------|------|
+| `VERCEL_TOKEN` | Vercel API 访问令牌 |
+| `VERCEL_ORG_ID` | Vercel 组织 ID |
+| `VERCEL_PROJECT_ID` | Vercel 项目 ID |
+| `OPENAI_API_KEY` | 构建时使用（可选，build job 需要） |
+
+项目 ID 位于 `.vercel/project.json`，或通过 `vercel project ls` 查看。
+
+### 10.4 部署前置检查
+
+推送前在本地执行，确保 CI 不会因 lint/build 失败而阻断：
+
+```bash
+npm run type-check   # TypeScript 编译检查
+npm run lint         # ESLint 检查（Error 会导致 CI 失败，Warning 不会）
+npm run build        # Next.js 构建测试
+```
+
+**常见 CI 失败原因：**
+- `react/no-unescaped-entities` — JSX 中的 `"` `'` 等字符未转义为 `&ldquo;` `&#39;` 等实体
+- TypeScript 编译错误
+- Build 失败（通常依赖缺失或环境变量问题）
+
+### 10.5 查看部署状态
+
+```bash
+# GitHub Actions 状态
+gh run list --workflow=ci-cd.yml --limit 3
+
+# 查看失败日志
+gh run view <run-id> --log-failed
+
+# Vercel 部署列表
+vercel list
+
+# 跟踪特定 run
+gh run watch <run-id>
+```
+
+### 10.6 .vercelignore 说明
+
+`.vercelignore` 已配置排除以下目录，不会上传到 Vercel：
+- `corpus/` — 语料文件（几千个文件）
+- `scrapers/` — 爬虫脚本
+- `scripts/` — 本地工具脚本
+- `docs/` — 文档
+- `skills/` — 技能定义文件
+- `node_modules/` — 依赖（Vercel 自动安装）
+
+---
+
+## 十、相关文件索引
+
+> 下移为第十章，部署流程见第九章。
 
 - 管理后台入口：`src/app/admin/page.tsx`
 - Admin API 路由：`src/app/api/admin/`
@@ -263,3 +349,7 @@ git push origin main             # 直接 push schema 变更
 - 自动备份：`.github/workflows/database-backup.yml`
 - 预迁移检查：`scripts/pre-migration-hook.ts`
 - RLS 设置：`scripts/setup-rls.ts`
+- CI/CD 配置：`.github/workflows/ci-cd.yml`
+- CI/CD 部署日志：GitHub → Actions → CI/CD run
+- Vercel 项目配置：`.vercel/project.json`
+- Vercel 忽略规则：`.vercelignore`
