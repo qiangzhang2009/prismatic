@@ -54,19 +54,16 @@ function buildScrollPersonaFromDB(db: Record<string, unknown>): Persona {
   if (codePersona) {
     // If DB has strengths/blindspots with missing/empty textZh, prefer code data (which has proper Chinese).
     // Also check for English-only textZh (DB was populated by copying English text to textZh without translation).
-    function hasZhContent(items: any[]): boolean {
+    // If ANY item lacks Chinese in textZh, replace the entire array with code data.
+    function hasAnyNonZhTextZh(items: any[]): boolean {
       const zhRegex = /[\u4e00-\u9fff]/;
-      return items.some((s) => zhRegex.test(s.textZh || ''));
+      return items.some((s) => !s.textZh || !s.textZh.trim() || !zhRegex.test(s.textZh));
     }
     if (dbPersona.strengths.length > 0 && codePersona.strengths.length > 0) {
-      const hasEmptyTextZh = dbPersona.strengths.some((s: any) => !s.textZh || !s.textZh.trim());
-      const hasEnglishOnlyTextZh = !hasEmptyTextZh && !hasZhContent(dbPersona.strengths);
-      if (hasEmptyTextZh || hasEnglishOnlyTextZh) dbPersona.strengths = codePersona.strengths;
+      if (hasAnyNonZhTextZh(dbPersona.strengths)) dbPersona.strengths = codePersona.strengths;
     }
     if (dbPersona.blindspots.length > 0 && codePersona.blindspots.length > 0) {
-      const hasEmptyTextZh = dbPersona.blindspots.some((b: any) => !b.textZh || !b.textZh.trim());
-      const hasEnglishOnlyTextZh = !hasEmptyTextZh && !hasZhContent(dbPersona.blindspots);
-      if (hasEmptyTextZh || hasEnglishOnlyTextZh) dbPersona.blindspots = codePersona.blindspots;
+      if (hasAnyNonZhTextZh(dbPersona.blindspots)) dbPersona.blindspots = codePersona.blindspots;
     }
     if (isV4 && !dbPersona.mentalModels.length && codePersona.mentalModels.length) {
       dbPersona.mentalModels = codePersona.mentalModels;
