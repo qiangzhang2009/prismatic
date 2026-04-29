@@ -52,24 +52,20 @@ function buildScrollPersonaFromDB(db: Record<string, unknown>): Persona {
 
   const codePersona = getPersona(db.slug as string);
   if (codePersona) {
-    // v4: supplement from code if DB empty
+    // If DB has strengths/blindspots with empty textZh, prefer code data (which has proper Chinese).
+    if (dbPersona.strengths.length > 0 && codePersona.strengths.length > 0) {
+      const hasEmptyTextZh = dbPersona.strengths.some((s: any) => !s.textZh);
+      if (hasEmptyTextZh) dbPersona.strengths = codePersona.strengths;
+    }
+    if (dbPersona.blindspots.length > 0 && codePersona.blindspots.length > 0) {
+      const hasEmptyTextZh = dbPersona.blindspots.some((b: any) => !b.textZh);
+      if (hasEmptyTextZh) dbPersona.blindspots = codePersona.blindspots;
+    }
     if (isV4 && !dbPersona.mentalModels.length && codePersona.mentalModels.length) {
       dbPersona.mentalModels = codePersona.mentalModels;
     }
-    if (isV4 && !dbPersona.strengths.length && codePersona.strengths.length) {
-      dbPersona.strengths = codePersona.strengths;
-    }
-    if (isV4 && !dbPersona.blindspots.length && codePersona.blindspots.length) {
-      dbPersona.blindspots = codePersona.blindspots;
-    }
-    // v5+: if any DB strengths/blindspots have empty textZh, use code data entirely
-    if (!isV4 && dbPersona.strengths.length > 0 && codePersona.strengths.length > 0) {
-      const anyEmptyTextZh = dbPersona.strengths.some((s: any) => !s.textZh);
-      if (anyEmptyTextZh) dbPersona.strengths = codePersona.strengths;
-    }
-    if (!isV4 && dbPersona.blindspots.length > 0 && codePersona.blindspots.length > 0) {
-      const anyEmptyTextZh = dbPersona.blindspots.some((b: any) => !b.textZh);
-      if (anyEmptyTextZh) dbPersona.blindspots = codePersona.blindspots;
+    if (isV4 && !dbPersona.values.length && codePersona.values.length) {
+      dbPersona.values = codePersona.values;
     }
   }
 
