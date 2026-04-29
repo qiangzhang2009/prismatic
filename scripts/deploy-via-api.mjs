@@ -36,7 +36,6 @@ const res = await fetch(`https://api.vercel.com/v13/deployments?teamId=${TEAM_ID
 const data = await res.json();
 if (data.error) {
   console.error('Deployment error:', JSON.stringify(data.error, null, 2));
-  // Try alternative endpoint for production
   if (data.error.code === 'forbidden') {
     console.log('\nTrying with projectId in URL...');
     const res2 = await fetch(`https://api.vercel.com/v13/deployments?projectId=${PROJECT_ID}&teamId=${TEAM_ID}`, {
@@ -52,6 +51,7 @@ if (data.error) {
     if (data2.url) {
       console.log('\nDeployment URL:', `https://${data2.url}`);
     }
+  }
 } else if (data.url) {
   console.log('Deployment created successfully!');
   console.log('Deployment URL:', `https://${data.url}`);
