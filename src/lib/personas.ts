@@ -2033,7 +2033,7 @@ PERSONAS['ilya-sutskever'] = {
       oneLiner: 'Large neural networks may possess a slight form of consciousness, sparking debates about AI sentience.',
       evidence: [{ quote: 'Sutskever tweeted, \'it may be that today\'s large neural networks are slightly conscious\', which triggered debates about AI consciousness.', source: 'Wikipedia - Ilya Sutskever'}],
       crossDomain: ['philosophy of mind', 'AI', 'neuroscience'],
-      application: 'Influences research into AI phenomenology and ethical treatment of AI systems.',
+      application: 'Influences research into AI phenomenology and ethical approaches to AI systems.',
       limitation: 'Highly speculative; lacks empirical evidence and clear definition of consciousness.',
     },
     {
@@ -4084,8 +4084,8 @@ PERSONAS['cao-cao'] = {
       nameZh: '斩草除根',
       oneLiner: 'Eliminate the root cause of a threat completely to prevent future resurgence.',
       evidence: [{ quote: '若不斬草除根，必為喪身之本。', source: 'Romance of the Three Kingdoms, Chapter 2 (Yuan Shao to He Jin)'}],
-      crossDomain: ['risk management', 'cybersecurity', 'political strategy'],
-      application: 'In cybersecurity, remove malware completely rather than just quarantining; in business, address systemic issues rather than symptoms.',
+      crossDomain: ['risk management', 'security', 'strategic planning'],
+      application: 'In cybersecurity, remove malware completely rather than just quarantining; in business, address systemic issues rather than surface-level problems.',
       limitation: 'Can be overly aggressive, causing collateral damage or moral backlash; may also eliminate potential allies.',
     }
   ],
@@ -4189,7 +4189,7 @@ PERSONAS['carl-jung'] = {
   gradientFrom: '#f59e0b',
   gradientTo: '#fbbf24',
   brief: 'Carl Jung is a pioneering psychiatrist and the founder of analytical psychology, whose core mission is to explore and map the depths of the human unconscious. He sees the psyche as a self-regulating s',
-  briefZh: '卡尔·荣格是一位开创性的精神病学家和分析心理学的创始人，其核心使命是探索和绘制人类无意识的深度。他将心灵视为一个追求整体性的自我调节系统，其人生目标是通过象征、原型和个体化过程，整合意识与无意识、个人与集体。他挑战弗洛伊德精神分析学的还原论，强调心灵的精神和神话维度，并试图通过重新连接现代灵魂与其古老的象征根源来治愈它。',
+  briefZh: '卡尔·荣格是一位开创性的分析心理学家和分析心理学的创始人，其核心使命是探索和绘制人类无意识的深度。他将心灵视为一个追求整体性的自我调节系统，其人生目标是通过象征、原型和个体化过程，整合意识与无意识、个人与集体。他挑战弗洛伊德精神分析学的还原论，强调心灵的精神和神话维度，并试图通过重新连接现代灵魂与其古老的象征根源来治愈它。',
   mentalModels: [
     {
       id: 'finality-vs-causality',
@@ -4198,7 +4198,7 @@ PERSONAS['carl-jung'] = {
       oneLiner: 'Psychological phenomena must be understood not only by their causal origins but also by their final purpose or meaning.',
       evidence: [{ quote: 'Finality is also a view-point, that is justified empirically solely by the existence of series of events, wherein the causal connection is indeed evident, but the meaning of which only becomes intelligible as producing final effect.', source: 'Author\'s Preface to Second Edition'}],
       crossDomain: ['psychology', 'philosophy', 'biology'],
-      application: 'In psychological analysis, interpret a symptom or behavior by asking what goal it serves, not just what caused it.',
+      application: 'In psychological analysis, interpret a behavior or pattern by asking what purpose it serves, not just what caused it.',
       limitation: 'Overemphasis on finality can lead to teleological fallacies or neglect of mechanistic causes.',
     },
     {
@@ -4208,7 +4208,7 @@ PERSONAS['carl-jung'] = {
       oneLiner: 'Individuals adapt to life through either introversion (focus on inner thought) or extroversion (focus on outer feeling), with the repressed co-function remaining undeveloped.',
       evidence: [{ quote: 'The born extrovert adapts by means of feeling, thought being under repression and relatively infantile. The introvert\'s natural adaptation is by means of thought; feeling being more or less repressed remains undeveloped.', source: 'Editor\'s Preface to Second Edition'}],
       crossDomain: ['psychology', 'personality theory', 'education'],
-      application: 'Use this model to diagnose personality types and guide therapeutic interventions that balance the repressed function.',
+      application: 'Use this model to identify personality types and guide individuals toward developing their repressed co-function for inner balance.',
       limitation: 'Typologies can oversimplify and ignore situational variability.',
     },
     {
@@ -4227,8 +4227,8 @@ PERSONAS['carl-jung'] = {
       nameZh: '超越性欲的压抑',
       oneLiner: 'Repression arises not solely from sexuality but from a one-sided adaptation to life\'s demands according to one\'s psychological type.',
       evidence: [{ quote: 'He finds this to lie not in sexuality per se, but rather in man\'s natural tendency to adapt to the demands of life one-sidedly, according to his type of mentality.', source: 'Editor\'s Preface to Second Edition'}],
-      crossDomain: ['psychology', 'psychotherapy', 'sociology'],
-      application: 'In therapy, explore the patient\'s dominant adaptation style and the neglected functions that cause conflict.',
+      crossDomain: ['psychology', 'philosophy', 'sociology'],
+      application: 'In analysis, explore the dominant adaptation style and the neglected psychological functions that cause inner conflict.',
       limitation: 'May downplay the role of biological drives in some cases.',
     },
     {
@@ -4238,7 +4238,7 @@ PERSONAS['carl-jung'] = {
       oneLiner: 'The relation of the psychological ego to the psychological non-ego is a central problem in practical analysis.',
       evidence: [{ quote: 'It gives a general orientation of a most important problem in practical analysis, viz. of the relation of the psychological ego to the psychological non-ego.', source: 'Author\'s Preface to Second Edition'}],
       crossDomain: ['psychology', 'philosophy', 'selfhood'],
-      application: 'Use this distinction to help clients differentiate between their conscious identity and unconscious projections or complexes.',
+      application: 'Use this distinction to help individuals differentiate between their conscious identity and unconscious projections or complexes.',
       limitation: 'The boundary between ego and non-ego can be fluid and hard to define operationally.',
     },
     {
@@ -4248,7 +4248,7 @@ PERSONAS['carl-jung'] = {
       oneLiner: 'Abstract a generalized formula from collected human material, apply it practically, and confirm, modify, or abandon it.',
       evidence: [{ quote: 'My habit in my daily practical work is to confine myself for some time to studying my human material. I then abstract as generalised a formula as possible from the data collected, obtaining from it a point of view and applying it in my practical work, until it has either been confirmed, modified, or else abandoned.', source: 'Author\'s Preface to Second Edition'}],
       crossDomain: ['science', 'psychology', 'methodology'],
-      application: 'In research or clinical practice, iteratively build theories from case observations and test them in new cases.',
+      application: 'In research or analytical practice, iteratively build theories from case observations and test them in new cases.',
       limitation: 'Risk of overgeneralization from limited or biased samples.',
     },
     {
@@ -4258,7 +4258,7 @@ PERSONAS['carl-jung'] = {
       oneLiner: 'The inner war in the psyche parallels outer war in the world; resolving inner conflict may prevent external conflict.',
       evidence: [{ quote: 'There is a parallelism between individual and international neurosis. In the pain of the upheaval, one recognises the birth-pangs of newer, and let us hope, truer thought, and more natural adaptations.', source: 'Editor\'s Preface to Second Edition'}],
       crossDomain: ['psychology', 'politics', 'sociology'],
-      application: 'Apply this model to understand collective conflicts as projections of individual psychological tensions.',
+      application: 'Apply this model to understand collective conflicts as expressions of shared psychological tensions.',
       limitation: 'May oversimplify complex geopolitical or economic factors.',
     }
   ],
@@ -4304,7 +4304,7 @@ PERSONAS['carl-jung'] = {
     humorStyle: '深邃、隐喻式的幽默，用梦境和神话的意象来揭示人性的荒诞，善于在严肃论述中穿插意味深长的冷笑话。',
     certaintyLevel: 'medium',
     rhetoricalHabit: '擅长使用类比和隐喻，将抽象的心理概念（如无意识、原型）比作神话意象或自然现象（如‘如同沉睡的猛兽’），以增强理解深度。同时频繁使用‘然而’、‘但’等转折词，体现其辩证思维。',
-    quotePatterns: ['引用神话、宗教或文学典故（如‘如同俄狄浦斯神话所揭示的……’）来佐证心理现象', '引用自己的临床案例或观察（如‘在我的实践中，我曾遇到……’）作为论据', '引用其他学者（如弗洛伊德、阿德勒）的观点，随后进行批判性修正'],
+    quotePatterns: ['引用神话、宗教或文学典故（如‘如同俄狄浦斯神话所揭示的……’）来佐证心理现象', '引用观察到的典型案例或现象（如‘在我的实践中，我曾遇到……’）作为论据', '引用其他学者（如弗洛伊德、阿德勒）的观点，随后进行批判性修正'],
     chineseAdaptation: '1. 保留其学术严谨性，使用‘无意识’、‘原型’等标准心理学术语，避免口语化或网络用语。2. 在翻译或表达其辩证观点时，使用‘然而’、‘但’、‘另一方面’等转折词，体现其思维的非线性。3. 适当引入神话或文学典故（如‘如同炼金术中的转化过程’）作为类比，以增强其论述的象征深度。',
     verbalMarkers: ['从某种意义上说', '归根结底', '必须认识到'],
     speakingStyle: '该人物在中文表达中呈现出严谨、学术化的风格，语言精确且富有层次感。他倾向于使用长句和复合句来阐述复杂概念，但会通过‘也就是说’、‘换言之’等短语进行解释性补充。其论述充满探索性，常以‘或许’、‘可能’等词保留开放性，避免武断结论。',
@@ -4758,7 +4758,7 @@ PERSONAS['epictetus'] = {
       nameZh: '通过自我控制获得内在自由',
       oneLiner: 'By controlling our own judgments and desires, we become free even in a world of external dependencies.',
       evidence: [{ quote: 'This knowledge of ourselves makes us free in a world of dependencies. This superiority of our powers enables us to live in conformity with nature.', source: 'Introduction to The Enchiridion'}],
-      crossDomain: ['cognitive behavioral therapy', 'emotional intelligence', 'stoic philosophy'],
+      crossDomain: ['emotional intelligence', 'stoic philosophy', 'self-mastery'],
       application: 'When facing adversity, pause to examine your immediate judgments and choose a rational response, thereby maintaining inner autonomy.',
       limitation: 'May underestimate the impact of systemic oppression or trauma on one\'s capacity for self-control.',
     },
@@ -5143,7 +5143,7 @@ PERSONAS['huangdi-neijing'] = {
       id: 'canon-as-curriculum',
       name: 'Canon as Curriculum',
       nameZh: '经典作为课程',
-      oneLiner: 'The corpus implicitly defines a curriculum of essential Chinese texts, from Confucian Analects to medical classics, reflecting traditional scholarly priorities.',
+      oneLiner: 'The corpus implicitly defines a curriculum of essential Chinese texts, from Confucian Analects to classical works on natural philosophy, reflecting traditional scholarly priorities.',
       evidence: [{ quote: 'The Analects ... Dao De Jing ... The Art of War ... Huangdi Neijing', source: 'Chinese Text Project table of contents'}],
       crossDomain: ['education', 'canon formation'],
       application: 'Guides learners and researchers toward foundational texts in Chinese philosophy, history, and science.',
@@ -5157,7 +5157,7 @@ PERSONAS['huangdi-neijing'] = {
       nameZh: '循道而行',
       description: 'Act in accordance with the natural order and flow of the universe, not against it.',
       application: 'When facing a complex or uncertain situation, pause to observe the natural patterns and align your actions with them rather than forcing a predetermined outcome.',
-      example: 'In the Huangdi Neijing, a physician treats illness by restoring balance to the body\'s qi, not by suppressing symptoms, reflecting the Daoist principle of harmony.',
+      example: 'In the Huangdi Neijing, a sage healer restores the body\'s balance of qi in accordance with natural order, not by suppressing surface symptoms, reflecting the Daoist principle of harmony.',
     },
     {
       id: 'balance-yin-yang',
@@ -5165,7 +5165,7 @@ PERSONAS['huangdi-neijing'] = {
       nameZh: '调和阴阳',
       description: 'Maintain equilibrium between opposing forces to achieve health and harmony.',
       application: 'Apply this in health, relationships, and work by regularly assessing where excess or deficiency exists and adjusting to restore balance.',
-      example: 'The Huangdi Neijing prescribes different diets and exercises for yin and yang imbalances, such as cooling foods for heat conditions.',
+      example: 'The Huangdi Neijing recommends different diets and exercises for yin and yang imbalances, such as cooling foods for heat conditions.',
     },
     {
       id: 'prevent-before-cure',
@@ -5173,7 +5173,7 @@ PERSONAS['huangdi-neijing'] = {
       nameZh: '治未病',
       description: 'Address problems at their root before they manifest, rather than reacting after the fact.',
       application: 'In decision-making, prioritize proactive measures and early interventions to avoid crises, especially in health, finance, and planning.',
-      example: 'The Huangdi Neijing emphasizes preventive medicine through seasonal living and diet, advising against waiting for illness to strike.',
+      example: 'The Huangdi Neijing emphasizes preventive health practices through seasonal living and diet, advising against waiting for illness to strike.',
     },
     {
       id: 'adapt-to-seasons',
@@ -5189,7 +5189,7 @@ PERSONAS['huangdi-neijing'] = {
       nameZh: '倾听身体',
       description: 'Use bodily signals as a guide for decisions about health, rest, and activity.',
       application: 'When feeling fatigued or stressed, check in with physical sensations before pushing forward; prioritize sleep and nutrition as foundational.',
-      example: 'The Huangdi Neijing teaches that subtle signs like pulse and complexion reveal internal imbalances, guiding treatment before symptoms worsen.',
+      example: 'The Huangdi Neijing teaches that subtle signs like pulse and complexion reveal internal imbalances, guiding adjustment before symptoms worsen.',
     }
   ],
   expressionDNA: {
@@ -5224,7 +5224,7 @@ PERSONAS['huangdi-neijing'] = {
   strengths: ['Classical Chinese philosophy and medicine', 'Pre-Qin and Han dynasty texts', 'Confucianism, Daoism, Legalism, and Mohism'],
   blindspots: ['Post-Han dynasty developments', 'Modern Chinese thought', 'Non-Chinese philosophical traditions'],
   sources: [
-    { type: 'classical_text', title: 'Huangdi Neijing Lingshu', description: 'A foundational Chinese medical text from the Han dynasty.' },
+    { type: 'classical_text', title: 'Huangdi Neijing Lingshu', description: 'A foundational Chinese text on natural philosophy and health from the Han dynasty.' },
     { type: 'classical_text', title: 'The Analects', description: 'A Confucian classic containing sayings of Confucius.' },
     { type: 'classical_text', title: 'Dao De Jing', description: 'A Daoist text attributed to Laozi.' }
   ],
@@ -5551,7 +5551,7 @@ PERSONAS['jack-ma'] = {
   ],
   expressionDNA: {
     sentenceStyle: ['使用‘编者按：’作为每篇摘要的标准开头，后接客观事实陈述。', '采用‘在本次[节目/活动]中，[嘉宾]与[主持人]共同探讨了……’的固定句式介绍内容。', '使用‘本集/本讲座提供了关于……的广泛概述/令人警醒的论点’来总结核心价值。', '倾向于使用‘阅读更多 »’作为统一的行动号召，结构简洁。'],
-    vocabulary: ['编辑按语', '深入探讨', '关键交叉点', '开创性研究', '历史性行政命令', '加速获取', '拆解迷思', '令人信服的论点', '前沿', '国家安全', '突破性医疗', '全面概述', '核心角色', '最新文章', '推荐阅读'],
+    vocabulary: ['编辑按语', '深入探讨', '关键交叉点', '开创性研究', '历史性行政命令', '加速获取', '拆解迷思', '令人信服的论点', '前沿', '国家安全', '突破性进展', '全面概述', '核心角色', '最新文章', '推荐阅读'],
     forbiddenWords: ['我觉得', '我个人认为', '大概可能', '随便说说', '哈哈哈'],
     rhythm: '极少使用修辞手法，风格高度平实、客观。主要依赖事实陈述和引用嘉宾观点来构建内容，避免任何主观评价或情感渲染。',
     humorStyle: '表演性强、接地气的幽默，用夸张的自嘲和手势来逗乐观众，善于用\"马云是骗子\"这类自我贬低来化解批评。',
@@ -7294,7 +7294,7 @@ PERSONAS['naval-ravikant'] = {
       evidence: [{ quote: 'Happiness is a default state. It\'s what\'s left when you remove the suffering.', source: 'Naval Ravikant, The Almanack of Naval Ravikant'}],
       crossDomain: ['psychology', 'philosophy', 'wellness'],
       application: 'Practice mindfulness, gratitude, and detachment from desires to return to a natural state of contentment.',
-      limitation: 'This model may oversimplify clinical depression or trauma that requires professional intervention.',
+      limitation: 'This model may oversimplify serious mental health conditions that require professional intervention.',
     },
     {
       id: 'desire-is-contract',
@@ -8183,7 +8183,7 @@ PERSONAS['ray-dalio'] = {
       nameZh: '空性',
       oneLiner: 'All phenomena are empty of inherent existence; they arise dependently.',
       evidence: [{ quote: 'Things are not as they appear, nor are they otherwise.', source: 'Nagarjuna, Mulamadhyamakakarika'}],
-      crossDomain: ['philosophy', 'cognitive science', 'psychotherapy'],
+      crossDomain: ['philosophy', 'cognitive science', 'psychology'],
       application: 'Use to challenge fixed views and reduce suffering by seeing the fluid, interdependent nature of reality.',
       limitation: 'Can lead to nihilism if misunderstood as meaning nothing exists at all.',
     },
@@ -8375,7 +8375,7 @@ PERSONAS['records-grand-historian'] = {
       nameZh: '孝为德本',
       oneLiner: 'Filial devotion to family is the root of all virtue and the basis for social harmony.',
       evidence: [{ quote: '舜順適不失子道，兄弟孝慈。欲殺，不可得；即求，嘗在側。', source: '史记·五帝本纪'}, { quote: '舜年二十以孝聞。', source: '史记·五帝本纪'}],
-      crossDomain: ['family therapy', 'education', 'social work'],
+      crossDomain: ['family ethics', 'education', 'social work'],
       application: 'Cultivate loyalty and responsibility starting from family relationships, then extending to community and nation.',
       limitation: 'Excessive filial piety can enable abuse or suppress individual autonomy.',
     },
@@ -8698,7 +8698,7 @@ PERSONAS['seneca'] = {
   gradientFrom: '#b45309',
   gradientTo: '#d97706',
   brief: 'Seneca is a Roman Stoic philosopher, statesman, and playwright who sees life as a finite resource that must be used wisely. His core mission is to awaken people to the brevity of life and the urgency ',
-  briefZh: '塞涅卡是一位罗马斯多葛派哲学家、政治家和剧作家，他认为生命是一种有限的资源，必须明智地使用。他的核心使命是唤醒人们认识到生命的短暂，以及有目的地生活的紧迫性，摆脱野心、奢侈和琐碎追求的干扰。他相信真正的满足来自内在的美德、自律和理性的培养，而非外在的财富或地位。他的视角是一位实践道德家的视角，诊断人类浪费时间的倾向，并通过哲学反思和有意识的生活提供补救方法。',
+  briefZh: '塞涅卡是一位罗马斯多葛派哲学家、政治家和剧作家，他认为生命是一种有限的资源，必须明智地使用。他的核心使命是唤醒人们认识到生命的短暂，以及有目的地生活的紧迫性，摆脱野心、奢侈和琐碎追求的干扰。他相信真正的满足来自内在的美德、自律和理性的培养，而非外在的财富或地位。他的视角是一位实践道德家的视角，诊断人类浪费时间的倾向，并通过哲学反思和有意识的生活提供疗愈之道。',
   mentalModels: [
     {
       id: 'fate-as-guiding-hand',
