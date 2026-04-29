@@ -43,16 +43,16 @@ export async function GET(request: NextRequest) {
       conversationsResult,
       modeStatsResult,
     ] = await Promise.all([
-      sql`SELECT COUNT(*) as cnt FROM messages WHERE "createdAt" >= ${startDate}`,
-      sql`SELECT COUNT(*) as cnt FROM conversations WHERE "createdAt" >= ${startDate}`,
-      sql`SELECT COALESCE(SUM("tokensInput"), 0) as ti, COALESCE(SUM("tokensOutput"), 0) as to, COALESCE(SUM("apiCost"), 0) as cost FROM messages WHERE "createdAt" >= ${startDate}`,
+      sql`SELECT COUNT(*) as cnt FROM messages WHERE "createdAt" >= ${startDate} AND content != '[message-counted]'`,
+      sql`SELECT COUNT(*) as cnt FROM conversations WHERE "updatedAt" >= ${startDate}`,
+      sql`SELECT COALESCE(SUM("tokensInput"), 0) as ti, COALESCE(SUM("tokensOutput"), 0) as to, COALESCE(SUM("apiCost"), 0) as cost FROM messages WHERE "createdAt" >= ${startDate} AND content != '[message-counted]'`,
       sql`
         SELECT "personaId",
                COUNT(*) as msg_count,
                COALESCE(SUM("tokensInput" + "tokensOutput"), 0) as tokens,
                COALESCE(SUM("apiCost"), 0) as cost
         FROM messages
-        WHERE "createdAt" >= ${startDate} AND "personaId" IS NOT NULL
+        WHERE "createdAt" >= ${startDate} AND "personaId" IS NOT NULL AND content != '[message-counted]'
         GROUP BY "personaId"
         ORDER BY msg_count DESC
         LIMIT 20
@@ -60,7 +60,7 @@ export async function GET(request: NextRequest) {
       sql`
         SELECT id, participants, "personaIds", "messageCount", "totalCost", "totalTokens"
         FROM conversations
-        WHERE "createdAt" >= ${startDate}
+        WHERE "updatedAt" >= ${startDate}
         LIMIT 500
       `,
       sql`
@@ -68,7 +68,7 @@ export async function GET(request: NextRequest) {
                COUNT(*) as cnt,
                COALESCE(SUM(c."totalCost"::numeric), 0) as cost_sum
         FROM conversations c
-        WHERE c."createdAt" >= ${startDate}
+        WHERE c."updatedAt" >= ${startDate}
         GROUP BY c.mode
       `,
     ]);
@@ -102,7 +102,7 @@ export async function GET(request: NextRequest) {
         COALESCE(SUM("tokensInput" + "tokensOutput"), 0) as tokens,
         COALESCE(SUM("apiCost"), 0) as cost
       FROM messages
-      WHERE "createdAt" >= ${startDate}
+      WHERE "createdAt" >= ${startDate} AND content != '[message-counted]'
       GROUP BY DATE("createdAt")
       ORDER BY date DESC
       LIMIT ${days}
@@ -127,7 +127,7 @@ export async function GET(request: NextRequest) {
              COUNT(*) as msg_count,
              COALESCE(SUM(m."apiCost"), 0) as cost
       FROM messages m
-      WHERE m."createdAt" >= ${startDate}
+      WHERE m."createdAt" >= ${startDate} AND m.content != '[message-counted]'
       GROUP BY m."userId"
       ORDER BY msg_count DESC
       LIMIT 10

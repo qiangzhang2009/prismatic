@@ -47,7 +47,7 @@ export async function GET(req: NextRequest) {
     else if (sortBy === 'lastActive') orderBy.updatedAt = sortOrder;
     else orderBy.createdAt = 'desc';
 
-    const [users, total, lastMsgRows] = await Promise.all([
+    const [users, total, lastMsgRows, msgCountRows] = await Promise.all([
       prisma.user.findMany({
         where,
         orderBy,
@@ -57,7 +57,6 @@ export async function GET(req: NextRequest) {
           _count: {
             select: {
               conversations: true,
-              messages: true,
             },
           },
         },
@@ -69,11 +68,22 @@ export async function GET(req: NextRequest) {
         WHERE content != '[message-counted]'
         GROUP BY "userId"
       `,
+      // Real message count per user, excluding [message-counted] sentinel rows
+      prisma.$queryRaw<Array<{ userId: string; message_count: bigint }>>`
+        SELECT "userId", COUNT(*) as message_count
+        FROM messages
+        WHERE content != '[message-counted]'
+        GROUP BY "userId"
+      `,
     ]);
 
     const lastMsgMap = new Map<string, string | null>();
     for (const r of lastMsgRows) {
       lastMsgMap.set(r.userId, r.lastCreatedAt?.toISOString() ?? null);
+    }
+    const msgCountMap = new Map<string, number>();
+    for (const r of msgCountRows) {
+      msgCountMap.set(r.userId, Number(r.message_count));
     }
 
     const items = users.map(user => {
@@ -92,7 +102,7 @@ export async function GET(req: NextRequest) {
         credits: user.credits || 0,
         avatar: user.avatar,
         conversationCount: (user as any)._count?.conversations || 0,
-        messageCount: (user as any)._count?.messages || 0,
+        messageCount: msgCountMap.get(user.id) ?? 0,
         lastActiveAt: lastMsgMap.get(user.id) || null,
         createdAt: user.createdAt.toISOString(),
         updatedAt: user.updatedAt.toISOString(),

@@ -69,13 +69,13 @@ export async function GET(req: NextRequest) {
              COALESCE(SUM("tokensInput" + "tokensOutput"), 0) as tokens,
              COALESCE(SUM("apiCost"), 0) as cost
       FROM messages
-      WHERE "createdAt" >= $1 AND "personaId" IS NOT NULL
+      WHERE "createdAt" >= $1 AND "personaId" IS NOT NULL AND content != '[message-counted]'
       GROUP BY "personaId"
       ORDER BY msg_count DESC
     `, [startDate]),
     pool.query(`
       SELECT id, participants, "personaIds", "totalCost", "totalTokens",
-             (SELECT COUNT(*) FROM messages m WHERE m."conversationId" = conversations.id) as real_message_count
+             (SELECT COUNT(*) FROM messages m WHERE m."conversationId" = conversations.id AND m.content != '[message-counted]') as real_message_count
       FROM conversations
       WHERE "updatedAt" >= $1
       LIMIT 500
@@ -143,7 +143,7 @@ export async function GET(req: NextRequest) {
       nameZh: conv?.nameZh ?? msg?.nameZh ?? meta.nameZh,
       domain: conv?.domain ?? msg?.domain ?? meta.domain,
       conversationCount: conv?.convCount ?? 0,
-      messageCount: (conv?.real_message_count ?? 0) || (msg?.messageCount ?? 0),
+      messageCount: (conv?.messageCount ?? 0) || (msg?.messageCount ?? 0),
       totalTokens: (conv?.totalTokens ?? 0) || (msg?.totalTokens ?? 0),
       totalCost: Number((conv?.totalCost ?? 0) || (msg?.totalCost ?? 0)),
     };

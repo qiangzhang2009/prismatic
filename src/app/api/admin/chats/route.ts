@@ -77,7 +77,7 @@ export async function GET(req: NextRequest) {
     } else if (billingMode === 'B') {
       conditions.push(`(u."apiKeyEncrypted" IS NULL OR u."apiKeyStatus" != 'valid')`);
     }
-    conditions.push(`(SELECT COUNT(*) FROM messages m WHERE m."conversationId" = c.id) > 0`);
+    conditions.push(`(SELECT COUNT(*) FROM messages m WHERE m."conversationId" = c.id AND m.content != '[message-counted]') > 0`);
 
     const where = conditions.length ? `WHERE ${conditions.join(' AND ')}` : '';
     const offset = (page - 1) * pageSize;
@@ -108,7 +108,7 @@ export async function GET(req: NextRequest) {
             'modelUsed', m."modelUsed", 'createdAt', m."createdAt",
             'metadata', m.metadata
           ) ORDER BY m."createdAt" DESC) as data
-        FROM messages m WHERE m."conversationId" = c.id
+        FROM messages m WHERE m."conversationId" = c.id AND m.content != '[message-counted]'
       ) msgs ON true
       ${where}
       ORDER BY c."updatedAt" DESC
