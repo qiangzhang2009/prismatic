@@ -804,14 +804,28 @@ export function PersonaDetailClient({ persona, colors, dbConfidence }: Props) {
                     <div className="space-y-2">
                       {confidence.dataSources.map((src, i) => {
                         // Handle both static format (type/source/quantity/quality) and DB corpusSources format
-                        const srcType = (src as any).type ?? (src as any).title ?? (src as any).source ?? String(src);
+                        const rawType = (src as any).type ?? (src as any).title ?? (src as any).source ?? String(src);
+                        const srcType: Record<string, string> = {
+                          primary: '一手来源',
+                          corpus: '语料库',
+                          secondary: '二手来源',
+                          book: '书籍',
+                          article: '文章/博客',
+                          interview: '访谈',
+                          speech: '演讲',
+                          tweet: '推文',
+                          podcast: '播客',
+                          video: '视频',
+                          manuscript: '原始手稿',
+                        };
+                        const srcTypeLabel = srcType[rawType] ?? srcType[rawType.toLowerCase()] ?? rawType;
                         const srcSource = (src as any).source ?? (src as any).author ?? '';
                         const srcQuantity = (src as any).quantity ?? (src as any).wordCount ? `${(src as any).wordCount} 字` : '';
                         const srcQuality = String((src as any).quality ?? (src as any).quality ?? '3');
                         return (
                           <div key={i} className="flex items-start justify-between p-3 bg-bg-base rounded-lg border border-border-subtle">
                             <div className="min-w-0">
-                              <p className="text-xs font-medium text-text-primary">{srcType}</p>
+                              <p className="text-xs font-medium text-text-primary">{srcTypeLabel}</p>
                               <p className="text-xs text-text-muted">{[srcSource, srcQuantity].filter(Boolean).join(' · ')}</p>
                             </div>
                             <div className="flex items-center gap-0.5 flex-shrink-0 ml-2">
