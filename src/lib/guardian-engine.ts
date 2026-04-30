@@ -89,7 +89,6 @@ async function callLLM(
       console.error(
         `[Guardian Engine] LLM attempt ${attempt + 1}/${attempts} failed${isTimeout ? ' (timeout)' : isRateLimit ? ' (rate limit)' : ''}: ${errMsg.slice(0, 200)}`
       );
-      console.log(`[Guardian Engine] DEBUG: LLM call failed for ${personaId}, attempt ${attempt + 1}, error: ${errMsg.slice(0, 100)}`);
       if (isLastAttempt) return null;
       await new Promise(resolve => setTimeout(resolve, (1 << attempt) * 1000));
     }
