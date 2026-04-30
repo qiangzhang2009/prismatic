@@ -1,6 +1,5 @@
 {
   "regions": ["hkg1"],
-  "maxDuration": 60,
   "crons": [
     {
       "path": "/api/cron/guardian-discussions",
