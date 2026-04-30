@@ -311,13 +311,23 @@ export async function POST(req: NextRequest) {
       geoCity = geo.city;
     }
 
-    // Determine the guardian to respond: prefer explicit mentionId, else auto-detect from @ in content
-    // When replying to a guardian via "继续追问", the guardian is already known (passed explicitly)
+    // Determine the guardian to respond: prefer explicit mentionId, else auto-detect from @ in content.
+    // When replying to a guardian via "继续追问", the guardian is already known (passed explicitly).
+    // If incomingGuardianId is provided (e.g. from the mention picker), use it directly — the user
+    // explicitly selected a persona, so we honor it regardless of today's schedule.
     if (incomingGuardianId) {
       mentionedGuardianId = incomingGuardianId;
     } else if (guardians.length > 0) {
       const guardianIds = guardians.map((g) => g.personaId);
       const mentionResult = extractGuardianMention(content, guardianIds);
+      if (mentionResult.mentionedPersonaId) {
+        mentionedGuardianId = mentionResult.mentionedPersonaId;
+      }
+      mentionHint = getMentionHint(mentionResult);
+    } else {
+      // No guardians scheduled (empty array) — still try to detect @mentions in content
+      // using the full persona list, so explicit mentions like "@苏格拉底" are at least stored.
+      const mentionResult = extractGuardianMention(content, []);
       if (mentionResult.mentionedPersonaId) {
         mentionedGuardianId = mentionResult.mentionedPersonaId;
       }

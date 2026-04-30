@@ -121,6 +121,29 @@ function getVisitorId(): string {
   return visitorId;
 }
 
+/**
+ * Resolve a guardian identifier — can be a slug (e.g. "socrates") or a display name
+ * (e.g. "苏格拉底") — to a PERSONA_LIST_LIGHT entry.
+ * Falls back gracefully when the identifier doesn't match any known persona.
+ */
+function resolveGuardian(idOrName: string | null | undefined) {
+  if (!idOrName) return null;
+  return (
+    PERSONA_LIST_LIGHT.find(p => p.id === idOrName) ||
+    PERSONA_LIST_LIGHT.find(p => p.nameZh === idOrName) ||
+    null
+  );
+}
+
+/**
+ * Resolve a guardian identifier to a slug for API calls.
+ * Accepts either a slug or a display name; returns the canonical slug.
+ */
+function resolveGuardianSlug(idOrName: string | null | undefined): string | null {
+  const g = resolveGuardian(idOrName);
+  return g ? g.id : null;
+}
+
 function timeAgo(date: string): string {
   const now = new Date();
   const then = new Date(date);
@@ -657,14 +680,14 @@ function CommentItem({
           <div className="mb-3 px-3 py-2 rounded-lg bg-prism-blue/5 border border-prism-blue/20 flex items-center gap-2">
             <Sparkles className="w-3.5 h-3.5 text-prism-blue flex-shrink-0" />
             <span className="text-xs text-prism-blue/80">
-              {comment.mentionHint || `${(PERSONA_LIST_LIGHT.find(p => p.id === comment.mentionedGuardianId!))?.nameZh || '守望者'}正在思考中...`}
+              {comment.mentionHint || `${resolveGuardian(comment.mentionedGuardianId)?.nameZh || '守望者'}正在思考中...`}
             </span>
           </div>
         )}
 
         {/* Guardian @-mention reply card — renders when reply is available */}
         {guardianMentionReply && comment.mentionedGuardianId && (() => {
-          const guardian = PERSONA_LIST_LIGHT.find(p => p.id === comment.mentionedGuardianId);
+          const guardian = resolveGuardian(comment.mentionedGuardianId);
           return (
             <div className="mt-4 pt-4 border-t border-prism-blue/20">
               <div className="flex items-start gap-3 pl-4 border-l-2 border-prism-blue/30">
@@ -1242,6 +1265,7 @@ export function CommentsSection() {
   const [debateTopic, setDebateTopic] = useState<string | null>(null);
   // Mention picker state
   const [showMentionPicker, setShowMentionPicker] = useState(false);
+  const [selectedMention, setSelectedMention] = useState<string | null>(null);
   const [caretPos, setCaretPos] = useState(0);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   // Quick date filter
@@ -1344,10 +1368,13 @@ export function CommentsSection() {
       report_count: 0,
       replyCount: 0,
       personaSlug: null,
-      mentionedGuardianId: null,
+      // selectedMention is a display name (e.g. "苏格拉底") — the backend will resolve
+      // the slug from the @mention text in content via extractGuardianMention().
+      // Include it in optimistic comment so the "thinking..." state shows immediately.
+      mentionedGuardianId: selectedMention ? selectedMention : null,
       mentionedGuardianReply: null,
       mentionedGuardianRepliedAt: null,
-      mentionHint: null,
+      mentionHint: selectedMention ? `${selectedMention}正在思考中...` : null,
     };
 
     // Optimistic: show immediately
@@ -1462,13 +1489,15 @@ export function CommentsSection() {
   };
 
   const handleReplyToReply = async (rootCommentId: string, _replyId: string, replyContent: string, guardianId?: string | null) => {
+    // Resolve display name to slug if needed (e.g. "苏格拉底" → "socrates")
+    const resolvedGuardianId = resolveGuardianSlug(guardianId);
     const res = await fetch('/api/comments', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         content: replyContent,
         parentId: rootCommentId,
-        mentionedGuardianId: guardianId || undefined,
+        mentionedGuardianId: resolvedGuardianId || undefined,
       }),
     });
 
@@ -1694,12 +1723,16 @@ export function CommentsSection() {
                     caretPos={caretPos}
                     onSelect={(_slug, displayName) => {
                       // Replace the @query in content with the full mention
+                      // displayName is "@苏格拉底 " (already has @ prefix and trailing space)
                       const textBefore = content.slice(0, caretPos);
                       const textAfter = content.slice(caretPos);
                       const match = textBefore.match(/@[^@\s]{0,30}$/);
                       if (match) {
                         const before = textBefore.slice(0, match.index);
                         setContent(before + displayName + textAfter);
+                        // Extract persona name for tracking (strip leading @ and trailing space)
+                        const name = displayName.replace(/^@/, '').trim();
+                        setSelectedMention(name);
                         const newPos = before.length + displayName.length;
                         setCaretPos(newPos);
                         // Restore cursor position after React re-render
@@ -1737,6 +1770,7 @@ export function CommentsSection() {
                         onClick={() => {
                           const mention = `@${g.personaNameZh} `;
                           setContent((prev) => (prev ? `${prev} ${mention}` : mention));
+                          setSelectedMention(g.personaNameZh);
                         }}
                         className={cn(
                           'flex items-center gap-1.5 px-2.5 py-1.5 rounded-full text-xs whitespace-nowrap transition-all border flex-shrink-0',
