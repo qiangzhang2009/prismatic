@@ -181,7 +181,7 @@ const MENTAL_MODEL_EXAMPLE = {
 };
 
 export default function MethodologyPage() {
-  const [activeStep, setActiveStep] = useState('research');
+  const [activeStep, setActiveStep] = useState('l1-intelligence');
   const [showExample, setShowExample] = useState(false);
 
   const currentStep = STEPS.find((s) => s.id === activeStep)!;
