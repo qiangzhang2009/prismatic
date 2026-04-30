@@ -874,19 +874,28 @@ function CommentItem({
               {replies.map((reply) => (
                 <div key={reply.id}>
                   {/* Guardian reply card inside the replies list */}
-                  {reply.mentionedGuardianReply && (
+                  {reply.mentionedGuardianReply && (() => {
+                    const guardian = resolveGuardian(reply.mentionedGuardianId);
+                    const guardianName = guardian ? guardian.nameZh : '守望者';
+                    return (
                     <div className="mb-3 pl-12 border-l-2 border-prism-blue/30">
                       <div className="flex items-start gap-2 pl-3 border-l-2 border-prism-blue/20">
                         <div
-                          className="w-6 h-6 rounded-full flex items-center justify-center text-white text-[10px] font-bold flex-shrink-0"
-                          style={{ background: 'linear-gradient(135deg, #6366f1, #8b5cf6)' }}
-                          title="守望者回复"
+                          className="w-6 h-6 rounded-full flex items-center justify-center text-white text-[10px] font-bold flex-shrink-0 shadow-md"
+                          style={{
+                            background: guardian
+                              ? `linear-gradient(135deg, ${guardian.gradientFrom}, ${guardian.gradientTo})`
+                              : 'linear-gradient(135deg, #6366f1, #8b5cf6)',
+                          }}
+                          title={guardian ? `${guardian.nameZh}回复` : '守望者回复'}
                         >
-                          ?
+                          {guardian ? guardian.nameZh[0] : '?'}
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-1.5 mb-1">
-                            <span className="text-[10px] font-semibold text-prism-blue">守望者</span>
+                            <span className="text-[10px] font-semibold text-prism-blue">
+                              {guardianName}
+                            </span>
                             <span className="text-[9px] px-1 py-0.5 rounded bg-prism-blue/10 text-prism-blue flex items-center gap-0.5">
                               <Sparkles className="w-2 h-2" />
                               回复
@@ -901,7 +910,7 @@ function CommentItem({
                             className="mt-2 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs border border-prism-blue/20 hover:border-prism-blue/40 hover:bg-prism-blue/5 text-prism-blue transition-all"
                           >
                             <MessageCircle className="w-3 h-3" />
-                            {replyingToReply === reply.id ? '取消追问' : '继续追问守望者'}
+                            {replyingToReply === reply.id ? '取消追问' : `继续追问 ${guardianName}`}
                           </button>
                           {/* Inline reply form */}
                           <AnimatePresence>
@@ -916,9 +925,9 @@ function CommentItem({
                                     return result;
                                   }}
                                   onCancel={() => setReplyingToReply(null)}
-                                  replyToName="守望者"
+                                  replyToName={guardianName}
                                   mentionedGuardianId={reply.mentionedGuardianId ?? null}
-                                  mentionedGuardianNameZh="守望者"
+                                  mentionedGuardianNameZh={guardianName}
                                 />
                               </div>
                             )}
@@ -926,7 +935,8 @@ function CommentItem({
                         </div>
                       </div>
                     </div>
-                  )}
+                    );
+                  })()}
 
                   {/* Reply item */}
                   <div className="flex items-start gap-3 pl-4 border-l-2 border-white/10">

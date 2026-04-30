@@ -41,8 +41,8 @@ function getModelName(): string {
 
 // ─── LLM Generation ──────────────────────────────────────────────────────────
 
-// Vercel Hobbyist: 10s timeout. Pro: 60s. Use 9s to stay safe.
-const LLM_TIMEOUT_MS = 9_000;
+// Vercel serverless maxDuration is 60s. Use 55s to leave buffer for DB writes.
+const LLM_TIMEOUT_MS = 55_000;
 
 /** Low-level LLM call with retry, returns null on persistent failure. */
 async function callLLM(
@@ -90,7 +90,7 @@ async function callLLM(
         `[Guardian Engine] LLM attempt ${attempt + 1}/${attempts} failed${isTimeout ? ' (timeout)' : isRateLimit ? ' (rate limit)' : ''}: ${errMsg.slice(0, 200)}`
       );
       if (isLastAttempt) return null;
-      await new Promise(resolve => setTimeout(resolve, (1 << attempt) * 1000));
+      await new Promise(resolve => setTimeout(resolve, (1 << attempt) * 2000));
     }
   }
   return null;
