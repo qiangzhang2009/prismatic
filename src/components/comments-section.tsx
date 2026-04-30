@@ -15,7 +15,7 @@ import { cn } from '@/lib/utils';
 import { useAuthStore } from '@/lib/auth-store';
 import { GuardianBanner } from '@/components/guardian-banner';
 import { parseMentions, type MentionSegment } from '@/lib/mentions';
-import { PERSONAS } from '@/lib/personas';
+import { PERSONA_LIST_LIGHT } from '@/lib/persona-list-light';
 import MentionPicker from '@/components/MentionPicker';
 import { SkeletonCommentList } from '@/components/skeleton-comments';
 
@@ -657,14 +657,14 @@ function CommentItem({
           <div className="mb-3 px-3 py-2 rounded-lg bg-prism-blue/5 border border-prism-blue/20 flex items-center gap-2">
             <Sparkles className="w-3.5 h-3.5 text-prism-blue flex-shrink-0" />
             <span className="text-xs text-prism-blue/80">
-              {comment.mentionHint || `${PERSONAS[comment.mentionedGuardianId!]?.nameZh || '守望者'}正在思考中...`}
+              {comment.mentionHint || `${(PERSONA_LIST_LIGHT.find(p => p.id === comment.mentionedGuardianId!))?.nameZh || '守望者'}正在思考中...`}
             </span>
           </div>
         )}
 
         {/* Guardian @-mention reply card — renders when reply is available */}
         {guardianMentionReply && comment.mentionedGuardianId && (() => {
-          const guardian = PERSONAS[comment.mentionedGuardianId];
+          const guardian = PERSONA_LIST_LIGHT.find(p => p.id === comment.mentionedGuardianId);
           return (
             <div className="mt-4 pt-4 border-t border-prism-blue/20">
               <div className="flex items-start gap-3 pl-4 border-l-2 border-prism-blue/30">

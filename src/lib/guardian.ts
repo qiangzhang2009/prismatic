@@ -11,7 +11,7 @@
 
 import { neon, NeonQueryFunction } from '@neondatabase/serverless';
 import { getPersonasByIds, PERSONAS } from '@/lib/personas';
-import { BANNED_PERSONAS } from '@/lib/personas';
+import { BANNED_PERSONAS } from '@/lib/banned-personas';
 
 /** Create a fresh Neon handle per call to avoid stale pool connections in Vercel serverless. */
 function getSql(): NeonQueryFunction<false, false> {

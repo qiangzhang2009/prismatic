@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { PERSONA_LIST } from '@/lib/personas';
+import { PERSONA_LIST_LIGHT } from '@/lib/persona-list-light';
 
 interface Persona {
   slug: string;
@@ -30,12 +30,12 @@ interface MentionPickerProps {
 function getCandidates(query: string): Persona[] {
   if (!query) {
     // No query: show popular/featured personas first, then alphabetically
-    return PERSONA_LIST
+    return PERSONA_LIST_LIGHT
       .filter(p => p.nameZh && p.slug)
       .slice(0, 12);
   }
   const q = query.toLowerCase();
-  return PERSONA_LIST
+  return PERSONA_LIST_LIGHT
     .filter(p => {
       if (!p.nameZh || !p.slug) return false;
       return (

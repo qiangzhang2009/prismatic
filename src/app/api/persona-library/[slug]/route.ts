@@ -4,12 +4,25 @@
  *
  * FIX v2: Normalize column names to provide BOTH camelCase and lowercase keys
  * (same approach as the list route — needed because Neon HTTP API lowercases identifiers).
+ *
+ * ISR: revalidates every hour; stale-while-revalidate up to 24h for fast TTFB.
  */
-
-export const dynamic = 'force-dynamic';
 
 import { NextRequest, NextResponse } from 'next/server';
 import { Pool } from '@neondatabase/serverless';
+
+const globalForPool = globalThis as unknown as { __pool: Pool | undefined };
+
+function getPool(): Pool {
+  if (!globalForPool.__pool) {
+    const connectionString = process.env.DATABASE_URL;
+    if (!connectionString) throw new Error('DATABASE_URL not set');
+    globalForPool.__pool = new Pool({ connectionString });
+  }
+  return globalForPool.__pool;
+}
+
+if (process.env.NODE_ENV !== 'production') globalForPool.__pool = undefined;
 
 interface RouteParams {
   params: Promise<{ slug: string }>;
@@ -17,22 +30,15 @@ interface RouteParams {
 
 export async function GET(req: NextRequest, { params }: RouteParams) {
   const { slug } = await params;
-  const connectionString = process.env.DATABASE_URL;
-  if (!connectionString) {
-    return NextResponse.json({ error: 'Database not configured' }, { status: 503 });
-  }
-
-  const pool = new Pool({ connectionString });
 
   try {
+    const pool = getPool();
     const result = await pool.query(
       `SELECT * FROM distilled_personas WHERE slug = $1 AND "isActive" = true LIMIT 1`,
       [slug]
     );
-    await pool.end();
 
     if (result.rows.length > 0) {
-      // FIX v2: normalize column names (same as list route)
       const row = result.rows[0];
       const normalized: Record<string, unknown> = { ...row };
       if (row.namezh !== undefined) normalized.namezh = row.namezh;
@@ -61,27 +67,32 @@ export async function GET(req: NextRequest, { params }: RouteParams) {
       if (row.isActive !== undefined) normalized.isActive = row.isActive;
       if (row.ispublished !== undefined) normalized.ispublished = row.ispublished;
       if (row.isPublished !== undefined) normalized.isPublished = row.isPublished;
-      return NextResponse.json({
-        source: 'distilled',
-        persona: normalized,
-        corpusItems: [],
-      });
+      return NextResponse.json(
+        { source: 'distilled', persona: normalized, corpusItems: [] },
+        {
+          headers: {
+            'Cache-Control': 'public, s-maxage=3600, stale-while-revalidate=86400',
+          },
+        }
+      );
     }
 
     const { getPersonaById } = await import('@/lib/personas');
     const codePersona = getPersonaById(slug);
     if (codePersona) {
-      return NextResponse.json({
-        source: 'code',
-        persona: codePersona,
-        corpusItems: [],
-      });
+      return NextResponse.json(
+        { source: 'code', persona: codePersona, corpusItems: [] },
+        {
+          headers: {
+            'Cache-Control': 'public, s-maxage=3600, stale-while-revalidate=86400',
+          },
+        }
+      );
     }
 
     return NextResponse.json({ error: 'Persona not found' }, { status: 404 });
   } catch (err) {
     console.error('[PersonaLibrary GET slug]', err);
-    await pool.end().catch(() => {});
     return NextResponse.json({ error: 'Internal error' }, { status: 500 });
   }
 }
@@ -113,7 +124,6 @@ export async function PUT(req: NextRequest, { params }: RouteParams) {
     }
 
     if (setClauses.length === 0) {
-      await pool.end();
       return NextResponse.json({ error: 'No valid fields to update' }, { status: 400 });
     }
 
@@ -122,7 +132,6 @@ export async function PUT(req: NextRequest, { params }: RouteParams) {
       `UPDATE distilled_personas SET ${setClauses.join(', ')} WHERE slug = $${paramIdx} RETURNING *`,
       values
     );
-    await pool.end();
 
     if (result.rows.length === 0) {
       return NextResponse.json({ error: 'Persona not found' }, { status: 404 });
@@ -130,7 +139,6 @@ export async function PUT(req: NextRequest, { params }: RouteParams) {
     return NextResponse.json(result.rows[0]);
   } catch (err) {
     console.error('[PersonaLibrary PUT]', err);
-    await pool.end().catch(() => {});
     return NextResponse.json({ error: 'Internal error' }, { status: 500 });
   }
 }
@@ -146,11 +154,9 @@ export async function DELETE(req: NextRequest, { params }: RouteParams) {
 
   try {
     await pool.query(`UPDATE distilled_personas SET "isActive" = false WHERE slug = $1`, [slug]);
-    await pool.end();
     return NextResponse.json({ success: true, slug });
   } catch (err) {
     console.error('[PersonaLibrary DELETE]', err);
-    await pool.end().catch(() => {});
     return NextResponse.json({ error: 'Internal error' }, { status: 500 });
   }
 }

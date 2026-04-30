@@ -104,16 +104,23 @@ export async function GET(
         ? dbPersona.finalScore
         : computeOverall(breakdown);
 
-      return NextResponse.json({
-        overall,
-        breakdown,
-        findings: (dbPersona.scoreFindings ?? []) as any[],
-        grade: overall >= 90 ? 'A' : overall >= 75 ? 'B' : overall >= 60 ? 'C' : overall >= 45 ? 'D' : 'F',
-        starRating: overall >= 90 ? 5 : overall >= 75 ? 4 : overall >= 60 ? 3 : overall >= 45 ? 2 : 1,
-        dataSources: (dbPersona.corpusSources ?? []) as any[],
-        mainGaps: [],
-        source: 'db',
-      });
+      return NextResponse.json(
+        {
+          overall,
+          breakdown,
+          findings: (dbPersona.scoreFindings ?? []) as any[],
+          grade: overall >= 90 ? 'A' : overall >= 75 ? 'B' : overall >= 60 ? 'C' : overall >= 45 ? 'D' : 'F',
+          starRating: overall >= 90 ? 5 : overall >= 75 ? 4 : overall >= 60 ? 3 : overall >= 45 ? 2 : 1,
+          dataSources: (dbPersona.corpusSources ?? []) as any[],
+          mainGaps: [],
+          source: 'db',
+        },
+        {
+          headers: {
+            'Cache-Control': 'public, s-maxage=3600, stale-while-revalidate=86400',
+          },
+        }
+      );
     }
   } catch (err) {
     console.error('[Confidence API] DB query failed:', err);
@@ -125,14 +132,21 @@ export async function GET(
     return NextResponse.json({ error: 'No confidence data available' }, { status: 404 });
   }
 
-  return NextResponse.json({
-    overall: static_.overall,
-    breakdown: static_.breakdown,
-    findings: [],
-    grade: static_.grade,
-    starRating: static_.starRating,
-    dataSources: static_.dataSources,
-    mainGaps: static_.mainGaps,
-    source: 'static',
-  });
+  return NextResponse.json(
+    {
+      overall: static_.overall,
+      breakdown: static_.breakdown,
+      findings: [],
+      grade: static_.grade,
+      starRating: static_.starRating,
+      dataSources: static_.dataSources,
+      mainGaps: static_.mainGaps,
+      source: 'static',
+    },
+    {
+      headers: {
+        'Cache-Control': 'public, s-maxage=3600, stale-while-revalidate=86400',
+      },
+    }
+  );
 }

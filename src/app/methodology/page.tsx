@@ -27,7 +27,7 @@ import {
   Shield,
   Lightbulb,
 } from 'lucide-react';
-import { PERSONA_LIST } from '@/lib/personas';
+import { PERSONA_LIST_LIGHT } from '@/lib/persona-list-light';
 import { cn } from '@/lib/utils';
 
 const STEPS = [

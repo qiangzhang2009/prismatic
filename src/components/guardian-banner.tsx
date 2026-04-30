@@ -16,7 +16,7 @@ import {
   Clock, Flame, Play, Loader2, MessageSquare, ChevronDown, Send
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { getPersonasByIds } from '@/lib/personas';
+import { PERSONA_LIST_LIGHT } from '@/lib/persona-list-light';
 import type { DebateRecord, DebateTurn } from '@/lib/debate-arena-engine';
 
 interface Guardian {
@@ -84,8 +84,7 @@ const SLOT_LABELS = ['壹', '贰', '叁'];
 function DebateTurnCard({ turn }: { turn: DebateTurn }) {
   const meta = TONE_META[turn.tone] ?? TONE_META.opening;
   const isModerator = turn.speakerId === 'moderator';
-  const personas = getPersonasByIds([turn.speakerId]);
-  const persona = personas[0];
+  const persona = PERSONA_LIST_LIGHT.find(p => p.id === turn.speakerId);
 
   return (
     <div className={cn(

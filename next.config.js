@@ -4,7 +4,6 @@ const nextConfig = {
     ignoreDuringBuilds: true,
   },
   typescript: {
-    // Ignore TS errors in debug routes that don't affect production
     ignoreBuildErrors: true,
   },
   experimental: {

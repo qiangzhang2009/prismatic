@@ -11,8 +11,13 @@ import { getPersona } from '@/lib/personas';
 import { unquote, decodeUnicodeEscapes, getDomainGradient } from '@/lib/utils';
 import type { Persona } from '@/lib/types';
 import { PersonaDetailClient } from './client';
+import { PERSONA_LIST_LIGHT } from '@/lib/persona-list-light';
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 3600;
+
+export async function generateStaticParams() {
+  return PERSONA_LIST_LIGHT.map((p) => ({ slug: p.slug }));
+}
 
 // Build Persona from DB record, merging code data where DB is incomplete
 function buildPersonaFromDB(db: Record<string, unknown>): Persona {
@@ -106,8 +111,8 @@ async function fetchFromDB(slug: string): Promise<{ persona: Persona | null; con
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL ?? 'https://prismatic.zxqconsulting.com';
 
   const [personaRes, confidenceRes] = await Promise.all([
-    fetch(`${baseUrl}/api/persona-library/${slug}`, { cache: 'no-store' }),
-    fetch(`${baseUrl}/api/personas/${slug}/confidence`, { cache: 'no-store' }),
+    fetch(`${baseUrl}/api/persona-library/${slug}`, { next: { revalidate: 3600 } }),
+    fetch(`${baseUrl}/api/personas/${slug}/confidence`, { next: { revalidate: 3600 } }),
   ]);
 
   let persona: Persona | null = null;

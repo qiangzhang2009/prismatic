@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { cn, hexToRgba } from '@/lib/utils';
 import type { Persona } from '@/lib/types';
 import { trackPersonaView } from '@/lib/use-tracking';
-import { getConfidenceLevel } from '@/lib/confidence';
+import { getConfidenceLevel } from '@/lib/confidence-utils';
 import { DOMAINS } from '@/lib/constants';
 
 function domainLabel(key: string): string {
