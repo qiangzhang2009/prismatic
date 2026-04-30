@@ -89,6 +89,7 @@ async function callLLM(
       console.error(
         `[Guardian Engine] LLM attempt ${attempt + 1}/${attempts} failed${isTimeout ? ' (timeout)' : isRateLimit ? ' (rate limit)' : ''}: ${errMsg.slice(0, 200)}`
       );
+      console.log(`[Guardian Engine] DEBUG: LLM call failed for ${personaId}, attempt ${attempt + 1}, error: ${errMsg.slice(0, 100)}`);
       if (isLastAttempt) return null;
       await new Promise(resolve => setTimeout(resolve, (1 << attempt) * 1000));
     }
@@ -179,6 +180,7 @@ async function processMentionedReply(
   authorName: string,
   mentionedGuardianId: string
 ): Promise<{ replied: boolean; reply?: string; personaName?: string }> {
+  console.log(`[Guardian Engine] processMentionedReply called: commentId=${commentId}, personaId=${mentionedGuardianId}, content=${commentContent.slice(0, 50)}`);
   const persona = PERSONAS[mentionedGuardianId];
   if (!persona) {
     console.error(`[Guardian Engine] Persona not found: ${mentionedGuardianId}`);

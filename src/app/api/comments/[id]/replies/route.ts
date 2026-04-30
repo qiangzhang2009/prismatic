@@ -45,6 +45,9 @@ export async function GET(req: NextRequest) {
           updated_at: r.updatedAt.toISOString(),
           createdAt: r.createdAt.toISOString(),
           updatedAt: r.updatedAt.toISOString(),
+          mentionedGuardianReply: r.mentionedGuardianReply ?? null,
+          mentionedGuardianId: r.mentionedGuardianId ?? null,
+          ipHash: r.ipHash ?? null,
         };
       }),
     });
