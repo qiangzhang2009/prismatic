@@ -143,115 +143,185 @@ function curvedPath(x1: number, y1: number, x2: number, y2: number): string {
 
 const EDGE_COLORS = { inspired: '#60a5fa', complements: '#fbbf24', opposes: '#f87171' };
 
+// ─── Viewport transform state ─────────────────────────────────────────────────
+// We use SVG viewBox manipulation for pan/zoom so the viewport naturally fills
+// the container on any screen size (avoids Android CSS scale clipping issues).
+interface Viewport {
+  minX: number; // viewBox left (world coordinate)
+  minY: number; // viewBox top
+  width: number;  // viewBox width = screen / scale
+  height: number;  // viewBox height = screen / scale
+  scale: number;
+}
+
+// Compute world-to-screen and screen-to-world helpers
+function toScreen(wx: number, wy: number, vp: Viewport): [number, number] {
+  return [wx - vp.minX, wy - vp.minY];
+}
+function toWorld(sx: number, sy: number, vp: Viewport): [number, number] {
+  return [sx + vp.minX, sy + vp.minY];
+}
+function computeViewBox(vp: Viewport) {
+  return `${vp.minX} ${vp.minY} ${vp.width} ${vp.height}`;
+}
+
+function fitToScreen(vw: number, vh: number, nodes: Node[]): Viewport {
+  const maxR = Math.max(...nodes.map((n) => Math.hypot(n.x, n.y) + n.r), 360);
+  const desiredW = maxR * 2 * 1.06; // 6% padding each side
+  const desiredH = maxR * 2 * 1.06;
+  const scaleX = vw / desiredW;
+  const scaleY = vh / desiredH;
+  const scale = Math.min(scaleX, scaleY, 1.1);
+  const w = vw / scale;
+  const h = vh / scale;
+  return { minX: -w / 2, minY: -h / 2, width: w, height: h, scale };
+}
+
 // ─── Main Component ─────────────────────────────────────────────────────────
 export default function GraphPage() {
   const [selectedNode, setSelectedNode] = useState<Node | null>(null);
   const [hoveredNode, setHoveredNode] = useState<string | null>(null);
-  const [scale, setScale] = useState(1);
-  const [offset, setOffset] = useState({ x: 0, y: 0 });
+  const [vp, setVp] = useState<Viewport>(() => ({ minX: 0, minY: 0, width: 800, height: 600, scale: 1 }));
   const [dragging, setDragging] = useState(false);
-  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+  const [dragStart, setDragStart] = useState({ wx: 0, wy: 0 }); // world coords at drag start
   const [showInfo, setShowInfo] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
 
   const containerRef = useRef<HTMLDivElement>(null);
   const { nodes, edges } = useMemo(() => buildGraph(), []);
 
-  // Auto-fit on mount — use container dimensions for reliable mobile support
+  // Auto-fit on mount and on resize
   useEffect(() => {
     const fit = () => {
       const rect = containerRef.current?.getBoundingClientRect();
-      // Fallback to viewport if rect is 0/wrong (mobile early render guard)
-      const vw = Math.max(rect?.width ?? window.innerWidth, 320);
-      const vh = Math.max(rect?.height ?? (window.innerHeight - 64), 240);
-      const padding = Math.min(vw, vh) * 0.12;
-      const maxR = Math.max(...nodes.map((n) => Math.hypot(n.x, n.y) + n.r), 360);
-      const fittedScale = Math.min((vw - padding * 2) / (maxR * 2), (vh - padding) / (maxR * 2), 1.1);
-      // Guard against near-zero scale on mobile
-      setScale(Math.max(fittedScale, 0.25));
-      setOffset({ x: vw / 2, y: vh / 2 });
+      const cw = Math.max(rect?.width ?? window.innerWidth, 320);
+      const ch = Math.max(rect?.height ?? (window.innerHeight - 64), 240);
+      setVp(fitToScreen(cw, ch, nodes));
       setIsLoaded(true);
     };
-    // Mobile browsers may report 0×0 on first call; schedule after layout settles
     const t1 = setTimeout(fit, 80);
-    const t2 = setTimeout(fit, 350); // double-check after paint
-
-    // Respond to container size changes (mobile keyboard, address bar, etc.)
+    const t2 = setTimeout(fit, 400); // after mobile browser paint
     const ro = new ResizeObserver(fit);
     if (containerRef.current) ro.observe(containerRef.current);
-
     window.addEventListener('resize', fit);
-    return () => {
-      clearTimeout(t1);
-      clearTimeout(t2);
-      ro.disconnect();
-      window.removeEventListener('resize', fit);
-    };
+    return () => { clearTimeout(t1); clearTimeout(t2); ro.disconnect(); window.removeEventListener('resize', fit); };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Drag / Pan
+  // ── Mouse drag / Pan ───────────────────────────────────────────────────────
   const handleMouseDown = useCallback((e: React.MouseEvent) => {
     const target = e.target as HTMLElement;
     if (target.closest('button, a, input, .detail-panel')) return;
     setDragging(true);
-    setDragStart({ x: e.clientX - offset.x, y: e.clientY - offset.y });
-  }, [offset]);
+    const [wx, wy] = toWorld(e.clientX, e.clientY, vp);
+    setDragStart({ wx: vp.minX - wx, wy: vp.minY - wy });
+  }, [vp]);
 
   const handleMouseMove = useCallback((e: React.MouseEvent) => {
     if (!dragging) return;
-    setOffset({ x: e.clientX - dragStart.x, y: e.clientY - dragStart.y });
-  }, [dragging, dragStart]);
+    const [wx, wy] = toWorld(e.clientX, e.clientY, vp);
+    setVp((v) => ({ ...v, minX: wx + dragStart.wx, minY: wy + dragStart.wy }));
+  }, [dragging, vp, dragStart]);
 
-  // Touch
-  const lastTouch = useRef<{ dist: number; scale: number } | null>(null);
+  // ── Touch drag / Pinch ─────────────────────────────────────────────────────
+  const lastTouch = useRef<{ dist: number; vp: Viewport; cx: number; cy: number } | null>(null);
   const handleTouchStart = useCallback((e: React.TouchEvent) => {
     if ((e.target as HTMLElement).closest('button, a')) return;
     if (e.touches.length === 1) {
       lastTouch.current = null;
       setDragging(true);
-      setDragStart({ x: e.touches[0].clientX - offset.x, y: e.touches[0].clientY - offset.y });
+      const [wx, wy] = toWorld(e.touches[0].clientX, e.touches[0].clientY, vp);
+      setDragStart({ wx: vp.minX - wx, wy: vp.minY - wy });
     } else if (e.touches.length === 2) {
-      lastTouch.current = { dist: Math.hypot(e.touches[1].clientX - e.touches[0].clientX, e.touches[1].clientY - e.touches[0].clientY), scale };
+      const cx = (e.touches[0].clientX + e.touches[1].clientX) / 2;
+      const cy = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+      const dist = Math.hypot(e.touches[1].clientX - e.touches[0].clientX, e.touches[1].clientY - e.touches[0].clientY);
+      lastTouch.current = { dist, vp: { ...vp }, cx, cy };
       setDragging(false);
     }
-  }, [offset, scale]);
+  }, [vp]);
 
   const handleTouchMove = useCallback((e: React.TouchEvent) => {
     e.preventDefault();
     if (e.touches.length === 1 && dragging) {
-      setOffset({ x: e.touches[0].clientX - dragStart.x, y: e.touches[0].clientY - dragStart.y });
+      const [wx, wy] = toWorld(e.touches[0].clientX, e.touches[0].clientY, vp);
+      setVp((v) => ({ ...v, minX: wx + dragStart.wx, minY: wy + dragStart.wy }));
     } else if (e.touches.length === 2 && lastTouch.current) {
       const dist = Math.hypot(e.touches[1].clientX - e.touches[0].clientX, e.touches[1].clientY - e.touches[0].clientY);
-      setScale(Math.max(0.3, Math.min(3, lastTouch.current.scale * (dist / lastTouch.current.dist))));
+      const ratio = dist / lastTouch.current.dist;
+      const { vp: prevVp, cx, cy } = lastTouch.current;
+      // Scale around the pinch center (screen coords)
+      const newScale = Math.max(0.15, Math.min(4, prevVp.scale * ratio));
+      const worldCX = cx / newScale + prevVp.minX;
+      const worldCY = cy / newScale + prevVp.minY;
+      const newW = containerRef.current?.clientWidth ?? window.innerWidth;
+      const newH = containerRef.current?.clientHeight ?? (window.innerHeight - 64);
+      setVp({
+        scale: newScale,
+        minX: worldCX - cx / newScale,
+        minY: worldCY - cy / newScale,
+        width: newW / newScale,
+        height: newH / newScale,
+      });
     }
-  }, [dragging, dragStart]);
+  }, [dragging, dragStart, vp]);
 
   const handleTouchEnd = useCallback(() => { setDragging(false); lastTouch.current = null; }, []);
 
-  // Wheel zoom
+  // ── Wheel zoom ─────────────────────────────────────────────────────────────
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
-    const handler = (e: WheelEvent) => { e.preventDefault(); setScale((s) => Math.max(0.3, Math.min(3, s * (e.deltaY > 0 ? 0.88 : 1.12)))); };
+    const handler = (e: WheelEvent) => {
+      e.preventDefault();
+      const factor = e.deltaY > 0 ? 0.88 : 1.12;
+      const newScale = Math.max(0.15, Math.min(4, vp.scale * factor));
+      // Zoom toward mouse position
+      const rect = container.getBoundingClientRect();
+      const mx = e.clientX - rect.left;
+      const my = e.clientY - rect.top;
+      const worldMX = mx / vp.scale + vp.minX;
+      const worldMY = my / vp.scale + vp.minY;
+      const cw = container.clientWidth;
+      const ch = container.clientHeight;
+      setVp({
+        scale: newScale,
+        minX: worldMX - mx / newScale,
+        minY: worldMY - my / newScale,
+        width: cw / newScale,
+        height: ch / newScale,
+      });
+    };
     container.addEventListener('wheel', handler, { passive: false });
     return () => container.removeEventListener('wheel', handler);
-  }, []);
+  }, [vp]);
 
-  const zoomIn = () => setScale((s) => Math.min(3, s * 1.25));
-  const zoomOut = () => setScale((s) => Math.max(0.3, s / 1.25));
+  // ── Button zoom ────────────────────────────────────────────────────────────
+  const zoomIn = () => {
+    const cw = containerRef.current?.clientWidth ?? window.innerWidth;
+    const ch = containerRef.current?.clientHeight ?? (window.innerHeight - 64);
+    const cx = cw / 2, cy = ch / 2;
+    const newScale = Math.min(4, vp.scale * 1.25);
+    const worldCX = cx / vp.scale + vp.minX;
+    const worldCY = cy / vp.scale + vp.minY;
+    setVp({ scale: newScale, minX: worldCX - cx / newScale, minY: worldCY - cy / newScale, width: cw / newScale, height: ch / newScale });
+  };
+  const zoomOut = () => {
+    const cw = containerRef.current?.clientWidth ?? window.innerWidth;
+    const ch = containerRef.current?.clientHeight ?? (window.innerHeight - 64);
+    const cx = cw / 2, cy = ch / 2;
+    const newScale = Math.max(0.15, vp.scale / 1.25);
+    const worldCX = cx / vp.scale + vp.minX;
+    const worldCY = cy / vp.scale + vp.minY;
+    setVp({ scale: newScale, minX: worldCX - cx / newScale, minY: worldCY - cy / newScale, width: cw / newScale, height: ch / newScale });
+  };
   const resetView = () => {
-    const rect = containerRef.current?.getBoundingClientRect();
-    const vw = Math.max(rect?.width ?? window.innerWidth, 320);
-    const vh = Math.max(rect?.height ?? (window.innerHeight - 64), 240);
-    const padding = Math.min(vw, vh) * 0.12;
-    const maxR = Math.max(...nodes.map((n) => Math.hypot(n.x, n.y) + n.r), 360);
-    const s = Math.min((vw - padding * 2) / (maxR * 2), (vh - padding) / (maxR * 2), 1.1);
-    setScale(Math.max(s, 0.25));
-    setOffset({ x: vw / 2, y: vh / 2 });
+    const cw = Math.max(containerRef.current?.clientWidth ?? window.innerWidth, 320);
+    const ch = Math.max(containerRef.current?.clientHeight ?? (window.innerHeight - 64), 240);
+    setVp(fitToScreen(cw, ch, nodes));
   };
 
-  // Node helpers
+  // ── Helpers ────────────────────────────────────────────────────────────────
   const getConnected = useCallback((nodeId: string) => {
     const ids: string[] = [];
     edges.forEach((e) => { if (e.source === nodeId) ids.push(e.target); if (e.target === nodeId) ids.push(e.source); });
@@ -322,7 +392,7 @@ export default function GraphPage() {
           </button>
           <div className="flex items-center rounded-lg overflow-hidden" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}>
             <button onClick={zoomOut} className="px-2.5 py-1.5 text-white/40 hover:text-white hover:bg-white/10 transition-colors" aria-label="缩小"><ZoomOut className="w-3.5 h-3.5" /></button>
-            <div className="px-2 py-1.5 text-xs text-white/45 font-mono min-w-[44px] text-center">{Math.round(scale * 100)}%</div>
+            <div className="px-2 py-1.5 text-xs text-white/45 font-mono min-w-[44px] text-center">{Math.round(vp.scale * 100)}%</div>
             <button onClick={zoomIn} className="px-2.5 py-1.5 text-white/40 hover:text-white hover:bg-white/10 transition-colors" aria-label="放大"><ZoomIn className="w-3.5 h-3.5" /></button>
             <button onClick={resetView} className="px-2.5 py-1.5 text-white/40 hover:text-white hover:bg-white/10 transition-colors" style={{ borderLeft: '1px solid rgba(255,255,255,0.08)' }} aria-label="适应屏幕"><RotateCcw className="w-3.5 h-3.5" /></button>
           </div>
@@ -342,7 +412,11 @@ export default function GraphPage() {
         onTouchEnd={handleTouchEnd}
         onClick={() => setSelectedNode(null)}
       >
-        <svg className="absolute inset-0 w-full h-full" style={{ transform: `scale(${scale})`, transformOrigin: `${offset.x}px ${offset.y}px` }}>
+        <svg
+          className="absolute inset-0 w-full h-full"
+          viewBox={computeViewBox(vp)}
+          preserveAspectRatio="xMidYMid meet"
+        >
           <defs>
             {nodes.filter((n) => n.type === 'persona').map((n) => (
               <radialGradient key={`rg-${n.id}`} id={`grad-${n.id}`} cx="35%" cy="28%" r="68%">
@@ -378,7 +452,7 @@ export default function GraphPage() {
             </marker>
           </defs>
 
-          <g transform={`translate(${offset.x}, ${offset.y})`}>
+          <g>
 
             {/* ── Edges ── */}
             {edges.map((edge, i) => {
