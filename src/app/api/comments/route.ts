@@ -343,22 +343,86 @@ export async function POST(req: NextRequest) {
 
     // ── Fire-and-forget: guardian LLM reply ─────────────────────────────────
     // Rules:
-    // 1. Root comments with @mention → that persona replies (fire-and-forget, no schedule dependency)
-    // 2. Replies with mentionedGuardianId (继续追问) → that persona replies (fire-and-forget)
-    // 3. Root comments without @mention → organic probabilistic engagement
+    // 1. Root comments with @mention → SYNCHRONOUS LLM reply (persona responds before API returns)
+    // 2. Replies with mentionedGuardianId (继续追问) → SYNCHRONOUS LLM reply
+    // 3. Root comments without @mention → organic probabilistic engagement (fire-and-forget)
     // 4. Replies without mention → never trigger guardian engine
     const isRootComment = !parentId;
     if (isRootComment) {
       if (mentionedGuardianId) {
-        processCommentInteractions(newComment.id, content.trim(), nickname, mentionedGuardianId)
-          .catch((e) => console.error('[Comments] @mention reply failed:', e));
+        // SYNCHRONOUS: await the LLM reply so DB is updated before response
+        const result = await processCommentInteractions(newComment.id, content.trim(), nickname, mentionedGuardianId);
+        if (result.reply) {
+          return NextResponse.json({
+            success: true,
+            comment: {
+              id: newComment.id,
+              content: newComment.content,
+              author_name: nickname,
+              author_avatar: null,
+              avatar_url: avatarUrl,
+              display_name: nickname,
+              gender: gender || null,
+              location,
+              created_at: newComment.createdAt.toISOString(),
+              updated_at: new Date().toISOString(),
+              is_pinned: false,
+              is_edited: false,
+              likes: 0,
+              reactions: [],
+              reactionCount: 0,
+              userReaction: null,
+              view_count: 0,
+              report_count: 0,
+              replyCount: 0,
+              personaSlug: newComment.personaSlug,
+              mentionedGuardianId,
+              mentionedGuardianReply: result.reply,
+              mentionedGuardianRepliedAt: new Date().toISOString(),
+              mentionedGuardianName: PERSONAS[mentionedGuardianId]?.nameZh || null,
+              ipHash: ipHash,
+            }
+          });
+        }
       } else {
         processCommentInteractions(newComment.id, content.trim(), nickname, null)
           .catch((e) => console.error('[Comments] Organic reply failed:', e));
       }
     } else if (mentionedGuardianId) {
-      processCommentInteractions(newComment.id, content.trim(), nickname, mentionedGuardianId)
-        .catch((e) => console.error('[Comments] Follow-up reply failed:', e));
+      // SYNCHRONOUS: await the LLM reply for 继续追问
+      const result = await processCommentInteractions(newComment.id, content.trim(), nickname, mentionedGuardianId);
+      if (result.reply) {
+        return NextResponse.json({
+          success: true,
+          comment: {
+            id: newComment.id,
+            content: newComment.content,
+            author_name: nickname,
+            author_avatar: null,
+            avatar_url: avatarUrl,
+            display_name: nickname,
+            gender: gender || null,
+            location,
+            created_at: newComment.createdAt.toISOString(),
+            updated_at: new Date().toISOString(),
+            is_pinned: false,
+            is_edited: false,
+            likes: 0,
+            reactions: [],
+            reactionCount: 0,
+            userReaction: null,
+            view_count: 0,
+            report_count: 0,
+            replyCount: 0,
+            personaSlug: newComment.personaSlug,
+            mentionedGuardianId,
+            mentionedGuardianReply: result.reply,
+            mentionedGuardianRepliedAt: new Date().toISOString(),
+            mentionedGuardianName: PERSONAS[mentionedGuardianId]?.nameZh || null,
+            ipHash: ipHash,
+          }
+        });
+      }
     }
 
     return NextResponse.json({

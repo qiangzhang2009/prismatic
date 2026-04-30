@@ -4,8 +4,7 @@
  *
  * Logic:
  * - If a user @-mentions ANY persona → that persona replies at 100%, immediately,
- *   no daily limit, no guardian-rotation gate, no schedule dependency.
- *   The mention IS the gate.
+ *   no daily limit, no guardian-rotation gate. The mention IS the gate.
  * - If no @mention → today's rotating guardians reply probabilistically (25-40%).
  *
  * This creates the "living world" feeling: @mentions get guaranteed responses,
@@ -42,8 +41,8 @@ function getModelName(): string {
 
 // ─── LLM Generation ──────────────────────────────────────────────────────────
 
-// Vercel serverless function timeout is 60s. Use 55s to leave buffer for DB writes.
-const LLM_TIMEOUT_MS = 55_000;
+// Vercel Hobbyist: 10s timeout. Pro: 60s. Use 9s to stay safe.
+const LLM_TIMEOUT_MS = 9_000;
 
 /** Low-level LLM call with retry, returns null on persistent failure. */
 async function callLLM(
@@ -91,7 +90,7 @@ async function callLLM(
         `[Guardian Engine] LLM attempt ${attempt + 1}/${attempts} failed${isTimeout ? ' (timeout)' : isRateLimit ? ' (rate limit)' : ''}: ${errMsg.slice(0, 200)}`
       );
       if (isLastAttempt) return null;
-      await new Promise(resolve => setTimeout(resolve, (1 << attempt) * 2000));
+      await new Promise(resolve => setTimeout(resolve, (1 << attempt) * 1000));
     }
   }
   return null;
@@ -150,9 +149,8 @@ function getDefaultShiftTheme(): string {
  * Process a new comment and potentially have guardians respond.
  * Called from the POST /api/comments endpoint.
  *
- * For @mention comments: fire-and-forget (async), the LLM runs in the background
- * while the API returns immediately. Frontend polls for the reply.
- * For organic comments: async probabilistic engagement.
+ * For @mention comments: SYNCHRONOUS — waits for LLM, updates DB, returns reply.
+ * For organic comments: ASYNC fire-and-forget (probabilistic, schedule-based).
  */
 export async function processCommentInteractions(
   commentId: string,
@@ -161,32 +159,30 @@ export async function processCommentInteractions(
   mentionedGuardianId?: string | null
 ): Promise<{ replied: boolean; reply?: string; personaName?: string }> {
   if (!mentionedGuardianId) {
+    // Organic engagement: fire-and-forget, schedule-based
     processOrganicEngagement(commentId, commentContent, authorName).catch(console.error);
     return { replied: false };
   }
 
-  // @mention path: run in background, no schedule/daily-limit dependency.
-  // The API route returns immediately; this runs after the response is sent.
-  processMentionedReply(commentId, commentContent, authorName, mentionedGuardianId).catch(
-    (e) => console.error('[Guardian Engine] @mention reply failed:', e)
-  );
-  return { replied: false };
+  // @mention path: SYNCHRONOUS — the API route awaits this call.
+  // The LLM runs within the request lifecycle so DB is updated before the response.
+  return processMentionedReply(commentId, commentContent, authorName, mentionedGuardianId);
 }
 
 /**
- * Handle @mentioned persona reply — NO schedule dependency, NO daily limit.
- * Any persona in the library can be @mentioned and will respond.
+ * Handle @mentioned persona reply — SYNCHRONOUS.
+ * NO schedule dependency, NO daily limit. Any persona in the library can respond.
  */
 async function processMentionedReply(
   commentId: string,
   commentContent: string,
   authorName: string,
   mentionedGuardianId: string
-): Promise<void> {
+): Promise<{ replied: boolean; reply?: string; personaName?: string }> {
   const persona = PERSONAS[mentionedGuardianId];
   if (!persona) {
     console.error(`[Guardian Engine] Persona not found: ${mentionedGuardianId}`);
-    return;
+    return { replied: false };
   }
 
   const shiftTheme = getDefaultShiftTheme();
@@ -201,27 +197,32 @@ async function processMentionedReply(
 
   if (!response) {
     console.warn(`[Guardian Engine] No response generated for ${persona.nameZh}`);
-    return;
+    return { replied: false };
   }
 
-  await recordPersonaInteraction(mentionedGuardianId, commentId, 'reply', response).catch(
-    (err) => console.warn('[Guardian Engine] recordPersonaInteraction failed:', err)
-  );
+  try {
+    await recordPersonaInteraction(mentionedGuardianId, commentId, 'reply', response);
+  } catch (err) {
+    console.warn('[Guardian Engine] recordPersonaInteraction failed:', err);
+  }
 
-  await prisma.comment.update({
-    where: { id: commentId },
-    data: {
-      mentionedGuardianReply: response,
-      mentionedGuardianRepliedAt: new Date(),
-    },
-  }).catch((err) => {
-    console.warn('[Guardian Engine] DB backfill failed:', err);
-  });
+  try {
+    await prisma.comment.update({
+      where: { id: commentId },
+      data: {
+        mentionedGuardianReply: response,
+        mentionedGuardianRepliedAt: new Date(),
+      },
+    });
+  } catch (err) {
+    console.warn('[Guardian Engine] DB update failed:', err);
+  }
 
   console.log(`[Guardian Engine] ${persona.nameZh} replied to comment ${commentId}`);
+  return { replied: true, reply: response, personaName: persona.nameZh };
 }
 
-// ─── Async organic engagement (schedule-based) ────────────────────────────────
+// ─── Async organic engagement (schedule-based, fire-and-forget) ──────────────
 
 async function processOrganicEngagement(
   commentId: string,
