@@ -161,16 +161,20 @@ export default function GraphPage() {
   useEffect(() => {
     const fit = () => {
       const rect = containerRef.current?.getBoundingClientRect();
-      const vw = rect?.width ?? window.innerWidth;
-      const vh = rect?.height ?? (window.innerHeight - 64);
+      // Fallback to viewport if rect is 0/wrong (mobile early render guard)
+      const vw = Math.max(rect?.width ?? window.innerWidth, 320);
+      const vh = Math.max(rect?.height ?? (window.innerHeight - 64), 240);
       const padding = Math.min(vw, vh) * 0.12;
       const maxR = Math.max(...nodes.map((n) => Math.hypot(n.x, n.y) + n.r), 360);
       const fittedScale = Math.min((vw - padding * 2) / (maxR * 2), (vh - padding) / (maxR * 2), 1.1);
-      setScale(fittedScale);
+      // Guard against near-zero scale on mobile
+      setScale(Math.max(fittedScale, 0.25));
       setOffset({ x: vw / 2, y: vh / 2 });
       setIsLoaded(true);
     };
-    const t = setTimeout(fit, 80);
+    // Mobile browsers may report 0×0 on first call; schedule after layout settles
+    const t1 = setTimeout(fit, 80);
+    const t2 = setTimeout(fit, 350); // double-check after paint
 
     // Respond to container size changes (mobile keyboard, address bar, etc.)
     const ro = new ResizeObserver(fit);
@@ -178,7 +182,8 @@ export default function GraphPage() {
 
     window.addEventListener('resize', fit);
     return () => {
-      clearTimeout(t);
+      clearTimeout(t1);
+      clearTimeout(t2);
       ro.disconnect();
       window.removeEventListener('resize', fit);
     };
@@ -237,11 +242,12 @@ export default function GraphPage() {
   const zoomOut = () => setScale((s) => Math.max(0.3, s / 1.25));
   const resetView = () => {
     const rect = containerRef.current?.getBoundingClientRect();
-    const vw = rect?.width ?? window.innerWidth;
-    const vh = rect?.height ?? (window.innerHeight - 64);
+    const vw = Math.max(rect?.width ?? window.innerWidth, 320);
+    const vh = Math.max(rect?.height ?? (window.innerHeight - 64), 240);
     const padding = Math.min(vw, vh) * 0.12;
     const maxR = Math.max(...nodes.map((n) => Math.hypot(n.x, n.y) + n.r), 360);
-    setScale(Math.min((vw - padding * 2) / (maxR * 2), (vh - padding) / (maxR * 2), 1.1));
+    const s = Math.min((vw - padding * 2) / (maxR * 2), (vh - padding) / (maxR * 2), 1.1);
+    setScale(Math.max(s, 0.25));
     setOffset({ x: vw / 2, y: vh / 2 });
   };
 
@@ -336,7 +342,7 @@ export default function GraphPage() {
         onTouchEnd={handleTouchEnd}
         onClick={() => setSelectedNode(null)}
       >
-        <svg className="w-full h-full" style={{ transform: `scale(${scale})`, transformOrigin: 'center center' }}>
+        <svg className="absolute inset-0 w-full h-full" style={{ transform: `scale(${scale})`, transformOrigin: `${offset.x}px ${offset.y}px` }}>
           <defs>
             {nodes.filter((n) => n.type === 'persona').map((n) => (
               <radialGradient key={`rg-${n.id}`} id={`grad-${n.id}`} cx="35%" cy="28%" r="68%">
