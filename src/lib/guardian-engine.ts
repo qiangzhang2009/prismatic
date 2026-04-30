@@ -41,8 +41,12 @@ function getModelName(): string {
 
 // ─── LLM Generation ──────────────────────────────────────────────────────────
 
-// Vercel serverless maxDuration is 60s. Use 55s to leave buffer for DB writes.
-const LLM_TIMEOUT_MS = 55_000;
+// Vercel Hobbyist: ~10s hard limit per serverless function.
+// DeepSeek typically responds in 3-8s, sometimes up to 15s.
+// 8s gives enough headroom for the Vercel runtime overhead (~2s) within the 10s cap.
+// If replies are missing frequently, upgrade to Vercel Pro and set maxDuration=60s in Dashboard,
+// then change this to 55_000.
+const LLM_TIMEOUT_MS = 8_000;
 
 /** Low-level LLM call with retry, returns null on persistent failure. */
 async function callLLM(
@@ -90,7 +94,7 @@ async function callLLM(
         `[Guardian Engine] LLM attempt ${attempt + 1}/${attempts} failed${isTimeout ? ' (timeout)' : isRateLimit ? ' (rate limit)' : ''}: ${errMsg.slice(0, 200)}`
       );
       if (isLastAttempt) return null;
-      await new Promise(resolve => setTimeout(resolve, (1 << attempt) * 2000));
+      await new Promise(resolve => setTimeout(resolve, (1 << attempt) * 1000));
     }
   }
   return null;
