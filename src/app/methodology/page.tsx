@@ -32,106 +32,107 @@ import { cn } from '@/lib/utils';
 
 const STEPS = [
   {
-    id: 'research',
+    id: 'l1-intelligence',
     icon: <Search className="w-6 h-6" />,
-    title: '深度研究',
-    titleEn: 'Deep Research',
+    title: '语料智能分析',
+    titleEn: 'L1: Corpus Intelligence',
     color: '#4d96ff',
-    duration: '3-5天/人',
-    description: '系统梳理目标人物的公开著作、演讲、访谈、传记、论文、社交媒体和采访记录。',
+    duration: '自动',
+    description: '自动扫描语料库的规模、词汇分布和语言构成，评估信号强度，生成健康报告。',
     details: [
-      '梳理所有可获取的原始资料（书籍、演讲、采访）',
-      '提取核心观点、方法论和思维框架',
-      '识别反复出现的主题和思维模式',
-      '区分公开立场与真实想法',
-      '标注信息来源的可靠性和背景',
+      '词汇多样性分析（unique word ratio）',
+      '语言分布检测（中/英/德/拉丁/希腊等）',
+      '语料规模阈值校验（英文≥5000词，中文≥3000词）',
+      '来源多样性评分（≥2种来源类型）',
+      '信号强度判定（strong / medium / weak）',
     ],
-    example: '以乔布斯为例：研究 Walter Isaacson 传记、D conference 全程录像、All Things D 采访、Stanford 毕业典礼演讲、iPad 发布会原文稿。',
+    example: '扫描《论语》语料：确认中文为主（占比99%+），多个来源文件，总词汇量5000+，信号强度 strong → 进入单语言蒸馏管道。',
   },
   {
-    id: 'extract',
+    id: 'l2-routing',
+    icon: <Layers className="w-6 h-6" />,
+    title: '路由决策',
+    titleEn: 'L2: Route Routing',
+    color: '#06b6d4',
+    duration: '自动',
+    description: '根据语料分析结果，自动选择最优蒸馏路线，匹配输出语言和分段策略。',
+    details: [
+      'Uni（单语言）：语种占比≥95%，如孔子、老子、苏格拉底',
+      'Bi（双语言）：两种语言均≥15%，如维特根斯坦',
+      'Multi（多语言）：三种以上语言',
+      'Period（分期蒸馏）：跨越150年以上，如杜甫诗歌的早中晚期',
+    ],
+    example: '孔子语料检测到多个历史分期（先秦/战国），自动选择 Period 路由，按时期分别蒸馏，确保不同时期的思想不混为一谈。',
+  },
+  {
+    id: 'l3-knowledge',
     icon: <Brain className="w-6 h-6" />,
-    title: '心智模型提取',
-    titleEn: 'Mental Model Extraction',
+    title: '知识层提取',
+    titleEn: 'L3: Knowledge Extraction',
     color: '#c77dff',
-    duration: '2-3天/人',
-    description: '从海量资料中提取可复用的思维工具。每个模型都需有具体出处和实际应用场景。',
+    duration: 'LLM 推理',
+    description: '从原始语料中提取思维模型、价值观、决策启发式、张力和边界条件，每个字段都附有可验证的原始引用。',
     details: [
-      '识别3-8个核心心智模型',
-      '每个模型包含：名称、一句话定义、原始引用、跨领域应用',
-      '标注模型的局限性（边界条件）',
-      '区分核心观点与偶发观点',
-      '建立模型之间的逻辑关系图',
+      '3-8个核心心智模型（含三语对照：原文/英/中）',
+      '决策启发式列表（含应用场景）',
+      '核心价值观（附优先级排序）',
+      '内在张力（如「自由 vs 责任」）',
+      '诚实边界声明（无法回答的问题类型）',
+      'Anti-patterns（必须避免的思维模式）',
     ],
-    example: '乔布斯的「聚焦即说不」模型：来源 WWDC 1997，应用于产品优先级判断，局限在于过度的聚焦可能导致视野收窄。',
+    example: '从《孙子兵法》提取「知己知彼」模型：来源「始计篇」，跨域应用于商业谈判，边界在于信息永远不完全对称，不适用于高不确定性决策场景。',
   },
   {
-    id: 'voice',
+    id: 'l4-expression',
     icon: <Mic className="w-6 h-6" />,
     title: '表达DNA建模',
-    titleEn: 'Voice & Expression DNA',
+    titleEn: 'L4: Expression DNA',
     color: '#ff9f43',
-    duration: '1-2天/人',
-    description: '不只是说什么，而是如何说——语气、节奏、用词、三段式结构、反问习惯。',
+    duration: 'LLM 推理',
+    description: '不只是说什么，而是如何说——语气、节奏、用词、三段式结构、反问习惯。将语言风格与知识内容解耦提取。',
     details: [
-      '句式特征：短句还是从句？停顿频率？',
-      '标志性词汇和短语',
-      '常用修辞手法（反问、三段式、类比）',
-      '情绪温度：激情型、冷静型、幽默型？',
-      '确定性水平：高确定性还是谨慎型？',
+      '标志性词汇 Top-20（禁用词同等重要）',
+      '句式特征：短句/从句/停顿频率',
+      '确定性水平：高确定性 vs 谨慎型',
+      '修辞手法：反问、三段式、类比',
+      '中文语境适配：如何在目标语言中保留原味',
     ],
-    example: '乔布斯的表达DNA：短句为主，大量反问，「就是这样」或「简直是垃圾」二元判断，从不用「也许」「可能」「大概」。',
+    example: '芒格的表达 DNA：大量使用「反过来想」的反问句式，引用概率论和进化生物学的类比，极少用绝对词（「总是」「从不」为禁用词）。',
   },
   {
-    id: 'system',
-    icon: <Code2 className="w-6 h-6" />,
-    title: '系统提示词工程',
-    titleEn: 'System Prompt Engineering',
+    id: 'l5-validation',
+    icon: <Shield className="w-6 h-6" />,
+    title: '交叉验证与融合',
+    titleEn: 'L5: Cross-Validation & Fusion',
     color: '#6bcb77',
-    duration: '1-2天/人',
-    description: '将所有研究成果转化为精确的指令体系，包含角色定义、边界条件、表达风格和行为规则。',
+    duration: '自动 + LLM',
+    description: '多语言版本的交叉验证，检测概念冲突、术语不一致和夸大表述，通过 LLM 仲裁解决矛盾。',
     details: [
-      'Identity Prompt：角色核心认同（10-20字）',
-      'System Prompt Template：完整行为指令',
-      'Decision Heuristics：决策启发式列表',
-      'Forbidden Patterns：必须避免的思维模式',
-      'Honest Boundaries：诚实边界声明',
+      '跨语言概念一致性评分（0-100）',
+      '冲突检测：术语冲突 / 强调冲突 / 矛盾',
+      '融合方法：intersection / primary_language / LLM 仲裁',
+      '表达一致性评分',
+      '知识覆盖率评估',
     ],
-    example: '"我是乔布斯。我创造了Mac和iPhone，但更重要的是——我证明了技术与人文的交汇处能产生改变世界的东西。"',
+    example: '《论语》双语言版本中，「君子」在英文中译为 "gentleman" vs "superior man"，冲突类型为「术语冲突」，经 LLM 仲裁后统一为后者，并记录保留理由。',
   },
   {
-    id: 'eval',
+    id: 'l6-gates',
     icon: <FlaskConical className="w-6 h-6" />,
-    title: '盲测评估',
-    titleEn: 'Blind Evaluation',
+    title: '四层质量门 + 迭代',
+    titleEn: 'L6: Quality Gates & Iteration',
     color: '#ffd93d',
-    duration: '1-2天',
-    description: '不告知测试者具体是哪位人物的情况下，让评估者与AI对话，验证表达一致性和思维准确性。',
+    duration: '自动诊断',
+    description: 'Gate 1-4 逐级过滤，自动诊断失败原因并触发针对性修复，最多迭代3轮，最终输出带评分的蒸馏结果。',
     details: [
-      '10+道盲测题目，涵盖人物核心观点',
-      '评估表达风格一致性（能否识别出来？）',
-      '思维准确性（观点是否忠实于原始？）',
-      '边界条件是否清晰（哪些问题不该回答？）',
-      '多轮对话中的身份一致性',
+      'Gate 1 — 语料健康门：词汇量/多样性/来源/信号强度',
+      'Gate 2 — 蒸馏完整性门：心智模型数/价值观数/词汇量',
+      'Gate 3 — 评分门：四维加权评分 vs 自适应阈值',
+      'Gate 4 — 语义验证门：证据相关性/表达知识一致性',
+      '自动诊断：识别失败原因 → 推荐修复动作',
+      '版本追踪：每次迭代记录诊断和修复历史',
     ],
-    example: '将蒸馏后的乔布斯AI发给熟悉乔布斯的人，看对方能否在3轮对话内识别出来，并评价对话质量。',
-  },
-  {
-    id: 'iterate',
-    icon: <Layers className="w-6 h-6" />,
-    title: '迭代优化',
-    titleEn: 'Iteration & Refinement',
-    color: '#ff6b6b',
-    duration: '持续',
-    description: '根据真实使用反馈持续优化。每个蒸馏人物都有版本号，随着反馈改进。',
-    details: [
-      '监控AI输出的高频场景',
-      '收集用户的「感觉不对」反馈',
-      '识别表达的「过度夸张」问题',
-      '补充新的公开资料和观点',
-      '更新版本号，追踪演变历史',
-    ],
-    example: '初始版本2.1 → 用户反馈在谈论数据问题时过于情绪化 → 2.2版增加数据场景的边界条件 → 持续循环。',
+    example: 'Gate 3 检测到「表达DNA评分 42 < 阈值 55」，自动诊断为「词汇量不足」，触发 Expression 层重新提取，第2轮迭代后评分提升至 68，Gate 3 通过。',
   },
 ];
 
@@ -163,20 +164,20 @@ const QUALITY_STANDARDS = [
 ];
 
 const MENTAL_MODEL_EXAMPLE = {
-  name: '聚焦即说不',
-  nameEn: 'Focus = Saying No',
-  persona: 'steve-jobs',
-  personaName: 'Steve Jobs',
-  personaNameZh: '史蒂夫·乔布斯',
-  color: '#ff6b6b',
-  oneLiner: '聚焦不是对你要做的事说Yes，而是对其他一百个好主意说No。',
+  name: '反向思考',
+  nameEn: 'Inversion',
+  persona: 'charlie-munger',
+  personaName: 'Charlie Munger',
+  personaNameZh: '查理·芒格',
+  color: '#4d96ff',
+  oneLiner: '不要问「如何成功」，而要问「如何失败」——然后避免它们。',
   evidence: [
-    { quote: 'People think focus means saying yes to the thing you\'ve got to focus on. But that\'s not what it means at all. It means saying no to the hundred other good ideas.', source: 'WWDC 1997', year: 1997 },
-    { quote: 'Innovation is saying no to 1,000 things.', source: 'Various interviews' },
+    { quote: 'Just the other day I got a note saying, "Munger, why do you always think about the other side of the question?" I said, "Well, I am trying to get rid of the ones that are wrong."', source: 'University of Michigan Ross School of Business, 2009', year: 2009 },
+    { quote: 'All I want to know is where I\'m going to die, so I\'ll never go there.', source: 'Poor Charlie\'s Almanack', year: 2005 },
   ],
-  crossDomain: ['产品', '战略', '人生'],
-  application: '当面对产品功能列表、战略优先级时，先问该砍什么，而不是先问该加什么。',
-  limitation: '说No需要极强判断力。说错了No可能错过整个市场。适合有清晰愿景的情况，不适合探索阶段。',
+  crossDomain: ['投资', '战略', '决策', '风险管理'],
+  application: '面对重大决策时，先列出所有可能导致失败的路径（短期贪婪、过度杠杆、忽视尾部风险），然后逐一建立规避机制。',
+  limitation: '反向思考需要丰富的失败案例库。对于全新领域或前所未有的决策，历史样本有限，反向推理可能遗漏未知风险。',
 };
 
 export default function MethodologyPage() {
@@ -220,8 +221,8 @@ export default function MethodologyPage() {
               <span className="gradient-text">变成 AI 思维伙伴</span>
             </h1>
             <p className="text-lg text-text-secondary max-w-2xl mx-auto mb-8">
-              我们不是让AI扮演名人。我们用严谨的研究方法，提取真实思想家的心智模型和思维方式，
-              让用户能够与人类历史上最聪明的大脑进行真实的认知协作。
+              我们不是让AI扮演名人。通过六层自动蒸馏管道，系统化提取真实思想家的心智模型、表达DNA和决策框架，
+              并以四层质量门逐级验证，最终得到可量化评估、可迭代改进的 AI 思维伙伴。
             </p>
           </motion.div>
 
@@ -233,10 +234,10 @@ export default function MethodologyPage() {
             transition={{ duration: 0.5, delay: 0.2 }}
           >
             {[
-              { value: '6步', label: '标准蒸馏流程' },
-              { value: '3-8', label: '个核心心智模型/人' },
-              { value: '100+', label: '个可验证引用' },
-              { value: '持续', label: '迭代优化' },
+              { value: '6层', label: '自动蒸馏管道' },
+              { value: '65', label: '已蒸馏人物' },
+              { value: '1.8GB', label: '原始语料' },
+              { value: 'Gate 1-4', label: '四层质量门' },
             ].map((s) => (
               <div key={s.label} className="text-center">
                 <div className="text-2xl font-bold gradient-text">{s.value}</div>
@@ -251,8 +252,8 @@ export default function MethodologyPage() {
       <section className="py-16 px-6 bg-bg-surface/50">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-display font-bold mb-3">六步科学蒸馏法</h2>
-            <p className="text-text-secondary">每一步都有明确目标和交付物，确保最终结果的可靠性</p>
+            <h2 className="text-3xl font-display font-bold mb-3">六层自动蒸馏管道（Zero）</h2>
+            <p className="text-text-secondary">基于 Zero 蒸馏引擎，从语料输入到带评分蒸馏结果，全流程自动执行，Gate 1-4 逐级质量门控</p>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
@@ -468,7 +469,7 @@ export default function MethodologyPage() {
           >
             <h2 className="text-2xl font-display font-bold mb-4">亲身体验蒸馏的力量</h2>
             <p className="text-text-secondary mb-8 max-w-lg mx-auto">
-              62位经过科学蒸馏的思维伙伴已经就位。选择一位或多位，开启真正有深度的认知协作。
+              65位经过科学蒸馏的思维伙伴已经就位。选择一位或多位，开启真正有深度的认知协作。
             </p>
             <div className="flex items-center justify-center gap-4">
               <Link href="/app" className="btn-primary inline-flex items-center gap-2">

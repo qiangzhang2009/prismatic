@@ -26,10 +26,12 @@ import { CommentsSection } from '@/components/comments-section';
 import { cn, getDomainGradient } from '@/lib/utils';
 
 // ─── Hero Stats ────────────────────────────────────────────────────────────────
+// Real data from project census (2026-04-30)
+// 65 defined personas, 8 total modes (6 visible), 1.8GB corpus
 const HERO_STATS = [
-  { value: String(PERSONA_LIST.length), label: '蒸馏人物', icon: BookOpen, color: '#4d96ff' },
-  { value: '8', label: '协作模式', icon: Layers, color: '#6bcb77' },
-  { value: '1.2GB+', label: '训练语料', icon: BarChart3, color: '#c77dff' },
+  { value: '65', label: '蒸馏人物', icon: BookOpen, color: '#4d96ff' },
+  { value: '6', label: '协作模式', icon: Layers, color: '#6bcb77' },
+  { value: '1.8GB', label: '原始语料', icon: BarChart3, color: '#c77dff' },
   { value: '∞', label: '视角组合', icon: TrendingUp, color: '#ff9f43' },
 ];
 
@@ -292,9 +294,8 @@ export default function HomePage() {
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
             transition={{ delay: 0.6 }}
-            className="text-center text-xs text-text-muted mt-8 border-t border-border-subtle pt-6"
-          >
-            数据来源：PerseusDL · Guopop/chinese-philosophy · The-Digital-Stoic-Library · HuggingFace Lex Fridman
+            className="text-center text-xs text-text-muted mt-8 border-t border-border-subtle pt-6">
+            数据来源：PerseusDL · chinese-philosophy · The-Digital-Stoic-Library · 全唐诗 (quantangshi) · 古希腊哲学 (greek-classics) · 等 54 个语料目录
           </motion.p>
         </div>
       </section>
@@ -531,7 +532,7 @@ export default function HomePage() {
             <p className="text-text-secondary leading-relaxed max-w-2xl mx-auto">
               {APP_NAME} 基于「认知蒸馏」技术，通过深度访谈、文献研究、著作分析等方式，
               对人类历史上最卓越的思考者进行系统性分析，重构他们的思维模型、决策框架和表达 DNA。
-              <br />目前已蒸馏 {PERSONA_LIST.length} 位卓越人物，支持 8 种协作模式，从单人深度追问到多智能体实时辩论，
+              <br />目前已蒸馏 {PERSONA_LIST.length} 位卓越人物，支持 6 种协作模式，从单人深度追问到多智能体实时辩论，
               让不同领域的顶尖头脑同时为你思考，发现单一视角无法产生的洞见。
             </p>
           </motion.div>
