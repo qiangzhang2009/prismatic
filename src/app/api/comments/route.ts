@@ -9,8 +9,7 @@ import { cookies } from 'next/headers';
 import { processCommentInteractions } from '@/lib/guardian-engine';
 import { verifyJWTToken } from '@/lib/user-management';
 import { lookupIP, generateAvatarSeed, getAvatarUrl, COUNTRY_NAMES } from '@/lib/geo';
-import { getTodayGuardians } from '@/lib/guardian';
-import { extractGuardianMention, getMentionHint } from '@/lib/guardian-mention';
+import { extractGuardianMention } from '@/lib/guardian-mention';
 import { PERSONAS } from '@/lib/personas';
 
 /**
@@ -285,24 +284,19 @@ export async function POST(req: NextRequest) {
       ipHash = ip.slice(0, 64);
     }
 
-    // ── Parallel: geo lookup + guardian detection (both with timeout) ─────
-    // Geo lookup runs for ALL users (admin or not) — location is part of the comment data
+    // ── Parallel: geo lookup (with 500ms timeout) ────────────────────────────
     let geoCountryCode: string | null = null;
     let geoCountry: string | null = null;
     let geoRegion: string | null = null;
     let geoCity: string | null = null;
     let mentionedGuardianId: string | null = null;
-    let mentionHint: string | null = null;
 
     const geoPromiseTimed = Promise.race([
       lookupIP(ip),
       new Promise<null>((resolve) => setTimeout(() => resolve(null), 500)),
     ]).catch(() => null);
 
-    const guardianPromise = getTodayGuardians().catch(() => []);
-
-    // Wait for both in parallel, but with a short timeout
-    const [geo, guardians] = await Promise.all([geoPromiseTimed, guardianPromise]);
+    const [geo] = await Promise.all([geoPromiseTimed]);
 
     if (geo) {
       geoCountryCode = geo.countryCode;
@@ -311,27 +305,16 @@ export async function POST(req: NextRequest) {
       geoCity = geo.city;
     }
 
-    // Determine the guardian to respond: prefer explicit mentionId, else auto-detect from @ in content.
-    // When replying to a guardian via "继续追问", the guardian is already known (passed explicitly).
-    // If incomingGuardianId is provided (e.g. from the mention picker), use it directly — the user
-    // explicitly selected a persona, so we honor it regardless of today's schedule.
+    // Resolve mentioned guardian:
+    // 1. Explicit incomingGuardianId (from "继续追问") → use directly
+    // 2. Otherwise → parse @mentions from content via the full persona list (no schedule dependency)
     if (incomingGuardianId) {
       mentionedGuardianId = incomingGuardianId;
-    } else if (guardians.length > 0) {
-      const guardianIds = guardians.map((g) => g.personaId);
-      const mentionResult = extractGuardianMention(content, guardianIds);
-      if (mentionResult.mentionedPersonaId) {
-        mentionedGuardianId = mentionResult.mentionedPersonaId;
-      }
-      mentionHint = getMentionHint(mentionResult);
     } else {
-      // No guardians scheduled (empty array) — still try to detect @mentions in content
-      // using the full persona list, so explicit mentions like "@苏格拉底" are at least stored.
       const mentionResult = extractGuardianMention(content, []);
       if (mentionResult.mentionedPersonaId) {
         mentionedGuardianId = mentionResult.mentionedPersonaId;
       }
-      mentionHint = getMentionHint(mentionResult);
     }
 
     const newComment = await prisma.comment.create({
@@ -359,37 +342,24 @@ export async function POST(req: NextRequest) {
     const location = [geoCountry, geoRegion, geoCity].filter(Boolean).join(' · ') || null;
 
     // ── Fire-and-forget: guardian LLM reply ─────────────────────────────────
-    // The LLM call is expensive (3-15s). We return immediately and let it run
-    // in the background. The frontend polls /api/comments/[id] to pick up the
-    // reply once it's ready.
-    //
-    // Rules for triggering guardian reply:
-    // 1. Root comments (no parentId) with @mention → reply to THAT guardian
-    // 2. Replies (has parentId) → NEVER trigger guardian engine.
-    //    Replies are part of an existing conversation thread and should NOT
-    //    spawn additional guardian responses. The parent comment's guardian is
-    //    already engaged with the thread.
-    // 3. Organic comments (no mention) → probabilistic engagement (handled async)
-    //
-    // NOTE: `mentionedGuardianId` can be set in three ways:
-    //   a. Explicit incoming value (from "继续追问" — caller passes parent's guardianId)
-    //   b. @-mention detection in content (only for root comments)
-    //   c. Empty → organic engagement (only for root comments without @mention)
+    // Rules:
+    // 1. Root comments with @mention → that persona replies (fire-and-forget, no schedule dependency)
+    // 2. Replies with mentionedGuardianId (继续追问) → that persona replies (fire-and-forget)
+    // 3. Root comments without @mention → organic probabilistic engagement
+    // 4. Replies without mention → never trigger guardian engine
     const isRootComment = !parentId;
-    if (isRootComment && mentionedGuardianId) {
-      // Root comment with explicit or @-mention guardian → sync reply from that guardian
+    if (isRootComment) {
+      if (mentionedGuardianId) {
+        processCommentInteractions(newComment.id, content.trim(), nickname, mentionedGuardianId)
+          .catch((e) => console.error('[Comments] @mention reply failed:', e));
+      } else {
+        processCommentInteractions(newComment.id, content.trim(), nickname, null)
+          .catch((e) => console.error('[Comments] Organic reply failed:', e));
+      }
+    } else if (mentionedGuardianId) {
       processCommentInteractions(newComment.id, content.trim(), nickname, mentionedGuardianId)
-        .catch((e) => console.error('[Comments] Guardian reply (mention) failed:', e));
-    } else if (isRootComment && !mentionedGuardianId) {
-      // Root comment without @mention → organic probabilistic engagement
-      processCommentInteractions(newComment.id, content.trim(), nickname, null)
-        .catch((e) => console.error('[Comments] Guardian reply (organic) failed:', e));
-    } else if (!isRootComment && mentionedGuardianId) {
-      // Reply to a guardian (继续追问) → guardian should respond with follow-up
-      processCommentInteractions(newComment.id, content.trim(), nickname, mentionedGuardianId)
-        .catch((e) => console.error('[Comments] Guardian follow-up reply failed:', e));
+        .catch((e) => console.error('[Comments] Follow-up reply failed:', e));
     }
-    // Replies without a mentionedGuardianId → never trigger guardian engine
 
     return NextResponse.json({
       success: true,
