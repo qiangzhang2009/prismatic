@@ -79,11 +79,13 @@ jobs:
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: vercel-build
+          name: vercel-build-${{ github.run_id }}
           path: |
             .next/
             .vercel/
           retention-days: 1
+          if-no-files-found: error
+          overwrite: true
 
   # ─── Deploy Preview ────────────────────────────────────────────────
   deploy-preview:
@@ -136,7 +138,7 @@ jobs:
       - name: Download build artifacts
         uses: actions/download-artifact@v4
         with:
-          name: vercel-build
+          name: vercel-build-${{ github.run_id }}
 
       - name: Deploy to Vercel Production
         run: vercel deploy . --prebuilt --prod --yes --token=${{ secrets.VERCEL_TOKEN }}
