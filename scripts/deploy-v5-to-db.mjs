@@ -252,7 +252,7 @@ async function upsertPersona(slug, display, v5) {
 
   const query = `
     INSERT INTO distilled_personas (
-      id, "sessionId", "slug", "name", "namezh", "nameen", "domain",
+      id, "sessionId", "slug", "name", "nameZh", "nameEn", "domain",
       "tagline", "taglineZh", "avatar", "accentColor", "gradientFrom", "gradientTo",
       "brief", "briefZh",
       "mentalModels", "decisionHeuristics", "expressionDNA", "values",
@@ -282,8 +282,8 @@ async function upsertPersona(slug, display, v5) {
       id = EXCLUDED.id,
       "sessionId" = EXCLUDED."sessionId",
       "name" = EXCLUDED."name",
-      "namezh" = EXCLUDED."namezh",
-      "nameen" = EXCLUDED."nameen",
+      "nameZh" = EXCLUDED."nameZh",
+      "nameEn" = EXCLUDED."nameEn",
       "domain" = EXCLUDED."domain",
       "tagline" = EXCLUDED."tagline",
       "taglineZh" = EXCLUDED."taglineZh",
@@ -321,7 +321,7 @@ async function upsertPersona(slug, display, v5) {
       "distillDate" = EXCLUDED."distillDate",
       "isPublished" = EXCLUDED."isPublished",
       "updatedAt" = NOW()
-    RETURNING "slug", "name", "namezh", "finalScore", "qualityGrade", "thresholdPassed", "distillVersion"
+    RETURNING "slug", "name", "nameZh", "finalScore", "qualityGrade", "thresholdPassed", "distillVersion"
   `;
 
   const params = [
@@ -406,12 +406,16 @@ async function main() {
 
     try {
       const result = await upsertPersona(slug, display, v5);
-      const passed = result.thresholdpassed ? '✓' : '✗';
+      const passed = (result.thresholdpassed || result.thresholdPassed || result['thresholdpassed']) ? '✓' : '✗';
+      const score = result.finalscore ?? result.finalScore ?? result['finalscore'];
+      const grade = result.qualitygrade ?? result.qualityGrade ?? result['qualitygrade'];
+      const ver = result.distillversion ?? result.distillVersion ?? result['distillversion'];
+      const nameZh = result.namezh ?? result.nameZh ?? result['namezh'] ?? '';
       console.log(
-        `  ${passed} ${slug}: score=${result.finalscore} grade=${result.qualitygrade} ` +
-        `version=${result.distillversion} name="${result.name}" namezh="${result.namezh || ''}"`
+        `  ${passed} ${slug}: score=${score} grade=${grade} ` +
+        `version=${ver} name="${result.name}" nameZh="${nameZh}"`
       );
-      results.push({ slug, status: 'ok', score: result.finalscore, grade: result.qualitygrade });
+      results.push({ slug, status: 'ok', score, grade });
     } catch (err) {
       console.error(`  ✗ ERROR ${slug}: ${err.message}`);
       results.push({ slug, status: 'error', error: err.message });
