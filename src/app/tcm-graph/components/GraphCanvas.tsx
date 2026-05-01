@@ -297,27 +297,33 @@ export function GraphCanvas({ nodes, edges, eraFilter, schoolFilter, edgeTypeFil
 
   const handleMouseUp = useCallback(() => setIsPanning(false), []);
 
-  // Wheel zoom
-  const handleWheel = useCallback((e: React.WheelEvent) => {
-    e.preventDefault();
-    const rect = containerRef.current?.getBoundingClientRect();
-    if (!rect) return;
-    const mouseX = e.clientX - rect.left;
-    const mouseY = e.clientY - rect.top;
-    const zoomFactor = e.deltaY > 0 ? 1.12 : 0.89;
-    setViewBox(v => {
-      const newW = Math.max(150, Math.min(5000, v.width * zoomFactor));
-      const newH = Math.max(150, Math.min(5000, v.height * zoomFactor));
-      const fx = mouseX / rect.width;
-      const fy = mouseY / rect.height;
-      return {
-        minX: v.minX + (v.width - newW) * fx,
-        minY: v.minY + (v.height - newH) * fy,
-        width: newW,
-        height: newH,
-      };
-    });
-    setScale(s => Math.max(0.2, Math.min(5, s * (e.deltaY > 0 ? 1 / 1.12 : 1.12))));
+  // Wheel zoom — use native addEventListener (not React onWheel) so we can
+  // call preventDefault() without conflicting with Next.js passive listeners.
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const onWheel = (e: WheelEvent) => {
+      e.preventDefault();
+      const rect = el.getBoundingClientRect();
+      const mouseX = e.clientX - rect.left;
+      const mouseY = e.clientY - rect.top;
+      const zoomFactor = e.deltaY > 0 ? 1.12 : 0.89;
+      setViewBox(v => {
+        const newW = Math.max(150, Math.min(5000, v.width * zoomFactor));
+        const newH = Math.max(150, Math.min(5000, v.height * zoomFactor));
+        const fx = mouseX / rect.width;
+        const fy = mouseY / rect.height;
+        return {
+          minX: v.minX + (v.width - newW) * fx,
+          minY: v.minY + (v.height - newH) * fy,
+          width: newW,
+          height: newH,
+        };
+      });
+      setScale(s => Math.max(0.2, Math.min(5, s * (e.deltaY > 0 ? 1 / 1.12 : 1.12))));
+    };
+    el.addEventListener('wheel', onWheel, { passive: false });
+    return () => el.removeEventListener('wheel', onWheel);
   }, []);
 
   const zoomIn = () => {
@@ -384,7 +390,6 @@ export function GraphCanvas({ nodes, edges, eraFilter, schoolFilter, edgeTypeFil
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
         onMouseLeave={handleMouseUp}
-        onWheel={handleWheel}
         onClick={handleBgClick}
       >
         <defs>
