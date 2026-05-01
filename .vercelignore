@@ -1,14 +1,15 @@
 # Exclude large data and non-essential directories from deployment
 scrapers/
 docs/
-corpus/
-!corpus/distilled/tcm/tcm-nodes.json
-!corpus/distilled/tcm/tcm-edges.json
 node_modules/
 tmp_ocr/
 backups/
 reports/
 development/
+corpus/
+corpus-distilled-backup/
+corpus-tcm-external/
+corpus-tcm-downloads/
 
 # Environment files - NEVER deploy these
 .env

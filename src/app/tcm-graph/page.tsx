@@ -3,8 +3,8 @@ import { ArrowLeft, Hexagon, Sparkles } from 'lucide-react';
 import Link from 'next/link';
 import { TCMGraphClient } from './components/TCMGraphClient';
 import type { TCMNode, TCMEdge } from './types';
-import tcmNodes from '@/corpus/distilled/tcm/tcm-nodes.json';
-import tcmEdges from '@/corpus/distilled/tcm/tcm-edges.json';
+import tcmNodes from '@/lib/tcm-data/tcm-nodes.json';
+import tcmEdges from '@/lib/tcm-data/tcm-edges.json';
 
 export const metadata: Metadata = {
   title: '中医思想家影响力图谱 | Prismatic',
