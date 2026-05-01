@@ -41,12 +41,9 @@ function getModelName(): string {
 
 // ─── LLM Generation ──────────────────────────────────────────────────────────
 
-// Vercel Hobbyist: ~10s hard limit per serverless function.
-// DeepSeek typically responds in 3-8s, sometimes up to 15s.
-// 8s gives enough headroom for the Vercel runtime overhead (~2s) within the 10s cap.
-// If replies are missing frequently, upgrade to Vercel Pro and set maxDuration=60s in Dashboard,
-// then change this to 55_000.
-const LLM_TIMEOUT_MS = 8_000;
+// Vercel Hobbyist Node.js runtime: ~60s limit per serverless function.
+// DeepSeek typically responds in 3-15s. 55s gives plenty of headroom.
+const LLM_TIMEOUT_MS = 55_000;
 
 /** Low-level LLM call with retry, returns null on persistent failure. */
 async function callLLM(

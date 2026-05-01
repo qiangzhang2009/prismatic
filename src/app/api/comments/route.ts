@@ -12,6 +12,10 @@ import { lookupIP, generateAvatarSeed, getAvatarUrl, COUNTRY_NAMES } from '@/lib
 import { extractGuardianMention } from '@/lib/guardian-mention';
 import { PERSONAS } from '@/lib/personas';
 
+// Node.js runtime: enables 60s timeout (vs Edge's ~10s limit).
+// This is critical for guardian LLM replies which can take 5-15s.
+export const runtime = 'nodejs';
+
 /**
  * Extract the real client IP from request headers.
  * Handles various proxy headers and returns the best available IP.
