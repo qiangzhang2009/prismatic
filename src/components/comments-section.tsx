@@ -466,7 +466,7 @@ function CommentItem({
     comment.mentionedGuardianReply ?? null
   );
   // Track guardian replies for individual replies (replyId → guardian reply text)
-  const [guardianRepliesById, setGuardianRepliesById] = useState<Record<string, string>>({});
+  const [guardianRepliesById, setGuardianRepliesById] = useState<Record<string, string>({});
   // Nested reply state — for replying to individual replies
   const [replyingToReply, setReplyingToReply] = useState<string | null>(null);
   // For replying to a guardian's mention reply at the comment level
@@ -574,7 +574,6 @@ function CommentItem({
       const fetchedReplies: Reply[] = data.replies || [];
       setReplies(fetchedReplies);
       setShowReplies(true);
-      console.log('[DEBUG] fetchReplies: got', fetchedReplies.length, 'replies', fetchedReplies.map(r => ({ id: r.id, hasGuardianId: !!r.mentionedGuardianId, hasGuardianReply: !!r.mentionedGuardianReply })));
 
       // Guardian replies (mentionedGuardianReply) are not included in the replies list endpoint.
       // Fetch each reply's full data to get the guardian reply content.
@@ -586,19 +585,14 @@ function CommentItem({
               const fullData = await fullRes.json();
               const guardianReply = fullData.comment?.mentionedGuardianReply;
               if (guardianReply) {
-                console.log('[DEBUG] fetchReplies: got guardian reply for reply', reply.id, guardianReply.slice(0, 50));
                 setGuardianRepliesById(prev => ({
                   ...prev,
                   [reply.id]: guardianReply,
                 }));
-              } else {
-                console.log('[DEBUG] fetchReplies: no guardianReply in fullData for reply', reply.id, 'mentionedGuardianId:', reply.mentionedGuardianId, 'fullData keys:', Object.keys(fullData));
               }
-            } else {
-              console.error('[DEBUG] fetchReplies: /api/comments/', reply.id, 'returned', fullRes.status);
             }
           } catch (e) {
-            console.error('[DEBUG] fetchReplies: error fetching reply', reply.id, e);
+            /* ignore */
           }
         }
       }
@@ -642,8 +636,7 @@ function CommentItem({
   
   return (
     <>
-      <motion.div
-        layout
+      <div
         className={cn(
           'rounded-2xl border p-5 transition-all',
           comment.is_pinned
@@ -925,10 +918,10 @@ function CommentItem({
           {showReplies && replies.length > 0 && (
             <motion.div
               initial={{ opacity: 0, maxHeight: 0 }}
-              animate={{ opacity: 1, maxHeight: 5000 }}
+              animate={{ opacity: 1, maxHeight: 20000 }}
               exit={{ opacity: 0, maxHeight: 0 }}
               transition={{ duration: 0.25, ease: 'easeOut' }}
-              className="mt-4 pt-4 border-t border-white/5 space-y-3 overflow-hidden"
+              className="mt-4 pt-4 border-t border-white/5 space-y-3"
             >
               {/* Replies that are NOT guardian auto-replies */}
               {replies
@@ -1149,7 +1142,7 @@ function CommentItem({
             </motion.div>
           )}
         </AnimatePresence>
-      </motion.div>
+      </div>
       
       {/* Modals */}
       <EditModal
