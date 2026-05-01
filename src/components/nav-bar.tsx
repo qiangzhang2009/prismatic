@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { Hexagon, Sparkles, GitBranch } from 'lucide-react';
+import { Hexagon, Sparkles, GitBranch, Leaf } from 'lucide-react';
 import { UserMenu } from '@/components/user-menu';
 import { APP_NAME } from '@/lib/constants';
 
@@ -24,6 +24,10 @@ export function NavBar() {
           <Link href="/graph" className="text-text-secondary hover:text-text-primary transition-colors text-sm hidden lg:flex items-center gap-1">
             <GitBranch className="w-3.5 h-3.5" />
             认知图谱
+          </Link>
+          <Link href="/tcm-graph" className="text-text-secondary hover:text-emerald-400 transition-colors text-sm hidden md:flex items-center gap-1">
+            <Leaf className="w-3.5 h-3.5" />
+            中医图谱
           </Link>
           <Link href="/methodology" className="text-text-secondary hover:text-text-primary transition-colors text-sm hidden md:block">
             蒸馏方法论
