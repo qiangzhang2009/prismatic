@@ -466,7 +466,7 @@ function CommentItem({
     comment.mentionedGuardianReply ?? null
   );
   // Track guardian replies for individual replies (replyId → guardian reply text)
-  const [guardianRepliesById, setGuardianRepliesById] = useState<Record<string, string>({});
+  const [guardianRepliesById, setGuardianRepliesById] = useState<{[key: string]: string}>({});
   // Nested reply state — for replying to individual replies
   const [replyingToReply, setReplyingToReply] = useState<string | null>(null);
   // For replying to a guardian's mention reply at the comment level

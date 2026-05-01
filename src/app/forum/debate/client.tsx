@@ -200,7 +200,7 @@ function VisitorCard({ contribution }: { contribution: VisitorContribution }) {
 export function DebateArenaClient({ debate, preview, error }: DebateArenaClientProps) {
   const [tab, setTab] = useState<'debate' | 'history'>('debate');
   const [history, setHistory] = useState<DebateRecord[]>([]);
-  const [votes, setVotes] = useState<Record<string, number>>({});
+  const [votes, setVotes] = useState<{[key: string]: number}>({});
   const [voted, setVoted] = useState(false);
 
   // Admin state

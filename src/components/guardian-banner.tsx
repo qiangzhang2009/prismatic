@@ -656,7 +656,7 @@ export function GuardianBanner() {
 
 /* ─── Guardian Calendar Modal ─────────────────────────────────────────── */
 function GuardianCalendarModal({ onClose }: { onClose: () => void }) {
-  const [schedule, setSchedule] = useState<Record<string, ScheduleDay>>({});
+  const [schedule, setSchedule] = useState<{[key: string]: ScheduleDay}>({});
   const [loading, setLoading] = useState(true);
   const [mounted, setMounted] = useState(false);
 
