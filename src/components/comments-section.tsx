@@ -898,7 +898,10 @@ function CommentItem({
               initial={{ height: 0, opacity: 0 }}
               animate={{ height: 'auto', opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}
-              className="mt-4 pt-4 border-t border-white/5 space-y-3"
+              // overflow-visible ensures guardian reply cards aren't clipped
+              // especially when guardian cards appear dynamically after polling
+              className="mt-4 pt-4 border-t border-white/5 space-y-3 [&>div]:overflow-visible"
+              style={{ overflow: 'visible' } as any}
             >
               {/* Replies that are NOT guardian auto-replies */}
               {replies
@@ -911,7 +914,7 @@ function CommentItem({
                     const guardianName = guardian ? guardian.nameZh : '守望者';
                     const guardianReplyText = guardianRepliesById[reply.id] || reply.mentionedGuardianReply;
                     return (
-                    <div className="mb-3 pl-12 border-l-2 border-prism-blue/30">
+                    <div className="mb-3 pl-12 border-l-2 border-prism-blue/30 overflow-visible relative z-10">
                       <div className="flex items-start gap-2 pl-3 border-l-2 border-prism-blue/20">
                         <div
                           className="w-6 h-6 rounded-full flex items-center justify-center text-white text-[10px] font-bold flex-shrink-0 shadow-md"
