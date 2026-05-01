@@ -574,6 +574,7 @@ function CommentItem({
       const fetchedReplies: Reply[] = data.replies || [];
       setReplies(fetchedReplies);
       setShowReplies(true);
+      console.log('[DEBUG] fetchReplies: got', fetchedReplies.length, 'replies', fetchedReplies.map(r => ({ id: r.id, hasGuardianId: !!r.mentionedGuardianId, hasGuardianReply: !!r.mentionedGuardianReply })));
 
       // Guardian replies (mentionedGuardianReply) are not included in the replies list endpoint.
       // Fetch each reply's full data to get the guardian reply content.
@@ -583,14 +584,22 @@ function CommentItem({
             const fullRes = await fetch(`/api/comments/${reply.id}`);
             if (fullRes.ok) {
               const fullData = await fullRes.json();
-              if (fullData.comment?.mentionedGuardianReply) {
+              const guardianReply = fullData.comment?.mentionedGuardianReply;
+              if (guardianReply) {
+                console.log('[DEBUG] fetchReplies: got guardian reply for reply', reply.id, guardianReply.slice(0, 50));
                 setGuardianRepliesById(prev => ({
                   ...prev,
-                  [reply.id]: fullData.comment.mentionedGuardianReply,
+                  [reply.id]: guardianReply,
                 }));
+              } else {
+                console.log('[DEBUG] fetchReplies: no guardianReply in fullData for reply', reply.id, 'mentionedGuardianId:', reply.mentionedGuardianId, 'fullData keys:', Object.keys(fullData));
               }
+            } else {
+              console.error('[DEBUG] fetchReplies: /api/comments/', reply.id, 'returned', fullRes.status);
             }
-          } catch { /* ignore */ }
+          } catch (e) {
+            console.error('[DEBUG] fetchReplies: error fetching reply', reply.id, e);
+          }
         }
       }
     } catch (e) {
