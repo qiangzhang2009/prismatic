@@ -1,0 +1,782 @@
+[
+  {
+    "source": "huangdi",
+    "target": "bianque",
+    "type": "intellectual_influence",
+    "weight": 70,
+    "sharedConcepts": [],
+    "sharedKeywords": [],
+    "description": "",
+    "provenance": {
+      "method": "lineage-map",
+      "evidence": [
+        "huangdi的思想深刻影响了bianque"
+      ]
+    }
+  },
+  {
+    "source": "huangdi",
+    "target": "zhang-zhongjing",
+    "type": "intellectual_influence",
+    "weight": 70,
+    "sharedConcepts": [],
+    "sharedKeywords": [],
+    "description": "",
+    "provenance": {
+      "method": "lineage-map",
+      "evidence": [
+        "huangdi的思想深刻影响了zhang-zhongjing"
+      ]
+    }
+  },
+  {
+    "source": "huangdi",
+    "target": "huangdi-neijing",
+    "type": "textual_lineage",
+    "weight": 95,
+    "sharedConcepts": [],
+    "sharedKeywords": [],
+    "description": "",
+    "provenance": {
+      "method": "lineage-map",
+      "evidence": [
+        "huangdi是《huangdi-neijing》的作者"
+      ]
+    }
+  },
+  {
+    "source": "huangdi",
+    "target": "hippocrates",
+    "type": "cross_cultural_resonance",
+    "weight": 60,
+    "sharedConcepts": [],
+    "sharedKeywords": [],
+    "description": "",
+    "provenance": {
+      "method": "cross-cultural",
+      "evidence": [
+        "huangdi与hippocrates在医学哲学上有跨文化共鸣"
+      ]
+    }
+  },
+  {
+    "source": "bianque",
+    "target": "hippocrates",
+    "type": "cross_cultural_resonance",
+    "weight": 60,
+    "sharedConcepts": [],
+    "sharedKeywords": [],
+    "description": "",
+    "provenance": {
+      "method": "cross-cultural",
+      "evidence": [
+        "bianque与hippocrates在医学哲学上有跨文化共鸣"
+      ]
+    }
+  },
+  {
+    "source": "zhang-zhongjing",
+    "target": "huafu",
+    "type": "school_complementary",
+    "weight": 65,
+    "sharedConcepts": [],
+    "sharedKeywords": [],
+    "description": "",
+    "provenance": {
+      "method": "manual",
+      "evidence": [
+        "zhang-zhongjing与huafu看似对立，实则互补，共同构成完整医学视野"
+      ]
+    }
+  },
+  {
+    "source": "zhang-zhongjing",
+    "target": "shanghan-lun",
+    "type": "textual_lineage",
+    "weight": 95,
+    "sharedConcepts": [],
+    "sharedKeywords": [],
+    "description": "",
+    "provenance": {
+      "method": "lineage-map",
+      "evidence": [
+        "zhang-zhongjing是《shanghan-lun》的作者"
+      ]
+    }
+  },
+  {
+    "source": "zhang-zhongjing",
+    "target": "jingui-yaolue",
+    "type": "textual_lineage",
+    "weight": 95,
+    "sharedConcepts": [],
+    "sharedKeywords": [],
+    "description": "",
+    "provenance": {
+      "method": "lineage-map",
+      "evidence": [
+        "zhang-zhongjing是《jingui-yaolue》的作者"
+      ]
+    }
+  },
+  {
+    "source": "zhang-zhongjing",
+    "target": "hippocrates",
+    "type": "cross_cultural_resonance",
+    "weight": 60,
+    "sharedConcepts": [],
+    "sharedKeywords": [],
+    "description": "",
+    "provenance": {
+      "method": "cross-cultural",
+      "evidence": [
+        "zhang-zhongjing与hippocrates在医学哲学上有跨文化共鸣"
+      ]
+    }
+  },
+  {
+    "source": "zhang-zhongjing",
+    "target": "caraka",
+    "type": "cross_cultural_resonance",
+    "weight": 60,
+    "sharedConcepts": [],
+    "sharedKeywords": [],
+    "description": "",
+    "provenance": {
+      "method": "cross-cultural",
+      "evidence": [
+        "zhang-zhongjing与caraka在医学哲学上有跨文化共鸣"
+      ]
+    }
+  },
+  {
+    "source": "huafu",
+    "target": "hippocrates",
+    "type": "cross_cultural_resonance",
+    "weight": 60,
+    "sharedConcepts": [],
+    "sharedKeywords": [],
+    "description": "",
+    "provenance": {
+      "method": "cross-cultural",
+      "evidence": [
+        "huafu与hippocrates在医学哲学上有跨文化共鸣"
+      ]
+    }
+  },
+  {
+    "source": "huafu",
+    "target": "sushruta",
+    "type": "cross_cultural_resonance",
+    "weight": 60,
+    "sharedConcepts": [],
+    "sharedKeywords": [],
+    "description": "",
+    "provenance": {
+      "method": "cross-cultural",
+      "evidence": [
+        "huafu与sushruta在医学哲学上有跨文化共鸣"
+      ]
+    }
+  },
+  {
+    "source": "wangshuhen",
+    "target": "maijing",
+    "type": "textual_lineage",
+    "weight": 95,
+    "sharedConcepts": [],
+    "sharedKeywords": [],
+    "description": "",
+    "provenance": {
+      "method": "lineage-map",
+      "evidence": [
+        "wangshuhen是《maijing》的作者"
+      ]
+    }
+  },
+  {
+    "source": "wangshuhen",
+    "target": "shanghan-lun",
+    "type": "textual_lineage",
+    "weight": 88,
+    "sharedConcepts": [],
+    "sharedKeywords": [],
+    "description": "",
+    "provenance": {
+      "method": "lineage-map",
+      "evidence": [
+        "wangshuhen整理/编次了《shanghan-lun》"
+      ]
+    }
+  },
+  {
+    "source": "wangshuhen",
+    "target": "jingui-yaolue",
+    "type": "textual_lineage",
+    "weight": 88,
+    "sharedConcepts": [],
+    "sharedKeywords": [],
+    "description": "",
+    "provenance": {
+      "method": "lineage-map",
+      "evidence": [
+        "wangshuhen整理/编次了《jingui-yaolue》"
+      ]
+    }
+  },
+  {
+    "source": "liudunhou",
+    "target": "liduomin",
+    "type": "school_opposition",
+    "weight": 85,
+    "sharedConcepts": [],
+    "sharedKeywords": [],
+    "description": "",
+    "provenance": {
+      "method": "manual",
+      "evidence": [
+        "第一次：寒温之争：攻邪派（刘完素、张从正）vs 扶正派（李东垣）——病邪是病因还是正虚是病因？"
+      ]
+    }
+  },
+  {
+    "source": "liudunhou",
+    "target": "zhangjingyue",
+    "type": "school_opposition",
+    "weight": 70,
+    "sharedConcepts": [],
+    "sharedKeywords": [],
+    "description": "",
+    "provenance": {
+      "method": "manual",
+      "evidence": [
+        "liudunhou与zhangjingyue在学术观点上存在根本对立"
+      ]
+    }
+  },
+  {
+    "source": "zhadanxin",
+    "target": "liduomin",
+    "type": "school_opposition",
+    "weight": 70,
+    "sharedConcepts": [],
+    "sharedKeywords": [],
+    "description": "",
+    "provenance": {
+      "method": "manual",
+      "evidence": [
+        "zhadanxin与liduomin在学术观点上存在根本对立"
+      ]
+    }
+  },
+  {
+    "source": "zhadanxin",
+    "target": "liudunhou",
+    "type": "school_complementary",
+    "weight": 65,
+    "sharedConcepts": [],
+    "sharedKeywords": [],
+    "description": "",
+    "provenance": {
+      "method": "manual",
+      "evidence": [
+        "zhadanxin与liudunhou看似对立，实则互补，共同构成完整医学视野"
+      ]
+    }
+  },
+  {
+    "source": "liduomin",
+    "target": "liudunhou",
+    "type": "school_opposition",
+    "weight": 85,
+    "sharedConcepts": [],
+    "sharedKeywords": [],
+    "description": "",
+    "provenance": {
+      "method": "manual",
+      "evidence": [
+        "第一次：寒温之争：攻邪派（刘完素、张从正）vs 扶正派（李东垣）——病邪是病因还是正虚是病因？"
+      ]
+    }
+  },
+  {
+    "source": "liduomin",
+    "target": "zhudanhsi",
+    "type": "school_opposition",
+    "weight": 70,
+    "sharedConcepts": [],
+    "sharedKeywords": [],
+    "description": "",
+    "provenance": {
+      "method": "manual",
+      "evidence": [
+        "liduomin与zhudanhsi在学术观点上存在根本对立"
+      ]
+    }
+  },
+  {
+    "source": "zhudanhsi",
+    "target": "liduomin",
+    "type": "school_opposition",
+    "weight": 70,
+    "sharedConcepts": [],
+    "sharedKeywords": [],
+    "description": "",
+    "provenance": {
+      "method": "manual",
+      "evidence": [
+        "zhudanhsi与liduomin在学术观点上存在根本对立"
+      ]
+    }
+  },
+  {
+    "source": "zhudanhsi",
+    "target": "zhangjingyue",
+    "type": "school_opposition",
+    "weight": 85,
+    "sharedConcepts": [],
+    "sharedKeywords": [],
+    "description": "",
+    "provenance": {
+      "method": "manual",
+      "evidence": [
+        "第二次：滋阴温阳之争：朱丹溪\"阳常有余阴不足\"vs 张景岳\"阳非有余阴亦常不足\"——两人都精通经典但解读不同"
+      ]
+    }
+  },
+  {
+    "source": "zhudanhsi",
+    "target": "hippocrates",
+    "type": "cross_cultural_resonance",
+    "weight": 60,
+    "sharedConcepts": [],
+    "sharedKeywords": [],
+    "description": "",
+    "provenance": {
+      "method": "cross-cultural",
+      "evidence": [
+        "zhudanhsi与hippocrates在医学哲学上有跨文化共鸣"
+      ]
+    }
+  },
+  {
+    "source": "lishizhen",
+    "target": "bencao-gangmu",
+    "type": "textual_lineage",
+    "weight": 95,
+    "sharedConcepts": [],
+    "sharedKeywords": [],
+    "description": "",
+    "provenance": {
+      "method": "lineage-map",
+      "evidence": [
+        "lishizhen是《bencao-gangmu》的作者"
+      ]
+    }
+  },
+  {
+    "source": "lishizhen",
+    "target": "caraka",
+    "type": "cross_cultural_resonance",
+    "weight": 60,
+    "sharedConcepts": [],
+    "sharedKeywords": [],
+    "description": "",
+    "provenance": {
+      "method": "cross-cultural",
+      "evidence": [
+        "lishizhen与caraka在医学哲学上有跨文化共鸣"
+      ]
+    }
+  },
+  {
+    "source": "zhangjingyue",
+    "target": "zhudanhsi",
+    "type": "school_opposition",
+    "weight": 85,
+    "sharedConcepts": [],
+    "sharedKeywords": [],
+    "description": "",
+    "provenance": {
+      "method": "manual",
+      "evidence": [
+        "第二次：滋阴温阳之争：朱丹溪\"阳常有余阴不足\"vs 张景岳\"阳非有余阴亦常不足\"——两人都精通经典但解读不同"
+      ]
+    }
+  },
+  {
+    "source": "zhangjingyue",
+    "target": "liudunhou",
+    "type": "school_opposition",
+    "weight": 70,
+    "sharedConcepts": [],
+    "sharedKeywords": [],
+    "description": "",
+    "provenance": {
+      "method": "manual",
+      "evidence": [
+        "zhangjingyue与liudunhou在学术观点上存在根本对立"
+      ]
+    }
+  },
+  {
+    "source": "zhangjingyue",
+    "target": "liduomin",
+    "type": "school_complementary",
+    "weight": 65,
+    "sharedConcepts": [],
+    "sharedKeywords": [],
+    "description": "",
+    "provenance": {
+      "method": "manual",
+      "evidence": [
+        "zhangjingyue与liduomin看似对立，实则互补，共同构成完整医学视野"
+      ]
+    }
+  },
+  {
+    "source": "zhangjingyue",
+    "target": "jingyue-quanshu",
+    "type": "textual_lineage",
+    "weight": 95,
+    "sharedConcepts": [],
+    "sharedKeywords": [],
+    "description": "",
+    "provenance": {
+      "method": "lineage-map",
+      "evidence": [
+        "zhangjingyue是《jingyue-quanshu》的作者"
+      ]
+    }
+  },
+  {
+    "source": "yetianshi",
+    "target": "wujutong",
+    "type": "school_complementary",
+    "weight": 65,
+    "sharedConcepts": [],
+    "sharedKeywords": [],
+    "description": "",
+    "provenance": {
+      "method": "manual",
+      "evidence": [
+        "yetianshi与wujutong看似对立，实则互补，共同构成完整医学视野"
+      ]
+    }
+  },
+  {
+    "source": "yetianshi",
+    "target": "caraka",
+    "type": "cross_cultural_resonance",
+    "weight": 60,
+    "sharedConcepts": [],
+    "sharedKeywords": [],
+    "description": "",
+    "provenance": {
+      "method": "cross-cultural",
+      "evidence": [
+        "yetianshi与caraka在医学哲学上有跨文化共鸣"
+      ]
+    }
+  },
+  {
+    "source": "wujutong",
+    "target": "wenbing-xue",
+    "type": "textual_lineage",
+    "weight": 95,
+    "sharedConcepts": [],
+    "sharedKeywords": [],
+    "description": "",
+    "provenance": {
+      "method": "lineage-map",
+      "evidence": [
+        "wujutong是《wenbing-xue》的作者"
+      ]
+    }
+  },
+  {
+    "source": "xueshengbai",
+    "target": "wujutong",
+    "type": "school_complementary",
+    "weight": 65,
+    "sharedConcepts": [],
+    "sharedKeywords": [],
+    "description": "",
+    "provenance": {
+      "method": "manual",
+      "evidence": [
+        "xueshengbai与wujutong看似对立，实则互补，共同构成完整医学视野"
+      ]
+    }
+  },
+  {
+    "source": "wangqingren",
+    "target": "hippocrates",
+    "type": "cross_cultural_resonance",
+    "weight": 60,
+    "sharedConcepts": [],
+    "sharedKeywords": [],
+    "description": "",
+    "provenance": {
+      "method": "cross-cultural",
+      "evidence": [
+        "wangqingren与hippocrates在医学哲学上有跨文化共鸣"
+      ]
+    }
+  },
+  {
+    "source": "caoyingfu",
+    "target": "hippocrates",
+    "type": "cross_cultural_resonance",
+    "weight": 60,
+    "sharedConcepts": [],
+    "sharedKeywords": [],
+    "description": "",
+    "provenance": {
+      "method": "cross-cultural",
+      "evidence": [
+        "caoyingfu与hippocrates在医学哲学上有跨文化共鸣"
+      ]
+    }
+  },
+  {
+    "source": "tangzonghai",
+    "target": "hippocrates",
+    "type": "cross_cultural_resonance",
+    "weight": 60,
+    "sharedConcepts": [],
+    "sharedKeywords": [],
+    "description": "",
+    "provenance": {
+      "method": "cross-cultural",
+      "evidence": [
+        "tangzonghai与hippocrates在医学哲学上有跨文化共鸣"
+      ]
+    }
+  },
+  {
+    "source": "zhangxichun",
+    "target": "hippocrates",
+    "type": "cross_cultural_resonance",
+    "weight": 60,
+    "sharedConcepts": [],
+    "sharedKeywords": [],
+    "description": "",
+    "provenance": {
+      "method": "cross-cultural",
+      "evidence": [
+        "zhangxichun与hippocrates在医学哲学上有跨文化共鸣"
+      ]
+    }
+  },
+  {
+    "source": "hippocrates",
+    "target": "huangdi",
+    "type": "cross_cultural_resonance",
+    "weight": 60,
+    "sharedConcepts": [],
+    "sharedKeywords": [],
+    "description": "",
+    "provenance": {
+      "method": "cross-cultural",
+      "evidence": [
+        "hippocrates与huangdi在医学哲学上有跨文化共鸣"
+      ]
+    }
+  },
+  {
+    "source": "hippocrates",
+    "target": "bianque",
+    "type": "cross_cultural_resonance",
+    "weight": 60,
+    "sharedConcepts": [],
+    "sharedKeywords": [],
+    "description": "",
+    "provenance": {
+      "method": "cross-cultural",
+      "evidence": [
+        "hippocrates与bianque在医学哲学上有跨文化共鸣"
+      ]
+    }
+  },
+  {
+    "source": "hippocrates",
+    "target": "caraka",
+    "type": "cross_cultural_resonance",
+    "weight": 60,
+    "sharedConcepts": [],
+    "sharedKeywords": [],
+    "description": "",
+    "provenance": {
+      "method": "cross-cultural",
+      "evidence": [
+        "hippocrates与caraka在医学哲学上有跨文化共鸣"
+      ]
+    }
+  },
+  {
+    "source": "hippocrates",
+    "target": "sushruta",
+    "type": "cross_cultural_resonance",
+    "weight": 60,
+    "sharedConcepts": [],
+    "sharedKeywords": [],
+    "description": "",
+    "provenance": {
+      "method": "cross-cultural",
+      "evidence": [
+        "hippocrates与sushruta在医学哲学上有跨文化共鸣"
+      ]
+    }
+  },
+  {
+    "source": "caraka",
+    "target": "huangdi",
+    "type": "cross_cultural_resonance",
+    "weight": 60,
+    "sharedConcepts": [],
+    "sharedKeywords": [],
+    "description": "",
+    "provenance": {
+      "method": "cross-cultural",
+      "evidence": [
+        "caraka与huangdi在医学哲学上有跨文化共鸣"
+      ]
+    }
+  },
+  {
+    "source": "caraka",
+    "target": "zhang-zhongjing",
+    "type": "cross_cultural_resonance",
+    "weight": 60,
+    "sharedConcepts": [],
+    "sharedKeywords": [],
+    "description": "",
+    "provenance": {
+      "method": "cross-cultural",
+      "evidence": [
+        "caraka与zhang-zhongjing在医学哲学上有跨文化共鸣"
+      ]
+    }
+  },
+  {
+    "source": "caraka",
+    "target": "lishizhen",
+    "type": "cross_cultural_resonance",
+    "weight": 60,
+    "sharedConcepts": [],
+    "sharedKeywords": [],
+    "description": "",
+    "provenance": {
+      "method": "cross-cultural",
+      "evidence": [
+        "caraka与lishizhen在医学哲学上有跨文化共鸣"
+      ]
+    }
+  },
+  {
+    "source": "sushruta",
+    "target": "huafu",
+    "type": "cross_cultural_resonance",
+    "weight": 60,
+    "sharedConcepts": [],
+    "sharedKeywords": [],
+    "description": "",
+    "provenance": {
+      "method": "cross-cultural",
+      "evidence": [
+        "sushruta与huafu在医学哲学上有跨文化共鸣"
+      ]
+    }
+  },
+  {
+    "source": "sushruta",
+    "target": "hippocrates",
+    "type": "cross_cultural_resonance",
+    "weight": 60,
+    "sharedConcepts": [],
+    "sharedKeywords": [],
+    "description": "",
+    "provenance": {
+      "method": "cross-cultural",
+      "evidence": [
+        "sushruta与hippocrates在医学哲学上有跨文化共鸣"
+      ]
+    }
+  },
+  {
+    "source": "huangdi-neijing",
+    "target": "shanghan-lun",
+    "type": "theory_evolution",
+    "weight": 80,
+    "sharedConcepts": [],
+    "sharedKeywords": [],
+    "description": "",
+    "provenance": {
+      "method": "lineage-map",
+      "evidence": [
+        "《shanghan-lun》的理论承袭自《huangdi-neijing》"
+      ]
+    }
+  },
+  {
+    "source": "huangdi-neijing",
+    "target": "jingui-yaolue",
+    "type": "theory_evolution",
+    "weight": 80,
+    "sharedConcepts": [],
+    "sharedKeywords": [],
+    "description": "",
+    "provenance": {
+      "method": "lineage-map",
+      "evidence": [
+        "《jingui-yaolue》的理论承袭自《huangdi-neijing》"
+      ]
+    }
+  },
+  {
+    "source": "shanghan-lun",
+    "target": "wenbing-xue",
+    "type": "theory_evolution",
+    "weight": 80,
+    "sharedConcepts": [],
+    "sharedKeywords": [],
+    "description": "",
+    "provenance": {
+      "method": "lineage-map",
+      "evidence": [
+        "《wenbing-xue》的理论承袭自《shanghan-lun》"
+      ]
+    }
+  },
+  {
+    "source": "yetianshi",
+    "target": "wenbing-xue",
+    "type": "theory_evolution",
+    "weight": 80,
+    "sharedConcepts": [],
+    "sharedKeywords": [],
+    "description": "",
+    "provenance": {
+      "method": "lineage-map",
+      "evidence": [
+        "《wenbing-xue》的理论承袭自《yetianshi》"
+      ]
+    }
+  },
+  {
+    "source": "liduomin",
+    "target": "jingyue-quanshu",
+    "type": "theory_evolution",
+    "weight": 80,
+    "sharedConcepts": [],
+    "sharedKeywords": [],
+    "description": "",
+    "provenance": {
+      "method": "lineage-map",
+      "evidence": [
+        "《jingyue-quanshu》的理论承袭自《liduomin》"
+      ]
+    }
+  }
+]

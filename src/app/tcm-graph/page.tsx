@@ -1,10 +1,10 @@
 import { Metadata } from 'next';
 import { ArrowLeft, Hexagon, Sparkles } from 'lucide-react';
 import Link from 'next/link';
-import { readFileSync } from 'fs';
-import { join } from 'path';
 import { TCMGraphClient } from './components/TCMGraphClient';
 import type { TCMNode, TCMEdge } from './types';
+import tcmNodes from '@/corpus/distilled/tcm/tcm-nodes.json';
+import tcmEdges from '@/corpus/distilled/tcm/tcm-edges.json';
 
 export const metadata: Metadata = {
   title: '中医思想家影响力图谱 | Prismatic',
@@ -12,22 +12,9 @@ export const metadata: Metadata = {
   keywords: ['中医', '知识图谱', '张仲景', '黄帝内经', '流派', '中医史', '可视化'],
 };
 
-async function getGraphData(): Promise<{ nodes: TCMNode[]; edges: TCMEdge[] }> {
-  try {
-    const corpusRoot = join(process.cwd(), 'corpus', 'distilled', 'tcm');
-    const nodesData = readFileSync(join(corpusRoot, 'tcm-nodes.json'), 'utf-8');
-    const edgesData = readFileSync(join(corpusRoot, 'tcm-edges.json'), 'utf-8');
-    return {
-      nodes: JSON.parse(nodesData),
-      edges: JSON.parse(edgesData),
-    };
-  } catch {
-    return { nodes: [], edges: [] };
-  }
-}
-
-export default async function TCMGraphPage() {
-  const { nodes, edges } = await getGraphData();
+export default function TCMGraphPage() {
+  const nodes = tcmNodes as TCMNode[];
+  const edges = tcmEdges as TCMEdge[];
 
   return (
     <div className="min-h-screen flex flex-col bg-slate-950">
