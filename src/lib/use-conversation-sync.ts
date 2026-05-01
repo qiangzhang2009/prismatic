@@ -403,6 +403,22 @@ export function useRegistryChat(personaIds: string[], userId?: string) {
     isInitializedRef.current = true;
   }, []);
 
+  // Re-read registry when the server sends updated conversations (e.g. after hard refresh + runFullSync)
+  useEffect(() => {
+    const handler = () => {
+      const reg = loadRegistry();
+      const fresh = reg.conversations[conversationKey]?.messages || [];
+      setMessagesState((current) => {
+        if (JSON.stringify(fresh) !== JSON.stringify(current)) {
+          return fresh;
+        }
+        return current;
+      });
+    };
+    window.addEventListener('prismatic-registry-updated', handler);
+    return () => window.removeEventListener('prismatic-registry-updated', handler);
+  }, [conversationKey]); // eslint-disable-line react-hooks/exhaustive-deps
+
   const setMessages = useCallback((updater: (prev: AgentMessage[]) => AgentMessage[]) => {
     setMessagesState(prev => {
       const next = updater(prev);
@@ -653,6 +669,8 @@ export function useConversationSync() {
           if (pull.title) conv.title = pull.title;
         }
         saveRegistry(registryRef.current);
+        // Notify listeners (e.g. useRegistryChat) that the registry was updated from the server
+        window.dispatchEvent(new CustomEvent('prismatic-registry-updated'));
       }
 
       // ── Update sync state ───────────────────────────────────────────

@@ -895,11 +895,11 @@ function CommentItem({
         <AnimatePresence>
           {showReplies && replies.length > 0 && (
             <motion.div
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: 'auto', opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
-              className="mt-4 pt-4 border-t border-white/5 space-y-3"
-              style={{ overflow: 'visible' } as any}
+              initial={{ opacity: 0, maxHeight: 0 }}
+              animate={{ opacity: 1, maxHeight: 5000 }}
+              exit={{ opacity: 0, maxHeight: 0 }}
+              transition={{ duration: 0.25, ease: 'easeOut' }}
+              className="mt-4 pt-4 border-t border-white/5 space-y-3 overflow-hidden"
             >
               {/* Replies that are NOT guardian auto-replies */}
               {replies
@@ -1077,9 +1077,10 @@ function CommentItem({
         <AnimatePresence>
           {personaInteractions.length > 0 && (
             <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              exit={{ opacity: 0, height: 0 }}
+              initial={{ opacity: 0, maxHeight: 0 }}
+              animate={{ opacity: 1, maxHeight: 5000 }}
+              exit={{ opacity: 0, maxHeight: 0 }}
+              transition={{ duration: 0.25, ease: 'easeOut' }}
               className="mt-4 pt-4 border-t border-prism-blue/20 space-y-3"
             >
               {personaInteractions.map((interaction) => (
@@ -1223,9 +1224,10 @@ function ReplyForm({
 
   return (
     <motion.div
-      initial={{ opacity: 0, height: 0 }}
-      animate={{ opacity: 1, height: 'auto' }}
-      exit={{ opacity: 0, height: 0 }}
+      initial={{ opacity: 0, maxHeight: 0 }}
+      animate={{ opacity: 1, maxHeight: 5000 }}
+      exit={{ opacity: 0, maxHeight: 0 }}
+      transition={{ duration: 0.25, ease: 'easeOut' }}
       className="mt-4 pl-6 border-l-2 border-prism-blue/30"
     >
       {/* Reply-to context header */}
