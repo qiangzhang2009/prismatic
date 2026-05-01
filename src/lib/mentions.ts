@@ -23,13 +23,14 @@ export interface MentionSegment {
  */
 export function parseMentions(content: string): MentionSegment[] {
   const segments: MentionSegment[] = [];
-  const regex = /@([\p{L}\p{M}\w]{1,30})/gu;
+  // Include middle dot · (U+00B7) common in Chinese names: 沃伦·巴菲特, 马可·奥勒留
+  const regex = /@([\p{L}\p{M}\w·]{1,30})/gu;
 
   let lastIndex = 0;
   let match: RegExpExecArray | null;
 
   while ((match = regex.exec(content)) !== null) {
-    const name = match[1];
+    const rawName = match[1];
     const index = match.index;
 
     // Push text before the mention
@@ -37,10 +38,14 @@ export function parseMentions(content: string): MentionSegment[] {
       segments.push({ type: 'text', text: content.slice(lastIndex, index) });
     }
 
-    // Try to match against persona names
+    // Normalize: remove · to match against persona.nameZh
+    const name = rawName.replace(/·/g, '');
+
+    // Try to match against persona names (with and without ·)
     const persona = PERSONA_LIST.find(
       (p) =>
         p.nameZh === name ||
+        p.nameZh === rawName ||
         p.name === name ||
         p.nameEn === name ||
         p.slug === name
@@ -49,15 +54,15 @@ export function parseMentions(content: string): MentionSegment[] {
     if (persona) {
       segments.push({
         type: 'persona_mention',
-        text: `@${name}`,
+        text: `@${rawName}`,
         slug: persona.slug,
       });
     } else {
       // Treat as user mention
       segments.push({
         type: 'user_mention',
-        text: `@${name}`,
-        userName: name,
+        text: `@${rawName}`,
+        userName: rawName,
       });
     }
 
@@ -84,5 +89,5 @@ export function hasPersonaMention(content: string): boolean {
  * Check if content contains any @mentions
  */
 export function hasMention(content: string): boolean {
-  return /@[\p{L}\p{M}\w]{1,30}/u.test(content);
+  return /@[\p{L}\p{M}\w·]{1,30}/u.test(content);
 }
