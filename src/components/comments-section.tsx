@@ -871,7 +871,10 @@ function CommentItem({
               exit={{ height: 0, opacity: 0 }}
               className="mt-4 pt-4 border-t border-white/5 space-y-3"
             >
-              {replies.map((reply) => (
+              {/* Replies that are NOT guardian auto-replies */}
+              {replies
+                .filter(reply => !reply.mentionedGuardianReply)
+                .map((reply) => (
                 <div key={reply.id}>
                   {/* Guardian reply card inside the replies list */}
                   {reply.mentionedGuardianReply && (() => {
