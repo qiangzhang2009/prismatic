@@ -465,6 +465,8 @@ function CommentItem({
   const [guardianMentionReply, setGuardianMentionReply] = useState<string | null>(
     comment.mentionedGuardianReply ?? null
   );
+  // Track guardian replies for individual replies (replyId → guardian reply text)
+  const [guardianRepliesById, setGuardianRepliesById] = useState<Record<string, string>>({});
   // Nested reply state — for replying to individual replies
   const [replyingToReply, setReplyingToReply] = useState<string | null>(null);
   // For replying to a guardian's mention reply at the comment level
@@ -513,6 +515,33 @@ function CommentItem({
     }, 8000);
     return () => clearInterval(interval);
   }, [comment.id, comment.mentionedGuardianId]);
+
+  // Poll for guardian replies on individual replies
+  useEffect(() => {
+    const guardianReplies = replies.filter(r => r.mentionedGuardianId && !guardianRepliesById[r.id]);
+    if (guardianReplies.length === 0) return;
+
+    const pollReplies = async () => {
+      for (const reply of guardianReplies) {
+        try {
+          const res = await fetch(`/api/comments/${reply.id}`);
+          if (!res.ok) continue;
+          const data = await res.json();
+          if (data.comment?.mentionedGuardianReply) {
+            setGuardianRepliesById(prev => ({
+              ...prev,
+              [reply.id]: data.comment.mentionedGuardianReply,
+            }));
+          }
+        } catch { /* ignore */ }
+      }
+    };
+
+    pollReplies();
+    const interval = setInterval(pollReplies, 10000);
+    return () => clearInterval(interval);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [replies.map(r => r.id).join(','), Object.keys(guardianRepliesById).join(',')]);
   
   // Handle when a reply is created via the inline ReplyForm
   const handleReplyCreated = useCallback((reply: Reply) => {
@@ -877,9 +906,10 @@ function CommentItem({
                 .map((reply) => (
                 <div key={reply.id}>
                   {/* Guardian reply card inside the replies list */}
-                  {reply.mentionedGuardianReply && (() => {
+                  {(guardianRepliesById[reply.id] || reply.mentionedGuardianReply) && (() => {
                     const guardian = resolveGuardian(reply.mentionedGuardianId);
                     const guardianName = guardian ? guardian.nameZh : '守望者';
+                    const guardianReplyText = guardianRepliesById[reply.id] || reply.mentionedGuardianReply;
                     return (
                     <div className="mb-3 pl-12 border-l-2 border-prism-blue/30">
                       <div className="flex items-start gap-2 pl-3 border-l-2 border-prism-blue/20">
@@ -905,7 +935,7 @@ function CommentItem({
                             </span>
                           </div>
                           <p className="text-xs text-text-secondary leading-relaxed italic">
-                            {reply.mentionedGuardianReply}
+                            {guardianReplyText}
                           </p>
                           {/* Reply to guardian in replies list */}
                           <button
@@ -940,6 +970,16 @@ function CommentItem({
                     </div>
                     );
                   })()}
+
+                  {/* 追问 pending — show thinking indicator when guardian not yet replied */}
+                  {reply.mentionedGuardianId && !guardianRepliesById[reply.id] && !reply.mentionedGuardianReply && (
+                    <div className="mb-2 ml-12 pl-3 border-l-2 border-prism-blue/20 flex items-center gap-2">
+                      <Sparkles className="w-3 h-3 text-prism-blue flex-shrink-0 animate-pulse" />
+                      <span className="text-[10px] text-prism-blue/80">
+                        {resolveGuardian(reply.mentionedGuardianId)?.nameZh || '守望者'}正在思考中...
+                      </span>
+                    </div>
+                  )}
 
                   {/* Reply item */}
                   <div className="flex items-start gap-3 pl-4 border-l-2 border-white/10">

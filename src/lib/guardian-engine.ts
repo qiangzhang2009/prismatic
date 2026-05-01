@@ -202,12 +202,21 @@ async function processMentionedReply(
     return { replied: false };
   }
 
+  // DB dedup: skip if already replied (handles edge cases like serverless retries)
   try {
-    await recordPersonaInteraction(mentionedGuardianId, commentId, 'reply', response);
+    const existing = await prisma.comment.findUnique({
+      where: { id: commentId },
+      select: { mentionedGuardianReply: true },
+    });
+    if (existing?.mentionedGuardianReply) {
+      console.log(`[Guardian Engine] Skipping duplicate reply for comment ${commentId}`);
+      return { replied: true, reply: existing.mentionedGuardianReply, personaName: persona.nameZh };
+    }
   } catch (err) {
-    console.warn('[Guardian Engine] recordPersonaInteraction failed:', err);
+    console.warn('[Guardian Engine] Dedup check failed:', err);
   }
 
+  // Write to DB only (recordPersonaInteraction was causing dual-write issues)
   try {
     await prisma.comment.update({
       where: { id: commentId },
@@ -256,7 +265,14 @@ async function processOrganicEngagement(
     );
     if (!response) return;
 
-    await recordPersonaInteraction(responder.personaId, commentId, 'reply', response).catch(console.warn);
+    // DB dedup: skip if already replied
+    try {
+      const existing = await prisma.comment.findUnique({
+        where: { id: commentId },
+        select: { mentionedGuardianReply: true },
+      });
+      if (existing?.mentionedGuardianReply) return;
+    } catch { /* ignore */ }
 
     await prisma.comment.update({
       where: { id: commentId },
