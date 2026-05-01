@@ -898,9 +898,7 @@ function CommentItem({
               initial={{ height: 0, opacity: 0 }}
               animate={{ height: 'auto', opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}
-              // overflow-visible ensures guardian reply cards aren't clipped
-              // especially when guardian cards appear dynamically after polling
-              className="mt-4 pt-4 border-t border-white/5 space-y-3 [&>div]:overflow-visible"
+              className="mt-4 pt-4 border-t border-white/5 space-y-3"
               style={{ overflow: 'visible' } as any}
             >
               {/* Replies that are NOT guardian auto-replies */}
@@ -908,83 +906,7 @@ function CommentItem({
                 .filter(reply => !reply.mentionedGuardianReply)
                 .map((reply) => (
                 <div key={reply.id}>
-                  {/* Guardian reply card inside the replies list */}
-                  {(guardianRepliesById[reply.id] || reply.mentionedGuardianReply) && (() => {
-                    const guardian = resolveGuardian(reply.mentionedGuardianId);
-                    const guardianName = guardian ? guardian.nameZh : '守望者';
-                    const guardianReplyText = guardianRepliesById[reply.id] || reply.mentionedGuardianReply;
-                    return (
-                    <div className="mb-3 pl-12 border-l-2 border-prism-blue/30 overflow-visible relative z-10">
-                      <div className="flex items-start gap-2 pl-3 border-l-2 border-prism-blue/20">
-                        <div
-                          className="w-6 h-6 rounded-full flex items-center justify-center text-white text-[10px] font-bold flex-shrink-0 shadow-md"
-                          style={{
-                            background: guardian
-                              ? `linear-gradient(135deg, ${guardian.gradientFrom}, ${guardian.gradientTo})`
-                              : 'linear-gradient(135deg, #6366f1, #8b5cf6)',
-                          }}
-                          title={guardian ? `${guardian.nameZh}回复` : '守望者回复'}
-                        >
-                          {guardian ? guardian.nameZh[0] : '?'}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-1.5 mb-1">
-                            <span className="text-[10px] font-semibold text-prism-blue">
-                              {guardianName}
-                            </span>
-                            <span className="text-[9px] px-1 py-0.5 rounded bg-prism-blue/10 text-prism-blue flex items-center gap-0.5">
-                              <Sparkles className="w-2 h-2" />
-                              回复
-                            </span>
-                          </div>
-                          <p className="text-xs text-text-secondary leading-relaxed italic">
-                            {guardianReplyText}
-                          </p>
-                          {/* Reply to guardian in replies list */}
-                          <button
-                            onClick={() => setReplyingToReply(reply.id)}
-                            className="mt-2 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs border border-prism-blue/20 hover:border-prism-blue/40 hover:bg-prism-blue/5 text-prism-blue transition-all"
-                          >
-                            <MessageCircle className="w-3 h-3" />
-                            {replyingToReply === reply.id ? '取消追问' : `继续追问 ${guardianName}`}
-                          </button>
-                          {/* Inline reply form */}
-                          <AnimatePresence>
-                            {replyingToReply === reply.id && (
-                              <div className="mt-2">
-                                <ReplyForm
-                                  parentId={comment.id}
-                                  onSubmit={async (content, gId): Promise<Reply | undefined> => {
-                                    if (!onReplyToReply) return undefined;
-                                    const result = await onReplyToReply(comment.id, reply.id, content, gId ?? reply.mentionedGuardianId);
-                                    setReplyingToReply(null);
-                                    return result;
-                                  }}
-                                  onCancel={() => setReplyingToReply(null)}
-                                  replyToName={guardianName}
-                                  mentionedGuardianId={reply.mentionedGuardianId ?? null}
-                                  mentionedGuardianNameZh={guardianName}
-                                />
-                              </div>
-                            )}
-                          </AnimatePresence>
-                        </div>
-                      </div>
-                    </div>
-                    );
-                  })()}
-
-                  {/* 追问 pending — show thinking indicator when guardian not yet replied */}
-                  {reply.mentionedGuardianId && !guardianRepliesById[reply.id] && !reply.mentionedGuardianReply && (
-                    <div className="mb-2 ml-12 pl-3 border-l-2 border-prism-blue/20 flex items-center gap-2">
-                      <Sparkles className="w-3 h-3 text-prism-blue flex-shrink-0 animate-pulse" />
-                      <span className="text-[10px] text-prism-blue/80">
-                        {resolveGuardian(reply.mentionedGuardianId)?.nameZh || '守望者'}正在思考中...
-                      </span>
-                    </div>
-                  )}
-
-                  {/* Reply item */}
+                  {/* Reply item — rendered first */}
                   <div className="flex items-start gap-3 pl-4 border-l-2 border-white/10">
                     {(() => {
                       const info = buildAvatarUrl(reply.author_avatar, reply.gender);
@@ -1068,6 +990,83 @@ function CommentItem({
                       </AnimatePresence>
                     </div>
                   </div>
+
+                  {/* Guardian reply card — rendered AFTER the user reply (below it) */}
+                  {(guardianRepliesById[reply.id] || reply.mentionedGuardianReply) && (() => {
+                    const guardian = resolveGuardian(reply.mentionedGuardianId);
+                    const guardianName = guardian ? guardian.nameZh : '守望者';
+                    const guardianReplyText = guardianRepliesById[reply.id] || reply.mentionedGuardianReply;
+                    return (
+                    <div className="mt-2 ml-12 pl-4 pr-3 py-3 rounded-xl bg-prism-blue/5 border border-prism-blue/20 relative">
+                      <div className="flex items-start gap-2">
+                        <div
+                          className="w-6 h-6 rounded-full flex items-center justify-center text-white text-[10px] font-bold flex-shrink-0 mt-0.5"
+                          style={{
+                            background: guardian
+                              ? `linear-gradient(135deg, ${guardian.gradientFrom}, ${guardian.gradientTo})`
+                              : 'linear-gradient(135deg, #6366f1, #8b5cf6)',
+                            boxShadow: guardian ? `0 2px 6px ${guardian.gradientFrom}40` : '0 2px 6px #6366f140',
+                          }}
+                          title={guardian ? `${guardian.nameZh}回复` : '守望者回复'}
+                        >
+                          {guardian ? guardian.nameZh[0] : '?'}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-1.5 mb-1">
+                            <span className="text-xs font-semibold text-prism-blue">
+                              {guardianName}
+                            </span>
+                            <span className="text-[9px] px-1.5 py-0.5 rounded bg-prism-blue/10 text-prism-blue flex items-center gap-0.5">
+                              <Sparkles className="w-2.5 h-2.5" />
+                              回复
+                            </span>
+                          </div>
+                          <p className="text-sm text-text-secondary leading-relaxed">
+                            {guardianReplyText}
+                          </p>
+                          {/* Reply to guardian button */}
+                          <button
+                            onClick={() => setReplyingToReply(reply.id)}
+                            className="mt-2 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs border border-prism-blue/20 hover:border-prism-blue/40 hover:bg-prism-blue/5 text-prism-blue transition-all"
+                          >
+                            <MessageCircle className="w-3 h-3" />
+                            {replyingToReply === reply.id ? '取消追问' : `继续追问 ${guardianName}`}
+                          </button>
+                          {/* Inline reply form */}
+                          <AnimatePresence>
+                            {replyingToReply === reply.id && (
+                              <div className="mt-2">
+                                <ReplyForm
+                                  parentId={comment.id}
+                                  onSubmit={async (content, gId): Promise<Reply | undefined> => {
+                                    if (!onReplyToReply) return undefined;
+                                    const result = await onReplyToReply(comment.id, reply.id, content, gId ?? reply.mentionedGuardianId);
+                                    setReplyingToReply(null);
+                                    return result;
+                                  }}
+                                  onCancel={() => setReplyingToReply(null)}
+                                  replyToName={guardianName}
+                                  mentionedGuardianId={reply.mentionedGuardianId ?? null}
+                                  mentionedGuardianNameZh={guardianName}
+                                />
+                              </div>
+                            )}
+                          </AnimatePresence>
+                        </div>
+                      </div>
+                    </div>
+                    );
+                  })()}
+
+                  {/* 追问 pending — show thinking indicator when guardian not yet replied */}
+                  {reply.mentionedGuardianId && !guardianRepliesById[reply.id] && !reply.mentionedGuardianReply && (
+                    <div className="mt-2 ml-12 pl-4 py-2 rounded-xl bg-prism-blue/5 border border-prism-blue/20 flex items-center gap-2">
+                      <Sparkles className="w-3.5 h-3.5 text-prism-blue flex-shrink-0 animate-pulse" />
+                      <span className="text-xs text-prism-blue/90">
+                        {resolveGuardian(reply.mentionedGuardianId)?.nameZh || '守望者'}正在思考中...
+                      </span>
+                    </div>
+                  )}
                 </div>
               ))}
             </motion.div>
