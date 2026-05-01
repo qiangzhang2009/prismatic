@@ -46,9 +46,18 @@ export function extractGuardianMention(
   const slug = first.slug!;
 
   // Check if mentioned persona exists in PERSONA_LIST
-  const persona = PERSONA_LIST.find(
+  let persona = PERSONA_LIST.find(
     (p) => p.slug === slug || p.nameZh === first.text.slice(1)
   );
+
+  // Prefer the non-stoic variant if both exist (e.g. marcus-aurelius over marcus-aurelius-stoic)
+  if (persona && persona.slug.endsWith('-stoic')) {
+    const nonStoicSlug = persona.slug.replace(/-stoic$/, '');
+    const nonStoic = PERSONA_LIST.find((p) => p.slug === nonStoicSlug);
+    if (nonStoic) {
+      persona = nonStoic;
+    }
+  }
 
   if (!persona) {
     return {

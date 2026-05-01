@@ -142,6 +142,8 @@ export interface Persona {
   name: string;
   nameZh: string;
   nameEn: string;
+  /** Short name for mention matching, e.g. "乔布斯" for "史蒂夫·乔布斯", "巴菲特" for "沃伦·巴菲特" */
+  nameZhShort?: string;
   domain: Domain[];
   tagline: string;
   taglineZh: string;

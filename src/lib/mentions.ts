@@ -39,17 +39,30 @@ export function parseMentions(content: string): MentionSegment[] {
     }
 
     // Normalize: remove · to match against persona.nameZh
+    // Strip dots on BOTH sides so '马可奥勒留' matches '马可·奥勒留'
     const name = rawName.replace(/·/g, '');
 
     // Try to match against persona names (with and without ·)
-    const persona = PERSONA_LIST.find(
+    // Use the first match; prefer the non-stoic version if both match
+    let persona = PERSONA_LIST.find(
       (p) =>
-        p.nameZh === name ||
+        p.nameZh.replace(/·/g, '') === name ||
         p.nameZh === rawName ||
         p.name === name ||
         p.nameEn === name ||
-        p.slug === name
+        p.slug === name ||
+        (p.nameZhShort && (p.nameZhShort === name || p.nameZhShort === rawName))
     );
+
+    // If multiple personas match (e.g. both marcus-aurelius and marcus-aurelius-stoic
+    // for "马可·奥勒留"), prefer the non-stoic version
+    if (persona && persona.slug.endsWith('-stoic')) {
+      const nonStoicSlug = persona.slug.replace(/-stoic$/, '');
+      const nonStoic = PERSONA_LIST.find((p) => p.slug === nonStoicSlug);
+      if (nonStoic) {
+        persona = nonStoic;
+      }
+    }
 
     if (persona) {
       segments.push({

@@ -387,6 +387,39 @@ export async function POST(req: NextRequest) {
               ipHash: ipHash,
             }
           });
+        } else {
+          // LLM failed — return the comment with pending hint so frontend polls for reply
+          return NextResponse.json({
+            success: true,
+            comment: {
+              id: newComment.id,
+              content: newComment.content,
+              author_name: nickname,
+              author_avatar: null,
+              avatar_url: avatarUrl,
+              display_name: nickname,
+              gender: gender || null,
+              location,
+              created_at: newComment.createdAt.toISOString(),
+              updated_at: new Date().toISOString(),
+              is_pinned: false,
+              is_edited: false,
+              likes: 0,
+              reactions: [],
+              reactionCount: 0,
+              userReaction: null,
+              view_count: 0,
+              report_count: 0,
+              replyCount: 0,
+              personaSlug: newComment.personaSlug,
+              mentionedGuardianId,
+              mentionedGuardianReply: null,
+              mentionedGuardianRepliedAt: null,
+              mentionHint: `${PERSONAS[mentionedGuardianId]?.nameZh || '守望者'}正在思考中...`,
+              mentionedGuardianName: PERSONAS[mentionedGuardianId]?.nameZh || null,
+              ipHash: ipHash,
+            }
+          });
         }
       } else {
         processCommentInteractions(newComment.id, content.trim(), nickname, null)
@@ -422,6 +455,39 @@ export async function POST(req: NextRequest) {
             mentionedGuardianId,
             mentionedGuardianReply: result.reply,
             mentionedGuardianRepliedAt: new Date().toISOString(),
+            mentionedGuardianName: PERSONAS[mentionedGuardianId]?.nameZh || null,
+            ipHash: ipHash,
+          }
+        });
+      } else {
+        // LLM failed — return the reply with pending hint
+        return NextResponse.json({
+          success: true,
+          comment: {
+            id: newComment.id,
+            content: newComment.content,
+            author_name: nickname,
+            author_avatar: null,
+            avatar_url: avatarUrl,
+            display_name: nickname,
+            gender: gender || null,
+            location,
+            created_at: newComment.createdAt.toISOString(),
+            updated_at: new Date().toISOString(),
+            is_pinned: false,
+            is_edited: false,
+            likes: 0,
+            reactions: [],
+            reactionCount: 0,
+            userReaction: null,
+            view_count: 0,
+            report_count: 0,
+            replyCount: 0,
+            personaSlug: newComment.personaSlug,
+            mentionedGuardianId,
+            mentionedGuardianReply: null,
+            mentionedGuardianRepliedAt: null,
+            mentionHint: `${PERSONAS[mentionedGuardianId]?.nameZh || '守望者'}正在思考中...`,
             mentionedGuardianName: PERSONAS[mentionedGuardianId]?.nameZh || null,
             ipHash: ipHash,
           }

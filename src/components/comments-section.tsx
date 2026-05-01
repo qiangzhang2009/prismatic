@@ -1016,7 +1016,7 @@ function CommentItem({
                                 return result;
                               }}
                               onCancel={() => setReplyingToReply(null)}
-                              quotedGuardianReply={reply.content ? reply.content : null}
+                              quotedGuardianReply={reply.mentionedGuardianReply ?? null}
                               replyToName={reply.display_name || reply.author_name}
                               onReplyCreated={handleReplyCreated}
                             />
