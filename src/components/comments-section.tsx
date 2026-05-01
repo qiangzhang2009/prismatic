@@ -571,8 +571,28 @@ function CommentItem({
     try {
       const res = await fetch(`/api/comments/${comment.id}/replies?parentId=${comment.id}`);
       const data = await res.json();
-      setReplies(data.replies || []);
+      const fetchedReplies: Reply[] = data.replies || [];
+      setReplies(fetchedReplies);
       setShowReplies(true);
+
+      // Guardian replies (mentionedGuardianReply) are not included in the replies list endpoint.
+      // Fetch each reply's full data to get the guardian reply content.
+      for (const reply of fetchedReplies) {
+        if (reply.mentionedGuardianId) {
+          try {
+            const fullRes = await fetch(`/api/comments/${reply.id}`);
+            if (fullRes.ok) {
+              const fullData = await fullRes.json();
+              if (fullData.comment?.mentionedGuardianReply) {
+                setGuardianRepliesById(prev => ({
+                  ...prev,
+                  [reply.id]: fullData.comment.mentionedGuardianReply,
+                }));
+              }
+            }
+          } catch { /* ignore */ }
+        }
+      }
     } catch (e) {
       console.error('Failed to fetch replies:', e);
     } finally {
