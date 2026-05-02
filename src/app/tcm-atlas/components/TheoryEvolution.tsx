@@ -114,15 +114,15 @@ export function TheoryEvolution(_props: TheoryEvolutionProps) {
   const { nodes: renderedNodes, lines: renderedLines } = useMemo(() => buildTree(), []);
 
   const maxDepth = Math.max(...renderedNodes.map(n => n.depth));
-  const svgContentH = Math.max(...renderedNodes.map(n => nodeSvgY(n.y) + CARD_H)) + 20;
 
   return (
     <div
-      className="relative w-full h-full overflow-hidden"
+      className="relative flex flex-col w-full h-full overflow-hidden"
       style={{ background: 'radial-gradient(ellipse 80% 60% at 50% 20%, #0a1628 0%, #050810 60%)' }}
     >
+      {/* Header */}
       <div
-        className="relative z-10 px-8 pt-6 pb-4"
+        className="relative z-10 px-8 pt-6 pb-4 shrink-0"
         style={{ background: 'linear-gradient(180deg, rgba(5,8,16,0.95) 0%, rgba(5,8,16,0) 100%)' }}
       >
         <div className="flex items-center gap-4 mb-1">
@@ -135,14 +135,15 @@ export function TheoryEvolution(_props: TheoryEvolutionProps) {
         </p>
       </div>
 
-      <div className="px-8 pb-4 overflow-auto">
-        <div className="relative mx-auto" style={{ width: SVG_W, height: Math.max(SVG_H, svgContentH) }}>
+      {/* Scrollable tree area */}
+      <div className="flex-1 overflow-auto px-8 min-h-0">
+        <div className="relative mx-auto" style={{ width: SVG_W, height: SVG_H }}>
           {/* SVG connector lines */}
           <svg
             className="absolute inset-0 pointer-events-none"
             width={SVG_W}
-            height={Math.max(SVG_H, svgContentH)}
-            viewBox={`0 0 ${SVG_W} ${Math.max(SVG_H, svgContentH)}`}
+            height={SVG_H}
+            viewBox={`0 0 ${SVG_W} ${SVG_H}`}
             style={{ overflow: 'visible' }}
           >
             {renderedLines.map((line, i) => {
@@ -195,10 +196,7 @@ export function TheoryEvolution(_props: TheoryEvolutionProps) {
                   >
                     {n.type === 'person' ? '人' : '典'}
                   </div>
-                  <span
-                    className="text-white font-bold text-center leading-tight"
-                    style={{ fontSize }}
-                  >
+                  <span className="text-white font-bold text-center leading-tight" style={{ fontSize }}>
                     {n.name}
                   </span>
                   <span className="text-[7px] text-slate-400 leading-none mt-0.5">
@@ -273,9 +271,11 @@ export function TheoryEvolution(_props: TheoryEvolutionProps) {
             )}
           </AnimatePresence>
         </div>
+      </div>
 
-        {/* Summary cards */}
-        <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4 max-w-4xl mx-auto">
+      {/* Summary cards — always visible below the tree */}
+      <div className="shrink-0 px-8 py-5">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-4xl mx-auto">
           {[
             { title: '经典奠基', desc: '《黄帝内经》建立阴阳五行、脏腑经络、天人相应的理论框架', color: '#f59e0b', icon: '理' },
             { title: '临床分化', desc: '张仲景《伤寒论》开创六经辨证，温病学派发展出卫气营血、三焦辨证', color: '#60a5fa', icon: '用' },
