@@ -213,12 +213,16 @@ function buildLayout(nodes: TCMNode[], edges: TCMEdge[], eraFilter: string, scho
 
 // ─── SVG Helpers ───────────────────────────────────────────────────────────────
 
+function roundTo(n: number, decimals: number) {
+  return Math.round(n * Math.pow(10, decimals)) / Math.pow(10, decimals);
+}
+
 function curvedPath(x1: number, y1: number, cx: number, cy: number, x2: number, y2: number) {
-  return `M ${x1} ${y1} Q ${cx} ${cy} ${x2} ${y2}`;
+  return `M ${roundTo(x1, 3)} ${roundTo(y1, 3)} Q ${roundTo(cx, 3)} ${roundTo(cy, 3)} ${roundTo(x2, 3)} ${roundTo(y2, 3)}`;
 }
 
 function straightPath(x1: number, y1: number, x2: number, y2: number) {
-  return `M ${x1} ${y1} L ${x2} ${y2}`;
+  return `M ${roundTo(x1, 3)} ${roundTo(y1, 3)} L ${roundTo(x2, 3)} ${roundTo(y2, 3)}`;
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -235,7 +239,7 @@ export function GraphCanvas({ nodes, edges, eraFilter, schoolFilter, edgeTypeFil
   const svgRef = useRef<SVGSVGElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const [viewBox, setViewBox] = useState({ minX: -500, minY: -500, width: 1000, height: 1000 });
+  const [viewBox, setViewBox] = useState({ minX: -1000, minY: -1000, width: 2000, height: 2000 });
   const [isPanning, setIsPanning] = useState(false);
   const [panStart, setPanStart] = useState({ x: 0, y: 0, minX: 0, minY: 0 });
   const [hoveredNode, setHoveredNode] = useState<string | null>(null);
@@ -249,18 +253,22 @@ export function GraphCanvas({ nodes, edges, eraFilter, schoolFilter, edgeTypeFil
     [nodes, edges, eraFilter, schoolFilter, edgeTypeFilter]
   );
 
-  // Fit to view on data change
+  // Fit to view on data change — responsive padding so nodes are readable on mobile
   useEffect(() => {
     if (layoutNodes.length === 0) return;
     const xs = layoutNodes.map(n => n.x);
     const ys = layoutNodes.map(n => n.y);
-    const minX = Math.min(...xs) - 80;
-    const maxX = Math.max(...xs) + 80;
-    const minY = Math.min(...ys) - 80;
-    const maxY = Math.max(...ys) + 80;
-    const w = maxX - minX;
-    const h = maxY - minY;
-    const size = Math.max(w, h, 400) * 1.15;
+    const minX = Math.min(...xs);
+    const maxX = Math.max(...xs);
+    const minY = Math.min(...ys);
+    const maxY = Math.max(...ys);
+    const contentW = maxX - minX;
+    const contentH = maxY - minY;
+    // Adaptive padding: large on narrow screens so nodes remain readable,
+    // small on wide screens where there's plenty of pixel real-estate.
+    const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+    const padding = isMobile ? 1500 : 80;
+    const size = Math.max(contentW, contentH, 400) + padding * 2;
     const cx = (minX + maxX) / 2;
     const cy = (minY + maxY) / 2;
     setViewBox({ minX: cx - size / 2, minY: cy - size / 2, width: size, height: size });
@@ -349,15 +357,20 @@ export function GraphCanvas({ nodes, edges, eraFilter, schoolFilter, edgeTypeFil
   };
 
   const resetView = () => {
-    setViewBox({ minX: -500, minY: -500, width: 1000, height: 1000 });
+    setViewBox({ minX: -1000, minY: -1000, width: 2000, height: 2000 });
     setScale(1);
     if (layoutNodes.length > 0) {
       const xs = layoutNodes.map(n => n.x);
       const ys = layoutNodes.map(n => n.y);
-      const minX = Math.min(...xs) - 80, maxX = Math.max(...xs) + 80;
-      const minY = Math.min(...ys) - 80, maxY = Math.max(...ys) + 80;
-      const size = Math.max(maxX - minX, maxY - minY) * 1.15;
-      const cx = (minX + maxX) / 2, cy = (minY + maxY) / 2;
+      const minX = Math.min(...xs);
+      const maxX = Math.max(...xs);
+      const minY = Math.min(...ys);
+      const maxY = Math.max(...ys);
+      const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+      const padding = isMobile ? 1500 : 80;
+      const size = Math.max(maxX - minX, maxY - minY, 400) + padding * 2;
+      const cx = (minX + maxX) / 2;
+      const cy = (minY + maxY) / 2;
       setViewBox({ minX: cx - size / 2, minY: cy - size / 2, width: size, height: size });
     }
   };
@@ -424,8 +437,8 @@ export function GraphCanvas({ nodes, edges, eraFilter, schoolFilter, edgeTypeFil
           Array.from({ length: 30 }, (_, j) => (
             <circle
               key={`dot-${i}-${j}`}
-              cx={viewBox.minX + (viewBox.width / 30) * i}
-              cy={viewBox.minY + (viewBox.height / 30) * j}
+              cx={roundTo(viewBox.minX + (viewBox.width / 30) * i, 3)}
+              cy={roundTo(viewBox.minY + (viewBox.height / 30) * j, 3)}
               r={0.8}
               fill="rgba(148,163,184,0.08)"
             />
@@ -485,7 +498,7 @@ export function GraphCanvas({ nodes, edges, eraFilter, schoolFilter, edgeTypeFil
               className="node-hit"
               opacity={dim ? 0.15 : 1}
               style={{ transition: 'opacity 0.2s', cursor: 'pointer' }}
-              transform={`translate(${node.x}, ${node.y})`}
+              transform={`translate(${roundTo(node.x, 3)}, ${roundTo(node.y, 3)})`}
               onMouseEnter={() => setHoveredNode(node.id)}
               onMouseLeave={() => setHoveredNode(null)}
               onClick={(e) => { e.stopPropagation(); handleNodeClick(node); }}
@@ -526,7 +539,7 @@ export function GraphCanvas({ nodes, edges, eraFilter, schoolFilter, edgeTypeFil
               className="node-hit"
               opacity={dim ? 0.12 : 1}
               style={{ transition: 'opacity 0.2s', cursor: 'pointer' }}
-              transform={`translate(${node.x}, ${node.y})`}
+              transform={`translate(${roundTo(node.x, 3)}, ${roundTo(node.y, 3)})`}
               onMouseEnter={() => setHoveredNode(node.id)}
               onMouseLeave={() => setHoveredNode(null)}
               onClick={(e) => { e.stopPropagation(); handleNodeClick(node); }}
