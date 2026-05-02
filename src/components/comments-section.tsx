@@ -766,7 +766,7 @@ function CommentItem({
                       守望者回复
                     </span>
                   </div>
-                  <p className="text-sm text-text-secondary leading-relaxed italic">
+                  <p className="text-sm text-text-primary/90 leading-relaxed">
                     {guardianMentionReply}
                   </p>
                   {/* Reply to guardian button */}
@@ -1053,7 +1053,7 @@ function CommentItem({
                               回复
                             </span>
                           </div>
-                          <p className="text-sm text-text-secondary leading-relaxed">
+                          <p className="text-sm text-text-primary/90 leading-relaxed">
                             {guardianReplyText}
                           </p>
                           {/* Reply to guardian button */}
@@ -1135,7 +1135,7 @@ function CommentItem({
                       <span className="text-xs text-text-muted">{timeAgo(interaction.createdAt)}</span>
                     </div>
                     {interaction.content && (
-                      <p className="text-sm text-text-secondary leading-relaxed italic">
+                      <p className="text-sm text-text-primary/90 leading-relaxed">
                         {interaction.content}
                       </p>
                     )}
