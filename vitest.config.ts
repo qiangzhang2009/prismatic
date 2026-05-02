@@ -1,5 +1,6 @@
 /// <reference types="vitest" />
 import { defineConfig } from 'vite';
+import path from 'path';
 
 export default defineConfig({
   test: {
@@ -8,7 +9,7 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      '@': '/Users/john/蒸馏2/src',
+      '@': path.resolve(__dirname, './src'),
     },
   },
 });
