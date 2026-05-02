@@ -1092,6 +1092,7 @@ function CommentItem({
                   )}
                 </div>
               ))}
+            </div>
             </motion.div>
           )}
         </AnimatePresence>
@@ -1140,6 +1141,7 @@ function CommentItem({
                   </div>
                 </div>
               ))}
+            </div>
             </motion.div>
           )}
         </AnimatePresence>
@@ -1312,6 +1314,7 @@ function ReplyForm({
             </button>
           </div>
         </div>
+      </div>
       </div>
     </motion.div>
   );
