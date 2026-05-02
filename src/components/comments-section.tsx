@@ -1023,6 +1023,72 @@ function CommentItem({
                       </span>
                     </div>
                   )}
+                  {/* Guardian reply card */}
+                  {(guardianRepliesById[reply.id] || reply.mentionedGuardianReply) && (() => {
+                    const guardian = resolveGuardian(reply.mentionedGuardianId);
+                    const guardianName = guardian ? guardian.nameZh : '守望者';
+                    const guardianReplyText = guardianRepliesById[reply.id] || reply.mentionedGuardianReply;
+                    return (
+                    <div className="mt-2 ml-12 pl-4 pr-3 py-3 rounded-xl bg-prism-blue/5 border border-prism-blue/20 relative">
+                      <div className="flex items-start gap-2">
+                        <div
+                          className="w-6 h-6 rounded-full flex items-center justify-center text-white text-[10px] font-bold flex-shrink-0 mt-0.5"
+                          style={{
+                            background: guardian
+                              ? `linear-gradient(135deg, ${guardian.gradientFrom}, ${guardian.gradientTo})`
+                              : 'linear-gradient(135deg, #6366f1, #8b5cf6)',
+                            boxShadow: guardian ? `0 2px 6px ${guardian.gradientFrom}40` : '0 2px 6px #6366f140',
+                          }}
+                          title={guardian ? `${guardian.nameZh}回复` : '守望者回复'}
+                        >
+                          {guardian ? guardian.nameZh[0] : '?'}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-1.5 mb-1">
+                            <span className="text-xs font-semibold text-prism-blue">
+                              {guardianName}
+                            </span>
+                            <span className="text-[9px] px-1.5 py-0.5 rounded bg-prism-blue/10 text-prism-blue flex items-center gap-0.5">
+                              <Sparkles className="w-2.5 h-2.5" />
+                              回复
+                            </span>
+                          </div>
+                          <p className="text-sm text-text-secondary leading-relaxed">
+                            {guardianReplyText}
+                          </p>
+                          {/* Reply to guardian button */}
+                          <button
+                            onClick={() => setReplyingToReply(reply.id)}
+                            className="mt-2 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs border border-prism-blue/20 hover:border-prism-blue/40 hover:bg-prism-blue/5 text-prism-blue transition-all"
+                          >
+                            <MessageCircle className="w-3 h-3" />
+                            {replyingToReply === reply.id ? '取消追问' : `继续追问 ${guardianName}`}
+                          </button>
+                          {/* Inline reply form */}
+                          <AnimatePresence>
+                            {replyingToReply === reply.id && (
+                              <div className="mt-2">
+                                <ReplyForm
+                                  parentId={comment.id}
+                                  onSubmit={async (content, gId): Promise<Reply | undefined> => {
+                                    if (!onReplyToReply) return undefined;
+                                    const result = await onReplyToReply(comment.id, reply.id, content, gId ?? reply.mentionedGuardianId);
+                                    setReplyingToReply(null);
+                                    return result;
+                                  }}
+                                  onCancel={() => setReplyingToReply(null)}
+                                  replyToName={guardianName}
+                                  mentionedGuardianId={reply.mentionedGuardianId ?? null}
+                                  mentionedGuardianNameZh={guardianName}
+                                />
+                              </div>
+                            )}
+                          </AnimatePresence>
+                        </div>
+                      </div>
+                    </div>
+                    );
+                  })()}
                 </div>
               ))}
 
