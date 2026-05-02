@@ -15,6 +15,16 @@ interface MessageContentProps {
   className?: string;
 }
 
+/**
+ * Strip <details>/<summary> collapsible wrappers from LLM markdown output.
+ * LLM sometimes generates collapsible sections, but react-markdown doesn't render
+ * raw HTML, so we just show the inner content (always expanded).
+ */
+function stripCollapsibleWrappers(content: string): string {
+  return content.replace(/<details[^>]*>([\s\S]*?)<summary[^>]*>([\s\S]*?)<\/summary>([\s\S]*?)<\/details>/gi, '$1$3')
+                 .replace(/<details[^>]*>([\s\S]*?)<\/details>/gi, '$1');
+}
+
 /** Detect if content is a long structured Mission-style output */
 function isStructuredOutput(content: string): boolean {
   const markers = ['📋', '✨', '🔍', '协作任务分解', '协作产出', '多元对话总结', '**【', '**• **'];
@@ -97,14 +107,14 @@ export function MessageContent({ content, role, className }: MessageContentProps
   if (isStructured) {
     return (
       <div className={cn('text-sm', className)}>
-        <StructuredOutput content={content} />
+        <StructuredOutput content={stripCollapsibleWrappers(content)} />
       </div>
     );
   }
 
   return (
     <div className={cn('prose-markdown', className)} style={{ fontSize: '0.9375rem' }}>
-      <ReactMarkdown>{content}</ReactMarkdown>
+      <ReactMarkdown>{stripCollapsibleWrappers(content)}</ReactMarkdown>
     </div>
   );
 }
