@@ -1,8 +1,8 @@
 'use client';
 
-import { useMemo } from 'react';
-import { motion } from 'framer-motion';
-import { Filter, X } from 'lucide-react';
+import { useState, useMemo } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Filter, X, ChevronDown, ChevronUp } from 'lucide-react';
 import type { TCMNode, TCMEdge } from '../types';
 
 const SCHOOL_LABELS: Record<string, string> = {
@@ -56,12 +56,14 @@ export function FilterPanel({
   nodes, edges, eraFilter, schoolFilter, edgeTypeFilter,
   onEraChange, onSchoolChange, onEdgeTypeChange,
 }: FilterPanelProps) {
+  const [expanded, setExpanded] = useState(false);
+
   const schools = useMemo(() => {
     const set = new Set<string>();
     nodes.forEach(n => { if (n.medicalSchool) set.add(n.medicalSchool); });
     return [...set].sort((a, b) => {
       const order = Object.keys(SCHOOL_LABELS);
-      return (order.indexOf(a)) - (order.indexOf(b));
+      return order.indexOf(a) - order.indexOf(b);
     });
   }, [nodes]);
 
@@ -75,117 +77,206 @@ export function FilterPanel({
 
   const hasActiveFilter = eraFilter || schoolFilter || edgeTypeFilter;
 
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: -8 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="glass rounded-xl px-4 py-3 flex flex-wrap items-center gap-3"
+  const FilterBadge = ({ label, active, onClick }: { label: string; active: boolean; onClick: () => void }) => (
+    <button
+      onClick={onClick}
+      className={`text-[11px] px-2 py-0.5 rounded-full transition-colors whitespace-nowrap ${
+        active
+          ? 'bg-blue-500/30 text-blue-300 border border-blue-500/40'
+          : 'bg-slate-800/80 text-slate-400 border border-slate-700/60 hover:border-slate-600'
+      }`}
     >
-      <div className="flex items-center gap-1.5 text-slate-400 text-xs">
-        <Filter className="w-3 h-3" />
-        <span>筛选</span>
-      </div>
+      {label}
+    </button>
+  );
 
-      {/* Era filter */}
-      <div className="flex items-center gap-1.5 flex-wrap">
-        <span className="text-[10px] text-slate-500 uppercase tracking-wide">时代</span>
+  return (
+    <>
+      {/* Mobile: compact pill that expands */}
+      <div className="md:hidden w-full">
+        {/* Collapsed bar */}
         <button
-          onClick={() => onEraChange('')}
-          className={`text-[11px] px-2 py-0.5 rounded-full transition-colors ${
-            !eraFilter ? 'bg-blue-500/30 text-blue-300 border border-blue-500/40' : 'bg-slate-800 text-slate-400 border border-slate-700 hover:border-slate-600'
-          }`}
+          onClick={() => setExpanded(v => !v)}
+          className="w-full glass rounded-xl px-4 py-2.5 flex items-center justify-between"
         >
-          全部
-        </button>
-        {eras.map(era => (
-          <button
-            key={era}
-            onClick={() => onEraChange(eraFilter === era ? '' : era)}
-            className={`text-[11px] px-2 py-0.5 rounded-full transition-colors ${
-              eraFilter === era ? 'bg-blue-500/30 text-blue-300 border border-blue-500/40' : 'bg-slate-800 text-slate-400 border border-slate-700 hover:border-slate-600'
-            }`}
-          >
-            {era}
-          </button>
-        ))}
-      </div>
-
-      <div className="w-px h-4 bg-slate-700" />
-
-      {/* School filter */}
-      <div className="flex items-center gap-1.5 flex-wrap">
-        <span className="text-[10px] text-slate-500 uppercase tracking-wide">流派</span>
-        <button
-          onClick={() => onSchoolChange('')}
-          className={`text-[11px] px-2 py-0.5 rounded-full transition-colors ${
-            !schoolFilter ? 'bg-blue-500/30 text-blue-300 border border-blue-500/40' : 'bg-slate-800 text-slate-400 border border-slate-700 hover:border-slate-600'
-          }`}
-        >
-          全部
-        </button>
-        {schools.map(s => (
-          <button
-            key={s}
-            onClick={() => onSchoolChange(schoolFilter === s ? '' : s)}
-            className={`text-[11px] px-2 py-0.5 rounded-full transition-colors ${
-              schoolFilter === s ? 'bg-blue-500/30 text-blue-300 border border-blue-500/40' : 'bg-slate-800 text-slate-400 border border-slate-700 hover:border-slate-600'
-            }`}
-          >
-            {SCHOOL_LABELS[s] || s}
-          </button>
-        ))}
-      </div>
-
-      <div className="w-px h-4 bg-slate-700" />
-
-      {/* Edge type filter */}
-      <div className="flex items-center gap-1.5 flex-wrap">
-        <span className="text-[10px] text-slate-500 uppercase tracking-wide">关系</span>
-        <button
-          onClick={() => onEdgeTypeChange('')}
-          className={`text-[11px] px-2 py-0.5 rounded-full transition-colors ${
-            !edgeTypeFilter ? 'bg-blue-500/30 text-blue-300 border border-blue-500/40' : 'bg-slate-800 text-slate-400 border border-slate-700 hover:border-slate-600'
-          }`}
-        >
-          全部
-        </button>
-        {edgeTypes.map(t => (
-          <button
-            key={t}
-            onClick={() => onEdgeTypeChange(edgeTypeFilter === t ? '' : t)}
-            className={`text-[11px] px-2 py-0.5 rounded-full transition-colors flex items-center gap-1 ${
-              edgeTypeFilter === t ? 'bg-blue-500/30 text-blue-300 border border-blue-500/40' : 'bg-slate-800 text-slate-400 border border-slate-700 hover:border-slate-600'
-            }`}
-          >
-            <div
-              className="w-2 h-0.5 rounded-full"
-              style={{ backgroundColor: EDGE_LABELS[t]?.color }}
-            />
-            {EDGE_LABELS[t]?.label}
-          </button>
-        ))}
-      </div>
-
-      {/* Clear all */}
-      {hasActiveFilter && (
-        <button
-          onClick={() => { onEraChange(''); onSchoolChange(''); onEdgeTypeChange(''); }}
-          className="text-[11px] text-slate-500 hover:text-slate-300 flex items-center gap-1 ml-auto"
-        >
-          <X className="w-3 h-3" />
-          清除筛选
-        </button>
-      )}
-
-      {/* Legend */}
-      <div className="w-full flex items-center gap-3 flex-wrap pt-1 border-t border-white/5">
-        {Object.entries(EDGE_LABELS).map(([key, { label, color }]) => (
-          <div key={key} className="flex items-center gap-1.5 text-[10px] text-slate-500">
-            <div className="w-3 h-0.5 rounded-full" style={{ backgroundColor: color }} />
-            <span>{label}</span>
+          <div className="flex items-center gap-2">
+            <Filter className="w-3.5 h-3.5 text-slate-400" />
+            <span className="text-xs text-slate-300">
+              {hasActiveFilter ? '已筛选' : '筛选'}
+            </span>
+            {hasActiveFilter && (
+              <span className="text-[10px] bg-blue-500/30 text-blue-300 px-1.5 py-0.5 rounded-full border border-blue-500/40">
+                {[
+                  eraFilter ? `时代:${eraFilter}` : '',
+                  schoolFilter ? `流派:${SCHOOL_LABELS[schoolFilter] || schoolFilter}` : '',
+                  edgeTypeFilter ? `关系:${EDGE_LABELS[edgeTypeFilter]?.label}` : '',
+                ].filter(Boolean).join(' · ')}
+              </span>
+            )}
           </div>
-        ))}
+          {expanded
+            ? <ChevronUp className="w-4 h-4 text-slate-400" />
+            : <ChevronDown className="w-4 h-4 text-slate-400" />
+          }
+        </button>
+
+        {/* Expanded drawer */}
+        <AnimatePresence>
+          {expanded && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.2 }}
+              className="glass rounded-xl px-4 pb-3 pt-2 mt-1 flex flex-col gap-3 overflow-hidden"
+            >
+              {/* Era */}
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="text-[10px] text-slate-500 uppercase tracking-wide w-6">时代</span>
+                <FilterBadge label="全部" active={!eraFilter} onClick={() => onEraChange('')} />
+                {eras.map(era => (
+                  <FilterBadge
+                    key={era}
+                    label={era}
+                    active={eraFilter === era}
+                    onClick={() => onEraChange(eraFilter === era ? '' : era)}
+                  />
+                ))}
+              </div>
+
+              {/* School */}
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="text-[10px] text-slate-500 uppercase tracking-wide w-6">流派</span>
+                <FilterBadge label="全部" active={!schoolFilter} onClick={() => onSchoolChange('')} />
+                {schools.map(s => (
+                  <FilterBadge
+                    key={s}
+                    label={SCHOOL_LABELS[s] || s}
+                    active={schoolFilter === s}
+                    onClick={() => onSchoolChange(schoolFilter === s ? '' : s)}
+                  />
+                ))}
+              </div>
+
+              {/* Edge type */}
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="text-[10px] text-slate-500 uppercase tracking-wide w-6">关系</span>
+                <FilterBadge label="全部" active={!edgeTypeFilter} onClick={() => onEdgeTypeChange('')} />
+                {edgeTypes.map(t => (
+                  <button
+                    key={t}
+                    onClick={() => onEdgeTypeChange(edgeTypeFilter === t ? '' : t)}
+                    className={`text-[11px] px-2 py-0.5 rounded-full transition-colors flex items-center gap-1.5 whitespace-nowrap ${
+                      edgeTypeFilter === t
+                        ? 'bg-blue-500/30 text-blue-300 border border-blue-500/40'
+                        : 'bg-slate-800/80 text-slate-400 border border-slate-700/60 hover:border-slate-600'
+                    }`}
+                  >
+                    <div className="w-2 h-0.5 rounded-full" style={{ backgroundColor: EDGE_LABELS[t]?.color }} />
+                    {EDGE_LABELS[t]?.label}
+                  </button>
+                ))}
+              </div>
+
+              {/* Clear all */}
+              {hasActiveFilter && (
+                <button
+                  onClick={() => { onEraChange(''); onSchoolChange(''); onEdgeTypeChange(''); }}
+                  className="text-[11px] text-slate-500 hover:text-slate-300 flex items-center gap-1 self-start"
+                >
+                  <X className="w-3 h-3" />
+                  清除筛选
+                </button>
+              )}
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
-    </motion.div>
+
+      {/* Desktop: always-visible full panel */}
+      <motion.div
+        initial={{ opacity: 0, y: -8 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="hidden md:block glass rounded-xl px-4 py-3 flex flex-wrap items-center gap-3"
+      >
+        <div className="flex items-center gap-1.5 text-slate-400 text-xs">
+          <Filter className="w-3 h-3" />
+          <span>筛选</span>
+        </div>
+
+        {/* Era */}
+        <div className="flex items-center gap-1.5 flex-wrap">
+          <span className="text-[10px] text-slate-500 uppercase tracking-wide">时代</span>
+          <FilterBadge label="全部" active={!eraFilter} onClick={() => onEraChange('')} />
+          {eras.map(era => (
+            <FilterBadge
+              key={era}
+              label={era}
+              active={eraFilter === era}
+              onClick={() => onEraChange(eraFilter === era ? '' : era)}
+            />
+          ))}
+        </div>
+
+        <div className="w-px h-4 bg-slate-700" />
+
+        {/* School */}
+        <div className="flex items-center gap-1.5 flex-wrap">
+          <span className="text-[10px] text-slate-500 uppercase tracking-wide">流派</span>
+          <FilterBadge label="全部" active={!schoolFilter} onClick={() => onSchoolChange('')} />
+          {schools.map(s => (
+            <FilterBadge
+              key={s}
+              label={SCHOOL_LABELS[s] || s}
+              active={schoolFilter === s}
+              onClick={() => onSchoolChange(schoolFilter === s ? '' : s)}
+            />
+          ))}
+        </div>
+
+        <div className="w-px h-4 bg-slate-700" />
+
+        {/* Edge type */}
+        <div className="flex items-center gap-1.5 flex-wrap">
+          <span className="text-[10px] text-slate-500 uppercase tracking-wide">关系</span>
+          <FilterBadge label="全部" active={!edgeTypeFilter} onClick={() => onEdgeTypeChange('')} />
+          {edgeTypes.map(t => (
+            <button
+              key={t}
+              onClick={() => onEdgeTypeChange(edgeTypeFilter === t ? '' : t)}
+              className={`text-[11px] px-2 py-0.5 rounded-full transition-colors flex items-center gap-1 ${
+                edgeTypeFilter === t
+                  ? 'bg-blue-500/30 text-blue-300 border border-blue-500/40'
+                  : 'bg-slate-800 text-slate-400 border border-slate-700 hover:border-slate-600'
+              }`}
+            >
+              <div className="w-2 h-0.5 rounded-full" style={{ backgroundColor: EDGE_LABELS[t]?.color }} />
+              {EDGE_LABELS[t]?.label}
+            </button>
+          ))}
+        </div>
+
+        {/* Clear */}
+        {hasActiveFilter && (
+          <button
+            onClick={() => { onEraChange(''); onSchoolChange(''); onEdgeTypeChange(''); }}
+            className="text-[11px] text-slate-500 hover:text-slate-300 flex items-center gap-1 ml-auto"
+          >
+            <X className="w-3 h-3" />
+            清除筛选
+          </button>
+        )}
+
+        {/* Legend */}
+        <div className="w-full flex items-center gap-3 flex-wrap pt-1 border-t border-white/5">
+          {Object.entries(EDGE_LABELS).map(([key, { label, color }]) => (
+            <div key={key} className="flex items-center gap-1.5 text-[10px] text-slate-500">
+              <div className="w-3 h-0.5 rounded-full" style={{ backgroundColor: color }} />
+              <span>{label}</span>
+            </div>
+          ))}
+        </div>
+      </motion.div>
+    </>
   );
 }
