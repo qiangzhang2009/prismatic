@@ -1,8 +1,20 @@
 # Prismatic · 棱镜折射 — Agent 章程
 
-> **版本**: v1.1
-> **最后更新**: 2026-04-20
+> **版本**: v1.2
+> **最后更新**: 2026-05-02
 > **适用范围**: 所有 AI Agent 对 Prismatic 项目的所有修改
+
+---
+
+## 零、通用行为准则
+
+> 通用准则由全局规则 `~/.cursor/rules/general-agent-habits.mdc` 定义（`alwaysApply: true`），自动加载至所有项目。**本节仅补充 Prismatic 项目的额外约定。**
+
+### 0.1 验证优先
+
+- 任何改动后，**先验证再宣告完成**。
+- 对 web 应用：用 Browser DevTools MCP 在浏览器中确认改动符合预期。
+- 改完后跑 `ReadLints`，有 lint 错误立刻修。
 
 ---
 
@@ -247,9 +259,9 @@ git push origin main             # 直接 push schema 变更
 
 ---
 
-## 十、部署流程
+## 九、部署流程
 
-### 10.1 唯一正确的部署方式：GitHub Actions CI/CD
+### 9.1 唯一正确的部署方式：GitHub Actions CI/CD
 
 **禁止使用本地 `vercel --prod` 部署。** 原因：本地部署会尝试上传所有文件（包括 corpus、node_modules 等），超过 Vercel 15000 文件上限导致部署失败。
 
@@ -265,7 +277,7 @@ git push origin main
 
 CI/CD 配置：`.github/workflows/ci-cd.yml`
 
-### 10.2 CI/CD 流水线说明
+### 9.2 CI/CD 流水线说明
 
 | Job | 触发条件 | 说明 |
 |-----|---------|------|
@@ -275,7 +287,7 @@ CI/CD 配置：`.github/workflows/ci-cd.yml`
 | Deploy Preview | 仅 PR | 自动部署预览链接 |
 | Deploy Production | 仅 push 到 main | `vercel deploy . --prod` |
 
-### 10.3 GitHub Secrets 依赖
+### 9.3 GitHub Secrets 依赖
 
 部署 production 需要以下 Secrets（在 GitHub 仓库 Settings → Secrets 配置）：
 
@@ -288,7 +300,7 @@ CI/CD 配置：`.github/workflows/ci-cd.yml`
 
 项目 ID 位于 `.vercel/project.json`，或通过 `vercel project ls` 查看。
 
-### 10.4 部署前置检查
+### 9.4 部署前置检查
 
 推送前在本地执行，确保 CI 不会因 lint/build 失败而阻断：
 
@@ -303,7 +315,7 @@ npm run build        # Next.js 构建测试
 - TypeScript 编译错误
 - Build 失败（通常依赖缺失或环境变量问题）
 
-### 10.5 查看部署状态
+### 9.5 查看部署状态
 
 ```bash
 # GitHub Actions 状态
@@ -319,7 +331,7 @@ vercel list
 gh run watch <run-id>
 ```
 
-### 10.6 .vercelignore 说明
+### 9.6 .vercelignore 说明
 
 `.vercelignore` 已配置排除以下目录，不会上传到 Vercel：
 - `corpus/` — 语料文件（几千个文件）
@@ -332,8 +344,6 @@ gh run watch <run-id>
 ---
 
 ## 十、相关文件索引
-
-> 下移为第十章，部署流程见第九章。
 
 - 管理后台入口：`src/app/admin/page.tsx`
 - Admin API 路由：`src/app/api/admin/`
