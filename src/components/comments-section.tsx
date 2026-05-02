@@ -917,15 +917,13 @@ function CommentItem({
         <AnimatePresence>
           {showReplies && replies.length > 0 && (
             <motion.div
-              style={{
-                display: 'grid',
-                gridTemplateRows: '0fr',
-              }}
-              animate={{ opacity: 1, gridTemplateRows: '1fr' }}
+              initial={{ opacity: 0, maxHeight: 0 }}
+              animate={{ opacity: 1, maxHeight: 99999 }}
+              exit={{ opacity: 0, maxHeight: 0 }}
               transition={{ duration: 0.3, ease: 'easeOut' }}
-              className="mt-4 pt-4 border-t border-white/5"
+              className="mt-4 pt-4 border-t border-white/5 overflow-hidden"
             >
-              <div className="overflow-hidden space-y-3">
+              <div className="space-y-3">
               {/* Replies that are NOT guardian auto-replies */}
               {replies
                 .filter(reply => !reply.mentionedGuardianReply)
@@ -1094,7 +1092,6 @@ function CommentItem({
                   )}
                 </div>
               ))}
-            </div>
             </motion.div>
           )}
         </AnimatePresence>
@@ -1103,12 +1100,12 @@ function CommentItem({
         <AnimatePresence>
           {personaInteractions.length > 0 && (
             <motion.div
-              style={{ display: 'grid', gridTemplateRows: '0fr' }}
-              animate={{ opacity: 1, gridTemplateRows: '1fr' }}
+              initial={{ opacity: 0, maxHeight: 0 }}
+              animate={{ opacity: 1, maxHeight: 99999 }}
               transition={{ duration: 0.3, ease: 'easeOut' }}
-              className="mt-4 pt-4 border-t border-prism-blue/20"
+              className="mt-4 pt-4 border-t border-prism-blue/20 overflow-hidden"
             >
-              <div className="overflow-hidden space-y-3">
+              <div className="space-y-3">
               {personaInteractions.map((interaction) => (
                 <div key={interaction.id} className="flex items-start gap-3 pl-4 border-l-2 border-prism-blue/30">
                   <div
@@ -1143,7 +1140,6 @@ function CommentItem({
                   </div>
                 </div>
               ))}
-            </div>
             </motion.div>
           )}
         </AnimatePresence>
@@ -1251,13 +1247,13 @@ function ReplyForm({
 
   return (
     <motion.div
-      style={{ display: 'grid', gridTemplateRows: '0fr' }}
-      animate={{ opacity: 1, gridTemplateRows: '1fr' }}
-      exit={{ opacity: 0, gridTemplateRows: '0fr' }}
+      initial={{ opacity: 0, maxHeight: 0 }}
+      animate={{ opacity: 1, maxHeight: 99999 }}
+      exit={{ opacity: 0, maxHeight: 0 }}
       transition={{ duration: 0.3, ease: 'easeOut' }}
-      className="mt-4 pl-6 border-l-2 border-prism-blue/30"
+      className="mt-4 pl-6 border-l-2 border-prism-blue/30 overflow-hidden"
     >
-      <div className="overflow-hidden">
+      <div>
       {/* Reply-to context header */}
       {replyToName && (
         <div className="mb-3 flex items-center gap-2">
@@ -1316,7 +1312,6 @@ function ReplyForm({
             </button>
           </div>
         </div>
-      </div>
       </div>
     </motion.div>
   );
