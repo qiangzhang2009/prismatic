@@ -34,7 +34,11 @@ export type Domain =
   | 'business'
   | 'medicine'
   | 'fiction'
-  | 'economics';
+  | 'economics'
+  | 'chinese-medicine'
+  | 'western-medicine'
+  | 'ayurveda'
+  | 'ayurveda-surgery';
 
 export type Mode =
   | 'solo'

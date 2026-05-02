@@ -15,6 +15,7 @@ import {
   Hexagon, Sparkles, ArrowRight, Play, GitFork,
   Target, Brain, Layers, BarChart3, TrendingUp, Sparkle,
   BookOpen, MessageSquare, GitMerge, Zap, Crown, GitBranch,
+  Leaf, Users, Network, LineChart,
 } from 'lucide-react';
 import { PERSONA_LIST_LIGHT } from '@/lib/persona-list-light';
 import { CONFIDENCE_LIGHT } from '@/lib/confidence-light';
@@ -51,9 +52,9 @@ const DOMAIN_CATEGORIES = [
   },
   {
     label: '东方智慧',
-    domains: ['zen-buddhism', 'spirituality'],
+    domains: ['zen-buddhism', 'spirituality', 'chinese-medicine'],
     color: '#ff6b6b',
-    fallbackPersonas: ['jiqun', 'lao-zi', 'zhuang-zi', 'confucius', 'mencius', 'hui-neng'],
+    fallbackPersonas: ['jiqun', 'lao-zi', 'zhuang-zi', 'confucius', 'mencius', 'hui-neng', 'liduomin', 'liudunhou', 'zhangjingyue', 'wujutong', 'zhudanhsi', 'zhadanxin', 'wangqingren', 'yetianshi'],
   },
   {
     label: '科技思想',
@@ -511,6 +512,223 @@ export default function HomePage() {
           <div className="text-center mt-8 md:hidden">
             <Link href="/personas" className="text-sm text-prism-blue hover:underline flex items-center justify-center gap-1">
               查看全部人物
+              <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* ── TCM Atlas Showcase ────────────────────────────────────────────── */}
+      <section className="py-20 px-6">
+        <div className="max-w-6xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="flex items-end justify-between mb-10"
+          >
+            <div>
+              <div className="flex items-center gap-2 mb-3">
+                <div className="w-7 h-7 rounded-lg bg-emerald-500/15 flex items-center justify-center">
+                  <Leaf className="w-4 h-4 text-emerald-400" />
+                </div>
+                <span className="text-xs font-medium text-emerald-400/80 uppercase tracking-widest">专题探索</span>
+              </div>
+              <h2 className="text-2xl md:text-3xl font-display font-bold text-text-primary mb-2">
+                中医思想家影响力图谱
+              </h2>
+              <p className="text-text-muted text-sm max-w-xl">
+                从《黄帝内经》到温病学说，22 位跨文明医家的知识传承网络
+              </p>
+            </div>
+            <Link
+              href="/tcm-atlas"
+              className="hidden md:flex items-center gap-1 text-sm text-emerald-400 hover:underline"
+            >
+              完整探索
+              <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
+          </motion.div>
+
+          {/* Mini graph preview */}
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.2 }}
+            className="relative rounded-2xl overflow-hidden border border-white/8 mb-8"
+            style={{ height: 320, background: 'linear-gradient(135deg, #050d1a 0%, #0a1628 50%, #050d1a 100%)' }}
+          >
+            {/* Background grid */}
+            <div className="absolute inset-0 opacity-[0.04]" style={{
+              backgroundImage: 'linear-gradient(rgba(255,255,255,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.5) 1px, transparent 1px)',
+              backgroundSize: '40px 40px',
+            }} />
+
+            {/* Decorative graph nodes */}
+            {[
+              { cx: 18, cy: 50, r: 3, color: '#f59e0b', label: '黄帝内经' },
+              { cx: 36, cy: 30, r: 2.5, color: '#60a5fa', label: '伤寒论' },
+              { cx: 36, cy: 65, r: 2.5, color: '#34d399', label: '刘完素' },
+              { cx: 36, cy: 80, r: 2, color: '#a3e635', label: '李时珍' },
+              { cx: 54, cy: 20, r: 2, color: '#c084fc', label: '温病学说' },
+              { cx: 54, cy: 38, r: 2, color: '#60a5fa', label: '张仲景' },
+              { cx: 54, cy: 58, r: 2, color: '#d97706', label: '李东垣' },
+              { cx: 54, cy: 72, r: 2, color: '#6ee7b7', label: '张从正' },
+              { cx: 72, cy: 25, r: 2, color: '#c084fc', label: '叶天士' },
+              { cx: 72, cy: 48, r: 2, color: '#f472b6', label: '张景岳' },
+              { cx: 72, cy: 62, r: 2, color: '#fb923c', label: '王清任' },
+              { cx: 72, cy: 78, r: 2, color: '#e879f9', label: '唐宗海' },
+            ].map((n, i) => (
+              <div
+                key={i}
+                className="absolute"
+                style={{ left: `${n.cx}%`, top: `${n.cy}%`, transform: 'translate(-50%, -50%)' }}
+              >
+                <motion.div
+                  className="absolute rounded-full"
+                  style={{
+                    width: n.r * 2 + 8, height: n.r * 2 + 8,
+                    background: n.color + '20',
+                    border: `1.5px solid ${n.color}60`,
+                    boxShadow: `0 0 8px ${n.color}30`,
+                    marginLeft: -(n.r + 4), marginTop: -(n.r + 4),
+                  }}
+                  initial={{ scale: 0, opacity: 0 }}
+                  whileInView={{ scale: 1, opacity: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: 0.3 + i * 0.05, duration: 0.4 }}
+                />
+                <motion.div
+                  className="rounded-full"
+                  style={{
+                    width: n.r * 2, height: n.r * 2,
+                    background: `radial-gradient(circle at 35% 35%, ${n.color}cc, ${n.color})`,
+                    boxShadow: `0 0 6px ${n.color}80`,
+                  }}
+                  initial={{ scale: 0, opacity: 0 }}
+                  whileInView={{ scale: 1, opacity: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: 0.3 + i * 0.05, duration: 0.4 }}
+                />
+              </div>
+            ))}
+
+            {/* Decorative edges */}
+            <svg className="absolute inset-0 pointer-events-none w-full h-full" style={{ overflow: 'visible' }}>
+              {[
+                [18, 50, 36, 30], [18, 50, 36, 65], [18, 50, 36, 80],
+                [36, 30, 54, 20], [36, 30, 54, 38],
+                [36, 65, 54, 58], [36, 65, 54, 72],
+                [36, 80, 54, 78],
+                [54, 20, 72, 25], [54, 38, 72, 48], [54, 58, 72, 62], [54, 78, 72, 78],
+              ].map(([x1p, y1p, x2p, y2p], i) => (
+                <motion.line
+                  key={i}
+                  x1={`${x1p}%`} y1={`${y1p}%`} x2={`${x2p}%`} y2={`${y2p}%`}
+                  stroke="rgba(255,255,255,0.12)"
+                  strokeWidth={1}
+                  initial={{ pathLength: 0, opacity: 0 }}
+                  whileInView={{ pathLength: 1, opacity: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: 0.5 + i * 0.03, duration: 0.4 }}
+                />
+              ))}
+            </svg>
+
+            {/* Overlay gradient */}
+            <div className="absolute inset-0 bg-gradient-to-r from-[#050d1a] via-transparent to-[#050d1a]" />
+            <div className="absolute inset-0 bg-gradient-to-t from-[#050d1a] via-transparent to-transparent" />
+
+            {/* Corner label */}
+            <div className="absolute top-4 left-4 px-2.5 py-1 rounded-lg text-[10px] font-mono text-emerald-400/60 bg-emerald-500/10 border border-emerald-500/20">
+              知识传承网络 · 预览
+            </div>
+
+            {/* Stats overlay */}
+            <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-6">
+              {[
+                { value: '22', label: '思想家', icon: Users },
+                { value: '7', label: '经典典籍', icon: BookOpen },
+                { value: '28', label: '知识关系', icon: Network },
+                { value: '6', label: '关系类型', icon: LineChart },
+              ].map((stat, i) => (
+                <motion.div
+                  key={stat.label}
+                  className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/5 backdrop-blur-sm border border-white/8"
+                  initial={{ opacity: 0, y: 8 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: 0.8 + i * 0.08 }}
+                >
+                  <stat.icon className="w-3.5 h-3.5 text-emerald-400/70" />
+                  <span className="text-white font-mono font-bold text-sm">{stat.value}</span>
+                  <span className="text-slate-400 text-xs">{stat.label}</span>
+                </motion.div>
+              ))}
+            </div>
+          </motion.div>
+
+          {/* Three insight cards */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {[
+              {
+                icon: Network,
+                title: '经典奠基 → 流派分化',
+                desc: '《黄帝内经》建立阴阳五行框架，张仲景开创六经辨证，金元四大家各执一端——寒凉、补土、滋阴、攻邪',
+                color: '#f59e0b',
+                stat: '理论演进脉络',
+              },
+              {
+                icon: Users,
+                title: '跨文明医家网络',
+                desc: '从古希腊希波克拉底到印度遮罗迦，从中国历代名家到日本曲直濑道三，医学智慧的跨文化共鸣',
+                color: '#60a5fa',
+                stat: '跨文化共鸣',
+              },
+              {
+                icon: LineChart,
+                title: '从理论到临床',
+                desc: '伤寒论 → 六经辨证 → 卫气营血/三焦辨证，温病学说将热病理论推向新高度',
+                color: '#34d399',
+                stat: '临床分化',
+              },
+            ].map((card, i) => (
+              <motion.div
+                key={card.title}
+                initial={{ opacity: 0, y: 16 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.3 + i * 0.1 }}
+                className="rounded-xl p-5 border"
+                style={{
+                  background: card.color + '06',
+                  borderColor: card.color + '20',
+                }}
+              >
+                <div className="flex items-center gap-2 mb-3">
+                  <div
+                    className="w-8 h-8 rounded-lg flex items-center justify-center"
+                    style={{ background: card.color + '15' }}
+                  >
+                    <card.icon className="w-4 h-4" style={{ color: card.color }} />
+                  </div>
+                  <span
+                    className="text-[10px] font-medium px-2 py-0.5 rounded-full"
+                    style={{ background: card.color + '12', color: card.color, border: `1px solid ${card.color}25` }}
+                  >
+                    {card.stat}
+                  </span>
+                </div>
+                <h3 className="text-sm font-semibold text-text-primary mb-2">{card.title}</h3>
+                <p className="text-xs text-text-muted leading-relaxed">{card.desc}</p>
+              </motion.div>
+            ))}
+          </div>
+
+          <div className="text-center mt-8 md:hidden">
+            <Link href="/tcm-atlas" className="text-sm text-emerald-400 hover:underline flex items-center justify-center gap-1">
+              探索完整图谱
               <ArrowRight className="w-3.5 h-3.5" />
             </Link>
           </div>

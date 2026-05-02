@@ -9,7 +9,7 @@ import { APP_NAME } from '@/lib/constants';
 const NAV_LINKS = [
   { href: '/personas', label: '人物档案馆', mdOnly: true },
   { href: '/graph', label: '认知图谱', lgOnly: true },
-  { href: '/tcm-graph', label: '中医图谱', mdOnly: true, emerald: true },
+  { href: '/tcm-atlas', label: '中医图谱', mdOnly: true, emerald: true },
   { href: '/methodology', label: '蒸馏方法论', mdOnly: true },
 ];
 
@@ -40,7 +40,7 @@ export function NavBar() {
                   : 'text-text-secondary hover:text-text-primary flex items-center gap-1'
               }`}
             >
-              {link.href === '/tcm-graph' && <Leaf className="w-3.5 h-3.5" />}
+              {link.href === '/tcm-atlas' && <Leaf className="w-3.5 h-3.5" />}
               {link.href === '/graph' && <GitBranch className="w-3.5 h-3.5" />}
               {link.label}
             </Link>
@@ -92,7 +92,7 @@ export function NavBar() {
                   : 'text-text-secondary hover:text-text-primary hover:bg-white/5'
               }`}
             >
-              {link.href === '/tcm-graph' && <Leaf className="w-4 h-4" />}
+              {link.href === '/tcm-atlas' && <Leaf className="w-4 h-4" />}
               {link.href === '/graph' && <GitBranch className="w-4 h-4" />}
               {link.label}
             </Link>
