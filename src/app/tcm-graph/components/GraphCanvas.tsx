@@ -264,10 +264,10 @@ export function GraphCanvas({ nodes, edges, eraFilter, schoolFilter, edgeTypeFil
     const maxY = Math.max(...ys);
     const contentW = maxX - minX;
     const contentH = maxY - minY;
-    // Adaptive padding: large on narrow screens so nodes remain readable,
-    // small on wide screens where there's plenty of pixel real-estate.
+    // Adaptive padding: small on narrow screens so nodes are larger,
+    // normal on wide screens.
     const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
-    const padding = isMobile ? 1500 : 80;
+    const padding = isMobile ? 0 : 80;
     const size = Math.max(contentW, contentH, 400) + padding * 2;
     const cx = (minX + maxX) / 2;
     const cy = (minY + maxY) / 2;
