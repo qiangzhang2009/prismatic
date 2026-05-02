@@ -31,13 +31,13 @@ function getPersonaMeta(personaId: string | null): { name: string; nameZh: strin
 // ─── DB persona lookup (for analytics with DB personas) ────────────────────
 async function getDbPersonaMeta(pool: any, personaId: string): Promise<{ name: string; nameZh: string; domain: string }> {
   const result = await pool.query(
-    `SELECT name, namezh, domain FROM distilled_personas WHERE slug = $1 AND "isActive" = true`,
+    `SELECT name, "nameZh", domain FROM distilled_personas WHERE slug = $1 AND "isActive" = true`,
     [personaId]
   );
   if (result.rows[0]) {
     return {
       name: result.rows[0].name || personaId,
-      nameZh: (result.rows[0].nameZh || result.rows[0].namezh || result.rows[0].name || personaId) as string,
+      nameZh: (result.rows[0].nameZh || result.rows[0].name || personaId) as string,
       domain: Array.isArray(result.rows[0].domain) ? result.rows[0].domain[0] : (result.rows[0].domain || 'unknown'),
     };
   }

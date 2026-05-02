@@ -41,7 +41,6 @@ export async function GET(req: NextRequest, { params }: RouteParams) {
     if (result.rows.length > 0) {
       const row = result.rows[0];
       const normalized: Record<string, unknown> = { ...row };
-      if (row.namezh !== undefined) normalized.namezh = row.namezh;
       if (row.nameZh !== undefined) normalized.nameZh = row.nameZh;
       if (row.nameen !== undefined) normalized.nameen = row.nameen;
       if (row.nameEn !== undefined) normalized.nameEn = row.nameEn;

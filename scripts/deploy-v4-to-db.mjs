@@ -233,6 +233,40 @@ function extractV4Data(slug, data) {
   };
 }
 
+// ─── Validation: Hallucination Detection ─────────────────────────────────────────
+
+const HALLUCINATION_PATTERNS = [
+  'Epictetus', 'Laozi', 'Lao Tzu', 'Tao Te Ching',
+  'Plato', 'Republic', 'Allegory of the Cave',
+  'Nietzsche', 'Ecce Homo', 'Zarathustra',
+  'Hegel', 'Phenomenology of Spirit',
+  'Heart Sutra', 'Prajñāpāramitā',
+  'Nagarjuna', 'Mulamadhyamakakarika',
+  'Kant', 'Groundwork', 'Categorical Imperative',
+  'Aristotle', 'Nicomachean Ethics',
+  'Marcus Aurelius', 'Meditations',
+  'Seneca', 'Stoicism',
+  'Bhagavad Gita', 'Upanishads',
+];
+
+function detectHallucination(mentalModels) {
+  const hallucinated = [];
+  for (const mm of mentalModels) {
+    const sources = (mm.evidence || []).map(e => e.source || '').join(' ');
+    const matching = HALLUCINATION_PATTERNS.filter(p => sources.includes(p));
+    if (matching.length > 0) {
+      hallucinated.push({ id: mm.id, name: mm.name, fakeSources: matching });
+    }
+  }
+  return hallucinated;
+}
+
+function validateV4Data(slug, v4) {
+  const mm = JSON.parse(v4.mentalModels);
+  const hallucinated = detectHallucination(mm);
+  return { isValid: hallucinated.length === 0, hallucinated };
+}
+
 // ─── Step 4: Upsert to DB ────────────────────────────────────────────────────
 
 async function upsertPersona(slug, display, v4) {
@@ -389,6 +423,16 @@ async function main() {
   for (const { slug, data } of v4Files) {
     const display = displayData[slug] || {};
     const v4 = extractV4Data(slug, data);
+
+    // Hallucination validation: block deployment of polluted data
+    const validation = validateV4Data(slug, v4);
+    if (!validation.isValid) {
+      console.log(`  ✗ SKIPPED ${slug}: hallucination detected`);
+      console.log(`    Hallucinated: ${validation.hallucinated.map(h => `${h.id}(${h.fakeSources.join(',')})`).join(', ')}`);
+      console.log(`    ⚠ This persona will NOT be updated in the DB. Fix the distillation pipeline.`);
+      results.push({ slug, status: 'blocked' });
+      continue;
+    }
 
     try {
       const result = await upsertPersona(slug, display, v4);

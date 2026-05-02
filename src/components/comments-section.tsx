@@ -921,9 +921,9 @@ function CommentItem({
               animate={{ opacity: 1, maxHeight: 99999 }}
               exit={{ opacity: 0, maxHeight: 0 }}
               transition={{ duration: 0.3, ease: 'easeOut' }}
-              className="mt-4 pt-4 border-t border-white/5 overflow-hidden"
+              className="mt-4 pt-4 border-t border-white/5"
             >
-              <div className="space-y-3">
+              <div className="space-y-3 overflow-y-auto min-h-0 max-h-[60vh]">
               {/* Replies that are NOT guardian auto-replies */}
               {replies
                 .filter(reply => !reply.mentionedGuardianReply)
@@ -1104,9 +1104,9 @@ function CommentItem({
               initial={{ opacity: 0, maxHeight: 0 }}
               animate={{ opacity: 1, maxHeight: 99999 }}
               transition={{ duration: 0.3, ease: 'easeOut' }}
-              className="mt-4 pt-4 border-t border-prism-blue/20 overflow-hidden"
+              className="mt-4 pt-4 border-t border-prism-blue/20"
             >
-              <div className="space-y-3">
+              <div className="space-y-3 overflow-y-auto min-h-0 max-h-[60vh]">
               {personaInteractions.map((interaction) => (
                 <div key={interaction.id} className="flex items-start gap-3 pl-4 border-l-2 border-prism-blue/30">
                   <div

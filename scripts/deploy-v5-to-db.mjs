@@ -372,6 +372,44 @@ async function upsertPersona(slug, display, v5) {
   return result.rows[0];
 }
 
+// ─── Validation: Hallucination Detection ─────────────────────────────────────────
+
+const HALLUCINATION_PATTERNS = [
+  'Epictetus', 'Laozi', 'Lao Tzu', 'Tao Te Ching',
+  'Plato', 'Republic', 'Allegory of the Cave',
+  'Nietzsche', 'Ecce Homo', 'Zarathustra',
+  'Hegel', 'Phenomenology of Spirit',
+  'Heart Sutra', 'Prajñāpāramitā',
+  'Nagarjuna', 'Mulamadhyamakakarika',
+  'Kant', 'Groundwork', 'Categorical Imperative',
+  'Aristotle', 'Nicomachean Ethics',
+  'Marcus Aurelius', 'Meditations',
+  'Seneca', 'Stoicism',
+  'Bhagavad Gita', 'Upanishads',
+];
+
+function detectHallucination(mentalModels) {
+  const hallucinated = [];
+  for (const mm of mentalModels) {
+    const sources = (mm.evidence || []).map(e => e.source || '').join(' ');
+    const matching = HALLUCINATION_PATTERNS.filter(p => sources.includes(p));
+    if (matching.length > 0) {
+      hallucinated.push({ id: mm.id, name: mm.name, fakeSources: matching });
+    }
+  }
+  return hallucinated;
+}
+
+function validateV5Data(slug, v5) {
+  const mm = JSON.parse(v5.mentalModels);
+  const hallucinated = detectHallucination(mm);
+  return {
+    isValid: hallucinated.length === 0,
+    hallucinated,
+    modelCount: mm.length,
+  };
+}
+
 // ─── Main ──────────────────────────────────────────────────────────────────────
 
 async function main() {
@@ -404,6 +442,16 @@ async function main() {
     const display = displayData[slug] || {};
     const v5 = extractV5Data(slug, data);
 
+    // Hallucination validation: block deployment of polluted data
+    const validation = validateV5Data(slug, v5);
+    if (!validation.isValid) {
+      console.log(`  ✗ SKIPPED ${slug}: hallucination detected (${validation.hallucinated.length} models)`);
+      console.log(`    Hallucinated: ${validation.hallucinated.map(h => `${h.id}(${h.fakeSources.join(',')})`).join(', ')}`);
+      console.log(`    ⚠ This persona will NOT be updated in the DB. Fix the distillation pipeline.`);
+      results.push({ slug, status: 'blocked', reason: 'hallucination' });
+      continue;
+    }
+
     try {
       const result = await upsertPersona(slug, display, v5);
       const passed = (result.thresholdpassed || result.thresholdPassed || result['thresholdpassed']) ? '✓' : '✗';
@@ -425,8 +473,10 @@ async function main() {
   console.log('\n=== Summary ===');
   const ok = results.filter(r => r.status === 'ok');
   const errors = results.filter(r => r.status === 'error');
+  const blocked = results.filter(r => r.status === 'blocked');
   console.log(`  Total: ${results.length}`);
   console.log(`  Success: ${ok.length}`);
+  console.log(`  Blocked (hallucination): ${blocked.length}`);
   console.log(`  Errors: ${errors.length}`);
 
   if (errors.length > 0) {

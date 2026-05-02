@@ -166,15 +166,28 @@ function computeViewBox(vp: Viewport) {
 }
 
 function fitToScreen(vw: number, vh: number, nodes: Node[]): Viewport {
-  const maxR = Math.max(...nodes.map((n) => Math.hypot(n.x, n.y) + n.r), 360);
-  const desiredW = maxR * 2 * 1.06; // 6% padding each side
+  if (nodes.length === 0) return { minX: -400, minY: -300, width: 800, height: 600, scale: 1 };
+  // Compute actual content bounds from all nodes
+  let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+  nodes.forEach((n) => {
+    if (n.x - n.r < minX) minX = n.x - n.r;
+    if (n.x + n.r > maxX) maxX = n.x + n.r;
+    if (n.y - n.r < minY) minY = n.y - n.r;
+    if (n.y + n.r > maxY) maxY = n.y + n.r;
+  });
+  // Use bounding circle radius for scale (original strategy)
+  const maxR = Math.max(Math.hypot((minX + maxX) / 2 - minX, (minY + maxY) / 2 - minY), 360);
+  const desiredW = maxR * 2 * 1.06;
   const desiredH = maxR * 2 * 1.06;
   const scaleX = vw / desiredW;
   const scaleY = vh / desiredH;
   const scale = Math.min(scaleX, scaleY, 1.1);
   const w = vw / scale;
   const h = vh / scale;
-  return { minX: -w / 2, minY: -h / 2, width: w, height: h, scale };
+  // Center the viewBox on the actual content bounds (not on origin)
+  const contentCenterX = (minX + maxX) / 2;
+  const contentCenterY = (minY + maxY) / 2;
+  return { minX: contentCenterX - w / 2, minY: contentCenterY - h / 2, width: w, height: h, scale };
 }
 
 // ─── Main Component ─────────────────────────────────────────────────────────
@@ -416,6 +429,7 @@ export default function GraphPage() {
           className="absolute inset-0 w-full h-full"
           viewBox={computeViewBox(vp)}
           preserveAspectRatio="xMidYMid meet"
+          suppressHydrationWarning
         >
           <defs>
             {nodes.filter((n) => n.type === 'persona').map((n) => (

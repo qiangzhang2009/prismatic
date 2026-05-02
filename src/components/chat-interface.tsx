@@ -177,7 +177,7 @@ export function ChatInterface({ className, initialPersona, initialMode }: ChatIn
             id: row.slug,
             slug: row.slug,
             name: row.name || row.nameen || row.nameEn || '',
-            nameZh: row.nameZh || row.namezh || row.name || '',
+            nameZh: row.nameZh || row.name || '',
             nameEn: row.nameEn || row.nameen || row.name || '',
             domain: row.domain ?? [],
             accentColor: row.accentcolor || row.accentColor || '#4d96ff',

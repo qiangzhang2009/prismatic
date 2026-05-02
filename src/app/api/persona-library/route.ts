@@ -35,7 +35,7 @@ export async function GET(req: NextRequest) {
 
     const orderByMap: Record<string, string> = {
       score: '"finalScore" DESC',
-      name: 'namezh ASC',
+      name: '"nameZh" ASC',
       default: '"distillDate" DESC',
     };
     const orderBy = orderByMap[sortBy] ?? orderByMap.default;
@@ -52,7 +52,7 @@ export async function GET(req: NextRequest) {
       conditions.push('"isPublished" = true');
     }
     if (search) {
-      conditions.push(`(namezh ILIKE $${paramIdx} OR nameen ILIKE $${paramIdx} OR name ILIKE $${paramIdx})`);
+      conditions.push(`("nameZh" ILIKE $${paramIdx} OR nameen ILIKE $${paramIdx} OR name ILIKE $${paramIdx})`);
       params.push(`%${search}%`);
       paramIdx++;
     }
@@ -80,7 +80,6 @@ export async function GET(req: NextRequest) {
     const items = personasResult.rows.map((row: Record<string, unknown>) => {
       const normalized: Record<string, unknown> = { ...row };
       // Identity fields: provide all casing variants
-      if (row.namezh !== undefined) normalized.namezh = row.namezh;
       if (row.nameZh !== undefined) normalized.nameZh = row.nameZh;
       if (row.nameen !== undefined) normalized.nameen = row.nameen;
       if (row.nameEn !== undefined) normalized.nameEn = row.nameEn;

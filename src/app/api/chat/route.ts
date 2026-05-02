@@ -332,7 +332,7 @@ async function resolvePersonasFromDB(ids: string[]): Promise<any[]> {
   try {
     const placeholders = dbIds.map((_, i) => `$${i + 1}`).join(', ');
     const result = await pool.query(
-      `SELECT slug, name, namezh, nameen, domain, "taglineZh", "briefZh",
+      `SELECT slug, name, "nameZh", nameen, domain, "taglineZh", "briefZh",
               "accentColor", "gradientFrom", "gradientTo",
               "systemPromptTemplate", "identityPrompt",
               strengths, blindspots, "mentalModels", "decisionHeuristics",
@@ -354,7 +354,7 @@ async function resolvePersonasFromDB(ids: string[]): Promise<any[]> {
       id: row.slug,
       slug: row.slug,
       name: row.name || row.nameen || '',
-      nameZh: row.nameZh || row.namezh || row.name || '',
+      nameZh: row.nameZh || row.name || '',
       domain: row.domain ?? [],
       accentColor: row.accentColor || '#4d96ff',
       gradientFrom: row.gradientFrom || '#4d96ff',
