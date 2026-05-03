@@ -159,9 +159,9 @@ export async function GET(req: NextRequest) {
         mode: r.mode,
         participants: r.participants,
         tags: r.tags,
-        messageCount: r.real_message_count ?? 0,
-        totalTokens: r.totalTokens,
-        totalCost: r.totalCost,
+        messageCount: Number(r.real_message_count ?? 0),
+        totalTokens: Number(r.totalTokens || 0),
+        totalCost: Number(r.totalCost || 0),
         personaIds: r.personaIds,
         createdAt: r.createdAt,
         updatedAt: r.updatedAt,
@@ -175,17 +175,18 @@ export async function GET(req: NextRequest) {
       const isTCM = convType === 'TCM';
       const statsKey = isTCM ? 'tcm' : 'persona';
       userMap[uid].typeStats[statsKey].convCount += 1;
-      userMap[uid].typeStats[statsKey].messageCount += r.real_message_count ?? 0;
+      const realMessageCount = Number(r.real_message_count ?? 0);
+      userMap[uid].typeStats[statsKey].messageCount += realMessageCount;
       userMap[uid].typeStats[statsKey].totalCost += Number(r.totalCost || 0);
-      userMap[uid].typeStats[statsKey].totalTokens += r.totalTokens || 0;
+      userMap[uid].typeStats[statsKey].totalTokens += Number(r.totalTokens || 0);
       const act = r.updatedAt?.toISOString() || r.createdAt?.toISOString() || '';
       if (!userMap[uid].typeStats[statsKey].lastActivity || act > userMap[uid].typeStats[statsKey].lastActivity) {
         userMap[uid].typeStats[statsKey].lastActivity = act;
       }
 
-      userMap[uid].totalMessages += r.real_message_count ?? 0;
+      userMap[uid].totalMessages += Number(r.real_message_count ?? 0);
       userMap[uid].totalCost += Number(r.totalCost || 0);
-      userMap[uid].totalTokens += r.totalTokens || 0;
+      userMap[uid].totalTokens += Number(r.totalTokens || 0);
       userMap[uid].convCount += 1;
       if (!userMap[uid].lastActivity || act > userMap[uid].lastActivity) {
         userMap[uid].lastActivity = act;

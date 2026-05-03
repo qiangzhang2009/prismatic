@@ -1198,7 +1198,7 @@ function ConversationCard({ conv }: { conv: any }) {
               {conv.user?.name || conv.user?.email || '未知用户'}
             </span>
             <span className="text-xs text-gray-600">·</span>
-            <span className="text-xs text-gray-500">{conv.messageCount} 条消息</span>
+            <span className="text-xs text-gray-500">{Number(conv.messageCount || 0).toLocaleString()} 条消息</span>
             {conv.totalCost !== undefined && (
               <>
                 <span className="text-xs text-gray-600">·</span>
@@ -1811,11 +1811,14 @@ function AssetUserChats({ userChatsData, isLoading, onRefresh }: {
   const [expandedUser, setExpandedUser] = useState<string | null>(null);
   // Inner tab: which type of conversations to show when user is expanded
   const [innerTab, setInnerTab] = useState<Record<string, 'persona' | 'tcm' | 'all'>>({});
+  // Per-user conversation pagination
+  const [userPage, setUserPage] = useState<Record<string, number>>({});
+  const CONVS_PER_PAGE = 20;
 
   const users = userChatsData?.users || [];
   const totalUsers = userChatsData?.totalUsers || 0;
-  const totalMessages = users.reduce((s: number, u: any) => s + u.totalMessages, 0);
-  const totalCost = users.reduce((s: number, u: any) => s + u.totalCost, 0);
+  const totalMessages = users.reduce((s: number, u: any) => s + Number(u.totalMessages || 0), 0);
+  const totalCost = users.reduce((s: number, u: any) => s + Number(u.totalCost || 0), 0);
 
   return (
     <div className="space-y-5">
@@ -1875,6 +1878,13 @@ function AssetUserChats({ userChatsData, isLoading, onRefresh }: {
               return true;
             });
 
+            // Pagination
+            const uid = userGroup.user?.id || '';
+            const currentPage = userPage[uid] || 1;
+            const totalConvPages = Math.max(1, Math.ceil(visibleConvs.length / CONVS_PER_PAGE));
+            const safePage = Math.min(currentPage, totalConvPages);
+            const pagedConvs = visibleConvs.slice((safePage - 1) * CONVS_PER_PAGE, safePage * CONVS_PER_PAGE);
+
             const avatarColor = [
               'from-blue-500 to-purple-500',
               'from-green-500 to-teal-500',
@@ -1930,7 +1940,7 @@ function AssetUserChats({ userChatsData, isLoading, onRefresh }: {
                           </>
                         )}
                         <span className="text-gray-600">·</span>
-                        <span>{userGroup.totalMessages} 条消息</span>
+                        <span>{Number(userGroup.totalMessages || 0).toLocaleString()} 条消息</span>
                         <span className="text-gray-600">·</span>
                         <span className="text-amber-400">¥{Number(userGroup.totalCost || 0).toFixed(4)}</span>
                         <span className="text-gray-600">·</span>
@@ -1968,7 +1978,7 @@ function AssetUserChats({ userChatsData, isLoading, onRefresh }: {
                         ].map(t => (
                           <button
                             key={t.key}
-                            onClick={() => setInnerTab(prev => ({ ...prev, [userGroup.user?.id]: t.key as any }))}
+                            onClick={() => { setInnerTab(prev => ({ ...prev, [userGroup.user?.id]: t.key as any })); setUserPage(p => ({ ...p, [userGroup.user?.id || '']: 1 })); }}
                             className={`px-3 py-1.5 text-xs font-medium transition-all border-b-2 -mb-px ${
                               activeTab === t.key
                                 ? 'border-purple-400 text-white'
@@ -1991,58 +2001,79 @@ function AssetUserChats({ userChatsData, isLoading, onRefresh }: {
                             该分类暂无对话
                           </div>
                         ) : (
-                          visibleConvs.map((conv: any) => (
-                            <div key={conv.id} className="bg-gray-900/60 border border-gray-700/40 rounded-lg px-3 py-2">
-                              <div className="flex items-center justify-between gap-2 flex-wrap">
-                                <div className="flex items-center gap-2 flex-wrap">
-                                  <span className="text-[10px] text-gray-500">{fmtDate(conv.updatedAt)}</span>
-                                  {/* Type badge */}
-                                  <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium ${
-                                    conv.type === 'TCM'
-                                      ? 'bg-[#c9a84c]/20 text-[#c9a84c] border border-[#c9a84c]/30'
-                                      : 'bg-purple-900/40 text-purple-300 border border-purple-800/40'
-                                  }`}>
-                                    {conv.type === 'TCM' ? '中医' : '人物库'}
-                                  </span>
-                                  <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-gray-800 text-gray-400">{conv.mode}</span>
-                                  <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${conv.billingMode === 'A' ? 'bg-blue-900/30 text-blue-400' : 'bg-green-900/30 text-green-400'}`}>
-                                    {conv.billingMode === 'A' ? 'API Key' : '平台代付'}
-                                  </span>
-                                  {(conv.personas as Array<{ id: string; name: string; nameZh: string }>)?.length > 0 && (
-                                    <span className="text-[10px] text-gray-500">
-                                      {(conv.personas as Array<{ id: string; name: string; nameZh: string }>).slice(0, 3).map(p => p.nameZh).join(' + ')}
-                                      {conv.personas.length > 3 ? ` +${conv.personas.length - 3}` : ''}
+                          <>
+                            {pagedConvs.map((conv: any) => (
+                              <div key={conv.id} className="bg-gray-900/60 border border-gray-700/40 rounded-lg px-3 py-2">
+                                <div className="flex items-center justify-between gap-2 flex-wrap">
+                                  <div className="flex items-center gap-2 flex-wrap">
+                                    <span className="text-[10px] text-gray-500">{fmtDate(conv.updatedAt)}</span>
+                                    <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium ${
+                                      conv.type === 'TCM'
+                                        ? 'bg-[#c9a84c]/20 text-[#c9a84c] border border-[#c9a84c]/30'
+                                        : 'bg-purple-900/40 text-purple-300 border border-purple-800/40'
+                                    }`}>
+                                      {conv.type === 'TCM' ? '中医' : '人物库'}
                                     </span>
-                                  )}
+                                    <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-gray-800 text-gray-400">{conv.mode}</span>
+                                    <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${conv.billingMode === 'A' ? 'bg-blue-900/30 text-blue-400' : 'bg-green-900/30 text-green-400'}`}>
+                                      {conv.billingMode === 'A' ? 'API Key' : '平台代付'}
+                                    </span>
+                                    {(conv.personas as Array<{ id: string; name: string; nameZh: string }>)?.length > 0 && (
+                                      <span className="text-[10px] text-gray-500">
+                                        {(conv.personas as Array<{ id: string; name: string; nameZh: string }>).slice(0, 3).map(p => p.nameZh).join(' + ')}
+                                        {conv.personas.length > 3 ? ` +${conv.personas.length - 3}` : ''}
+                                      </span>
+                                    )}
+                                  </div>
+                                  <div className="flex items-center gap-2 text-[10px] text-gray-500">
+                                    <span>{Number(conv.messageCount || 0).toLocaleString()} 条消息</span>
+                                    <span className="text-amber-400">¥{Number(conv.totalCost || 0).toFixed(4)}</span>
+                                  </div>
                                 </div>
-                                <div className="flex items-center gap-2 text-[10px] text-gray-500">
-                                  <span>{conv.messageCount} 条消息</span>
-                                  <span className="text-amber-400">¥{Number(conv.totalCost || 0).toFixed(4)}</span>
-                                </div>
+                                {conv.messages?.length > 0 && (
+                                  <div className="mt-2 space-y-1">
+                                    {conv.messages.slice(0, 2).map((msg: any) => {
+                                      const isUser = msg.role === 'user' || msg.role === 'human';
+                                      return (
+                                        <div key={msg.id} className="flex items-start gap-2">
+                                          <span className={`text-[9px] font-bold flex-shrink-0 w-4 ${isUser ? 'text-blue-400' : 'text-purple-400'}`}>
+                                            {isUser ? 'U' : (msg.personaName ? msg.personaName.slice(0, 2) : 'AI')}
+                                          </span>
+                                          <span className="text-[10px] text-gray-400 truncate flex-1">
+                                            {msg.content?.slice(0, 120)}
+                                          </span>
+                                        </div>
+                                      );
+                                    })}
+                                    {conv.messages.length > 2 && (
+                                      <p className="text-[9px] text-gray-600 pl-6">+{conv.messages.length - 2} 条更多...</p>
+                                    )}
+                                  </div>
+                                )}
                               </div>
-                              {/* Message preview */}
-                              {conv.messages?.length > 0 && (
-                                <div className="mt-2 space-y-1">
-                                  {conv.messages.slice(0, 2).map((msg: any) => {
-                                    const isUser = msg.role === 'user' || msg.role === 'human';
-                                    return (
-                                      <div key={msg.id} className="flex items-start gap-2">
-                                        <span className={`text-[9px] font-bold flex-shrink-0 w-4 ${isUser ? 'text-blue-400' : 'text-purple-400'}`}>
-                                          {isUser ? 'U' : (msg.personaName ? msg.personaName.slice(0, 2) : 'AI')}
-                                        </span>
-                                        <span className="text-[10px] text-gray-400 truncate flex-1">
-                                          {msg.content?.slice(0, 120)}
-                                        </span>
-                                      </div>
-                                    );
-                                  })}
-                                  {conv.messages.length > 2 && (
-                                    <p className="text-[9px] text-gray-600 pl-6">+{conv.messages.length - 2} 条更多...</p>
-                                  )}
-                                </div>
-                              )}
-                            </div>
-                          ))
+                            ))}
+
+                            {/* Pagination */}
+                            {totalConvPages > 1 && (
+                              <div className="flex items-center justify-center gap-2 pt-2">
+                                <button
+                                  onClick={() => setUserPage(p => ({ ...p, [uid]: Math.max(1, safePage - 1) }))}
+                                  disabled={safePage === 1}
+                                  className="px-2 py-1 bg-gray-800 hover:bg-gray-700 disabled:opacity-30 text-xs text-white rounded transition-colors"
+                                >
+                                  上一页
+                                </button>
+                                <span className="text-xs text-gray-500">{safePage} / {totalConvPages}（{visibleConvs.length} 个）</span>
+                                <button
+                                  onClick={() => setUserPage(p => ({ ...p, [uid]: Math.min(totalConvPages, safePage + 1) }))}
+                                  disabled={safePage === totalConvPages}
+                                  className="px-2 py-1 bg-gray-800 hover:bg-gray-700 disabled:opacity-30 text-xs text-white rounded transition-colors"
+                                >
+                                  下一页
+                                </button>
+                              </div>
+                            )}
+                          </>
                         )}
                       </div>
                     </motion.div>
@@ -2586,7 +2617,7 @@ function TCMConversationCard({ conv }: { conv: any }) {
               </>
             )}
             <span className="text-xs text-gray-600">·</span>
-            <span className="text-xs text-gray-500">{conv.messageCount} 条消息</span>
+            <span className="text-xs text-gray-500">{Number(conv.messageCount || 0).toLocaleString()} 条消息</span>
           </div>
         </div>
         <div className="flex items-center gap-2 flex-shrink-0">
