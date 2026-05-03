@@ -49,9 +49,9 @@ const TIER_CONFIG = {
     price: '¥299',
     badge: '大师',
   },
-} as const;
+};
 
-type TierKey = keyof typeof TIER_CONFIG;
+type TierKey = 'FREE' | 'MONTHLY' | 'LIFETIME';
 
 const DOMAINS = [
   { id: 'philosophy', label: '哲学思想', labelEn: 'Philosophy', emoji: '🏛️' },
@@ -113,7 +113,7 @@ function PersonaCard({
   persona: LibraryPersona;
   onUpgradeClick: (tier: TierKey) => void;
 }) {
-  const tier = TIER_CONFIG[persona.tier] as typeof TIER_CONFIG[FREE] | typeof TIER_CONFIG[MONTHLY] | typeof TIER_CONFIG[LIFETIME];
+  const tier = TIER_CONFIG[persona.tier] as (typeof TIER_CONFIG)[TierKey];
   const isLocked = !persona.canAccess;
   const gradeColors: Record<string, string> = {
     S: 'text-yellow-400', A: 'text-emerald-400', B: 'text-blue-400',

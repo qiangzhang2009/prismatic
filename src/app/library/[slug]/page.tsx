@@ -17,12 +17,12 @@ import {
 import { cn } from '@/lib/utils';
 
 const TIER_CONFIG = {
-  FREE: { label: '免费体验', color: '#22c55e', bgColor: 'rgba(34, 197, 94, 0.12)', borderColor: 'rgba(34, 197, 94, 0.25)', icon: '🌿' },
-  MONTHLY: { label: '月度订阅', color: '#a855f7', bgColor: 'rgba(168, 85, 247, 0.12)', borderColor: 'rgba(168, 85, 247, 0.3)', icon: '📜' },
-  LIFETIME: { label: '终身珍藏', color: '#f59e0b', bgColor: 'rgba(245, 158, 11, 0.12)', borderColor: 'rgba(245, 158, 11, 0.35)', icon: '🏛️' },
-} as const;
+  FREE: { label: '免费体验', color: '#22c55e', bgColor: 'rgba(34, 197, 94, 0.12)', borderColor: 'rgba(34, 197, 94, 0.25)', icon: '🌿', price: '¥0' },
+  MONTHLY: { label: '月度订阅', color: '#a855f7', bgColor: 'rgba(168, 85, 247, 0.12)', borderColor: 'rgba(168, 85, 247, 0.3)', icon: '📜', price: '¥39/月' },
+  LIFETIME: { label: '终身珍藏', color: '#f59e0b', bgColor: 'rgba(245, 158, 11, 0.12)', borderColor: 'rgba(245, 158, 11, 0.35)', icon: '🏛️', price: '¥299' },
+};
 
-type TierKey = keyof typeof TIER_CONFIG;
+type TierKey = 'FREE' | 'MONTHLY' | 'LIFETIME';
 
 interface PersonaDetail {
   slug: string;
@@ -59,7 +59,7 @@ interface PersonaDetail {
   corpusItemCount: number;
   corpusTotalWords: number;
   tier: TierKey;
-  tierConfig: typeof TIER_CONFIG[FREE] | typeof TIER_CONFIG[MONTHLY] | typeof TIER_CONFIG[LIFETIME];
+  tierConfig: (typeof TIER_CONFIG)[TierKey];
   canAccess: boolean;
   isPublished: boolean;
   icon: string | null;
@@ -68,7 +68,7 @@ interface PersonaDetail {
 
 export default function LibraryDetailPage() {
   const params = useParams<{ slug: string }>();
-  const slug = params.slug || '';
+  const slug = params?.slug || '';
 
   const [persona, setPersona] = useState<PersonaDetail | null>(null);
   const [loading, setLoading] = useState(true);
@@ -455,7 +455,7 @@ export default function LibraryDetailPage() {
                   className="block w-full py-2.5 rounded-xl text-center text-sm font-semibold text-black hover:opacity-90 transition-all"
                   style={{ background: tier.color }}
                 >
-                  {tier.price} · 立即订阅
+                  {TIER_CONFIG[persona.tier].price} · 立即订阅
                 </Link>
               </div>
             )}

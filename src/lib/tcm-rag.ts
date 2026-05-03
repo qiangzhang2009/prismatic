@@ -98,7 +98,7 @@ function scoreChunk(chunk, queryTokens) {
  * @param {string[]} sourceFilter - Optional: restrict to specific source IDs
  * @returns {Promise<Array>} Top-k relevant chunks with source metadata
  */
-export async function retrieve(query, topK = 5, sourceFilter = null) {
+export async function retrieve(query: string, topK = 5, sourceFilter: string[] | null = null) {
   const queryTokens = tokenize(query);
 
   if (queryTokens.length === 0) {
@@ -114,6 +114,7 @@ export async function retrieve(query, topK = 5, sourceFilter = null) {
         keywords: c.keywords,
         preview: c.preview,
         relevance: 0,
+        charCount: c.charCount,
       }));
     }
     return [];
@@ -154,7 +155,7 @@ export async function retrieve(query, topK = 5, sourceFilter = null) {
  * Build an RAG context string from retrieved chunks
  * formatted for injection into LLM prompts
  */
-export async function buildRAGContext(query, topK = 5, sourceFilter = null) {
+export async function buildRAGContext(query: string, topK = 5, sourceFilter: string[] | null = null) {
   const chunks = await retrieve(query, topK, sourceFilter);
 
   if (chunks.length === 0) {
