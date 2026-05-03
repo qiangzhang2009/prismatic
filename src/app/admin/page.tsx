@@ -2473,14 +2473,14 @@ function TCMSection() {
             <span className="text-xs text-gray-500 font-medium">消息总数</span>
             <Activity className="w-4 h-4 text-blue-400" />
           </div>
-          <p className="text-2xl font-bold text-blue-400">{(stats.totalMessages || 0).toLocaleString()}</p>
+          <p className="text-2xl font-bold text-blue-400">{Number(stats.totalMessages || 0).toLocaleString()}</p>
         </div>
         <div className="rounded-2xl border border-cyan-500/20 bg-gray-900/60 p-5">
           <div className="flex items-center justify-between mb-3">
             <span className="text-xs text-gray-500 font-medium">Token 消耗</span>
             <Zap className="w-4 h-4 text-cyan-400" />
           </div>
-          <p className="text-2xl font-bold text-cyan-400">{(stats.totalTokens || 0).toLocaleString()}</p>
+          <p className="text-2xl font-bold text-cyan-400">{Number(stats.totalTokens || 0).toLocaleString()}</p>
         </div>
         <div className="rounded-2xl border border-amber-500/20 bg-gray-900/60 p-5">
           <div className="flex items-center justify-between mb-3">

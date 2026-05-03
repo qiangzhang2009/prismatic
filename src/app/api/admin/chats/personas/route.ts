@@ -105,9 +105,9 @@ export async function GET(req: NextRequest) {
         convPersonaStats[pid] = { name: meta.name, nameZh: meta.nameZh, domain: meta.domain, convCount: 0, messageCount: 0, totalCost: 0, totalTokens: 0 };
       }
       convPersonaStats[pid].convCount += 1;
-      convPersonaStats[pid].messageCount += conv.real_message_count || 0;
+      convPersonaStats[pid].messageCount += Number(conv.real_message_count || 0);
       convPersonaStats[pid].totalCost += Number(conv.totalCost || 0);
-      convPersonaStats[pid].totalTokens += conv.totalTokens || 0;
+      convPersonaStats[pid].totalTokens += Number(conv.totalTokens || 0);
     }
   }
 
@@ -143,8 +143,8 @@ export async function GET(req: NextRequest) {
       nameZh: conv?.nameZh ?? msg?.nameZh ?? meta.nameZh,
       domain: conv?.domain ?? msg?.domain ?? meta.domain,
       conversationCount: conv?.convCount ?? 0,
-      messageCount: (conv?.messageCount ?? 0) || (msg?.messageCount ?? 0),
-      totalTokens: (conv?.totalTokens ?? 0) || (msg?.totalTokens ?? 0),
+      messageCount: Number((conv?.messageCount ?? 0) || (msg?.messageCount ?? 0)),
+      totalTokens: Number((conv?.totalTokens ?? 0) || (msg?.totalTokens ?? 0)),
       totalCost: Number((conv?.totalCost ?? 0) || (msg?.totalCost ?? 0)),
     };
   });

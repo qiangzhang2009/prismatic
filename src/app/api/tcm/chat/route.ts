@@ -4,6 +4,7 @@
  *
  * Features:
  *   - 基于tcm-personas.ts的人物人格注入
+ *   - 智能判断：问病情 → 结构化医学回复；聊天/看法 → 自然对话
  *   - 古籍RAG检索（症状 → 古籍引证）
  *   - 中西医对照输出
  *   - 医疗免责声明
@@ -37,16 +38,62 @@ function getPool() {
   return new Pool({ connectionString: url });
 }
 
-function buildTCMSystemPrompt(
+function classifyUserIntent(message: string, history: Array<{ role: string; content: string }>): 'medical' | 'casual' {
+  const text = (message || '').toLowerCase();
+  const historyText = history.map(m => m.content).join(' ').toLowerCase();
+  const combined = text + ' ' + historyText;
+
+  const medicalKeywords = [
+    '症状', '不舒服', '头痛', '发烧', '咳嗽', '肚子疼', '胃痛', '失眠',
+    '感冒', '血压', '血糖', '血脂', '肝功能', '肾功能', '检查', '体检',
+    '治疗', '吃药', '中药', '西药', '方子', '药方', '调理', '补气', '血虚',
+    '阴虚', '阳虚', '湿气', '上火', '便秘', '腹泻', '月经', '怀孕',
+    '怎么治', '怎么办', '吃什么', '怎么调理', '如何治疗', '怎么保养',
+    'disease', 'symptom', 'medicine', 'treatment', 'diagnosis',
+    'ill', 'pain', 'fever', 'cough', 'headache', 'stomach',
+  ];
+
+  const casualKeywords = [
+    '你觉得', '你怎么看', '介绍一下', '讲讲', '说说什么', '有意思吗',
+    '好玩吗', '有趣吗', '你认识', '历史', '生平', '思想', '哲学',
+    '书推荐', '读什么', '习惯', '性格', '爱好', '你怎么看',
+    'how do you think', 'what do you think about', 'introduce',
+    'tell me about', 'your thoughts', 'opinion', 'interesting',
+  ];
+
+  let medicalScore = 0;
+  for (const kw of medicalKeywords) {
+    if (combined.includes(kw)) medicalScore++;
+  }
+
+  let casualScore = 0;
+  for (const kw of casualKeywords) {
+    if (combined.includes(kw)) casualScore++;
+  }
+
+  if (medicalScore > casualScore) return 'medical';
+  return 'casual';
+}
+
+function stripMarkdown(text: string): string {
+  return text
+    .replace(/^#{1,6}\s+/gm, '')        // ## headers
+    .replace(/\*\*(.+?)\*\*/g, '$1')     // **bold**
+    .replace(/\*(.+?)\*/g, '$1')          // *italic*
+    .replace(/_(.+?)_/g, '$1')            // _italic_
+    .replace(/`(.+?)`/g, '$1')            // `code`
+    .replace(/^\s*[-*+]\s+/gm, '· ')     // - bullet points
+    .replace(/^\s*\d+\.\s+/gm, '')       // 1. numbered lists
+    .trim();
+}
+
+function buildMedicalSystemPrompt(
   personaId: string,
   language: 'zh' | 'en' | 'auto',
   ragContext?: { context: string; citations: unknown[]; note: string }
 ): string {
   const persona = TCM_PERSONAS[personaId];
-  if (!persona) {
-    throw new Error(`TCM Persona not found: ${personaId}`);
-  }
-
+  if (!persona) throw new Error(`TCM Persona not found: ${personaId}`);
   const langLabel = language === 'en' ? 'English' : language === 'auto' ? 'English/中文' : '中文';
 
   const ragSection = ragContext?.context
@@ -68,21 +115,48 @@ ${persona.mentalModels.map((m, i) => `${i + 1}. ${m.nameZh}（${m.name}）`).joi
 【价值观】
 ${persona.values.map(v => `· ${v.nameZh}`).join('\n')}
 
-${ragSection}
-【输出格式要求】
-请用${langLabel}回答，严格按以下结构组织：
+${ragSection}请用${langLabel}回答。当用户描述症状或询问病情时，严格按以下结构组织（不使用 ## 或 ** 等 Markdown 标记，纯文本）：
 
-## 一、辨证分析
-根据用户描述的症状，从中医角度进行分析和辨证。
+一、辨证分析
+根据用户描述，从中医角度进行辨证分析。
 
-## 二、古籍引证
-${ragContext?.context ? '基于以上检索到的古籍原文，引用相关段落作为支撑。格式：《书名》原文引用。' : '引用相关中医古籍原文作为支撑（你可以基于古籍知识给出合理引用）。格式：《书名》原文引用。'}
+二、古籍引证
+${ragContext?.context ? '基于检索到的古籍原文，引用相关段落。格式：书名·原文引用。' : '引用相关中医古籍原文作为支撑。格式：书名·原文引用。'}
 
-## 三、日常调养建议
-基于中医理论给出日常调养建议，包括饮食、起居、情志等方面。
+三、日常调养建议
+基于中医理论给出饮食、起居、情志等方面的建议。
 
-## 四、现代医学参考
+四、现代医学参考
 ${language === 'en' || language === 'auto' ? 'Provide a brief modern medicine perspective on the symptoms described.' : '简要提供现代医学视角的参考（注明仅供参考）。'}
+
+---
+⚕️ 本回答由 ${persona.nameZh} 提供
+
+⚠️ 【重要免责声明】
+以上内容仅供参考和学习，不能替代专业医生的诊断和治疗。如有健康问题，请立即咨询有执照的医疗专业人员。This information is for educational purposes only and is not a substitute for professional medical advice, diagnosis, or treatment.`;
+}
+
+function buildCasualSystemPrompt(personaId: string, language: 'zh' | 'en' | 'auto'): string {
+  const persona = TCM_PERSONAS[personaId];
+  if (!persona) throw new Error(`TCM Persona not found: ${personaId}`);
+  const langLabel = language === 'en' ? 'English' : language === 'auto' ? 'English/中文' : '中文';
+
+  return `你是${persona.nameZh}，一位中医医学家。
+
+【人物简介】${persona.briefZh}
+
+【核心思维模型】
+${persona.mentalModels.map((m, i) => `${i + 1}. ${m.nameZh}（${m.name}）`).join('\n')}
+
+【价值观】
+${persona.values.map(v => `· ${v.nameZh}`).join('\n')}
+
+请用${langLabel}与用户自然对话。风格要求：
+- 像与一位睿智的长者交谈，温暖、有见地
+- 可以引经据典，但不要生硬
+- 不要使用 ## 标题或 **加粗** 等 Markdown 格式，纯文本表达
+- 回答简洁有力，不啰嗦
+- 如果涉及健康话题，可以自然地带入中医视角
 
 ---
 ⚕️ 本回答由 ${persona.nameZh} 提供
@@ -144,22 +218,30 @@ export async function POST(req: NextRequest) {
 
     const convId = conversationId || nanoid();
 
-    // RAG Retrieval
+    // 意图分类：判断是问病情还是聊天/看法
+    const intent = classifyUserIntent(message, history);
+    const isCasual = intent === 'casual';
+
+    // RAG Retrieval（仅在医学问题时进行）
     let ragContext = null;
     let ragMetadata: { citations: unknown[]; chunkCount: number } | null = null;
-    try {
-      ragContext = await buildRAGContext(message, 4);
-      if (ragContext) {
-        ragMetadata = {
-          citations: ragContext.citations,
-          chunkCount: ragContext.citations.length,
-        };
+    if (!isCasual) {
+      try {
+        ragContext = await buildRAGContext(message, 4);
+        if (ragContext) {
+          ragMetadata = {
+            citations: ragContext.citations,
+            chunkCount: ragContext.citations.length,
+          };
+        }
+      } catch (e) {
+        console.warn('[TCM Chat] RAG retrieval failed, proceeding without it:', e);
       }
-    } catch (e) {
-      console.warn('[TCM Chat] RAG retrieval failed, proceeding without it:', e);
     }
 
-    const systemPrompt = buildTCMSystemPrompt(personaId, language, ragContext ?? undefined);
+    const systemPrompt = isCasual
+      ? buildCasualSystemPrompt(personaId, language)
+      : buildMedicalSystemPrompt(personaId, language, ragContext ?? undefined);
 
     const conversationMessages: Array<{ role: string; content: string }> = [
       { role: 'system', content: systemPrompt },
@@ -173,7 +255,8 @@ export async function POST(req: NextRequest) {
     conversationMessages.push({ role: 'user', content: message });
 
     const llmResult = await callLLM(undefined, conversationMessages);
-    const response = llmResult.content;
+    // 去除 Markdown 格式（##、** 等）
+    const response = stripMarkdown(llmResult.content);
     const usage = llmResult.usage;
 
     // 估算成本
@@ -269,6 +352,7 @@ export async function POST(req: NextRequest) {
       personaId,
       personaName: TCM_PERSONAS[personaId]?.nameZh,
       response,
+      intent,
       creditsAfter,
       rag: ragMetadata ? {
         citations: ragMetadata.citations,

@@ -142,9 +142,9 @@ export async function GET(req: NextRequest) {
         type: r.type || 'TCM',
         mode: r.mode,
         participants: r.participants,
-        messageCount: r.real_message_count ?? 0,
-        totalTokens: r.totalTokens,
-        totalCost: r.totalCost,
+        messageCount: Number(r.real_message_count ?? 0),
+        totalTokens: Number(r.totalTokens || 0),
+        totalCost: Number(r.totalCost || 0),
         personaIds: r.personaIds,
         createdAt: r.createdAt,
         updatedAt: r.updatedAt,
@@ -161,9 +161,9 @@ export async function GET(req: NextRequest) {
     });
 
     // 计算统计数据
-    const totalTokens = conversations.reduce((sum, c) => sum + (c.totalTokens || 0), 0);
-    const totalCost = conversations.reduce((sum, c) => sum + parseFloat(String(c.totalCost || 0)), 0);
-    const totalMessages = conversations.reduce((sum, c) => sum + c.messageCount, 0);
+    const totalTokens = conversations.reduce((sum, c) => sum + Number(c.totalTokens || 0), 0);
+    const totalCost = conversations.reduce((sum, c) => sum + Number(c.totalCost || 0), 0);
+    const totalMessages = conversations.reduce((sum, c) => sum + Number(c.messageCount || 0), 0);
 
     // 按人物统计
     const personaStats: Record<string, { nameZh: string; convCount: number; msgCount: number }> = {};
@@ -173,7 +173,7 @@ export async function GET(req: NextRequest) {
           personaStats[pid] = { nameZh: TCM_PERSONAS[pid]?.nameZh || pid, convCount: 0, msgCount: 0 };
         }
         personaStats[pid].convCount++;
-        personaStats[pid].msgCount += c.messageCount;
+        personaStats[pid].msgCount += Number(c.messageCount || 0);
       }
     }
 
