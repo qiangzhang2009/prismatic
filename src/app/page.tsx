@@ -27,12 +27,12 @@ import { CommentsSection } from '@/components/comments-section';
 import { cn, getDomainGradient } from '@/lib/utils';
 
 // ─── Hero Stats ────────────────────────────────────────────────────────────────
-// Real data from project census (2026-04-30)
-// 65 defined personas, 8 total modes (6 visible), 1.8GB corpus
+// Real data from project census (2026-05-03)
+// 82 defined personas (PERSONA_LIST_LIGHT), 8 total modes (6 visible), ~3GB persona corpus
 const HERO_STATS = [
-  { value: '65', label: '蒸馏人物', icon: BookOpen, color: '#4d96ff' },
+  { value: '82', label: '蒸馏人物', icon: BookOpen, color: '#4d96ff' },
   { value: '6', label: '协作模式', icon: Layers, color: '#6bcb77' },
-  { value: '1.8GB', label: '原始语料', icon: BarChart3, color: '#c77dff' },
+  { value: '3GB', label: '原始语料', icon: BarChart3, color: '#c77dff' },
   { value: '∞', label: '视角组合', icon: TrendingUp, color: '#ff9f43' },
 ];
 

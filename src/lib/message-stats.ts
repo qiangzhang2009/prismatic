@@ -12,7 +12,7 @@ if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prismaStats;
 
 // ─── Daily limit constants ───────────────────────────────────────────────────
 
-export const USER_DAILY_LIMIT = 10;
+export const USER_DAILY_LIMIT = 20;
 
 // 检查用户是否达到今日对话配额上限
 //

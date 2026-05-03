@@ -15,8 +15,9 @@ import { nanoid } from 'nanoid';
 import { createLLMProviderWithKey } from '@/lib/llm';
 import { TCM_PERSONAS } from '@/lib/tcm-personas';
 import { buildRAGContext } from '@/lib/tcm-rag';
-import { authenticateRequest } from '@/lib/user-management';
+import { authenticateRequest, getUserById } from '@/lib/user-management';
 import { persistConversation } from '@/app/api/chat/route';
+import { checkUserDailyLimit } from '@/lib/message-stats';
 import { Pool } from '@neondatabase/serverless';
 
 export const runtime = 'nodejs';
@@ -126,6 +127,21 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: '请先登录后再使用中医对话功能' }, { status: 401 });
     }
 
+    // 额度检查（与 chat API 一致）
+    const user = await getUserById(userId);
+    const userPlan = user?.plan ?? 'FREE';
+    const userCredits = user?.credits ?? 0;
+    const { allowed, current, limit, reason } = await checkUserDailyLimit(userId, userPlan, userCredits);
+    if (!allowed) {
+      return NextResponse.json({
+        error: `今日对话次数已达上限（${limit}次/天），明天再来吧~`,
+        code: 'DAILY_LIMIT_REACHED',
+        current,
+        limit,
+        billingReason: reason,
+      }, { status: 429 });
+    }
+
     const convId = conversationId || nanoid();
 
     // RAG Retrieval
@@ -220,6 +236,22 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // ── 扣减积分（与 chat API 一致）─────────────────────────────────────────
+    // 免费且有积分的用户扣减积分
+    let creditsAfter = userCredits;
+    if (userPlan === 'FREE' && userCredits > 0) {
+      try {
+        const { deductCredits } = await import('@/lib/billing/engine');
+        const result = await deductCredits(userId, 1, {
+          description: '中医对话消耗',
+          conversationId: convId,
+        });
+        creditsAfter = result.newBalance;
+      } catch (err) {
+        console.error('[TCM Chat] Failed to deduct credits:', err);
+      }
+    }
+
     // 补充 title（persistConversation 不处理 title）
     const pool = getPool();
     const titleResult = await pool.query(
@@ -237,6 +269,7 @@ export async function POST(req: NextRequest) {
       personaId,
       personaName: TCM_PERSONAS[personaId]?.nameZh,
       response,
+      creditsAfter,
       rag: ragMetadata ? {
         citations: ragMetadata.citations,
         note: ragContext?.note,

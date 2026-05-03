@@ -209,7 +209,7 @@ export function getFeatureLimit(plan: SubscriptionPlan): {
   switch (plan) {
     case 'FREE':
       return {
-        dailyMessages: 10,
+        dailyMessages: 20,
         personaCount: 3,
         exportEnabled: false,
         priority: false,

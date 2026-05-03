@@ -7,8 +7,9 @@ import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { TCM_PERSONA_LIST } from '@/lib/tcm-personas';
 import { useConversationSync, loadRegistry, saveRegistry as saveSharedRegistry } from '@/lib/use-conversation-sync';
+import { useDailyLimit } from '@/lib/use-daily-limit';
 import { useAuthStore } from '@/lib/auth-store';
-import { nanoid } from 'nanoid';
+import { LimitReachedModal, type LimitModalType } from '@/components/limit-reached-modal';
 import type { AgentMessage } from '@/lib/types';
 
 const TCM_COLORS = {
@@ -104,6 +105,10 @@ export function TCMChatInterface() {
   const user = useAuthStore(s => s.user);
   const userId = user?.id;
   const { pushSnapshot } = useConversationSync();
+  const {
+    plan, credits, isPaid, hasCredits, dailyLimit, dailyCount,
+    dailyRemaining, limitReached, creditsExhausted, incrementCount,
+  } = useDailyLimit();
 
   const [selectedPersona, setSelectedPersona] = useState<TCMPersona>(
     () => TCM_PERSONA_LIST[0] as TCMPersona
@@ -114,6 +119,8 @@ export function TCMChatInterface() {
   const [showPersonaPicker, setShowPersonaPicker] = useState(false);
   const [language, setLanguage] = useState<'zh' | 'en' | 'auto'>('zh');
   const [syncStatus, setSyncStatus] = useState<'idle' | 'syncing' | 'saved' | 'error'>('idle');
+  const [showLimitModal, setShowLimitModal] = useState(false);
+  const [limitModalType, setLimitModalType] = useState<LimitModalType>('daily_limit');
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const isInitializedRef = useRef(false);
@@ -251,6 +258,13 @@ export function TCMChatInterface() {
       return;
     }
 
+    // 额度预检查（与人物库一致）
+    if (limitReached) {
+      setLimitModalType('daily_limit');
+      setShowLimitModal(true);
+      return;
+    }
+
     const userMsg: TCMMessage = {
       id: `user-${Date.now()}`,
       role: 'user',
@@ -282,6 +296,11 @@ export function TCMChatInterface() {
         throw new Error(errData.error || '请先登录');
       }
 
+      if (res.status === 429) {
+        const errData = await res.json().catch(() => ({}));
+        throw Object.assign(new Error(errData.error || '今日对话次数已达上限'), { code: 'DAILY_LIMIT_REACHED' });
+      }
+
       if (!res.ok) {
         const errData = await res.json().catch(() => ({}));
         throw new Error(errData.detail || errData.error || '请求失败');
@@ -300,6 +319,13 @@ export function TCMChatInterface() {
 
       setMessages(prev => [...prev, assistantMsg]);
       setSyncStatus('saved');
+
+      // 更新本地计数（前端乐观更新）
+      incrementCount();
+      // 如果服务端扣了积分，同步到本地 store
+      if (data.creditsAfter !== undefined) {
+        useAuthStore.getState().updateUser({ credits: data.creditsAfter });
+      }
 
       // Push to server via sync endpoint (mirrors persona chat pushSnapshot)
       const conversationKey = `${TCM_CONVERSATION_PREFIX}${selectedPersona.id}`;
@@ -384,24 +410,65 @@ export function TCMChatInterface() {
           <span className="text-[10px] px-1.5 py-0.5 rounded bg-[#c9a84c]/15 text-[#c9a84c] border border-[#c9a84c]/30 font-mono">TCM</span>
         </div>
 
-        {/* Sync status */}
-        {syncLabel[syncStatus]}
-
-        <div className="ml-auto flex items-center gap-1 bg-[#0a1628] rounded-lg p-0.5 border border-[#1e2d4a]">
-          {(['zh', 'en', 'auto'] as const).map(lang => (
-            <button
-              key={lang}
-              onClick={() => setLanguage(lang)}
-              className={cn(
-                'px-2.5 py-1 rounded text-xs font-medium transition-all',
-                language === lang
-                  ? 'bg-[#c9a84c]/20 text-[#c9a84c]'
-                  : 'text-slate-500 hover:text-slate-300'
-              )}
+        {/* Sync status + quota indicator */}
+        <div className="flex items-center gap-3 ml-auto">
+          {syncLabel[syncStatus]}
+          {limitReached ? (
+            <Link
+              href="/subscribe"
+              className="flex items-center gap-1.5 bg-red-500/10 border border-red-500/30 px-2.5 py-1 rounded-full"
             >
-              {lang === 'zh' ? '中文' : lang === 'en' ? 'EN' : 'Auto'}
-            </button>
-          ))}
+              <div className="w-1.5 h-1.5 rounded-full bg-red-400" />
+              <span className="text-xs text-red-400 font-medium">已达上限</span>
+            </Link>
+          ) : isPaid ? (
+            <span className="text-xs text-green-400 font-medium">无限制</span>
+          ) : creditsExhausted ? (
+            <div className="flex items-center gap-1.5">
+              {Number(dailyRemaining) <= 3 ? (
+                <div className="flex items-center gap-1 bg-amber-500/10 px-2 py-0.5 rounded-full">
+                  <div className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
+                  <span className="text-xs text-amber-400 font-medium">{dailyRemaining} 条今日</span>
+                </div>
+              ) : (
+                <div className="flex items-center gap-1">
+                  <span className="text-xs text-green-400 font-medium">{dailyRemaining}</span>
+                  <span className="text-xs text-slate-600">/ {dailyLimit} 条今日</span>
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="flex items-center gap-1.5">
+              {Number(dailyRemaining) <= 3 ? (
+                <div className="flex items-center gap-1 bg-amber-500/10 px-2 py-0.5 rounded-full">
+                  <div className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
+                  <span className="text-xs text-amber-400 font-medium">{dailyRemaining} 条剩余</span>
+                </div>
+              ) : (
+                <div className="flex items-center gap-1">
+                  <span className="text-xs text-green-400 font-medium">{dailyRemaining}</span>
+                  <span className="text-xs text-slate-600">/ {dailyLimit} 条今日</span>
+                </div>
+              )}
+            </div>
+          )}
+
+          <div className="flex items-center gap-1 bg-[#0a1628] rounded-lg p-0.5 border border-[#1e2d4a]">
+            {(['zh', 'en', 'auto'] as const).map(lang => (
+              <button
+                key={lang}
+                onClick={() => setLanguage(lang)}
+                className={cn(
+                  'px-2.5 py-1 rounded text-xs font-medium transition-all',
+                  language === lang
+                    ? 'bg-[#c9a84c]/20 text-[#c9a84c]'
+                    : 'text-slate-500 hover:text-slate-300'
+                )}
+              >
+                {lang === 'zh' ? '中文' : lang === 'en' ? 'EN' : 'Auto'}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
@@ -605,6 +672,14 @@ export function TCMChatInterface() {
           诊疗建议仅供参考 · {selectedPersona.nameZh} · {Object.keys(TCM_PERSONA_LIST).length} 位古今中医大家
         </p>
       </div>
+
+      {/* 额度用尽弹窗（与人物库一致） */}
+      <LimitReachedModal
+        isOpen={showLimitModal}
+        type={limitModalType}
+        onClose={() => setShowLimitModal(false)}
+        onSetApiKey={() => { setShowLimitModal(false); }}
+      />
     </div>
   );
 }
