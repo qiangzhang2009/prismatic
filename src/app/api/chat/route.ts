@@ -62,7 +62,7 @@ function getDbPool() {
  * - tags 字段使用 text[] 类型
  * - metadata 使用有效 JSON（null 而不是 JSON.stringify(undefined)）
  */
-async function persistConversation(
+export async function persistConversation(
   userId: string,
   conversationId: string,
   mode: string,
