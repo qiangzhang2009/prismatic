@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Send, Loader2, ChevronDown, Sparkles, ShieldAlert, BookOpen, Brain, Globe, User, RefreshCw, Clock, Trash2, MessageSquare, X, Menu } from 'lucide-react';
+import { Send, Loader2, ChevronDown, Sparkles, ShieldAlert, BookOpen, Brain, Globe, User, RefreshCw, Clock, Trash2, MessageSquare, X, Download, Image, FileText } from 'lucide-react';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { TCM_PERSONA_LIST, TCM_PERSONAS } from '@/lib/tcm-personas';
@@ -10,6 +10,8 @@ import { useConversationSync, loadRegistry, saveRegistry as saveSharedRegistry }
 import { useDailyLimit } from '@/lib/use-daily-limit';
 import { useAuthStore } from '@/lib/auth-store';
 import { LimitReachedModal, type LimitModalType } from '@/components/limit-reached-modal';
+import { ExportPanel } from '@/components/export-panel';
+import { exportChatAsImage, generateChatText, downloadTextViaAPI } from '@/lib/export-chat';
 import type { AgentMessage } from '@/lib/types';
 
 const TCM_COLORS = {
@@ -138,6 +140,8 @@ export function TCMChatInterface() {
   const [conversationList, setConversationList] = useState<TCMConversationMeta[]>([]);
   const [activeConvId, setActiveConvId] = useState<string | null>(null);
   const [isLoadingHistory, setIsLoadingHistory] = useState(false);
+  const [showExportPanel, setShowExportPanel] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const isInitializedRef = useRef(false);
@@ -492,6 +496,53 @@ export function TCMChatInterface() {
     ),
   };
 
+  // ── Export helpers (reuse existing export-chat.ts logic) ──────────────────
+  // Map TCMMessage[] → AgentMessage[] for compatibility with export utilities
+  const messagesAsAgentMessages: AgentMessage[] = messages.map(m => ({
+    id: m.id,
+    personaId: m.personaId,
+    role: m.role === 'assistant' ? 'agent' : 'user',
+    content: m.content,
+    timestamp: m.timestamp ? new Date(m.timestamp) : new Date(),
+  }));
+
+  const handleExportAsImage = useCallback(async () => {
+    if (messages.length === 0) return;
+    setIsExporting(true);
+    try {
+      await exportChatAsImage(
+        messagesAsAgentMessages,
+        [selectedPersona.id],
+        'solo' as any,
+        `向${selectedPersona.nameZh}提问`
+      );
+    } catch (error) {
+      console.error('[TCM Export] Image export failed:', error);
+      alert('图片导出失败，请重试');
+    } finally {
+      setIsExporting(false);
+    }
+  }, [messages, messagesAsAgentMessages, selectedPersona]);
+
+  const handleExportAsText = useCallback(async () => {
+    if (messages.length === 0) return;
+    setIsExporting(true);
+    try {
+      const content = await generateChatText(
+        messagesAsAgentMessages,
+        [selectedPersona.id],
+        'solo' as any,
+      );
+      const filename = `中医对话_${new Date().toISOString().slice(0, 10)}.txt`;
+      await downloadTextViaAPI(content, filename);
+    } catch (error) {
+      console.error('[TCM Export] Text export failed:', error);
+      alert('文本导出失败，请重试');
+    } finally {
+      setIsExporting(false);
+    }
+  }, [messages, messagesAsAgentMessages, selectedPersona]);
+
   return (
     <div className={cn('flex flex-row h-screen overflow-hidden', TCM_COLORS.bg)}>
       {/* ── Sidebar: Conversation History ─────────────────── */}
@@ -688,6 +739,66 @@ export function TCMChatInterface() {
               </button>
             ))}
           </div>
+
+          {/* Export dropdown */}
+          {messages.length > 0 && (
+            <div className="relative">
+              <button
+                onClick={() => setShowExportPanel(v => !v)}
+                className={cn(
+                  'flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border text-xs transition-all',
+                  'border-[#1e2d4a] text-slate-500 hover:text-slate-300 hover:border-[#1e2d4a]/80',
+                  TCM_COLORS.surface
+                )}
+                title="导出对话记录"
+              >
+                {isExporting ? (
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                ) : (
+                  <Download className="w-3.5 h-3.5" />
+                )}
+                <span className="hidden sm:inline">导出</span>
+              </button>
+
+              <AnimatePresence>
+                {showExportPanel && (
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.92, y: -4 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.92, y: -4 }}
+                    transition={{ duration: 0.15 }}
+                    className="absolute right-0 top-full mt-1 z-50"
+                  >
+                    {/* Backdrop: click outside to close */}
+                    <div
+                      className="fixed inset-0 z-[-1]"
+                      onClick={() => setShowExportPanel(false)}
+                    />
+                    <div className="bg-[#0d1424] border border-[#1e2d4a] rounded-xl shadow-2xl w-44 overflow-hidden">
+                      <div className="px-4 py-3 border-b border-[#1e2d4a]">
+                        <p className="text-xs font-semibold text-white">导出对话记录</p>
+                        <p className="text-[10px] text-slate-500 mt-0.5">{messages.length} 条消息</p>
+                      </div>
+                      <button
+                        className="w-full flex items-center gap-3 px-4 py-2.5 text-xs text-slate-300 hover:bg-white/5 transition-colors"
+                        onClick={handleExportAsImage}
+                      >
+                        <Image className="w-4 h-4 text-[#c9a84c]" />
+                        <span>导出为图片</span>
+                      </button>
+                      <button
+                        className="w-full flex items-center gap-3 px-4 py-2.5 text-xs text-slate-300 hover:bg-white/5 transition-colors"
+                        onClick={handleExportAsText}
+                      >
+                        <FileText className="w-4 h-4 text-[#c9a84c]" />
+                        <span>导出为文本</span>
+                      </button>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          )}
 
           {/* History / conversations sidebar toggle */}
           {userId && (
@@ -924,6 +1035,16 @@ export function TCMChatInterface() {
         type={limitModalType}
         onClose={() => setShowLimitModal(false)}
         onSetApiKey={() => { setShowLimitModal(false); }}
+      />
+
+      {/* 导出面板（与人物库一致） */}
+      <ExportPanel
+        open={showExportPanel}
+        onClose={() => setShowExportPanel(false)}
+        messages={messagesAsAgentMessages}
+        mode="solo" as any
+        selectedPersonaIds={[selectedPersona.id]}
+        personaNames={selectedPersona.nameZh}
       />
       </div>
     </div>
