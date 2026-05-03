@@ -63,6 +63,11 @@ migrations/
 .env*.local
 corpus/
 
+# TCM RAG corpus — split into per-source files for lazy loading
+# Each source is loaded on-demand during query, not bundled into the serverless function
+data/tcm-rag/sources/
+data/tcm-rag/vectors.json
+
 # 3DGS splat files — large binary assets (use download_splat_scene.py)
 public/splats/*.rad
 public/splats/*.radc

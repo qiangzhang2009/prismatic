@@ -2,11 +2,12 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
-import { Hexagon, Sparkles, GitBranch, Leaf, Menu, X } from 'lucide-react';
+import { Hexagon, Sparkles, GitBranch, Leaf, Menu, X, Brain, Library } from 'lucide-react';
 import { UserMenu } from '@/components/user-menu';
 import { APP_NAME } from '@/lib/constants';
 
 const NAV_LINKS = [
+  { href: '/library', label: '智慧导师', mdOnly: true, amber: true },
   { href: '/personas', label: '人物档案馆', mdOnly: true },
   { href: '/graph', label: '认知图谱', lgOnly: true },
   { href: '/tcm-atlas', label: '中医图谱', mdOnly: true, emerald: true },
@@ -35,16 +36,26 @@ export function NavBar() {
               key={link.href}
               href={link.href}
               className={`text-sm transition-colors ${
-                link.emerald
+                link.amber
+                  ? 'text-[#f59e0b]/70 hover:text-[#f59e0b] flex items-center gap-1'
+                  : link.emerald
                   ? 'text-text-secondary hover:text-emerald-400 flex items-center gap-1'
                   : 'text-text-secondary hover:text-text-primary flex items-center gap-1'
               }`}
             >
               {link.href === '/tcm-atlas' && <Leaf className="w-3.5 h-3.5" />}
               {link.href === '/graph' && <GitBranch className="w-3.5 h-3.5" />}
+              {link.href === '/library' && <Library className="w-3.5 h-3.5" />}
               {link.label}
             </Link>
           ))}
+          <Link
+            href="/tcm-assistant"
+            className="text-sm text-[#c9a84c] hover:text-[#b8963e] flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#c9a84c]/10 hover:bg-[#c9a84c]/20 transition-all border border-[#c9a84c]/20 hover:border-[#c9a84c]/40"
+          >
+            <Brain className="w-3.5 h-3.5" />
+            中医助手
+          </Link>
           <Link
             href="/app"
             className="text-sm bg-prism-gradient text-white px-4 py-1.5 rounded-lg hover:opacity-90 transition-opacity"
@@ -87,16 +98,27 @@ export function NavBar() {
               href={link.href}
               onClick={() => setMobileOpen(false)}
               className={`flex items-center gap-2 px-6 py-3 text-sm border-b border-white/5 transition-colors ${
-                link.emerald
+                link.amber
+                  ? 'text-[#f59e0b]/70 hover:text-[#f59e0b] hover:bg-white/5'
+                  : link.emerald
                   ? 'text-emerald-400 hover:bg-white/5'
                   : 'text-text-secondary hover:text-text-primary hover:bg-white/5'
               }`}
             >
               {link.href === '/tcm-atlas' && <Leaf className="w-4 h-4" />}
               {link.href === '/graph' && <GitBranch className="w-4 h-4" />}
+              {link.href === '/library' && <Library className="w-4 h-4" />}
               {link.label}
             </Link>
           ))}
+          <Link
+            href="/tcm-assistant"
+            onClick={() => setMobileOpen(false)}
+            className="flex items-center gap-2 px-6 py-3 text-sm border-b border-white/5 transition-colors text-[#c9a84c] hover:bg-white/5"
+          >
+            <Brain className="w-4 h-4" />
+            中医AI助手
+          </Link>
         </div>
       )}
     </nav>
