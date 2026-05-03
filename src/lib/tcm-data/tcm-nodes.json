@@ -13,11 +13,11 @@
     "era": "明代",
     "contribution": "李时珍（1518-1593），明代蕲州人，字东璧，号濒湖，晚年自号濒湖山人。他是中国历史上最伟大的医",
     "mentalModels": [
-      "Ge Wu Qiong Li (Investigation of Things to Exhaust Principle)",
-      "Zheng Ming Wei Gang (Correct Naming as the Outline)",
-      "Si Zhen He Can (Four Examinations Combined)",
-      "Qi Jing Ba Mai (Eight Extraordinary Meridians)",
-      "Pao Zhi You Fa (Proper Processing Methods)"
+      "格物穷理",
+      "正名为纲",
+      "四诊合参",
+      "奇经八脉",
+      "炮炙有法"
     ],
     "mentalModelsZh": [
       "格物穷理",
@@ -27,28 +27,23 @@
       "炮炙有法"
     ],
     "values": [
-      "Empirical Rigor",
-      "Systematic Classification",
-      "Holistic Diagnosis",
-      "Safety and Caution",
-      "Intellectual Humility"
+      "实证求真",
+      "系统分类",
+      "整体诊断",
+      "安全审慎",
+      "求知若虚"
     ],
     "tensions": [
-      "Tradition vs. Innovation",
-      "Specialization vs. Integration",
-      "Empiricism vs. Theory"
+      "传承与创新",
+      "专精与整合",
+      "经验与理论"
     ],
     "keywords": [
       "格物穷理",
-      "Ge Wu Qiong Li (Investigation of Things to Exhaust Principle)",
       "正名为纲",
-      "Zheng Ming Wei Gang (Correct Naming as the Outline)",
       "四诊合参",
-      "Si Zhen He Can (Four Examinations Combined)",
       "奇经八脉",
-      "Qi Jing Ba Mai (Eight Extraordinary Meridians)",
       "炮炙有法",
-      "Pao Zhi You Fa (Proper Processing Methods)",
       "脉诊",
       "脏腑",
       "经络",
@@ -62,7 +57,7 @@
       "脏腑经络",
       "脉证合参"
     ],
-    "medicalSchool": "pharmacology",
+    "medicalSchool": "本草学",
     "crossCulturalParallels": [
       "caraka"
     ],
@@ -99,6 +94,27 @@
       "传承与创新",
       "专精与整合",
       "经验与理论"
+    ],
+    "medicalSchoolZh": "本草学",
+    "crossDomainZh": [
+      "博物学",
+      "文献考据学",
+      "自然哲学",
+      "分类学",
+      "信息科学",
+      "术语标准化",
+      "系统思维",
+      "多模态诊断",
+      "综合评估",
+      "道家内丹术",
+      "气功",
+      "能量医学",
+      "制药工程",
+      "食品加工",
+      "材料科学"
+    ],
+    "crossCulturalParallelsZh": [
+      "遮罗迦"
     ]
   },
   {
@@ -115,11 +131,11 @@
     "era": "古代印度",
     "contribution": "遮罗迦（Charaka），古代印度医学巨匠，《遮罗迦本集》（Charaka Samhita）的作者，与《妙闻本集》（Sushruta Samhita）并称阿育吠陀医学的两大基石。该书系统阐述了病因学、诊断学、治疗学，提出了三体液学说（Vata、Pitta、Kapha）、健康观、饮食指南、药物分类及医德规范。其三体液平衡模型与中医阴阳五行理论高度共鸣，为古代世界最重要的医学百科全书之一。",
     "mentalModels": [
-      "Tridosha Equilibrium",
-      "Law of Similars and Opposites",
-      "Five Elements and Six Tastes",
-      "Ayus as Conjunction of Body, Senses, Mind, and Self",
-      "Eternal Nature of Ayurveda"
+      "三体液平衡模型",
+      "相似与相反法则",
+      "五大元素与六味模型",
+      "生命是身体、感官、心智与自我的结合",
+      "阿育吠陀的永恒性"
     ],
     "mentalModelsZh": [
       "三体液平衡模型",
@@ -129,32 +145,27 @@
       "阿育吠陀的永恒性"
     ],
     "values": [
-      "Holistic Health",
-      "Physician Integrity",
-      "Eternal Knowledge",
-      "Prevention over Cure",
-      "Balance and Harmony"
+      "整体健康",
+      "医者正道",
+      "永恒真理",
+      "预防为先",
+      "平衡和谐"
     ],
     "tensions": [
-      "Eternal Truth vs. Practical Adaptation",
-      "Rational Medicine vs. Ritual/Incantation",
-      "Physician as Healer vs. Physician as Philosopher"
+      "永恒真理与因时变通",
+      "理性医学与宗教仪式",
+      "医者与哲人"
     ],
     "keywords": [
       "三体液平衡模型",
-      "Tridosha Equilibrium",
       "相似与相反法则",
-      "Law of Similars and Opposites",
       "五大元素与六味模型",
-      "Five Elements and Six Tastes",
       "生命是身体、感官、心智与自我的结合",
-      "Ayus as Conjunction of Body, Senses, Mind, and Self",
       "阿育吠陀的永恒性",
-      "Eternal Nature of Ayurveda",
       "温热"
     ],
     "topBigrams": [],
-    "medicalSchool": "ayurveda",
+    "medicalSchool": "阿育吠陀医学",
     "crossCulturalParallels": [
       "huangdi",
       "zhang-zhongjing",
@@ -163,21 +174,21 @@
     "isHistorical": true,
     "primaryLanguage": "en",
     "crossDomain": [
-      "Systems theory",
-      "Homeostasis",
-      "Organizational balance",
-      "Pharmacology",
-      "Psychology (opposite action)",
-      "Conflict resolution",
-      "Nutrition",
-      "Pharmacognosy",
-      "Flavor chemistry",
-      "Philosophy of mind",
-      "Neuroscience",
-      "Psychology",
-      "Philosophy of science",
-      "Epistemology",
-      "Traditional knowledge systems"
+      "系统理论",
+      "内稳态",
+      "组织平衡",
+      "药理学",
+      "反向心理学",
+      "冲突解决",
+      "营养学",
+      "生药学",
+      "风味化学",
+      "心灵哲学",
+      "神经科学",
+      "心理学",
+      "科学哲学",
+      "认识论",
+      "传统知识体系"
     ],
     "outgoingEdges": 7,
     "distillationScore": 88,
@@ -193,6 +204,29 @@
       "永恒真理与因时变通",
       "理性医学与宗教仪式",
       "医者与哲人"
+    ],
+    "medicalSchoolZh": "阿育吠陀医学",
+    "crossDomainZh": [
+      "系统理论",
+      "内稳态",
+      "组织平衡",
+      "药理学",
+      "反向心理学",
+      "冲突解决",
+      "营养学",
+      "生药学",
+      "风味化学",
+      "心灵哲学",
+      "神经科学",
+      "心理学",
+      "科学哲学",
+      "认识论",
+      "传统知识体系"
+    ],
+    "crossCulturalParallelsZh": [
+      "黄帝",
+      "张仲景",
+      "李时珍"
     ]
   },
   {
@@ -209,12 +243,12 @@
     "era": "金代",
     "contribution": "李东垣（约1180-1251），金代著名医学家，金元四大家之一，补土派（脾胃派）创始人。师从易水张元",
     "mentalModels": [
-      "Spleen-Stomach as Center of Qi Transformation",
-      "Fire and Qi Incompatibility",
-      "Ascending Clear and Descending Turbid",
-      "Sweet-Warm Method to Remove Heat",
-      "Differentiation of Internal and External Injury",
-      "Medication as Qi Guide"
+      "脾胃为气机升降枢纽",
+      "火与元气不两立",
+      "升清降浊",
+      "甘温除热",
+      "内外伤辨",
+      "用药如用兵，升降浮沉"
     ],
     "mentalModelsZh": [
       "脾胃为气机升降枢纽",
@@ -225,30 +259,24 @@
       "用药如用兵，升降浮沉"
     ],
     "values": [
-      "Life Preservation",
-      "Root Cause Analysis",
-      "Empirical Evidence",
-      "Gentle Intervention",
-      "Holistic Balance"
+      "养生延年",
+      "溯源分析",
+      "实证为据",
+      "温和施治",
+      "整体平衡"
     ],
     "tensions": [
-      "Tonify vs Drain",
-      "Internal vs External",
-      "Classical Authority vs Clinical Innovation"
+      "补益与攻邪",
+      "内伤与外伤",
+      "尊经与变通"
     ],
     "keywords": [
       "脾胃为气机升降枢纽",
-      "Spleen-Stomach as Center of Qi Transformation",
       "火与元气不两立",
-      "Fire and Qi Incompatibility",
       "升清降浊",
-      "Ascending Clear and Descending Turbid",
       "甘温除热",
-      "Sweet-Warm Method to Remove Heat",
       "内外伤辨",
-      "Differentiation of Internal and External Injury",
       "用药如用兵，升降浮沉",
-      "Medication as Qi Guide",
       "辨证",
       "寒凉",
       "补土",
@@ -263,7 +291,7 @@
       "补土派",
       "脾胃论"
     ],
-    "medicalSchool": "butu-school",
+    "medicalSchool": "补土派",
     "isHistorical": true,
     "primaryLanguage": "zh",
     "crossDomain": [
@@ -294,6 +322,21 @@
       "补益与攻邪",
       "内伤与外伤",
       "尊经与变通"
+    ],
+    "medicalSchoolZh": "补土派",
+    "crossDomainZh": [
+      "组织管理中的中层执行力",
+      "生态系统中的土壤健康",
+      "慢性炎症与能量代谢",
+      "企业中的内耗与效率",
+      "信息流管理中的上行下达",
+      "城市规划中的排水与供水系统",
+      "低效组织中的激励策略",
+      "慢性疲劳综合征的康复",
+      "临床诊断中的鉴别诊断",
+      "管理中的问题根源分析",
+      "战略管理中的资源调配",
+      "软件架构中的模块化设计"
     ]
   },
   {
@@ -310,11 +353,11 @@
     "era": "近代",
     "contribution": "曹颖甫（1866-1938），近代著名中医学家，经方派代表人物。他毕生致力于《伤寒论》与《金匮要略》",
     "mentalModels": [
-      "Reverence for Zhang Zhongjing",
-      "Spleen-Stomach as Foundation",
-      "Harmonizing Nutritive and Defensive Qi",
-      "Sweet Medicinals for Deficiency",
-      "Qi and Blood Coordination"
+      "尊崇仲景",
+      "脾胃为本",
+      "调和营卫",
+      "甘药补虚",
+      "气血同调"
     ],
     "mentalModelsZh": [
       "尊崇仲景",
@@ -324,28 +367,23 @@
       "气血同调"
     ],
     "values": [
-      "Classical Orthodoxy",
-      "Clinical Pragmatism",
-      "Spleen-Stomach Centrism",
-      "Formula-Syndrome Precision",
-      "Humility Before Classics"
+      "尊经守正",
+      "临床务实",
+      "脾胃为本",
+      "方证精准",
+      "敬仰经典"
     ],
     "tensions": [
-      "Classical vs. Modern",
-      "Tonification vs. Elimination",
-      "Simplicity vs. Complexity"
+      "经典与现代",
+      "补益与祛邪",
+      "简约与繁复"
     ],
     "keywords": [
       "尊崇仲景",
-      "Reverence for Zhang Zhongjing",
       "脾胃为本",
-      "Spleen-Stomach as Foundation",
       "调和营卫",
-      "Harmonizing Nutritive and Defensive Qi",
       "甘药补虚",
-      "Sweet Medicinals for Deficiency",
       "气血同调",
-      "Qi and Blood Coordination",
       "辨证",
       "方证",
       "伤寒",
@@ -359,7 +397,7 @@
     "topBigrams": [
       "方证对应"
     ],
-    "medicalSchool": "jingfang-school",
+    "medicalSchool": "经方派",
     "crossCulturalParallels": [
       "hippocrates"
     ],
@@ -390,6 +428,21 @@
       "经典与现代",
       "补益与祛邪",
       "简约与繁复"
+    ],
+    "medicalSchoolZh": "经方派",
+    "crossDomainZh": [
+      "临床决策",
+      "方剂学",
+      "营养学",
+      "慢性病管理",
+      "免疫学",
+      "自主神经调节",
+      "老年医学",
+      "心血管医学",
+      "妇科"
+    ],
+    "crossCulturalParallelsZh": [
+      "希波克拉底"
     ]
   },
   {
@@ -406,11 +459,11 @@
     "era": "清末",
     "contribution": "唐宗海（字容川，1851-1918），清末著名医学家，中西汇通派代表人物。生于四川彭县，早年因父亲体",
     "mentalModels": [
-      "Qi-Blood-Water-Fire Interdependence",
-      "Spleen as Central Hub of Qi and Blood",
-      "Yin-Yang Structural Qi Transformation",
-      "Five Elements Qi Correspondence for Herbology",
-      "Four Methods for Blood Disorders"
+      "气血水火互根模型",
+      "脾为气血中枢模型",
+      "阴阳形气转化模型",
+      "五运六气本草对应模型",
+      "血证四步治法模型"
     ],
     "mentalModelsZh": [
       "气血水火互根模型",
@@ -420,28 +473,23 @@
       "血证四步治法模型"
     ],
     "values": [
-      "Classical Authority",
-      "Pragmatic Eclecticism",
-      "Clinical Efficacy",
-      "Innovation within Tradition",
-      "Holistic Qi Transformation"
+      "经典权威",
+      "临床务实",
+      "临床疗效",
+      "守正创新",
+      "气化整体"
     ],
     "tensions": [
-      "Tradition vs. Innovation",
-      "Qi Transformation vs. Physical Structure",
-      "Blood vs. Qi Primacy"
+      "传承与创新",
+      "气化与结构",
+      "血与气为本"
     ],
     "keywords": [
       "气血水火互根模型",
-      "Qi-Blood-Water-Fire Interdependence",
       "脾为气血中枢模型",
-      "Spleen as Central Hub of Qi and Blood",
       "阴阳形气转化模型",
-      "Yin-Yang Structural Qi Transformation",
       "五运六气本草对应模型",
-      "Five Elements Qi Correspondence for Herbology",
       "血证四步治法模型",
-      "Four Methods for Blood Disorders",
       "寒凉",
       "伤寒",
       "脏腑",
@@ -452,7 +500,7 @@
     "topBigrams": [
       "理法方药"
     ],
-    "medicalSchool": "integration",
+    "medicalSchool": "中西汇通派",
     "crossCulturalParallels": [
       "hippocrates"
     ],
@@ -484,6 +532,22 @@
       "传承与创新",
       "气化与结构",
       "血与气为本"
+    ],
+    "medicalSchoolZh": "中西汇通派",
+    "crossDomainZh": [
+      "水循环与能量代谢",
+      "生态系统中物质与能量交换",
+      "营养学与代谢综合征",
+      "消化系统与免疫系统交互",
+      "系统生物学与还原论",
+      "中医气化与生物能量学",
+      "植物化学分类学",
+      "生态位与活性成分积累",
+      "创伤急救与止血策略",
+      "慢性出血性疾病的阶梯治疗"
+    ],
+    "crossCulturalParallelsZh": [
+      "希波克拉底"
     ]
   },
   {
@@ -500,12 +564,12 @@
     "era": "战国",
     "contribution": "扁鹊，战国时期勃海郡郑人，本名秦越人，受长桑君秘术，洞明医道，能彻视脏腑，刳腹剔心。因其医术与轩辕时",
     "mentalModels": [
-      "Cunkou Pulse Model",
-      "Yin-Yang Pulse Model",
-      "Five Element Pulse Model",
-      "Sun-Yi Pulse Model",
-      "Five Pathogen Model",
-      "Qi Root Model"
+      "寸口脉模型",
+      "阴阳脉模型",
+      "五行脉模型",
+      "损至脉模型",
+      "五邪模型",
+      "生气之原模型"
     ],
     "mentalModelsZh": [
       "寸口脉模型",
@@ -516,30 +580,24 @@
       "生气之原模型"
     ],
     "values": [
-      "Pulse as Foundation",
-      "Holistic Diagnosis",
-      "Preventive Care",
-      "Natural Harmony",
-      "Root Treatment"
+      "脉诊为本",
+      "整体诊断",
+      "预防为先",
+      "自然和谐",
+      "治病求本"
     ],
     "tensions": [
-      "Pulse vs. Other Diagnostics",
-      "Simplicity vs. Complexity",
-      "Tradition vs. Innovation"
+      "脉诊与其他诊断",
+      "简约与繁复",
+      "传承与创新"
     ],
     "keywords": [
       "寸口脉模型",
-      "Cunkou Pulse Model",
       "阴阳脉模型",
-      "Yin-Yang Pulse Model",
       "五行脉模型",
-      "Five Element Pulse Model",
       "损至脉模型",
-      "Sun-Yi Pulse Model",
       "五邪模型",
-      "Five Pathogen Model",
       "生气之原模型",
-      "Qi Root Model",
       "清热",
       "温病",
       "脉诊",
@@ -556,7 +614,7 @@
       "治未病",
       "脏腑经络"
     ],
-    "medicalSchool": "pulse-diagnosis",
+    "medicalSchool": "脉诊派",
     "crossCulturalParallels": [
       "hippocrates"
     ],
@@ -596,11 +654,35 @@
       "脉诊与其他诊断",
       "简约与繁复",
       "传承与创新"
+    ],
+    "medicalSchoolZh": "脉诊派",
+    "crossDomainZh": [
+      "诊断学",
+      "系统生物学",
+      "信号处理",
+      "模式识别",
+      "分类学",
+      "诊断逻辑",
+      "季节医学",
+      "生物节律",
+      "环境健康",
+      "危重症评估",
+      "生命体征监测",
+      "预后判断",
+      "病因学",
+      "病理生理学",
+      "多因素分析",
+      "能量医学",
+      "干细胞研究",
+      "再生医学"
+    ],
+    "crossCulturalParallelsZh": [
+      "希波克拉底"
     ]
   },
   {
     "id": "zhang-zhongjing",
-    "name": "Zhang Zhongjing",
+    "name": "张仲景",
     "nameZh": "张仲景",
     "version": "tcm-v5",
     "type": "person",
@@ -663,7 +745,7 @@
       "脉证合参",
       "随证治之"
     ],
-    "medicalSchool": "six-channel",
+    "medicalSchool": "六经辨证派",
     "crossCulturalParallels": [
       "hippocrates",
       "caraka"
@@ -695,6 +777,23 @@
     "tensionsZh": [
       "经典依据 vs 临床灵活",
       "标准化 vs 个体化"
+    ],
+    "medicalSchoolZh": "六经辨证派",
+    "crossDomainZh": [
+      "战略管理（六阶段演进模型）",
+      "心理治疗（情绪按阶段演进）",
+      "危机管理",
+      "产品-市场匹配（PMF）",
+      "精准医疗",
+      "投资决策（多指标交叉验证）",
+      "工程诊断（多传感器数据融合）",
+      "战略-战术-执行一体化",
+      "建筑结构设计",
+      "企业分类管理体系"
+    ],
+    "crossCulturalParallelsZh": [
+      "希波克拉底",
+      "遮罗迦"
     ]
   },
   {
@@ -711,11 +810,11 @@
     "era": "清代",
     "contribution": "王清任（1768-1831），清代医学家，直隶玉田（今河北玉田）人，字勋臣。他是一位具有强烈实证精神",
     "mentalModels": [
-      "Empirical Anatomy",
-      "Qi Deficiency Leading to Blood Stasis",
-      "Blood Stasis Differentiation",
-      "Critical Examination of Classical Texts",
-      "Qi Mechanism and Vascular System"
+      "实证解剖",
+      "气虚血瘀",
+      "血瘀辨证",
+      "批判性审视经典",
+      "气机与血管系统"
     ],
     "mentalModelsZh": [
       "实证解剖",
@@ -725,28 +824,23 @@
       "气机与血管系统"
     ],
     "values": [
-      "Empirical Truth",
-      "Clinical Efficacy",
-      "Intellectual Honesty",
-      "Benevolence (Yi De)",
-      "Courage to Innovate"
+      "实证求真",
+      "临床疗效",
+      "求真务实",
+      "仁心仁术",
+      "创新勇气"
     ],
     "tensions": [
-      "Tradition vs. Innovation",
-      "Anatomical Precision vs. Functional Holism",
-      "Confidence vs. Humility"
+      "传承与创新",
+      "解剖精确与功能整体",
+      "自信与谦逊"
     ],
     "keywords": [
       "实证解剖",
-      "Empirical Anatomy",
       "气虚血瘀",
-      "Qi Deficiency Leading to Blood Stasis",
       "血瘀辨证",
-      "Blood Stasis Differentiation",
       "批判性审视经典",
-      "Critical Examination of Classical Texts",
       "气机与血管系统",
-      "Qi Mechanism and Vascular System",
       "辨证",
       "活血",
       "化瘀",
@@ -758,7 +852,7 @@
     "topBigrams": [
       "活血化瘀"
     ],
-    "medicalSchool": "huoxue-school",
+    "medicalSchool": "活血化瘀派",
     "crossCulturalParallels": [
       "hippocrates"
     ],
@@ -795,6 +889,27 @@
       "传承与创新",
       "解剖精确与功能整体",
       "自信与谦逊"
+    ],
+    "medicalSchoolZh": "活血化瘀派",
+    "crossDomainZh": [
+      "法医学",
+      "现代解剖学",
+      "循证医学",
+      "老年医学",
+      "康复医学",
+      "慢性疲劳综合征",
+      "心血管疾病",
+      "肿瘤学",
+      "自身免疫性疾病",
+      "科学史",
+      "医学教育",
+      "知识管理",
+      "血管生物学",
+      "血液动力学",
+      "淋巴系统"
+    ],
+    "crossCulturalParallelsZh": [
+      "希波克拉底"
     ]
   },
   {
@@ -811,11 +926,11 @@
     "era": "清末民初",
     "contribution": "张锡纯（1860-1933），清末民初著名中医学家，中西汇通派代表人物。他出身于河北盐山的一个儒医世",
     "mentalModels": [
-      "Spleen-Stomach as Postnatal Foundation",
-      "Mind Originates from Heart and Brain",
-      "Iron Supplementation for Blood Heat",
-      "Gastric Acid and Emotional Regulation",
-      "Foot Meridians Over Hand Meridians"
+      "脾胃为后天之本",
+      "心脑共主神明",
+      "以铁补铁退蒸热",
+      "胃酸与情志相关",
+      "足经统手经"
     ],
     "mentalModelsZh": [
       "脾胃为后天之本",
@@ -825,28 +940,23 @@
       "足经统手经"
     ],
     "values": [
-      "Pragmatic Eclecticism",
-      "Patient-Centered Care",
-      "Evidence-Based Practice",
-      "Holistic Balance",
-      "Intellectual Humility"
+      "临床务实",
+      "以患者为本",
+      "循证实践",
+      "整体平衡",
+      "求知若虚"
     ],
     "tensions": [
-      "Tradition vs. Innovation",
-      "Heart vs. Brain as Seat of Mind",
-      "Nourishment vs. Purgation"
+      "传承与创新",
+      "心与脑主神志",
+      "补益与攻邪"
     ],
     "keywords": [
       "脾胃为后天之本",
-      "Spleen-Stomach as Postnatal Foundation",
       "心脑共主神明",
-      "Mind Originates from Heart and Brain",
       "以铁补铁退蒸热",
-      "Iron Supplementation for Blood Heat",
       "胃酸与情志相关",
-      "Gastric Acid and Emotional Regulation",
       "足经统手经",
-      "Foot Meridians Over Hand Meridians",
       "六经",
       "滋阴",
       "脏腑",
@@ -859,7 +969,7 @@
       "阴阳五行",
       "脏腑经络"
     ],
-    "medicalSchool": "integration",
+    "medicalSchool": "中西汇通派",
     "crossCulturalParallels": [
       "hippocrates"
     ],
@@ -889,6 +999,20 @@
       "传承与创新",
       "心与脑主神志",
       "补益与攻邪"
+    ],
+    "medicalSchoolZh": "中西汇通派",
+    "crossDomainZh": [
+      "营养学",
+      "慢性疲劳综合征",
+      "神经心理学",
+      "心身医学",
+      "血液学",
+      "消化内科",
+      "经络研究",
+      "文献学"
+    ],
+    "crossCulturalParallelsZh": [
+      "希波克拉底"
     ]
   },
   {
@@ -905,11 +1029,11 @@
     "era": "唐代",
     "contribution": "孙思邈，唐代京兆华原人，生于公元541年，卒于682年，是中国历史上最伟大的医学家之一，被后世尊为“",
     "mentalModels": [
-      "Holistic Prevention and Nourishment",
-      "The Great Physician's Virtue (Da Yi Jing Cheng)",
-      "Syndrome Differentiation and Holistic Diagnosis",
-      "Reverence for Life and Minimal Harm",
-      "Broad Learning and Interdisciplinary Knowledge"
+      "整体预防与摄养",
+      "大医精诚",
+      "辨证论治与整体诊断",
+      "敬畏生命与最小伤害",
+      "博学与跨学科知识"
     ],
     "mentalModelsZh": [
       "整体预防与摄养",
@@ -919,28 +1043,23 @@
       "博学与跨学科知识"
     ],
     "values": [
-      "Compassion (Ren)",
-      "Sincerity (Cheng)",
-      "Equality (Pingdeng)",
-      "Humility (Qianxu)",
-      "Simplicity (Jianyue)"
+      "慈悲（仁）",
+      "至诚",
+      "待人平等",
+      "谦逊",
+      "简朴"
     ],
     "tensions": [
-      "Life vs. Efficacy",
-      "Breadth vs. Depth",
-      "Prevention vs. Intervention"
+      "生命与疗效",
+      "广博与专精",
+      "预防与治疗"
     ],
     "keywords": [
       "整体预防与摄养",
-      "Holistic Prevention and Nourishment",
       "大医精诚",
-      "The Great Physician's Virtue (Da Yi Jing Cheng)",
       "辨证论治与整体诊断",
-      "Syndrome Differentiation and Holistic Diagnosis",
       "敬畏生命与最小伤害",
-      "Reverence for Life and Minimal Harm",
       "博学与跨学科知识",
-      "Broad Learning and Interdisciplinary Knowledge",
       "辨证",
       "清热",
       "伤寒",
@@ -953,7 +1072,7 @@
     "topBigrams": [
       "治未病"
     ],
-    "medicalSchool": "medical-ethics",
+    "medicalSchool": "医学伦理派",
     "isHistorical": true,
     "primaryLanguage": "zh",
     "crossDomain": [
@@ -992,6 +1111,29 @@
       "生命与疗效",
       "广博与专精",
       "预防与治疗"
+    ],
+    "medicalSchoolZh": "医学伦理派",
+    "crossDomainZh": [
+      "公共卫生政策",
+      "预防医学",
+      "健康管理",
+      "营养学",
+      "医学伦理学",
+      "职业操守",
+      "领导力",
+      "服务行业",
+      "个性化医疗",
+      "精准医学",
+      "环境医学",
+      "系统生物学",
+      "动物伦理",
+      "环境保护",
+      "素食主义",
+      "生物伦理学",
+      "通识教育",
+      "系统思维",
+      "复杂性科学",
+      "领导力发展"
     ]
   },
   {
@@ -1008,10 +1150,10 @@
     "era": "魏晋",
     "contribution": "王叔和（公元3世纪），西晋著名医学家，曾任太医令。他最大的贡献是整理编次了张仲景的《伤寒杂病论》，使其得以流传后世。此外，他著《脉经》十卷，系统总结了24种脉象及其临床意义，建立了中医脉学的规范化体系，对后世脉学发展影响深远，被后世尊为脉学之祖。",
     "mentalModels": [
-      "Pulse Classification System",
-      "Three-Part Palpation (Cun-Guan-Chi)",
-      "Yin-Yang Pulse Differentiation",
-      "Seasonal and Constitutional Pulse Variation"
+      "脉象分类体系",
+      "三部九候寸关尺诊法",
+      "阴阳脉法",
+      "时令与体质脉象变异"
     ],
     "mentalModelsZh": [
       "脉象分类体系",
@@ -1020,25 +1162,21 @@
       "时令与体质脉象变异"
     ],
     "values": [
-      "Precision in Diagnosis",
-      "Systematic Classification",
-      "Empirical Verification",
-      "Preservation of Classical Knowledge",
-      "Holistic Consideration"
+      "诊断精准",
+      "系统分类",
+      "实证验证",
+      "传承经典",
+      "整体考量"
     ],
     "tensions": [
-      "Standardization vs. Individualization",
-      "Theory vs. Practice"
+      "标准化与个体化",
+      "理论与实践"
     ],
     "keywords": [
       "脉象分类体系",
-      "Pulse Classification System",
       "三部九候寸关尺诊法",
-      "Three-Part Palpation (Cun-Guan-Chi)",
       "阴阳脉法",
-      "Yin-Yang Pulse Differentiation",
       "时令与体质脉象变异",
-      "Seasonal and Constitutional Pulse Variation",
       "辨证",
       "伤寒",
       "脉诊",
@@ -1049,7 +1187,7 @@
       "三焦"
     ],
     "topBigrams": [],
-    "medicalSchool": "pulse-classics",
+    "medicalSchool": "脉学经典派",
     "isHistorical": true,
     "primaryLanguage": "zh",
     "crossDomain": [
@@ -1079,6 +1217,21 @@
     "tensionsZh": [
       "标准化与个体化",
       "理论与实践"
+    ],
+    "medicalSchoolZh": "脉学经典派",
+    "crossDomainZh": [
+      "数据分类学",
+      "模式识别",
+      "诊断推理",
+      "系统解剖学",
+      "反射疗法",
+      "生物反馈",
+      "二元分类",
+      "信号处理",
+      "诊断逻辑",
+      "个体化医疗",
+      "生物统计学",
+      "体质学"
     ]
   },
   {
@@ -1095,11 +1248,11 @@
     "era": "清代",
     "contribution": "薛生白，名雪，号扫叶老人，清代著名医学家，温病学派代表人物之一。生于公元1681年，卒于1770年，",
     "mentalModels": [
-      "Yin-Yang Dialectics",
-      "Four Seasons Nurturing",
-      "Damp-Heat Pathogenesis",
-      "Classical Text Criticism",
-      "Holistic Diagnosis"
+      "阴阳辩证",
+      "四时调摄",
+      "湿热致病",
+      "经典文本批判",
+      "整体诊断"
     ],
     "mentalModelsZh": [
       "阴阳辩证",
@@ -1109,28 +1262,23 @@
       "整体诊断"
     ],
     "values": [
-      "Clinical Pragmatism",
-      "Intellectual Honesty",
-      "Holistic Balance",
-      "Respect for Tradition with Innovation",
-      "Patient-Centered Care"
+      "临床务实",
+      "求真务实",
+      "整体平衡",
+      "守正创新",
+      "以患者为本"
     ],
     "tensions": [
-      "Tradition vs. Innovation",
-      "Simplicity vs. Complexity",
-      "Local vs. Universal"
+      "传承与创新",
+      "简约与繁复",
+      "地域与普适"
     ],
     "keywords": [
       "阴阳辩证",
-      "Yin-Yang Dialectics",
       "四时调摄",
-      "Four Seasons Nurturing",
       "湿热致病",
-      "Damp-Heat Pathogenesis",
       "经典文本批判",
-      "Classical Text Criticism",
       "整体诊断",
-      "Holistic Diagnosis",
       "辨证",
       "清热",
       "活血",
@@ -1144,7 +1292,7 @@
       "阴阳五行",
       "温病学派"
     ],
-    "medicalSchool": "wenbing-school",
+    "medicalSchool": "温病学派",
     "isHistorical": true,
     "primaryLanguage": "zh",
     "crossDomain": [
@@ -1178,6 +1326,24 @@
       "传承与创新",
       "简约与繁复",
       "地域与普适"
+    ],
+    "medicalSchoolZh": "温病学派",
+    "crossDomainZh": [
+      "生态平衡",
+      "社会动态",
+      "心理调节",
+      "时间生物学",
+      "环境心理学",
+      "可持续农业",
+      "环境医学",
+      "传染病学",
+      "消化病学",
+      "文献学",
+      "科学史",
+      "教育学",
+      "系统生物学",
+      "诊断学",
+      "数据科学"
     ]
   },
   {
@@ -1211,11 +1377,14 @@
     "topBigrams": [
       "汗吐下"
     ],
-    "medicalSchool": "gongxie-school",
+    "medicalSchool": "攻邪派",
     "isHistorical": true,
     "primaryLanguage": "zh",
     "crossDomain": [],
-    "outgoingEdges": 2
+    "outgoingEdges": 2,
+    "valuesZh": [],
+    "tensionsZh": [],
+    "medicalSchoolZh": "攻邪派"
   },
   {
     "id": "huangdi",
@@ -1231,11 +1400,11 @@
     "era": "传说时代",
     "contribution": "黄帝，传说时代华夏部落联盟首领，被尊为中华人文初祖。在医学领域，他是《黄帝内经》的托名作者，该书以黄",
     "mentalModels": [
-      "Yin-Yang Balance",
-      "Five Phases Correspondence",
-      "Qi Mechanism",
-      "Zang-Fu Organ System",
-      "Preventive Treatment"
+      "阴阳平衡",
+      "五行相应",
+      "气机升降",
+      "藏象脏腑系统",
+      "治未病"
     ],
     "mentalModelsZh": [
       "阴阳平衡",
@@ -1245,28 +1414,23 @@
       "治未病"
     ],
     "values": [
-      "Harmony with Nature",
-      "Prevention over Cure",
-      "Holistic Balance",
-      "Individualized Treatment",
-      "Inner Cultivation"
+      "顺应自然",
+      "预防为先",
+      "整体平衡",
+      "因人制宜",
+      "内修身心"
     ],
     "tensions": [
-      "Anatomy vs. Function",
-      "Empiricism vs. Mechanism",
-      "Standardization vs. Individualization"
+      "解剖与功能",
+      "经验与机制",
+      "标准化与个体化"
     ],
     "keywords": [
       "阴阳平衡",
-      "Yin-Yang Balance",
       "五行相应",
-      "Five Phases Correspondence",
       "气机升降",
-      "Qi Mechanism",
       "藏象脏腑系统",
-      "Zang-Fu Organ System",
       "治未病",
-      "Preventive Treatment",
       "辨证",
       "寒凉",
       "温热",
@@ -1289,7 +1453,7 @@
       "活血化瘀",
       "火热论"
     ],
-    "medicalSchool": "theory-founding",
+    "medicalSchool": "理论奠基派",
     "crossCulturalParallels": [
       "hippocrates"
     ],
@@ -1324,6 +1488,25 @@
       "解剖与功能",
       "经验与机制",
       "标准化与个体化"
+    ],
+    "medicalSchoolZh": "理论奠基派",
+    "crossDomainZh": [
+      "生态平衡",
+      "社会和谐",
+      "心理调节",
+      "音乐疗法",
+      "色彩心理学",
+      "农业种植",
+      "流体力学",
+      "组织行为学中的信息流",
+      "系统生物学",
+      "管理学的部门职能划分",
+      "公共卫生",
+      "预防医学",
+      "风险管理"
+    ],
+    "crossCulturalParallelsZh": [
+      "希波克拉底"
     ]
   },
   {
@@ -1340,11 +1523,11 @@
     "era": "古希腊",
     "contribution": "希波克拉底（约公元前460年—前370年），古希腊医学之父，西方医学奠基人。他摒弃了疾病的神学解释，建立以四体液学说为核心的医学体系，强调观察、饮食疗法、自然治愈力及预防医学。其「首先不伤害」（Primum non nocere）原则至今仍是医学伦理的核心。希波克拉底的许多理念与中医理论惊人地平行，包括整体观念、环境影响、个体化治疗等。",
     "mentalModels": [
-      "Four Humors Theory",
-      "Healing Power of Nature",
-      "Systematic Clinical Observation",
-      "Dietetics and Regimen",
-      "Environmental and Seasonal Influence"
+      "四体液学说",
+      "自然治愈力",
+      "系统临床观察",
+      "饮食与养生法",
+      "环境与季节影响"
     ],
     "mentalModelsZh": [
       "四体液学说",
@@ -1354,28 +1537,23 @@
       "环境与季节影响"
     ],
     "values": [
-      "Rationality",
-      "Observation",
-      "Beneficence",
-      "Humility",
-      "Holism"
+      "理性审慎",
+      "观察入微",
+      "普救含灵",
+      "谦逊求教",
+      "整体观念"
     ],
     "tensions": [
-      "Intervention vs. Non-intervention",
-      "Theory vs. Observation",
-      "Physician's Authority vs. Patient's Autonomy"
+      "干预与不干预",
+      "理论与观察",
+      "医者主导与患者自主"
     ],
     "keywords": [
       "四体液学说",
-      "Four Humors Theory",
       "自然治愈力",
-      "Healing Power of Nature",
       "系统临床观察",
-      "Systematic Clinical Observation",
       "饮食与养生法",
-      "Dietetics and Regimen",
       "环境与季节影响",
-      "Environmental and Seasonal Influence",
       "阴阳",
       "五行",
       "天人"
@@ -1384,7 +1562,7 @@
       "阴阳五行",
       "天人相应"
     ],
-    "medicalSchool": "western-medicine",
+    "medicalSchool": "西方医学",
     "crossCulturalParallels": [
       "huangdi",
       "bianque",
@@ -1394,21 +1572,21 @@
     "isHistorical": true,
     "primaryLanguage": "en",
     "crossDomain": [
-      "TCM Five Elements",
-      "Psychiatry (temperaments)",
-      "Nutrition",
-      "Holistic medicine",
-      "Psychoneuroimmunology",
-      "Restorative medicine",
-      "Evidence-based medicine",
-      "Diagnostic reasoning",
-      "Medical education",
-      "Nutritional science",
-      "Preventive medicine",
-      "Lifestyle medicine",
-      "Epidemiology",
-      "Environmental health",
-      "Geomedicine"
+      "中医五行",
+      "精神病学（气质论）",
+      "营养学",
+      "整体医学",
+      "心理神经免疫学",
+      "修复医学",
+      "循证医学",
+      "诊断推理",
+      "医学教育",
+      "营养科学",
+      "预防医学",
+      "生活方式医学",
+      "流行病学",
+      "环境卫生",
+      "地理医学"
     ],
     "outgoingEdges": 14,
     "distillationScore": 88,
@@ -1424,6 +1602,30 @@
       "干预与不干预",
       "理论与观察",
       "医者主导与患者自主"
+    ],
+    "medicalSchoolZh": "西方医学",
+    "crossDomainZh": [
+      "中医五行",
+      "精神病学（气质论）",
+      "营养学",
+      "整体医学",
+      "心理神经免疫学",
+      "修复医学",
+      "循证医学",
+      "诊断推理",
+      "医学教育",
+      "营养科学",
+      "预防医学",
+      "生活方式医学",
+      "流行病学",
+      "环境卫生",
+      "地理医学"
+    ],
+    "crossCulturalParallelsZh": [
+      "黄帝",
+      "扁鹊",
+      "遮罗迦",
+      "妙闻"
     ]
   },
   {
@@ -1440,12 +1642,12 @@
     "era": "清代",
     "contribution": "吴鞠通（1758-1836），清代著名医学家，温病学派代表人物。他系统总结了前代温病学成就，著《温病",
     "mentalModels": [
-      "Triple Burner Differentiation",
-      "Nourish Yin to Preserve Fluids",
-      "Warm Disease Enters via Mouth and Nose",
-      "Differentiate Warm from Cold Damage",
-      "Use Ancient Methods, Not Ancient Formulas",
-      "Prevent Convulsion Before Onset"
+      "三焦辨证",
+      "救阴存津",
+      "温病口鼻而入",
+      "寒温之辨",
+      "用古法不拘古方",
+      "先安未受邪之地"
     ],
     "mentalModelsZh": [
       "三焦辨证",
@@ -1456,30 +1658,24 @@
       "先安未受邪之地"
     ],
     "values": [
-      "Preserve Yin Fluids",
-      "Adapt Classical Wisdom",
-      "Precision in Differentiation",
-      "Preventive Intervention",
-      "Systematic Synthesis"
+      "存阴护津",
+      "因时制宜",
+      "辨证精准",
+      "治未先防",
+      "系统综合"
     ],
     "tensions": [
-      "Tradition vs Innovation",
-      "Purgation vs Nourishment",
-      "Warm Disease vs Cold Damage"
+      "传承与创新",
+      "攻邪与补益",
+      "温病与伤寒"
     ],
     "keywords": [
       "三焦辨证",
-      "Triple Burner Differentiation",
       "救阴存津",
-      "Nourish Yin to Preserve Fluids",
       "温病口鼻而入",
-      "Warm Disease Enters via Mouth and Nose",
       "寒温之辨",
-      "Differentiate Warm from Cold Damage",
       "用古法不拘古方",
-      "Use Ancient Methods, Not Ancient Formulas",
       "先安未受邪之地",
-      "Prevent Convulsion Before Onset",
       "辨证",
       "滋阴",
       "攻邪",
@@ -1497,7 +1693,7 @@
       "三焦辨证",
       "卫气营血"
     ],
-    "medicalSchool": "wenbing-school",
+    "medicalSchool": "温病学派",
     "isHistorical": true,
     "primaryLanguage": "zh",
     "crossDomain": [
@@ -1528,6 +1724,21 @@
       "传承与创新",
       "攻邪与补益",
       "温病与伤寒"
+    ],
+    "medicalSchoolZh": "温病学派",
+    "crossDomainZh": [
+      "传染病分期管理",
+      "系统性疾病进展模型",
+      "重症监护中的液体管理",
+      "慢性消耗性疾病的营养支持",
+      "空气传播疾病的预防",
+      "呼吸道感染防控",
+      "感染性疾病的病原体分类",
+      "炎症与免疫反应的分型",
+      "循证医学中的个体化治疗",
+      "传统知识的现代转化",
+      "重症监护中的早期预警",
+      "预防医学中的先兆识别"
     ]
   },
   {
@@ -1544,11 +1755,11 @@
     "era": "元代",
     "contribution": "朱丹溪（1281-1358），名震亨，字彦修，号丹溪，元代婺州义乌人。金元四大家之一，滋阴派创始人。",
     "mentalModels": [
-      "Yang Excess Yin Deficiency",
-      "Phlegm and Fire as Pathogenic Factors",
-      "Six Depressions Theory",
-      "Spleen and Stomach as the Center",
-      "Pulse as the Key to Diagnosis"
+      "阳常有余阴常不足",
+      "痰火致病论",
+      "六郁学说",
+      "脾胃为根本",
+      "脉诊为辨证关键"
     ],
     "mentalModelsZh": [
       "阳常有余阴常不足",
@@ -1558,28 +1769,23 @@
       "脉诊为辨证关键"
     ],
     "values": [
-      "Yin Protection",
-      "Holistic Diagnosis",
-      "Pragmatic Eclecticism",
-      "Patient-Centered Care",
-      "Preventive Medicine"
+      "保护阴液",
+      "整体诊断",
+      "临床务实",
+      "以患者为本",
+      "预防医学"
     ],
     "tensions": [
-      "Attack vs. Nourish",
-      "Classical Formula vs. Individualized Treatment",
-      "Southern vs. Northern Medicine"
+      "攻与补",
+      "经方与化裁",
+      "南北医学"
     ],
     "keywords": [
       "阳常有余阴常不足",
-      "Yang Excess Yin Deficiency",
       "痰火致病论",
-      "Phlegm and Fire as Pathogenic Factors",
       "六郁学说",
-      "Six Depressions Theory",
       "脾胃为根本",
-      "Spleen and Stomach as the Center",
       "脉诊为辨证关键",
-      "Pulse as the Key to Diagnosis",
       "辨证",
       "寒凉",
       "滋阴",
@@ -1598,7 +1804,7 @@
       "滋阴派",
       "温病学派"
     ],
-    "medicalSchool": "ziyin-school",
+    "medicalSchool": "滋阴派",
     "crossCulturalParallels": [
       "hippocrates"
     ],
@@ -1634,6 +1840,26 @@
       "攻与补",
       "经方与化裁",
       "南北医学"
+    ],
+    "medicalSchoolZh": "滋阴派",
+    "crossDomainZh": [
+      "养生保健",
+      "慢性病管理",
+      "抗衰老",
+      "精神疾病",
+      "代谢综合征",
+      "呼吸系统疾病",
+      "心理健康",
+      "消化系统疾病",
+      "妇科疾病",
+      "营养学",
+      "慢性疲劳综合征",
+      "术后康复",
+      "心血管疾病",
+      "功能性疾病的评估"
+    ],
+    "crossCulturalParallelsZh": [
+      "希波克拉底"
     ]
   },
   {
@@ -1671,11 +1897,14 @@
       "温病学派",
       "火热论"
     ],
-    "medicalSchool": "hanre-school",
+    "medicalSchool": "寒凉派",
     "isHistorical": true,
     "primaryLanguage": "zh",
     "crossDomain": [],
-    "outgoingEdges": 5
+    "outgoingEdges": 5,
+    "valuesZh": [],
+    "tensionsZh": [],
+    "medicalSchoolZh": "寒凉派"
   },
   {
     "id": "zhangjingyue",
@@ -1691,12 +1920,12 @@
     "era": "明代",
     "contribution": "张景岳（1563-1640），名介宾，字会卿，号通一子，明代著名医学家，温补派代表人物。少时习儒，壮",
     "mentalModels": [
-      "Mingmen (Life Gate) Theory",
-      "Warm Tonification Method",
-      "Eight Battle Arrays of Formulae",
-      "Seeking Yin within Yang, Seeking Yang within Yin",
-      "Treating Disease as Warfare",
-      "Spleen and Kidney as the Root of Life"
+      "命门学说",
+      "温补法",
+      "八阵方剂",
+      "阴中求阳，阳中求阴",
+      "治病如用兵",
+      "脾肾为生命之本"
     ],
     "mentalModelsZh": [
       "命门学说",
@@ -1707,30 +1936,24 @@
       "脾肾为生命之本"
     ],
     "values": [
-      "Life Preservation",
-      "Root Cause Analysis",
-      "Balanced Approach",
-      "Practical Efficacy",
-      "Humility in Learning"
+      "养生延年",
+      "溯源分析",
+      "中道平衡",
+      "实效为重",
+      "虚心求知"
     ],
     "tensions": [
-      "Tradition vs. Innovation",
-      "Warm Tonification vs. Cold Purgation",
-      "Medicine as Art vs. Science"
+      "传承与创新",
+      "温补与寒凉",
+      "医术与科学"
     ],
     "keywords": [
       "命门学说",
-      "Mingmen (Life Gate) Theory",
       "温补法",
-      "Warm Tonification Method",
       "八阵方剂",
-      "Eight Battle Arrays of Formulae",
       "阴中求阳，阳中求阴",
-      "Seeking Yin within Yang, Seeking Yang within Yin",
       "治病如用兵",
-      "Treating Disease as Warfare",
       "脾肾为生命之本",
-      "Spleen and Kidney as the Root of Life",
       "寒凉",
       "滋阴",
       "温阳",
@@ -1746,7 +1969,7 @@
     "topBigrams": [
       "温补派"
     ],
-    "medicalSchool": "wenbu-school",
+    "medicalSchool": "温补派",
     "isHistorical": true,
     "primaryLanguage": "zh",
     "crossDomain": [
@@ -1777,6 +2000,21 @@
       "传承与创新",
       "温补与寒凉",
       "医术与科学"
+    ],
+    "medicalSchoolZh": "温补派",
+    "crossDomainZh": [
+      "道家内丹",
+      "儒家太极",
+      "老年医学",
+      "康复医学",
+      "军事战略",
+      "项目管理",
+      "生态平衡",
+      "经济调控",
+      "军事策略",
+      "商业竞争",
+      "营养学",
+      "抗衰老"
     ]
   },
   {
@@ -1793,11 +2031,11 @@
     "era": "古代印度",
     "contribution": "妙闻（Sushruta），古代印度外科之父，《妙闻本集》（Sushruta Samhita）的作者。该书系统记载了超过300种外科手术、92种药方、700多种草药，以及精细的外科解剖学知识。妙闻发明了鼻整形术等众多手术技术，并强调医师培训要重视实践操作。他的外科体系与华佗的外科成就东西辉映，代表了古代医学实践的最高水平。",
     "mentalModels": [
-      "Tridosha Equilibrium Model",
-      "Surgical Anatomy Model",
-      "Dietetic Therapeutics Model",
-      "Surgical Training Model",
-      "Humoral Pathogenesis Model"
+      "三体液平衡模型",
+      "外科解剖模型",
+      "饮食治疗模型",
+      "外科训练模型",
+      "体液发病模型"
     ],
     "mentalModelsZh": [
       "三体液平衡模型",
@@ -1807,31 +2045,26 @@
       "体液发病模型"
     ],
     "values": [
-      "Ahimsa (Non-Harm)",
-      "Practical Skill",
-      "Holistic Balance",
-      "Empirical Observation",
-      "Compassion"
+      "不害",
+      "技术精熟",
+      "整体平衡",
+      "经验观察",
+      "慈悲为怀"
     ],
     "tensions": [
-      "Surgery vs. Conservative Care",
-      "Theory vs. Practice",
-      "Tradition vs. Innovation"
+      "手术与非手术",
+      "理论与实践",
+      "传承与创新"
     ],
     "keywords": [
       "三体液平衡模型",
-      "Tridosha Equilibrium Model",
       "外科解剖模型",
-      "Surgical Anatomy Model",
       "饮食治疗模型",
-      "Dietetic Therapeutics Model",
       "外科训练模型",
-      "Surgical Training Model",
-      "体液发病模型",
-      "Humoral Pathogenesis Model"
+      "体液发病模型"
     ],
     "topBigrams": [],
-    "medicalSchool": "ayurveda-surgery",
+    "medicalSchool": "阿育吠陀外科派",
     "crossCulturalParallels": [
       "huafu",
       "hippocrates"
@@ -1839,21 +2072,21 @@
     "isHistorical": true,
     "primaryLanguage": "en",
     "crossDomain": [
-      "Systems biology",
-      "Complex adaptive systems",
-      "Holistic health",
-      "Modern surgery",
-      "Trauma medicine",
-      "Acupuncture",
-      "Nutritional science",
-      "Functional medicine",
-      "Personalized nutrition",
-      "Medical education",
-      "Simulation-based training",
-      "Surgical residency",
-      "Psychoneuroimmunology",
-      "Stress physiology",
-      "Epidemiology"
+      "系统生物学",
+      "复杂适应系统",
+      "整体健康",
+      "现代外科学",
+      "创伤医学",
+      "针灸学",
+      "营养科学",
+      "功能医学",
+      "个性化营养",
+      "医学教育",
+      "模拟训练",
+      "外科住院医师培训",
+      "心理神经免疫学",
+      "应激生理学",
+      "流行病学"
     ],
     "outgoingEdges": 4,
     "distillationScore": 88,
@@ -1869,6 +2102,28 @@
       "手术与非手术",
       "理论与实践",
       "传承与创新"
+    ],
+    "medicalSchoolZh": "阿育吠陀外科派",
+    "crossDomainZh": [
+      "系统生物学",
+      "复杂适应系统",
+      "整体健康",
+      "现代外科学",
+      "创伤医学",
+      "针灸学",
+      "营养科学",
+      "功能医学",
+      "个性化营养",
+      "医学教育",
+      "模拟训练",
+      "外科住院医师培训",
+      "心理神经免疫学",
+      "应激生理学",
+      "流行病学"
+    ],
+    "crossCulturalParallelsZh": [
+      "华佗",
+      "希波克拉底"
     ]
   },
   {
@@ -1885,12 +2140,12 @@
     "era": "东汉",
     "contribution": "华佗，东汉末年著名医学家，与张仲景齐名，被誉为“神医”。其核心贡献在于外科手术与针灸领域，发明了“麻",
     "mentalModels": [
-      "Heaven-Human Correspondence",
-      "Yin-Yang Balance and Diagnosis",
-      "Five Phases Mutual Generation",
-      "Pulse Diagnosis for Prognosis",
-      "Surgical Intervention with Anesthesia",
-      "Formula Composition Principles"
+      "天人相应",
+      "阴阳平衡与诊断",
+      "五行相生",
+      "脉诊决死生",
+      "麻醉下外科干预",
+      "方剂配伍原则"
     ],
     "mentalModelsZh": [
       "天人相应",
@@ -1901,30 +2156,24 @@
       "方剂配伍原则"
     ],
     "values": [
-      "Life First",
-      "Holistic Harmony",
-      "Empirical Precision",
-      "Innovation and Courage",
-      "Compassion and Non-Greed"
+      "生命至上",
+      "整体和谐",
+      "实证精确",
+      "创新敢为",
+      "慈悲不贪"
     ],
     "tensions": [
-      "Tradition vs. Innovation",
-      "Internal Medicine vs. Surgery",
-      "Quantitative Precision vs. Qualitative Intuition"
+      "传承与创新",
+      "内科与外科",
+      "量化精确与直觉判断"
     ],
     "keywords": [
       "天人相应",
-      "Heaven-Human Correspondence",
       "阴阳平衡与诊断",
-      "Yin-Yang Balance and Diagnosis",
       "五行相生",
-      "Five Phases Mutual Generation",
       "脉诊决死生",
-      "Pulse Diagnosis for Prognosis",
       "麻醉下外科干预",
-      "Surgical Intervention with Anesthesia",
       "方剂配伍原则",
-      "Formula Composition Principles",
       "辨证",
       "滋阴",
       "脉诊",
@@ -1938,7 +2187,7 @@
       "天人相应",
       "脉证合参"
     ],
-    "medicalSchool": "surgery-acupuncture",
+    "medicalSchool": "外科针灸派",
     "crossCulturalParallels": [
       "hippocrates",
       "sushruta"
@@ -1979,6 +2228,31 @@
       "传承与创新",
       "内科与外科",
       "量化精确与直觉判断"
+    ],
+    "medicalSchoolZh": "外科针灸派",
+    "crossDomainZh": [
+      "生态医学",
+      "系统生物学",
+      "气候医学",
+      "情绪管理",
+      "组织平衡",
+      "营养学",
+      "生态循环",
+      "供应链管理",
+      "家庭系统",
+      "重症监护",
+      "早期预警系统",
+      "风险评估",
+      "现代外科",
+      "麻醉学",
+      "微创手术",
+      "药物化学",
+      "配方工程",
+      "营养配比"
+    ],
+    "crossCulturalParallelsZh": [
+      "希波克拉底",
+      "妙闻"
     ]
   },
   {
@@ -1995,11 +2269,11 @@
     "era": "清代",
     "contribution": "叶天士（1666-1745），名桂，号香岩，清代著名医学家，温病学派奠基人之一。他创立了卫气营血辨证",
     "mentalModels": [
-      "Defense-Qi-Nutrient-Blood Pattern Differentiation",
-      "Sequential vs. Reverse Transmission",
-      "Unblocking Yang is the Hardest",
-      "Combat Sweat to Expel Pathogen",
-      "Tongue and Teeth Diagnosis"
+      "卫气营血辨证",
+      "顺传与逆传",
+      "通阳最难",
+      "战汗透邪",
+      "察舌验齿"
     ],
     "mentalModelsZh": [
       "卫气营血辨证",
@@ -2009,28 +2283,23 @@
       "察舌验齿"
     ],
     "values": [
-      "Precision in Pattern Differentiation",
-      "Protect Fluids",
-      "Flexibility over Dogma",
-      "Preventive Intervention",
-      "Evidence-Based Observation"
+      "辨证精准",
+      "护津存阴",
+      "灵活变通",
+      "治未先防",
+      "以据为证"
     ],
     "tensions": [
-      "Warm Disease vs. Cold Damage",
-      "Nourish Yin vs. Unblock Yang",
-      "Classical Formulas vs. Empirical Innovation"
+      "温病与伤寒",
+      "滋阴与通阳",
+      "经方与经验"
     ],
     "keywords": [
       "卫气营血辨证",
-      "Defense-Qi-Nutrient-Blood Pattern Differentiation",
       "顺传与逆传",
-      "Sequential vs. Reverse Transmission",
       "通阳最难",
-      "Unblocking Yang is the Hardest",
       "战汗透邪",
-      "Combat Sweat to Expel Pathogen",
       "察舌验齿",
-      "Tongue and Teeth Diagnosis",
       "辨证",
       "寒凉",
       "温热",
@@ -2046,7 +2315,7 @@
       "温病学派",
       "卫气营血"
     ],
-    "medicalSchool": "wenbing-school",
+    "medicalSchool": "温病学派",
     "crossCulturalParallels": [
       "caraka"
     ],
@@ -2083,11 +2352,32 @@
       "温病与伤寒",
       "滋阴与通阳",
       "经方与经验"
+    ],
+    "medicalSchoolZh": "温病学派",
+    "crossDomainZh": [
+      "传染病分级防控",
+      "网络安全分层防御",
+      "项目管理风险分级",
+      "疾病暴发传播模型",
+      "信息传播中的级联与跳跃",
+      "社会舆情演变",
+      "复杂系统恢复力",
+      "组织变革中的阻力",
+      "生态修复中的关键限制因子",
+      "免疫应答中的细胞因子风暴管理",
+      "危机沟通中的信息释放",
+      "体育竞技中的状态调整",
+      "现代诊断学中的黏膜检查",
+      "非侵入性监测技术",
+      "材料科学中的表面分析"
+    ],
+    "crossCulturalParallelsZh": [
+      "遮罗迦"
     ]
   },
   {
     "id": "huangdi-neijing",
-    "name": "Huangdi Neijing",
+    "name": "黄帝内经",
     "nameZh": "黄帝内经",
     "version": "tcm-v5",
     "type": "text",
@@ -2098,7 +2388,12 @@
     ],
     "era": "",
     "contribution": "阴阳五行、脏腑经络、天人相应、治未病",
-    "mentalModels": [],
+    "mentalModels": [
+      "阴阳五行",
+      "脏腑经络",
+      "天人相应",
+      "治未病"
+    ],
     "mentalModelsZh": [
       "阴阳五行",
       "脏腑经络",
@@ -2122,11 +2417,13 @@
     "isHistorical": true,
     "primaryLanguage": "zh",
     "crossDomain": [],
-    "outgoingEdges": 3
+    "outgoingEdges": 3,
+    "valuesZh": [],
+    "tensionsZh": []
   },
   {
     "id": "shanghan-lun",
-    "name": "Shanghan Lun",
+    "name": "伤寒论",
     "nameZh": "伤寒论",
     "version": "tcm-v5",
     "type": "text",
@@ -2137,7 +2434,11 @@
     ],
     "era": "",
     "contribution": "六经辨证、方证对应、脉证合参",
-    "mentalModels": [],
+    "mentalModels": [
+      "六经辨证",
+      "方证对应",
+      "脉证合参"
+    ],
     "mentalModelsZh": [
       "六经辨证",
       "方证对应",
@@ -2158,11 +2459,13 @@
     "isHistorical": true,
     "primaryLanguage": "zh",
     "crossDomain": [],
-    "outgoingEdges": 4
+    "outgoingEdges": 4,
+    "valuesZh": [],
+    "tensionsZh": []
   },
   {
     "id": "jingui-yaolue",
-    "name": "Jingui Yaolue",
+    "name": "金匮要略",
     "nameZh": "金匮要略",
     "version": "tcm-v5",
     "type": "text",
@@ -2173,7 +2476,11 @@
     ],
     "era": "",
     "contribution": "内科杂病、脏腑辨证、方剂配伍",
-    "mentalModels": [],
+    "mentalModels": [
+      "内科杂病",
+      "脏腑辨证",
+      "方剂配伍"
+    ],
     "mentalModelsZh": [
       "内科杂病",
       "脏腑辨证",
@@ -2194,11 +2501,13 @@
     "isHistorical": true,
     "primaryLanguage": "zh",
     "crossDomain": [],
-    "outgoingEdges": 3
+    "outgoingEdges": 3,
+    "valuesZh": [],
+    "tensionsZh": []
   },
   {
     "id": "maijing",
-    "name": "Mai Jing",
+    "name": "脉经",
     "nameZh": "脉经",
     "version": "tcm-v5",
     "type": "text",
@@ -2209,7 +2518,11 @@
     ],
     "era": "",
     "contribution": "脉诊、24脉象、脉证关系",
-    "mentalModels": [],
+    "mentalModels": [
+      "脉诊",
+      "24脉象",
+      "脉证关系"
+    ],
     "mentalModelsZh": [
       "脉诊",
       "24脉象",
@@ -2230,11 +2543,13 @@
     "isHistorical": true,
     "primaryLanguage": "zh",
     "crossDomain": [],
-    "outgoingEdges": 1
+    "outgoingEdges": 1,
+    "valuesZh": [],
+    "tensionsZh": []
   },
   {
     "id": "bencao-gangmu",
-    "name": "Bencao Gangmu",
+    "name": "本草纲目",
     "nameZh": "本草纲目",
     "version": "tcm-v5",
     "type": "text",
@@ -2245,7 +2560,11 @@
     ],
     "era": "",
     "contribution": "药物分类、1892种药、药性理论",
-    "mentalModels": [],
+    "mentalModels": [
+      "药物分类",
+      "1892种药",
+      "药性理论"
+    ],
     "mentalModelsZh": [
       "药物分类",
       "1892种药",
@@ -2266,11 +2585,13 @@
     "isHistorical": true,
     "primaryLanguage": "zh",
     "crossDomain": [],
-    "outgoingEdges": 1
+    "outgoingEdges": 1,
+    "valuesZh": [],
+    "tensionsZh": []
   },
   {
     "id": "wenbing-xue",
-    "name": "Wenbing Theory",
+    "name": "温病学说",
     "nameZh": "温病学说",
     "version": "tcm-v5",
     "type": "text",
@@ -2281,7 +2602,11 @@
     ],
     "era": "",
     "contribution": "三焦辨证、温病四阶段、湿温证治",
-    "mentalModels": [],
+    "mentalModels": [
+      "三焦辨证",
+      "温病四阶段",
+      "湿温证治"
+    ],
     "mentalModelsZh": [
       "三焦辨证",
       "温病四阶段",
@@ -2302,11 +2627,13 @@
     "isHistorical": true,
     "primaryLanguage": "zh",
     "crossDomain": [],
-    "outgoingEdges": 3
+    "outgoingEdges": 3,
+    "valuesZh": [],
+    "tensionsZh": []
   },
   {
     "id": "jingyue-quanshu",
-    "name": "Jingyue Quanshu",
+    "name": "景岳全书",
     "nameZh": "景岳全书",
     "version": "tcm-v5",
     "type": "text",
@@ -2317,7 +2644,11 @@
     ],
     "era": "",
     "contribution": "温补理论、命门学说、阳气为本",
-    "mentalModels": [],
+    "mentalModels": [
+      "温补理论",
+      "命门学说",
+      "阳气为本"
+    ],
     "mentalModelsZh": [
       "温补理论",
       "命门学说",
@@ -2338,6 +2669,8 @@
     "isHistorical": true,
     "primaryLanguage": "zh",
     "crossDomain": [],
-    "outgoingEdges": 2
+    "outgoingEdges": 2,
+    "valuesZh": [],
+    "tensionsZh": []
   }
 ]
