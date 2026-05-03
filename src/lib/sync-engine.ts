@@ -597,6 +597,7 @@ async function createServerConversation(
       id: conversationId,
       userId: device.userId,
       title: title || null,
+      type: conversationKey.startsWith('tcm:') ? 'TCM' : 'CHAT',
       mode,
       participants: personaIds,
       personaIds,

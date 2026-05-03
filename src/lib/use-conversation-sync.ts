@@ -326,7 +326,7 @@ function migrateRegistry(old: any): ConversationRegistry {
   return { version: STORAGE_VERSION, conversations };
 }
 
-function saveRegistry(registry: ConversationRegistry) {
+export function saveRegistry(registry: ConversationRegistry) {
   try {
     localStorage.setItem(REGISTRY_KEY, JSON.stringify(registry));
   } catch {

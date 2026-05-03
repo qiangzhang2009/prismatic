@@ -2,10 +2,14 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Send, Loader2, ChevronDown, X, Sparkles, ShieldAlert, ArrowRight, BookOpen, Brain, Globe, User } from 'lucide-react';
+import { Send, Loader2, ChevronDown, Sparkles, ShieldAlert, BookOpen, Brain, Globe, User, RefreshCw } from 'lucide-react';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { TCM_PERSONA_LIST } from '@/lib/tcm-personas';
+import { useConversationSync, loadRegistry, saveRegistry as saveSharedRegistry } from '@/lib/use-conversation-sync';
+import { useAuthStore } from '@/lib/auth-store';
+import { nanoid } from 'nanoid';
+import type { AgentMessage } from '@/lib/types';
 
 const TCM_COLORS = {
   bg: 'bg-[#050810]',
@@ -19,12 +23,17 @@ const TCM_COLORS = {
   input: 'bg-[#0a1628]',
 };
 
-interface Message {
+const REGISTRY_KEY = 'prismatic-conversation-registry';
+const TCM_STORAGE_VERSION = 1;
+const TCM_CONVERSATION_PREFIX = 'tcm:';
+
+interface TCMMessage {
   id: string;
   role: 'user' | 'assistant';
   content: string;
   personaId: string;
   personaName: string;
+  timestamp?: string;
 }
 
 interface TCMPersona {
@@ -40,21 +49,38 @@ interface TCMPersona {
   mentalModels: Array<{ name: string; nameZh: string }>;
 }
 
+interface TCMStoredConv {
+  messages: TCMMessage[];
+  personaId: string;
+  personaName: string;
+  lastUpdated: number;
+}
+
+interface TCMRegistry {
+  version: number;
+  conversations: Record<string, TCMStoredConv>;
+}
+
+function loadTCMRegistry(): TCMRegistry {
+  try {
+    const raw = localStorage.getItem('prismatic-tcm-registry');
+    if (!raw) return { version: TCM_STORAGE_VERSION, conversations: {} };
+    const reg: TCMRegistry = JSON.parse(raw);
+    if (reg.version !== TCM_STORAGE_VERSION) return { version: TCM_STORAGE_VERSION, conversations: {} };
+    return reg;
+  } catch { return { version: TCM_STORAGE_VERSION, conversations: {} }; }
+}
+
+function saveTCMRegistry(reg: TCMRegistry) {
+  try { localStorage.setItem('prismatic-tcm-registry', JSON.stringify(reg)); } catch {}
+}
+
 function PersonaAvatar({ persona, size = 'md' }: { persona: TCMPersona; size?: 'sm' | 'md' | 'lg' }) {
-  const sizeClasses = {
-    sm: 'w-7 h-7 text-xs',
-    md: 'w-9 h-9 text-sm',
-    lg: 'w-12 h-12 text-lg',
-  };
+  const sizeClasses = { sm: 'w-7 h-7 text-xs', md: 'w-9 h-9 text-sm', lg: 'w-12 h-12 text-lg' };
   return (
     <div
-      className={cn(
-        'rounded-full flex items-center justify-center font-bold text-white shrink-0',
-        sizeClasses[size]
-      )}
-      style={{
-        background: `linear-gradient(135deg, ${persona.gradientFrom}, ${persona.gradientTo})`,
-      }}
+      className={cn('rounded-full flex items-center justify-center font-bold text-white shrink-0', sizeClasses[size])}
+      style={{ background: `linear-gradient(135deg, ${persona.gradientFrom}, ${persona.gradientTo})` }}
     >
       {persona.nameZh.slice(0, 1)}
     </div>
@@ -75,36 +101,169 @@ function DisclaimerBanner() {
 }
 
 export function TCMChatInterface() {
+  const user = useAuthStore(s => s.user);
+  const userId = user?.id;
+  const { pushSnapshot } = useConversationSync();
+
   const [selectedPersona, setSelectedPersona] = useState<TCMPersona>(
     () => TCM_PERSONA_LIST[0] as TCMPersona
   );
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [messages, setMessages] = useState<TCMMessage[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [showPersonaPicker, setShowPersonaPicker] = useState(false);
   const [language, setLanguage] = useState<'zh' | 'en' | 'auto'>('zh');
-  const [conversationId, setConversationId] = useState<string | null>(null);
+  const [syncStatus, setSyncStatus] = useState<'idle' | 'syncing' | 'saved' | 'error'>('idle');
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+  const isInitializedRef = useRef(false);
+  const migrationDoneRef = useRef(false);
+  const pendingSaveRef = useRef(false);
 
+  // Scroll to bottom on new messages
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
+  // Load TCM messages from localStorage on mount
+  useEffect(() => {
+    if (isInitializedRef.current) return;
+    isInitializedRef.current = true;
+
+    const key = `${TCM_CONVERSATION_PREFIX}${selectedPersona.id}`;
+
+    // Try TCM-specific registry first
+    const tcmReg = loadTCMRegistry();
+    if (tcmReg.conversations[key]?.messages?.length > 0) {
+      setMessages(tcmReg.conversations[key].messages);
+      return;
+    }
+
+    // Fall back to shared registry (for migrated data)
+    if (userId) {
+      const sharedReg = loadRegistry();
+      if (sharedReg.conversations[key]?.messages?.length > 0) {
+        const shared = sharedReg.conversations[key];
+        const loaded: TCMMessage[] = shared.messages.map((m: AgentMessage) => ({
+          id: m.id,
+          role: m.role as 'user' | 'assistant',
+          content: m.content as string,
+          personaId: m.personaId || selectedPersona.id,
+          personaName: selectedPersona.nameZh,
+          timestamp: (m as any).timestamp || new Date().toISOString(),
+        }));
+        setMessages(loaded);
+      }
+    }
+  }, [selectedPersona.id, userId, selectedPersona.nameZh]);
+
+  // Save to localStorage whenever messages change (both TCM-specific and shared registry)
+  useEffect(() => {
+    if (!isInitializedRef.current) return;
+
+    const key = `${TCM_CONVERSATION_PREFIX}${selectedPersona.id}`;
+
+    // Save to TCM-specific registry (fast per-doctor lookup)
+    const tcmReg = loadTCMRegistry();
+    tcmReg.conversations[key] = {
+      messages,
+      personaId: selectedPersona.id,
+      personaName: selectedPersona.nameZh,
+      lastUpdated: Date.now(),
+    };
+    saveTCMRegistry(tcmReg);
+
+    // Save to shared registry so pushSnapshot/useConversationSync can see it
+    if (userId) {
+      const sharedKey = `${TCM_CONVERSATION_PREFIX}${selectedPersona.id}`;
+      const sharedReg = loadRegistry();
+      const agentMessages: AgentMessage[] = messages.map(m => ({
+        id: m.id,
+        role: m.role,
+        content: m.content,
+        personaId: m.personaId,
+        timestamp: m.timestamp ? new Date(m.timestamp) : new Date(),
+      } as AgentMessage));
+      sharedReg.conversations[sharedKey] = {
+        messages: agentMessages,
+        title: '',
+        tags: [],
+        lastUpdated: Date.now(),
+        mode: 'tcm-assistant',
+        contentHash: '',
+        lastSyncedAt: sharedReg.conversations[sharedKey]?.lastSyncedAt,
+        syncStatus: 'pending',
+      };
+      saveSharedRegistry(sharedReg);
+    }
+  }, [messages, selectedPersona, userId]);
+
+  // Migration: on mount, detect any existing TCM messages in TCM-specific registry
+  // and write them to the shared registry so useConversationSync can push them to the server.
+  useEffect(() => {
+    if (migrationDoneRef.current) return;
+    if (!userId) return;
+    migrationDoneRef.current = true;
+
+    const tcmReg = loadTCMRegistry();
+    const keys = Object.keys(tcmReg.conversations).filter(k => k.startsWith(TCM_CONVERSATION_PREFIX));
+
+    if (keys.length === 0) return;
+
+    const sharedReg = loadRegistry();
+    for (const key of keys) {
+      const stored = tcmReg.conversations[key];
+      if (!stored?.messages?.length) continue;
+
+      const personaId = stored.personaId || key.replace(TCM_CONVERSATION_PREFIX, '');
+      const agentMessages: AgentMessage[] = stored.messages.map(m => ({
+        id: m.id,
+        role: m.role,
+        content: m.content,
+        personaId: m.personaId,
+        timestamp: m.timestamp ? new Date(m.timestamp) : new Date(),
+      } as AgentMessage));
+
+      const firstMsg = stored.messages.find((m: TCMMessage) => m.role === 'user');
+      const title = firstMsg
+        ? `向${stored.personaName || personaId}提问：${firstMsg.content.slice(0, 20).replace(/\n/g, ' ').trim()}`
+        : '';
+
+      sharedReg.conversations[key] = {
+        messages: agentMessages,
+        title,
+        tags: [],
+        lastUpdated: stored.lastUpdated || Date.now(),
+        mode: 'tcm-assistant',
+        contentHash: '',
+        lastSyncedAt: undefined,
+        syncStatus: 'pending',
+      };
+      console.log(`[TCM Migration] Migrated ${stored.messages.length} messages for ${key}`);
+    }
+    saveSharedRegistry(sharedReg);
+  }, [userId]);
+
   async function sendMessage() {
     if (!input.trim() || isLoading) return;
+    if (!userId) {
+      alert('请先登录后再使用中医对话功能');
+      return;
+    }
 
-    const userMsg: Message = {
+    const userMsg: TCMMessage = {
       id: `user-${Date.now()}`,
       role: 'user',
       content: input.trim(),
       personaId: selectedPersona.id,
       personaName: selectedPersona.nameZh,
+      timestamp: new Date().toISOString(),
     };
 
     setMessages(prev => [...prev, userMsg]);
     setInput('');
     setIsLoading(true);
+    setSyncStatus('syncing');
 
     try {
       const res = await fetch('/api/tcm/chat', {
@@ -114,48 +273,57 @@ export function TCMChatInterface() {
           personaId: selectedPersona.id,
           message: userMsg.content,
           language,
-          conversationId,
           history: messages.slice(-6).map(m => ({ role: m.role, content: m.content })),
         }),
       });
 
-      if (!res.ok) {
-        let detail = '请求失败';
-        try {
-          const errData = await res.json();
-          detail = errData.detail || errData.error || detail;
-        } catch {}
-        setMessages(prev => [...prev, {
-          id: `error-${Date.now()}`,
-          role: 'assistant',
-          content: `抱歉，服务暂时不可用 (${detail})。请稍后再试。`,
-          personaId: selectedPersona.id,
-          personaName: selectedPersona.id,
-        }]);
-        return;
+      if (res.status === 401) {
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(errData.error || '请先登录');
       }
+
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(errData.detail || errData.error || '请求失败');
+      }
+
       const data = await res.json();
 
-      // 保存 conversationId（用于多轮对话）
-      if (data.conversationId) {
-        setConversationId(data.conversationId);
-      }
-
-      setMessages(prev => [...prev, {
+      const assistantMsg: TCMMessage = {
         id: `assistant-${Date.now()}`,
         role: 'assistant',
         content: data.response,
         personaId: data.personaId,
         personaName: data.personaName,
-      }]);
+        timestamp: new Date().toISOString(),
+      };
+
+      setMessages(prev => [...prev, assistantMsg]);
+      setSyncStatus('saved');
+
+      // Push to server via sync endpoint (mirrors persona chat pushSnapshot)
+      const conversationKey = `${TCM_CONVERSATION_PREFIX}${selectedPersona.id}`;
+      const allMessages = [...messages, userMsg, assistantMsg];
+      const syncMessages = allMessages.map(m => ({
+        id: m.id,
+        role: m.role === 'assistant' ? 'assistant' : 'user',
+        content: m.content,
+        personaId: m.personaId,
+        timestamp: m.timestamp || new Date().toISOString(),
+      }));
+
+      pushSnapshot([selectedPersona.id], allMessages as any, undefined, undefined, 'tcm-assistant', userId)
+        .catch(err => console.warn('[TCM] pushSnapshot failed:', err));
+
     } catch (err) {
-      console.error('[TCM Chat] Frontend error:', err);
+      setSyncStatus('error');
+      const errMsg = err instanceof Error ? err.message : '服务暂时不可用';
       setMessages(prev => [...prev, {
         id: `error-${Date.now()}`,
         role: 'assistant',
-        content: '抱歉，服务暂时不可用。请稍后再试。',
+        content: `抱歉：${errMsg}。请稍后再试。`,
         personaId: selectedPersona.id,
-        personaName: selectedPersona.id,
+        personaName: selectedPersona.nameZh,
       }]);
     } finally {
       setIsLoading(false);
@@ -169,14 +337,33 @@ export function TCMChatInterface() {
     }
   }
 
+  function clearChat() {
+    const key = `${TCM_CONVERSATION_PREFIX}${selectedPersona.id}`;
+    const reg = loadTCMRegistry();
+    delete reg.conversations[key];
+    saveTCMRegistry(reg);
+    setMessages([]);
+  }
+
+  const syncLabel = {
+    idle: null,
+    syncing: (
+      <span className="flex items-center gap-1 text-xs text-slate-500">
+        <RefreshCw className="w-3 h-3 animate-spin" /> 同步中...
+      </span>
+    ),
+    saved: (
+      <span className="text-xs text-[#22c55e]"> 已保存</span>
+    ),
+    error: (
+      <span className="text-xs text-red-400"> 保存失败</span>
+    ),
+  };
+
   return (
     <div className={cn('flex flex-col h-screen', TCM_COLORS.bg)}>
       {/* Header */}
-      <div className={cn(
-        'flex items-center gap-3 px-5 py-3 border-b',
-        TCM_COLORS.border
-      )}>
-        {/* Logo */}
+      <div className={cn('flex items-center gap-3 px-5 py-3 border-b', TCM_COLORS.border)}>
         <Link href="/" className="flex items-center gap-2 text-slate-500 hover:text-slate-300 transition-colors text-sm shrink-0">
           <svg width="16" height="16" viewBox="0 0 20 20" fill="none">
             <circle cx="10" cy="10" r="9" stroke="#c9a84c" strokeWidth="1.5" fill="none"/>
@@ -189,20 +376,17 @@ export function TCMChatInterface() {
 
         <div className="w-px h-5 bg-slate-700 shrink-0" />
 
-        {/* TCM Icon */}
         <div className="flex items-center gap-2 shrink-0">
           <div className="w-6 h-6 rounded bg-[#c9a84c]/20 flex items-center justify-center">
             <Brain className="w-3.5 h-3.5 text-[#c9a84c]" />
           </div>
-          <h1 className="font-bold text-sm text-white tracking-tight hidden sm:block">
-            中医AI助手
-          </h1>
-          <span className="text-[10px] px-1.5 py-0.5 rounded bg-[#c9a84c]/15 text-[#c9a84c] border border-[#c9a84c]/30 font-mono">
-            TCM
-          </span>
+          <h1 className="font-bold text-sm text-white tracking-tight hidden sm:block">中医AI助手</h1>
+          <span className="text-[10px] px-1.5 py-0.5 rounded bg-[#c9a84c]/15 text-[#c9a84c] border border-[#c9a84c]/30 font-mono">TCM</span>
         </div>
 
-        {/* Language Toggle */}
+        {/* Sync status */}
+        {syncLabel[syncStatus]}
+
         <div className="ml-auto flex items-center gap-1 bg-[#0a1628] rounded-lg p-0.5 border border-[#1e2d4a]">
           {(['zh', 'en', 'auto'] as const).map(lang => (
             <button
@@ -247,6 +431,13 @@ export function TCMChatInterface() {
             <ChevronDown className={cn('w-3.5 h-3.5 text-slate-500 transition-transform', showPersonaPicker && 'rotate-180')} />
           </button>
 
+          <button
+            onClick={clearChat}
+            className="ml-auto text-xs text-slate-600 hover:text-slate-400 transition-colors px-2 py-1"
+          >
+            清空对话
+          </button>
+
           <div className="text-xs text-slate-600 ml-auto hidden sm:block">
             {messages.length === 0 ? (
               <span className="flex items-center gap-1">
@@ -266,11 +457,7 @@ export function TCMChatInterface() {
               initial={{ opacity: 0, y: -4 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -4 }}
-              className={cn(
-                'mt-2 p-3 rounded-xl border max-h-72 overflow-y-auto',
-                TCM_COLORS.surface,
-                TCM_COLORS.border
-              )}
+              className={cn('mt-2 p-3 rounded-xl border max-h-72 overflow-y-auto', TCM_COLORS.surface, TCM_COLORS.border)}
             >
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 {TCM_PERSONA_LIST.map(persona => (
@@ -316,12 +503,8 @@ export function TCMChatInterface() {
               </svg>
             </div>
             <div>
-              <h2 className="text-white font-bold text-base mb-1">
-                欢迎来到 {selectedPersona.nameZh} 的诊室
-              </h2>
-              <p className="text-slate-500 text-sm max-w-sm">
-                {selectedPersona.briefZh?.slice(0, 100)}...
-              </p>
+              <h2 className="text-white font-bold text-base mb-1">欢迎来到 {selectedPersona.nameZh} 的诊室</h2>
+              <p className="text-slate-500 text-sm max-w-sm">{selectedPersona.briefZh?.slice(0, 100)}...</p>
             </div>
             <div className="text-xs text-slate-600 space-y-1">
               <p className="flex items-center gap-1.5 justify-center">
@@ -344,9 +527,7 @@ export function TCMChatInterface() {
             animate={{ opacity: 1, y: 0 }}
             className={cn('flex gap-3', msg.role === 'user' && 'flex-row-reverse')}
           >
-            {msg.role === 'assistant' && (
-              <PersonaAvatar persona={selectedPersona} size="md" />
-            )}
+            {msg.role === 'assistant' && <PersonaAvatar persona={selectedPersona} size="md" />}
             {msg.role === 'user' && (
               <div className="w-9 h-9 rounded-full bg-[#1e2d4a] flex items-center justify-center text-white text-sm font-medium shrink-0">
                 <User className="w-4 h-4" />
@@ -371,11 +552,7 @@ export function TCMChatInterface() {
         ))}
 
         {isLoading && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="flex gap-3"
-          >
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex gap-3">
             <PersonaAvatar persona={selectedPersona} size="md" />
             <div className={cn('px-4 py-3 rounded-2xl text-sm', TCM_COLORS.surface, TCM_COLORS.border, 'rounded-tl-sm')}>
               <div className="flex items-center gap-2 text-slate-400">
