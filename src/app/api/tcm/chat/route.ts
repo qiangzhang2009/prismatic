@@ -120,13 +120,10 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Auth — 复用 chat API 的认证逻辑
-    let userId = 'anonymous';
-    try {
-      const uid = await authenticateRequest(req);
-      if (uid) userId = uid;
-    } catch {
-      // Continue anonymous
+    // Auth — 强制登录（与 chat API 一致）
+    const userId = await authenticateRequest(req);
+    if (!userId) {
+      return NextResponse.json({ error: '请先登录后再使用中医对话功能' }, { status: 401 });
     }
 
     const convId = conversationId || nanoid();
