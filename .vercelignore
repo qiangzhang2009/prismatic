@@ -10,6 +10,15 @@ corpus/
 corpus-distilled-backup/
 corpus-tcm-external/
 corpus-tcm-downloads/
+scripts/
+data/
+src/lib/distillation-backup/
+src/corpus/
+.playwright-mcp/
+playwright-report/
+test-results/
+coverage/
+*.log
 
 # Environment files - NEVER deploy these
 .env
