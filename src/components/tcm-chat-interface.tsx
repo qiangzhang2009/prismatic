@@ -83,6 +83,7 @@ export function TCMChatInterface() {
   const [isLoading, setIsLoading] = useState(false);
   const [showPersonaPicker, setShowPersonaPicker] = useState(false);
   const [language, setLanguage] = useState<'zh' | 'en' | 'auto'>('zh');
+  const [conversationId, setConversationId] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
@@ -113,12 +114,18 @@ export function TCMChatInterface() {
           personaId: selectedPersona.id,
           message: userMsg.content,
           language,
+          conversationId,
           history: messages.slice(-6).map(m => ({ role: m.role, content: m.content })),
         }),
       });
 
       if (!res.ok) throw new Error('Request failed');
       const data = await res.json();
+
+      // 保存 conversationId（用于多轮对话）
+      if (data.conversationId) {
+        setConversationId(data.conversationId);
+      }
 
       setMessages(prev => [...prev, {
         id: `assistant-${Date.now()}`,

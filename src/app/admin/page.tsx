@@ -37,7 +37,7 @@ import type { User, UserFilter } from '@/lib/use-admin-data';
 
 // ─── Types ─────────────────────────────────────────────────────────────────────
 
-type Tab = 'dashboard' | 'users' | 'assets' | 'distill' | 'sync';
+type Tab = 'dashboard' | 'users' | 'assets' | 'distill' | 'sync' | 'tcm';
 
 // ─── Helpers ────────────────────────────────────────────────────────────────────
 
@@ -74,6 +74,7 @@ function AdminDashboardPage() {
     { id: 'dashboard' as Tab, label: '数据驾驶舱', icon: LayoutDashboard },
     { id: 'users' as Tab, label: '用户管理', icon: UserCog },
     { id: 'assets' as Tab, label: '对话资产', icon: BookOpen },
+    { id: 'tcm' as Tab, label: '中医对话', icon: Bot },
     { id: 'distill' as Tab, label: '蒸馏中心', icon: FlaskConical },
     { id: 'sync' as Tab, label: '同步管理', icon: UsersRound },
   ];
@@ -113,6 +114,7 @@ function AdminDashboardPage() {
           {activeTab === 'dashboard' && <TabPanel key="dashboard"><DashboardSection /></TabPanel>}
           {activeTab === 'users' && <TabPanel key="users"><UsersSection /></TabPanel>}
           {activeTab === 'assets' && <TabPanel key="assets"><AssetsSection /></TabPanel>}
+          {activeTab === 'tcm' && <TabPanel key="tcm"><TCMSection /></TabPanel>}
           {activeTab === 'distill' && <TabPanel key="distill"><DistillSection /></TabPanel>}
           {activeTab === 'sync' && <TabPanel key="sync"><SyncSection /></TabPanel>}
         </AnimatePresence>
@@ -2283,6 +2285,278 @@ function SyncSection() {
           {recentLogs.length === 0 && (
             <div className="text-center py-12 text-gray-500">暂无同步日志</div>
           )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── Tab 6: 中医对话 ──────────────────────────────────────────────────────────
+
+function TCMSection() {
+  const [search, setSearch] = useState('');
+  const [personaId, setPersonaId] = useState('');
+  const [dateFrom, setDateFrom] = useState('');
+  const [dateTo, setDateTo] = useState('');
+  const [selectedUserId, setSelectedUserId] = useState('');
+  const [page, setPage] = useState(1);
+
+  const applyQuickDate = (days: number) => {
+    if (days === 0) { setDateFrom(''); setDateTo(''); setPage(1); return; }
+    const to = new Date(); to.setHours(23, 59, 59, 999);
+    const from = new Date(Date.now() - days * 24 * 60 * 60 * 1000); from.setHours(0, 0, 0, 0);
+    setDateFrom(from.toISOString().split('T')[0]);
+    setDateTo(to.toISOString().split('T')[0]);
+    setPage(1);
+  };
+
+  const params = useMemo(() => new URLSearchParams({
+    page: String(page), pageSize: '50',
+    ...(search && { search }),
+    ...(personaId && { personaId }),
+    ...(dateFrom && { dateFrom }),
+    ...(dateTo && { dateTo }),
+    ...(selectedUserId && { userId: selectedUserId }),
+  }), [page, search, personaId, dateFrom, dateTo, selectedUserId]);
+
+  const { data: tcmData, isLoading, refetch, isError } = useQuery({
+    queryKey: ['admin', 'chats', 'tcm', params.toString()],
+    queryFn: () => fetch(`/api/admin/chats/tcm?${params}`, { credentials: 'include' }).then(r => r.json()),
+    staleTime: 0,
+    refetchOnWindowFocus: true,
+  });
+
+  const convs = tcmData?.conversations || [];
+  const total = tcmData?.total || 0;
+  const totalPages = tcmData?.totalPages || 1;
+  const stats = tcmData?.stats || {};
+  const personaStats = tcmData?.personaStats || [];
+
+  // TCM persona list for filter dropdown
+  const tcmPersonaOptions = [
+    { id: '', name: '全部人物' },
+    { id: 'zhang-zhongjing', name: '张仲景' },
+    { id: 'hippocrates', name: '希波克拉底' },
+    { id: 'huafu', name: '华佗' },
+    { id: 'bianque', name: '扁鹊' },
+    { id: 'lishizhen', name: '李时珍' },
+    { id: 'huangdi', name: '黄帝' },
+    { id: 'yetianshi', name: '叶天士' },
+    { id: 'xueshengbai', name: '薛生白' },
+    { id: 'sunsimiao', name: '孙思邈' },
+    { id: 'caraka', name: '遮罗迦' },
+    { id: 'zhudanhsi', name: '朱丹溪' },
+    { id: 'zhangjingyue', name: '张景岳' },
+    { id: 'wujutong', name: '吴鞠通' },
+    { id: 'wangqingren', name: '王清任' },
+    { id: 'liduomin', name: '李东垣' },
+    { id: 'zhangxichun', name: '张锡纯' },
+    { id: 'caoyingfu', name: '曹颖甫' },
+    { id: 'tangzonghai', name: '唐宗海' },
+    { id: 'sushruta', name: '妙闻' },
+  ];
+
+  return (
+    <div className="space-y-6">
+
+      {/* ── 统计概览 ── */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="rounded-2xl border border-green-500/20 bg-gray-900/60 p-5">
+          <div className="flex items-center justify-between mb-3">
+            <span className="text-xs text-gray-500 font-medium">对话总数</span>
+            <MessageSquare className="w-4 h-4 text-green-400" />
+          </div>
+          <p className="text-2xl font-bold text-green-400">{total.toLocaleString()}</p>
+        </div>
+        <div className="rounded-2xl border border-blue-500/20 bg-gray-900/60 p-5">
+          <div className="flex items-center justify-between mb-3">
+            <span className="text-xs text-gray-500 font-medium">消息总数</span>
+            <Activity className="w-4 h-4 text-blue-400" />
+          </div>
+          <p className="text-2xl font-bold text-blue-400">{(stats.totalMessages || 0).toLocaleString()}</p>
+        </div>
+        <div className="rounded-2xl border border-cyan-500/20 bg-gray-900/60 p-5">
+          <div className="flex items-center justify-between mb-3">
+            <span className="text-xs text-gray-500 font-medium">Token 消耗</span>
+            <Zap className="w-4 h-4 text-cyan-400" />
+          </div>
+          <p className="text-2xl font-bold text-cyan-400">{(stats.totalTokens || 0).toLocaleString()}</p>
+        </div>
+        <div className="rounded-2xl border border-amber-500/20 bg-gray-900/60 p-5">
+          <div className="flex items-center justify-between mb-3">
+            <span className="text-xs text-gray-500 font-medium">预估成本</span>
+            <DollarSign className="w-4 h-4 text-amber-400" />
+          </div>
+          <p className="text-2xl font-bold text-amber-400">¥{Number(stats.totalCost || 0).toFixed(4)}</p>
+        </div>
+      </div>
+
+      {/* ── 人物分布 ── */}
+      {personaStats.length > 0 && (
+        <div className="bg-gray-900/80 border border-gray-800 rounded-2xl p-5">
+          <h3 className="text-sm font-semibold text-white mb-3">人物对话分布</h3>
+          <div className="flex flex-wrap gap-2">
+            {personaStats.map((p: any) => (
+              <div key={p.personaId} className="flex items-center gap-2 px-3 py-1.5 bg-gray-800/60 rounded-lg border border-gray-700">
+                <Bot className="w-3.5 h-3.5 text-green-400" />
+                <span className="text-xs text-gray-300">{p.nameZh}</span>
+                <span className="text-xs text-green-400 font-medium">{p.convCount} 次</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* ── 筛选工具栏 ── */}
+      <div className="flex flex-wrap gap-2 items-center">
+        <input
+          value={search}
+          onChange={e => { setSearch(e.target.value); setPage(1); }}
+          placeholder="搜索对话内容..."
+          className="bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white placeholder-gray-500 flex-1 min-w-48"
+        />
+        <select value={personaId} onChange={e => { setPersonaId(e.target.value); setPage(1); }}
+          className="bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white">
+          {tcmPersonaOptions.map(p => (
+            <option key={p.id} value={p.id}>{p.name}</option>
+          ))}
+        </select>
+        <input type="date" value={dateFrom} onChange={e => { setDateFrom(e.target.value); setPage(1); }}
+          className="bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white" />
+        <input type="date" value={dateTo} onChange={e => { setDateTo(e.target.value); setPage(1); }}
+          className="bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white" />
+        <button onClick={() => refetch()} className="px-3 py-2 bg-green-600 hover:bg-green-500 text-white text-sm rounded-lg transition-colors">
+          搜索
+        </button>
+        <div className="flex items-center gap-1 bg-gray-900/50 border border-gray-800 rounded-lg p-1">
+          {[0, 7, 14, 30].map(d => (
+            <button key={d} onClick={() => applyQuickDate(d)}
+              className="px-2.5 py-1 rounded text-xs font-medium transition-colors bg-gray-800 text-gray-300 hover:bg-gray-700">
+              {d === 0 ? '全部' : `${d}天`}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* ── 对话列表 ── */}
+      <div className="space-y-2">
+        {isLoading ? (
+          <div className="space-y-2">{[1, 2, 3].map(i => <div key={i} className="h-20 bg-gray-900 rounded-xl animate-pulse" />)}</div>
+        ) : tcmData?.error ? (
+          <div className="bg-red-900/20 border border-red-800/30 rounded-xl p-4 flex items-start gap-3">
+            <XCircle className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" />
+            <p className="text-sm text-red-400">{tcmData.error}</p>
+          </div>
+        ) : convs.length === 0 ? (
+          <div className="text-center py-16 text-gray-500">
+            <Bot className="w-12 h-12 mx-auto mb-3 opacity-30" />
+            暂无中医对话记录
+          </div>
+        ) : (
+          <div className="space-y-2">
+            {convs.map((conv: any) => (
+              <TCMConversationCard key={conv.id} conv={conv} />
+            ))}
+          </div>
+        )}
+
+        {totalPages > 1 && (
+          <div className="flex items-center justify-center gap-3 pt-2">
+            <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1}
+              className="px-3 py-1.5 bg-gray-800 hover:bg-gray-700 disabled:opacity-30 text-sm text-white rounded-lg transition-colors">
+              上一页
+            </button>
+            <span className="text-sm text-gray-400">{page} / {totalPages}（共 {total} 条）</span>
+            <button onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page >= totalPages}
+              className="px-3 py-1.5 bg-gray-800 hover:bg-gray-700 disabled:opacity-30 text-sm text-white rounded-lg transition-colors">
+              下一页
+            </button>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ─── 中医对话卡片 ──────────────────────────────────────────────────────────
+
+function TCMConversationCard({ conv }: { conv: any }) {
+  const [expanded, setExpanded] = useState(false);
+  const msgs = conv.messages || [];
+  const hasRag = msgs.some((m: any) => m.rag);
+
+  return (
+    <div className="bg-gray-900/80 border border-green-500/20 rounded-2xl overflow-hidden hover:border-green-500/40 transition-all">
+      <button
+        onClick={() => setExpanded(!expanded)}
+        className="w-full text-left px-5 py-4 flex items-center justify-between gap-4"
+      >
+        <div className="flex items-center gap-3 flex-wrap flex-1 min-w-0">
+          <div className="flex items-center gap-2 flex-shrink-0">
+            <span className="text-xs text-gray-500">{fmtDate(conv.updatedAt)}</span>
+            <span className="text-xs px-2 py-0.5 rounded-full bg-green-900/40 text-green-300 border border-green-800/40">
+              中医对话
+            </span>
+            {hasRag && (
+              <span className="text-xs px-2 py-0.5 rounded-full bg-cyan-900/40 text-cyan-300 border border-cyan-800/40">
+                RAG古籍
+              </span>
+            )}
+          </div>
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="text-xs text-gray-500">
+              {conv.user?.name || conv.user?.email || '匿名用户'}
+            </span>
+            {conv.personas?.[0] && (
+              <>
+                <span className="text-xs text-gray-600">·</span>
+                <span className="text-xs text-green-400">
+                  <Bot className="w-3 h-3 inline mr-0.5" />
+                  {conv.personas[0].nameZh}
+                </span>
+              </>
+            )}
+            <span className="text-xs text-gray-600">·</span>
+            <span className="text-xs text-gray-500">{conv.messageCount} 条消息</span>
+          </div>
+        </div>
+        <div className="flex items-center gap-2 flex-shrink-0">
+          {conv.title && (
+            <span className="text-xs text-gray-400 truncate max-w-xs">{conv.title}</span>
+          )}
+          <ChevronRight className={`w-4 h-4 text-gray-500 transition-transform ${expanded ? 'rotate-90' : ''}`} />
+        </div>
+      </button>
+
+      {expanded && (
+        <div className="px-5 pb-4 border-t border-gray-800 pt-3 space-y-3">
+          {msgs.map((msg: any, idx: number) => (
+            <div key={msg.id || idx} className={`flex gap-3 ${msg.role === 'user' ? 'flex-row-reverse' : ''}`}>
+              <div className={`w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 text-xs font-bold ${
+                msg.role === 'user'
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-green-600 text-white'
+              }`}>
+                {msg.role === 'user' ? 'U' : 'A'}
+              </div>
+              <div className={`flex-1 rounded-xl px-4 py-2.5 text-sm ${
+                msg.role === 'user'
+                  ? 'bg-blue-900/30 text-blue-100 text-right'
+                  : 'bg-gray-800/60 text-gray-200'
+              }`}>
+                {msg.rag && msg.rag.citations && (
+                  <div className="mb-1.5 flex items-center gap-1.5 flex-wrap">
+                    {msg.rag.citations.slice(0, 2).map((cit: any, ci: number) => (
+                      <span key={ci} className="text-xs px-1.5 py-0.5 bg-cyan-900/40 text-cyan-300 rounded">
+                        {cit.source || cit.title || '古籍引证'}
+                      </span>
+                    ))}
+                  </div>
+                )}
+                <div className="whitespace-pre-wrap">{msg.content}</div>
+              </div>
+            </div>
+          ))}
         </div>
       )}
     </div>

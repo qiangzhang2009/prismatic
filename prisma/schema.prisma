@@ -277,6 +277,7 @@ enum ConversationType {
   MISSION    // goal-oriented multi-turn task completion
   DEBATE     // structured adversarial dialogue
   GUARDIAN   // autonomous guardian system discussions
+  TCM        // AI 中医助手对话
 }
 
 model Conversation {

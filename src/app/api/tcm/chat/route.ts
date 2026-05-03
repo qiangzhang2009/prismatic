@@ -7,13 +7,16 @@
  *   - 古籍RAG检索（症状 → 古籍引证）
  *   - 中西医对照输出
  *   - 医疗免责声明
+ *   - 对话持久化（写入 conversations + messages 表，与人物库对话一致）
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { nanoid } from 'nanoid';
 import { createLLMProviderWithKey } from '@/lib/llm';
 import { TCM_PERSONAS } from '@/lib/tcm-personas';
-import { buildRAGContext, retrieve } from '@/lib/tcm-rag';
+import { buildRAGContext } from '@/lib/tcm-rag';
 import { authenticateRequest } from '@/lib/user-management';
+import { Pool } from '@neondatabase/serverless';
 
 export const runtime = 'nodejs';
 
@@ -23,6 +26,13 @@ interface TCMChatRequest {
   language?: 'zh' | 'en' | 'auto';
   includeModernMedicine?: boolean;
   history?: Array<{ role: 'user' | 'assistant'; content: string }>;
+  conversationId?: string;  // 新增：前端传入以支持多轮对话
+}
+
+function getPool() {
+  const url = process.env.DATABASE_URL;
+  if (!url) throw new Error('DATABASE_URL not set');
+  return new Pool({ connectionString: url });
 }
 
 function buildTCMSystemPrompt(
@@ -79,10 +89,18 @@ ${language === 'en' || language === 'auto' ? 'Provide a brief modern medicine pe
 以上内容仅供参考和学习，不能替代专业医生的诊断和治疗。如有健康问题，请立即咨询有执照的医疗专业人员。This information is for educational purposes only and is not a substitute for professional medical advice, diagnosis, or treatment.`;
 }
 
+/**
+ * 生成对话标题（首次消息时）
+ */
+function generateTCMTitle(personaName: string, firstMessage: string): string {
+  const summary = firstMessage.slice(0, 20).replace(/\n/g, ' ').trim();
+  return `向${personaName}提问：${summary}${summary.length >= 20 ? '...' : ''}`;
+}
+
 async function callLLM(
   apiKey: string | undefined,
   messages: Array<{ role: string; content: string }>
-): Promise<string> {
+): Promise<{ content: string; usage?: { promptTokens: number; completionTokens: number; totalTokens: number } }> {
   const llm = createLLMProviderWithKey('deepseek', apiKey);
   const response = await llm.chat({
     model: 'deepseek-chat',
@@ -90,13 +108,179 @@ async function callLLM(
     temperature: 0.7,
     maxTokens: 2500,
   });
-  return response.content;
+  return { content: response.content, usage: response.usage };
+}
+
+/**
+ * 持久化 TCM 对话到数据库。
+ * 复用人物库 chat API 的 persistConversation 模式，但独立实现以避免循环导入。
+ */
+async function persistTCMConversation(
+  userId: string,
+  conversationId: string,
+  personaId: string,
+  personaName: string,
+  messages: Array<{ role: string; content: string; tokensInput?: number; tokensOutput?: number; apiCost?: number }>,
+  ragMetadata?: { citations: unknown[]; chunkCount: number } | null
+) {
+  const pool = getPool();
+  let poolEnded = false;
+  const endPool = async () => {
+    if (!poolEnded) {
+      poolEnded = true;
+      try { await pool.end(); } catch { /* ignore */ }
+    }
+  };
+
+  const totalTokens = messages.reduce((sum, m) => sum + (m.tokensInput ?? 0) + (m.tokensOutput ?? 0), 0);
+  const totalCost = messages.reduce((sum, m) => sum + (m.apiCost ?? 0), 0);
+
+  try {
+    const client = await pool.connect();
+    try {
+      await client.query('BEGIN');
+
+      // 检查对话归属权
+      const existingConv = await client.query(
+        `SELECT "userId" FROM conversations WHERE id = $1 LIMIT 1`,
+        [conversationId]
+      );
+      const existingOwner = existingConv.rows[0]?.userId;
+      const actualConvId = (existingOwner && existingOwner !== userId)
+        ? nanoid()
+        : conversationId;
+
+      // Upsert conversation
+      await client.query(`
+        INSERT INTO conversations (id, "userId", title, type, mode, participants, archived, tags,
+                               "messageCount", "totalTokens", "totalCost", "personaIds", "createdAt", "updatedAt")
+        VALUES ($1, $2, NULL, 'TCM', 'tcm-assistant', $3::text[], false, '{}'::text[],
+                $4, $5, $6, $3::text[], NOW(), NOW())
+        ON CONFLICT (id) DO UPDATE SET
+          mode = EXCLUDED.mode,
+          participants = EXCLUDED.participants,
+          "personaIds" = EXCLUDED."personaIds",
+          "totalTokens" = EXCLUDED."totalTokens",
+          "totalCost" = EXCLUDED."totalCost",
+          "updatedAt" = NOW()
+      `, [
+        actualConvId,
+        userId,
+        JSON.stringify([personaId]),
+        messages.length,
+        totalTokens,
+        totalCost
+      ]);
+
+      // 如果 title 为空（首次消息），生成标题
+      const titleResult = await client.query(
+        `SELECT title FROM conversations WHERE id = $1`,
+        [actualConvId]
+      );
+      if (!titleResult.rows[0]?.title) {
+        const firstUserMsg = messages.find(m => m.role === 'user');
+        if (firstUserMsg) {
+          const title = generateTCMTitle(personaName, firstUserMsg.content);
+          await client.query(
+            `UPDATE conversations SET title = $1 WHERE id = $2`,
+            [title, actualConvId]
+          );
+        }
+      }
+
+      // 批量插入消息
+      const validMessages: {
+        id: string; role: string; content: string;
+        personaId: string | null; modelUsed: string | null;
+        tokensInput: number | null; tokensOutput: number | null;
+        apiCost: number | null; metadata: string | null; ts: Date;
+      }[] = [];
+
+      for (const msg of messages) {
+        if (!msg || typeof msg !== 'object') continue;
+        const resolvedRole = msg.role === 'agent' ? 'assistant'
+          : msg.role === 'user' || msg.role === 'assistant' ? msg.role
+          : 'user';
+
+        // 为 assistant 消息附加 RAG metadata
+        let metadata: string | null = null;
+        if (resolvedRole === 'assistant' && ragMetadata) {
+          metadata = JSON.stringify({ rag: ragMetadata, mode: 'tcm-assistant' });
+        }
+
+        validMessages.push({
+          id: nanoid(),
+          role: resolvedRole,
+          content: msg.content,
+          personaId: resolvedRole === 'assistant' ? personaId : null,
+          modelUsed: 'deepseek-chat',
+          tokensInput: msg.tokensInput ?? null,
+          tokensOutput: msg.tokensOutput ?? null,
+          apiCost: msg.apiCost ?? null,
+          metadata,
+          ts: new Date(),
+        });
+      }
+
+      if (validMessages.length > 0) {
+        const rows: string[] = [];
+        const params: unknown[] = [];
+        let paramIdx = 1;
+
+        for (const msg of validMessages) {
+          rows.push(`($${paramIdx++}, $${paramIdx++}, $${paramIdx++}, $${paramIdx++}, $${paramIdx++}, $${paramIdx++}, $${paramIdx++}, $${paramIdx++}, $${paramIdx++}, $${paramIdx++}, $${paramIdx++}, $${paramIdx++})`);
+          params.push(
+            msg.id, actualConvId, userId, msg.role, msg.content,
+            msg.personaId, msg.modelUsed, msg.tokensInput, msg.tokensOutput,
+            msg.apiCost, msg.metadata, msg.ts
+          );
+        }
+
+        await client.query(`
+          INSERT INTO messages (id, "conversationId", "userId", role, content,
+                               "personaId", "modelUsed", "tokensInput", "tokensOutput",
+                               "apiCost", metadata, "createdAt")
+          VALUES ${rows.join(', ')}
+          ON CONFLICT (id) DO UPDATE SET
+            content = EXCLUDED.content
+        `, params);
+      }
+
+      // 同步 messageCount
+      const msgCountResult = await client.query(
+        `SELECT COUNT(*) as cnt FROM messages WHERE "conversationId" = $1`,
+        [actualConvId]
+      );
+      const realMsgCount = parseInt(msgCountResult.rows[0]?.cnt ?? '0', 10);
+      const lastTs = validMessages.length > 0
+        ? new Date(Math.max(...validMessages.map(m => m.ts.getTime())))
+        : new Date();
+      await client.query(
+        `UPDATE conversations SET "updatedAt" = $1, "messageCount" = $2 WHERE id = $3`,
+        [lastTs, realMsgCount, actualConvId]
+      );
+
+      await client.query('COMMIT');
+      client.release();
+      await endPool();
+      return { id: actualConvId, inserted: validMessages.length };
+    } catch (innerErr) {
+      await client.query('ROLLBACK').catch(() => {});
+      client.release();
+      throw innerErr;
+    }
+  } catch (error) {
+    const errMsg = error instanceof Error ? error.message : String(error);
+    console.error('[persistTCMConversation] Error:', errMsg);
+    await endPool();
+    return null;
+  }
 }
 
 export async function POST(req: NextRequest) {
   try {
     const body: TCMChatRequest = await req.json();
-    const { personaId, message, language = 'zh', includeModernMedicine = true, history = [] } = body;
+    const { personaId, message, language = 'zh', includeModernMedicine = true, history = [], conversationId } = body;
 
     if (!message?.trim()) {
       return NextResponse.json({ error: 'Message is required' }, { status: 400 });
@@ -109,21 +293,29 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Auth (optional — allow unauthenticated for demo)
-    let userApiKey: string | undefined;
+    // Auth
+    let userId = 'anonymous';
     try {
-      const userId = await authenticateRequest(req);
-      if (userId) {
-        userApiKey = undefined;
-      }
+      const uid = await authenticateRequest(req);
+      if (uid) userId = uid;
     } catch {
-      // Continue unauthenticated
+      // Continue anonymous
     }
 
-    // ── RAG Retrieval ────────────────────────────────────────────────────
+    // 生成或使用传入的 conversationId
+    const convId = conversationId || nanoid();
+
+    // RAG Retrieval
     let ragContext = null;
+    let ragMetadata: { citations: unknown[]; chunkCount: number } | null = null;
     try {
       ragContext = await buildRAGContext(message, 4);
+      if (ragContext) {
+        ragMetadata = {
+          citations: ragContext.citations,
+          chunkCount: ragContext.citations.length,
+        };
+      }
     } catch (e) {
       console.warn('[TCM Chat] RAG retrieval failed, proceeding without it:', e);
     }
@@ -134,23 +326,57 @@ export async function POST(req: NextRequest) {
       { role: 'system', content: systemPrompt },
     ];
 
-    // Append history (last 10 messages for context window)
+    // Append history (last 10 messages)
     for (const msg of history.slice(-10)) {
       conversationMessages.push({ role: msg.role, content: msg.content });
     }
 
     conversationMessages.push({ role: 'user', content: message });
 
-    const response = await callLLM(userApiKey, conversationMessages);
+    const llmResult = await callLLM(undefined, conversationMessages);
+    const response = llmResult.content;
+    const usage = llmResult.usage;
+
+    // 估算成本
+    const model = 'deepseek-chat';
+    const inputRate = 0.014;  // $0.014 / 1K tokens
+    const outputRate = 0.014;
+    const cost = usage
+      ? ((usage.promptTokens / 1000) * inputRate + (usage.completionTokens / 1000) * outputRate)
+      : 0;
+
+    // 持久化对话
+    const persistResult = await persistTCMConversation(
+      userId,
+      convId,
+      personaId,
+      TCM_PERSONAS[personaId]?.nameZh || personaId,
+      [
+        { role: 'user', content: message },
+        {
+          role: 'assistant',
+          content: response,
+          tokensInput: usage?.promptTokens,
+          tokensOutput: usage?.completionTokens,
+          apiCost: cost,
+        },
+      ],
+      ragMetadata
+    );
+
+    if (!persistResult) {
+      console.warn('[TCM Chat] Failed to persist conversation, continuing anyway');
+    }
 
     return NextResponse.json({
+      conversationId: persistResult?.id || convId,
       personaId,
       personaName: TCM_PERSONAS[personaId]?.nameZh,
       response,
-      rag: ragContext ? {
-        citations: ragContext.citations,
-        note: ragContext.note,
-        chunkCount: ragContext.citations.length,
+      rag: ragMetadata ? {
+        citations: ragMetadata.citations,
+        note: ragContext?.note,
+        chunkCount: ragMetadata.chunkCount,
       } : null,
       disclaimer: '以上内容仅供参考和学习，不能替代专业医生的诊断和治疗。如有健康问题，请咨询有执照的医疗专业人员。This information is for educational purposes only and is not a substitute for professional medical advice, diagnosis, or treatment.',
     });
@@ -164,7 +390,6 @@ export async function POST(req: NextRequest) {
 }
 
 export async function GET() {
-  // Return available personas
   const personas = Object.values(TCM_PERSONAS).map((p) => ({
     id: p.id,
     name: p.name,
@@ -181,7 +406,6 @@ export async function GET() {
     distillation: p.distillation,
   }));
 
-  // Also return RAG stats
   let ragStats = null;
   try {
     const { getRAGStats } = await import('@/lib/tcm-rag');
