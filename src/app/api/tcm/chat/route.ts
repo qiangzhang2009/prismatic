@@ -150,12 +150,15 @@ async function persistTCMConversation(
         ? nanoid()
         : conversationId;
 
+      // PostgreSQL text[] via node-postgres native array support
+      const personaIdsArray = [personaId];
+
       // Upsert conversation
       await client.query(`
         INSERT INTO conversations (id, "userId", title, type, mode, participants, archived, tags,
                                "messageCount", "totalTokens", "totalCost", "personaIds", "createdAt", "updatedAt")
-        VALUES ($1, $2, NULL, 'TCM', 'tcm-assistant', $3::text[], false, '{}'::text[],
-                $4, $5, $6, $3::text[], NOW(), NOW())
+        VALUES ($1, $2, NULL, 'TCM', 'tcm-assistant', '{}'::text[], false, '{}'::text[],
+                $3, $4, $5, $6, NOW(), NOW())
         ON CONFLICT (id) DO UPDATE SET
           mode = EXCLUDED.mode,
           participants = EXCLUDED.participants,
@@ -166,10 +169,10 @@ async function persistTCMConversation(
       `, [
         actualConvId,
         userId,
-        JSON.stringify([personaId]),
         messages.length,
         totalTokens,
-        totalCost
+        totalCost,
+        personaIdsArray,
       ]);
 
       // 如果 title 为空（首次消息），生成标题
