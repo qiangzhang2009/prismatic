@@ -2,11 +2,11 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Send, Loader2, ChevronDown, Sparkles, ShieldAlert, BookOpen, Brain, Globe, User, RefreshCw } from 'lucide-react';
+import { Send, Loader2, ChevronDown, Sparkles, ShieldAlert, BookOpen, Brain, Globe, User, RefreshCw, MessageSquare, Clock, X } from 'lucide-react';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { TCM_PERSONA_LIST } from '@/lib/tcm-personas';
-import { useConversationSync, loadRegistry, saveRegistry as saveSharedRegistry } from '@/lib/use-conversation-sync';
+import { useConversationSync } from '@/lib/use-conversation-sync';
 import { useDailyLimit } from '@/lib/use-daily-limit';
 import { useAuthStore } from '@/lib/auth-store';
 import { LimitReachedModal, type LimitModalType } from '@/components/limit-reached-modal';
@@ -24,9 +24,8 @@ const TCM_COLORS = {
   input: 'bg-[#0a1628]',
 };
 
-const REGISTRY_KEY = 'prismatic-conversation-registry';
-const TCM_STORAGE_VERSION = 1;
 const TCM_CONVERSATION_PREFIX = 'tcm:';
+const TCM_CONVERSATION_ID_KEY = 'prismatic-tcm-convid';
 
 interface TCMMessage {
   id: string;
@@ -62,18 +61,45 @@ interface TCMRegistry {
   conversations: Record<string, TCMStoredConv>;
 }
 
+interface TCMConversationMeta {
+  id: string;
+  title: string;
+  personaId: string;
+  personaName: string;
+  messageCount: number;
+  updatedAt: string;
+}
+
 function loadTCMRegistry(): TCMRegistry {
   try {
     const raw = localStorage.getItem('prismatic-tcm-registry');
-    if (!raw) return { version: TCM_STORAGE_VERSION, conversations: {} };
+    if (!raw) return { version: 1, conversations: {} };
     const reg: TCMRegistry = JSON.parse(raw);
-    if (reg.version !== TCM_STORAGE_VERSION) return { version: TCM_STORAGE_VERSION, conversations: {} };
+    if (reg.version !== 1) return { version: 1, conversations: {} };
     return reg;
-  } catch { return { version: TCM_STORAGE_VERSION, conversations: {} }; }
+  } catch { return { version: 1, conversations: {} }; }
 }
 
 function saveTCMRegistry(reg: TCMRegistry) {
   try { localStorage.setItem('prismatic-tcm-registry', JSON.stringify(reg)); } catch {}
+}
+
+function getStoredConvId(personaId: string): string | null {
+  try {
+    const raw = localStorage.getItem(TCM_CONVERSATION_ID_KEY);
+    if (!raw) return null;
+    const data = JSON.parse(raw);
+    return data[personaId] || null;
+  } catch { return null; }
+}
+
+function saveStoredConvId(personaId: string, convId: string) {
+  try {
+    const raw = localStorage.getItem(TCM_CONVERSATION_ID_KEY);
+    const data = raw ? JSON.parse(raw) : {};
+    data[personaId] = convId;
+    localStorage.setItem(TCM_CONVERSATION_ID_KEY, JSON.stringify(data));
+  } catch {}
 }
 
 function PersonaAvatar({ persona, size = 'md' }: { persona: TCMPersona; size?: 'sm' | 'md' | 'lg' }) {
@@ -101,6 +127,44 @@ function DisclaimerBanner() {
   );
 }
 
+function ConversationHistoryItem({
+  conv,
+  isActive,
+  onSelect,
+  onClear,
+}: {
+  conv: TCMConversationMeta;
+  isActive: boolean;
+  onSelect: () => void;
+  onClear: () => void;
+}) {
+  return (
+    <div
+      className={cn(
+        'flex items-center gap-2 px-3 py-2 rounded-lg cursor-pointer transition-all text-xs group',
+        isActive ? 'bg-[#c9a84c]/15 border border-[#c9a84c]/30' : 'hover:bg-white/5 border border-transparent'
+      )}
+      onClick={onSelect}
+    >
+      <MessageSquare className="w-3.5 h-3.5 shrink-0 text-[#c9a84c]/60" />
+      <div className="flex-1 min-w-0">
+        <p className="text-slate-300 truncate">{conv.title || '新对话'}</p>
+        <p className="text-slate-600 text-[10px] flex items-center gap-1">
+          <Clock className="w-2.5 h-2.5" />
+          {new Date(conv.updatedAt).toLocaleDateString('zh-CN', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+        </p>
+      </div>
+      <button
+        onClick={e => { e.stopPropagation(); onClear(); }}
+        className="opacity-0 group-hover:opacity-100 p-1 rounded hover:bg-white/10 text-slate-500 hover:text-red-400 transition-all"
+        title="删除此对话"
+      >
+        <X className="w-3 h-3" />
+      </button>
+    </div>
+  );
+}
+
 export function TCMChatInterface() {
   const user = useAuthStore(s => s.user);
   const userId = user?.id;
@@ -121,56 +185,113 @@ export function TCMChatInterface() {
   const [syncStatus, setSyncStatus] = useState<'idle' | 'syncing' | 'saved' | 'error'>('idle');
   const [showLimitModal, setShowLimitModal] = useState(false);
   const [limitModalType, setLimitModalType] = useState<LimitModalType>('daily_limit');
+  const [conversationId, setConversationId] = useState<string | null>(null);
+  const [conversationHistory, setConversationHistory] = useState<TCMConversationMeta[]>([]);
+  const [showHistory, setShowHistory] = useState(false);
+  const [isLoadingHistory, setIsLoadingHistory] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const isInitializedRef = useRef(false);
-  const migrationDoneRef = useRef(false);
   const pendingSaveRef = useRef(false);
+
+  // ── Load conversation history from DB on mount ─────────────────────────────────
+  useEffect(() => {
+    if (!userId) return;
+
+    const loadHistory = async () => {
+      setIsLoadingHistory(true);
+      try {
+        const res = await fetch('/api/tcm/conversations?limit=20', {
+          credentials: 'include',
+        });
+        if (res.ok) {
+          const data = await res.json();
+          const convs: TCMConversationMeta[] = (data.conversations || []).map((c: any) => ({
+            id: c.id,
+            title: c.title || '',
+            personaId: c.participants?.[0] || '',
+            personaName: '',
+            messageCount: c.messageCount || 0,
+            updatedAt: c.updatedAt,
+          }));
+          setConversationHistory(convs);
+        }
+      } catch (e) {
+        console.warn('[TCM] Failed to load conversation history:', e);
+      } finally {
+        setIsLoadingHistory(false);
+      }
+    };
+
+    loadHistory();
+  }, [userId]);
+
+  // ── Load conversation ID + messages for selected persona ────────────────────────
+  useEffect(() => {
+    if (!isInitializedRef.current) return;
+
+    const loadForPersona = async () => {
+      // 1. Check localStorage for stored conversationId
+      const storedConvId = getStoredConvId(selectedPersona.id);
+
+      // 2. Try localStorage for messages first (fast, no network)
+      const key = `${TCM_CONVERSATION_PREFIX}${selectedPersona.id}`;
+      const tcmReg = loadTCMRegistry();
+      const stored = tcmReg.conversations[key];
+
+      if (stored?.messages?.length > 0) {
+        setMessages(stored.messages);
+        if (storedConvId) {
+          setConversationId(storedConvId);
+        }
+        return;
+      }
+
+      // 3. Load from DB if we have a stored conversationId
+      if (storedConvId) {
+        try {
+          const res = await fetch(`/api/tcm/conversations/${storedConvId}`, {
+            credentials: 'include',
+          });
+          if (res.ok) {
+            const data = await res.json();
+            if (data.messages?.length > 0) {
+              const loaded: TCMMessage[] = data.messages.map((m: any) => ({
+                id: m.id,
+                role: m.role as 'user' | 'assistant',
+                content: m.content,
+                personaId: m.personaId || selectedPersona.id,
+                personaName: selectedPersona.nameZh,
+                timestamp: m.createdAt,
+              }));
+              setMessages(loaded);
+              setConversationId(storedConvId);
+              return;
+            }
+          }
+        } catch (e) {
+          console.warn('[TCM] Failed to load conversation from DB:', e);
+        }
+      }
+
+      // 4. No history found
+      setMessages([]);
+      setConversationId(null);
+    };
+
+    loadForPersona();
+  }, [selectedPersona.id, selectedPersona.nameZh]);
 
   // Scroll to bottom on new messages
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  // Load TCM messages from localStorage on mount
-  useEffect(() => {
-    if (isInitializedRef.current) return;
-    isInitializedRef.current = true;
-
-    const key = `${TCM_CONVERSATION_PREFIX}${selectedPersona.id}`;
-
-    // Try TCM-specific registry first
-    const tcmReg = loadTCMRegistry();
-    if (tcmReg.conversations[key]?.messages?.length > 0) {
-      setMessages(tcmReg.conversations[key].messages);
-      return;
-    }
-
-    // Fall back to shared registry (for migrated data)
-    if (userId) {
-      const sharedReg = loadRegistry();
-      if (sharedReg.conversations[key]?.messages?.length > 0) {
-        const shared = sharedReg.conversations[key];
-        const loaded: TCMMessage[] = shared.messages.map((m: AgentMessage) => ({
-          id: m.id,
-          role: m.role as 'user' | 'assistant',
-          content: m.content as string,
-          personaId: m.personaId || selectedPersona.id,
-          personaName: selectedPersona.nameZh,
-          timestamp: (m as any).timestamp || new Date().toISOString(),
-        }));
-        setMessages(loaded);
-      }
-    }
-  }, [selectedPersona.id, userId, selectedPersona.nameZh]);
-
-  // Save to localStorage whenever messages change (both TCM-specific and shared registry)
+  // Save to localStorage whenever messages change
   useEffect(() => {
     if (!isInitializedRef.current) return;
 
     const key = `${TCM_CONVERSATION_PREFIX}${selectedPersona.id}`;
-
-    // Save to TCM-specific registry (fast per-doctor lookup)
     const tcmReg = loadTCMRegistry();
     tcmReg.conversations[key] = {
       messages,
@@ -179,77 +300,7 @@ export function TCMChatInterface() {
       lastUpdated: Date.now(),
     };
     saveTCMRegistry(tcmReg);
-
-    // Save to shared registry so pushSnapshot/useConversationSync can see it
-    if (userId) {
-      const sharedKey = `${TCM_CONVERSATION_PREFIX}${selectedPersona.id}`;
-      const sharedReg = loadRegistry();
-      const agentMessages: AgentMessage[] = messages.map(m => ({
-        id: m.id,
-        role: m.role,
-        content: m.content,
-        personaId: m.personaId,
-        timestamp: m.timestamp ? new Date(m.timestamp) : new Date(),
-      } as AgentMessage));
-      sharedReg.conversations[sharedKey] = {
-        messages: agentMessages,
-        title: '',
-        tags: [],
-        lastUpdated: Date.now(),
-        mode: 'tcm-assistant',
-        contentHash: '',
-        lastSyncedAt: sharedReg.conversations[sharedKey]?.lastSyncedAt,
-        syncStatus: 'pending',
-      };
-      saveSharedRegistry(sharedReg);
-    }
-  }, [messages, selectedPersona, userId]);
-
-  // Migration: on mount, detect any existing TCM messages in TCM-specific registry
-  // and write them to the shared registry so useConversationSync can push them to the server.
-  useEffect(() => {
-    if (migrationDoneRef.current) return;
-    if (!userId) return;
-    migrationDoneRef.current = true;
-
-    const tcmReg = loadTCMRegistry();
-    const keys = Object.keys(tcmReg.conversations).filter(k => k.startsWith(TCM_CONVERSATION_PREFIX));
-
-    if (keys.length === 0) return;
-
-    const sharedReg = loadRegistry();
-    for (const key of keys) {
-      const stored = tcmReg.conversations[key];
-      if (!stored?.messages?.length) continue;
-
-      const personaId = stored.personaId || key.replace(TCM_CONVERSATION_PREFIX, '');
-      const agentMessages: AgentMessage[] = stored.messages.map(m => ({
-        id: m.id,
-        role: m.role,
-        content: m.content,
-        personaId: m.personaId,
-        timestamp: m.timestamp ? new Date(m.timestamp) : new Date(),
-      } as AgentMessage));
-
-      const firstMsg = stored.messages.find((m: TCMMessage) => m.role === 'user');
-      const title = firstMsg
-        ? `向${stored.personaName || personaId}提问：${firstMsg.content.slice(0, 20).replace(/\n/g, ' ').trim()}`
-        : '';
-
-      sharedReg.conversations[key] = {
-        messages: agentMessages,
-        title,
-        tags: [],
-        lastUpdated: stored.lastUpdated || Date.now(),
-        mode: 'tcm-assistant',
-        contentHash: '',
-        lastSyncedAt: undefined,
-        syncStatus: 'pending',
-      };
-      console.log(`[TCM Migration] Migrated ${stored.messages.length} messages for ${key}`);
-    }
-    saveSharedRegistry(sharedReg);
-  }, [userId]);
+  }, [messages, selectedPersona]);
 
   async function sendMessage() {
     if (!input.trim() || isLoading) return;
@@ -258,7 +309,6 @@ export function TCMChatInterface() {
       return;
     }
 
-    // 额度预检查（与人物库一致）
     if (limitReached) {
       setLimitModalType('daily_limit');
       setShowLimitModal(true);
@@ -266,7 +316,7 @@ export function TCMChatInterface() {
     }
 
     const userMsg: TCMMessage = {
-      id: `user-${Date.now()}`,
+      id: `user-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
       role: 'user',
       content: input.trim(),
       personaId: selectedPersona.id,
@@ -287,6 +337,7 @@ export function TCMChatInterface() {
           personaId: selectedPersona.id,
           message: userMsg.content,
           language,
+          conversationId: conversationId || undefined,
           history: messages.slice(-6).map(m => ({ role: m.role, content: m.content })),
         }),
       });
@@ -309,35 +360,52 @@ export function TCMChatInterface() {
       const data = await res.json();
 
       const assistantMsg: TCMMessage = {
-        id: `assistant-${Date.now()}`,
+        id: `assistant-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
         role: 'assistant',
         content: data.response,
-        personaId: data.personaId,
-        personaName: data.personaName,
+        personaId: data.personaId || selectedPersona.id,
+        personaName: data.personaName || selectedPersona.nameZh,
         timestamp: new Date().toISOString(),
       };
 
       setMessages(prev => [...prev, assistantMsg]);
-      setSyncStatus('saved');
 
-      // 更新本地计数（前端乐观更新）
+      // Persist conversationId — the server generates one if none was provided
+      if (data.conversationId) {
+        setConversationId(data.conversationId);
+        saveStoredConvId(selectedPersona.id, data.conversationId);
+      }
+
+      // Update history list if this is a new conversation
+      if (data.conversationId && data.title) {
+        setConversationHistory(prev => {
+          const existing = prev.findIndex(c => c.id === data.conversationId);
+          const newConv: TCMConversationMeta = {
+            id: data.conversationId,
+            title: data.title,
+            personaId: selectedPersona.id,
+            personaName: selectedPersona.nameZh,
+            messageCount: (prev[existing]?.messageCount || 0) + 2,
+            updatedAt: new Date().toISOString(),
+          };
+          if (existing >= 0) {
+            const next = [...prev];
+            next[existing] = newConv;
+            return next;
+          }
+          return [newConv, ...prev];
+        });
+      }
+
+      setSyncStatus('saved');
       incrementCount();
-      // 如果服务端扣了积分，同步到本地 store
       if (data.creditsAfter !== undefined) {
         useAuthStore.getState().updateUser({ credits: data.creditsAfter });
       }
 
-      // Push to server via sync endpoint (mirrors persona chat pushSnapshot)
+      // Push to sync system (mirrors persona chat)
       const conversationKey = `${TCM_CONVERSATION_PREFIX}${selectedPersona.id}`;
       const allMessages = [...messages, userMsg, assistantMsg];
-      const syncMessages = allMessages.map(m => ({
-        id: m.id,
-        role: m.role === 'assistant' ? 'assistant' : 'user',
-        content: m.content,
-        personaId: m.personaId,
-        timestamp: m.timestamp || new Date().toISOString(),
-      }));
-
       pushSnapshot([selectedPersona.id], allMessages as any, undefined, undefined, 'tcm-assistant', userId)
         .catch(err => console.warn('[TCM] pushSnapshot failed:', err));
 
@@ -363,13 +431,45 @@ export function TCMChatInterface() {
     }
   }
 
+  function handleSelectConversation(conv: TCMConversationMeta) {
+    if (conv.personaId && conv.personaId !== selectedPersona.id) {
+      const persona = Object.values(TCM_PERSONA_LIST).find(p => p.id === conv.personaId);
+      if (persona) setSelectedPersona(persona as TCMPersona);
+    }
+    setConversationId(conv.id);
+    saveStoredConvId(selectedPersona.id, conv.id);
+    setShowHistory(false);
+  }
+
+  function handleClearConversation(convId: string) {
+    setConversationHistory(prev => prev.filter(c => c.id !== convId));
+    if (conversationId === convId) {
+      setMessages([]);
+      setConversationId(null);
+      const key = `${TCM_CONVERSATION_PREFIX}${selectedPersona.id}`;
+      const reg = loadTCMRegistry();
+      delete reg.conversations[key];
+      saveTCMRegistry(reg);
+      localStorage.removeItem(TCM_CONVERSATION_ID_KEY);
+    }
+  }
+
   function clearChat() {
     const key = `${TCM_CONVERSATION_PREFIX}${selectedPersona.id}`;
     const reg = loadTCMRegistry();
     delete reg.conversations[key];
     saveTCMRegistry(reg);
     setMessages([]);
+    setConversationId(null);
+    if (conversationId) {
+      saveStoredConvId(selectedPersona.id, '');
+    }
   }
+
+  // Mark as initialized after first render
+  useEffect(() => {
+    isInitializedRef.current = true;
+  }, []);
 
   const syncLabel = {
     idle: null,
@@ -413,6 +513,23 @@ export function TCMChatInterface() {
         {/* Sync status + quota indicator */}
         <div className="flex items-center gap-3 ml-auto">
           {syncLabel[syncStatus]}
+
+          {/* History button */}
+          {userId && (
+            <button
+              onClick={() => setShowHistory(v => !v)}
+              className={cn(
+                'flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-xs transition-all',
+                showHistory
+                  ? 'bg-[#c9a84c]/15 border-[#c9a84c]/30 text-[#c9a84c]'
+                  : 'border-[#1e2d4a] text-slate-500 hover:text-slate-300 hover:border-[#c9a84c]/30'
+              )}
+            >
+              <MessageSquare className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">历史</span>
+            </button>
+          )}
+
           {limitReached ? (
             <Link
               href="/subscribe"
@@ -471,6 +588,37 @@ export function TCMChatInterface() {
           </div>
         </div>
       </div>
+
+      {/* History Sidebar */}
+      <AnimatePresence>
+        {showHistory && userId && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="overflow-hidden border-b border-[#1e2d4a]"
+          >
+            <div className="px-4 py-3 space-y-1 max-h-48 overflow-y-auto">
+              {isLoadingHistory ? (
+                <div className="text-xs text-slate-500 text-center py-2">加载中...</div>
+              ) : conversationHistory.length === 0 ? (
+                <div className="text-xs text-slate-600 text-center py-2">暂无历史对话</div>
+              ) : (
+                conversationHistory.map(conv => (
+                  <ConversationHistoryItem
+                    key={conv.id}
+                    conv={conv}
+                    isActive={conv.id === conversationId}
+                    onSelect={() => handleSelectConversation(conv)}
+                    onClear={() => handleClearConversation(conv.id)}
+                  />
+                ))
+              )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Disclaimer */}
       <DisclaimerBanner />

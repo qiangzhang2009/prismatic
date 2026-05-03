@@ -16,6 +16,7 @@ import { nanoid } from 'nanoid';
 import { createLLMProviderWithKey } from '@/lib/llm';
 import { TCM_PERSONAS } from '@/lib/tcm-personas';
 import { buildRAGContext } from '@/lib/tcm-rag';
+import { buildConversationId } from '@/lib/sync-engine';
 import { authenticateRequest, getUserById } from '@/lib/user-management';
 import { persistConversation } from '@/app/api/chat/route';
 import { checkUserDailyLimit } from '@/lib/message-stats';
@@ -216,7 +217,8 @@ export async function POST(req: NextRequest) {
       }, { status: 429 });
     }
 
-    const convId = conversationId || nanoid();
+    const convId = conversationId
+      || buildConversationId(userId, [personaId]);
 
     // 意图分类：判断是问病情还是聊天/看法
     const intent = classifyUserIntent(message, history);
