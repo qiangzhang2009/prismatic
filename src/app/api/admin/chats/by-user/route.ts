@@ -67,14 +67,13 @@ export async function GET(req: NextRequest) {
     } else if (billingMode === 'B') {
       conditions.push(`(u."apiKeyEncrypted" IS NULL OR u."apiKeyStatus" != 'valid')`);
     }
-    // Exclude [message-counted] sentinel rows
     conditions.push(`(SELECT COUNT(*) FROM messages m WHERE m."conversationId" = c.id AND m.content != '[message-counted]') > 0`);
 
     const where = conditions.length ? `WHERE ${conditions.join(' AND ')}` : '';
 
     // LATERAL join to include full message history for each conversation
     const q = `
-      SELECT c.id, c."userId", c.title, c.mode, c.participants, c.tags,
+      SELECT c.id, c."userId", c.title, c.type, c.mode, c.participants, c.tags,
              c."totalTokens", c."totalCost", c."personaIds",
              c."createdAt", c."updatedAt",
              u.id as "user.id", u.name as "user.name", u.email as "user.email",
@@ -105,16 +104,23 @@ export async function GET(req: NextRequest) {
 
     await pool.end();
 
-    // Group by userId
+    // Group by userId, then aggregate by type (CHAT vs TCM) within each user
     const userMap: Record<string, {
       user: Record<string, unknown> | null;
       conversations: Record<string, unknown>[];
       totalMessages: number; totalCost: number; totalTokens: number;
       convCount: number; lastActivity: string;
+      // Type breakdown (CHAT = persona library, TCM = TCM assistant)
+      typeStats: {
+        persona: { convCount: number; messageCount: number; totalCost: number; totalTokens: number; lastActivity: string };
+        tcm: { convCount: number; messageCount: number; totalCost: number; totalTokens: number; lastActivity: string };
+      };
     }> = {};
 
     for (const r of rows.rows) {
       const uid = r.userId;
+      const convType = r.type || 'CHAT';
+
       if (!userMap[uid]) {
         const hasApiKey = r['user.apiKeyEncrypted'] && r['user.apiKeyStatus'] === 'valid';
         userMap[uid] = {
@@ -125,10 +131,13 @@ export async function GET(req: NextRequest) {
           conversations: [],
           totalMessages: 0, totalCost: 0, totalTokens: 0,
           convCount: 0, lastActivity: '',
+          typeStats: {
+            persona: { convCount: 0, messageCount: 0, totalCost: 0, totalTokens: 0, lastActivity: '' },
+            tcm: { convCount: 0, messageCount: 0, totalCost: 0, totalTokens: 0, lastActivity: '' },
+          },
         };
       }
 
-      // Attach persona names and full messages to each conversation
       const convPersonas = resolvePersonaNames(r.personaIds || []);
       const hasApiKey = r['user.apiKeyEncrypted'] && r['user.apiKeyStatus'] === 'valid';
       const messages = (r.messages || []).map((m: any) => {
@@ -143,9 +152,10 @@ export async function GET(req: NextRequest) {
         return { ...m, personaName: persona?.nameZh || persona?.name || m.personaId, msgMode };
       });
 
-      userMap[uid].conversations.push({
+      const convData = {
         id: r.id,
         title: r.title,
+        type: convType,
         mode: r.mode,
         participants: r.participants,
         tags: r.tags,
@@ -158,13 +168,25 @@ export async function GET(req: NextRequest) {
         billingMode: hasApiKey ? 'A' : 'B',
         personas: convPersonas,
         messages,
-      });
+      };
+
+      userMap[uid].conversations.push(convData);
+
+      const isTCM = convType === 'TCM';
+      const statsKey = isTCM ? 'tcm' : 'persona';
+      userMap[uid].typeStats[statsKey].convCount += 1;
+      userMap[uid].typeStats[statsKey].messageCount += r.real_message_count ?? 0;
+      userMap[uid].typeStats[statsKey].totalCost += Number(r.totalCost || 0);
+      userMap[uid].typeStats[statsKey].totalTokens += r.totalTokens || 0;
+      const act = r.updatedAt?.toISOString() || r.createdAt?.toISOString() || '';
+      if (!userMap[uid].typeStats[statsKey].lastActivity || act > userMap[uid].typeStats[statsKey].lastActivity) {
+        userMap[uid].typeStats[statsKey].lastActivity = act;
+      }
 
       userMap[uid].totalMessages += r.real_message_count ?? 0;
       userMap[uid].totalCost += Number(r.totalCost || 0);
       userMap[uid].totalTokens += r.totalTokens || 0;
       userMap[uid].convCount += 1;
-      const act = r.updatedAt?.toISOString() || r.createdAt?.toISOString() || '';
       if (!userMap[uid].lastActivity || act > userMap[uid].lastActivity) {
         userMap[uid].lastActivity = act;
       }

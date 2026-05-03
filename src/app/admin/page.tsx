@@ -14,7 +14,7 @@ import {
   Trash2, Check, AlertCircle, Loader2, BarChart3,
   Activity, MessageSquare, TrendingUp, Zap,
   LayoutDashboard, UserCog, MessageSquare as MsgIcon,
-  TrendingDown, DollarSign, Bot, BarChart2,
+  TrendingDown, DollarSign, Bot, BarChart2, Brain,
   Database, BookOpen, Clock, ArrowUpRight, ArrowDownRight,
   Target, Layers, Sparkles, GitFork, PieChart, Edit3,
   FlaskConical, UsersRound,
@@ -906,7 +906,7 @@ function UserFilterDropdown({ value, onChange }: { value: string; onChange: (id:
 type AssetDim = 'overview' | 'cost' | 'topics' | 'personas' | 'behavior' | 'userchats';
 
 function AssetsSection() {
-  const [dim, setDim] = useState<AssetDim>('overview');
+  const [dim, setDim] = useState<AssetDim>('userchats');
   const [search, setSearch] = useState('');
   const [billingMode, setBillingMode] = useState('');
   const [mode, setMode] = useState('');
@@ -1809,6 +1809,8 @@ function AssetUserChats({ userChatsData, isLoading, onRefresh }: {
   userChatsData: any; isLoading: boolean; onRefresh: () => void;
 }) {
   const [expandedUser, setExpandedUser] = useState<string | null>(null);
+  // Inner tab: which type of conversations to show when user is expanded
+  const [innerTab, setInnerTab] = useState<Record<string, 'persona' | 'tcm' | 'all'>>({});
 
   const users = userChatsData?.users || [];
   const totalUsers = userChatsData?.totalUsers || 0;
@@ -1821,7 +1823,7 @@ function AssetUserChats({ userChatsData, isLoading, onRefresh }: {
         <div>
           <h4 className="text-sm font-semibold text-white">用户对话记录</h4>
           <p className="text-xs text-gray-500 mt-0.5">
-            共 {totalUsers} 位用户产生对话 · 筛选条件同上（日期/模式/计费）
+            共 {totalUsers} 位用户 · 点击展开查看详情 · 对话记录默认折叠
           </p>
         </div>
         <button
@@ -1860,9 +1862,19 @@ function AssetUserChats({ userChatsData, isLoading, onRefresh }: {
           暂无对话记录
         </div>
       ) : (
-        <div className="space-y-2 max-h-[60vh] overflow-y-auto pr-1">
+        <div className="space-y-2 max-h-[70vh] overflow-y-auto pr-1">
           {users.map((userGroup: any) => {
             const isExpanded = expandedUser === userGroup.user?.id;
+            const activeTab = innerTab[userGroup.user?.id] || 'all';
+            const ts = userGroup.typeStats || {};
+
+            // Filter conversations by active tab
+            const visibleConvs = userGroup.conversations.filter((c: any) => {
+              if (activeTab === 'persona') return c.type !== 'TCM';
+              if (activeTab === 'tcm') return c.type === 'TCM';
+              return true;
+            });
+
             const avatarColor = [
               'from-blue-500 to-purple-500',
               'from-green-500 to-teal-500',
@@ -1897,9 +1909,26 @@ function AssetUserChats({ userChatsData, isLoading, onRefresh }: {
                           </span>
                         )}
                       </div>
-                      {/* Stats row */}
-                      <div className="flex items-center gap-3 mt-0.5 text-[10px] text-gray-500">
-                        <span>{userGroup.convCount} 次对话</span>
+                      {/* Stats row with type breakdown */}
+                      <div className="flex items-center gap-3 mt-0.5 text-[10px] text-gray-500 flex-wrap">
+                        {/* Persona library stat */}
+                        {ts.persona?.convCount > 0 && (
+                          <>
+                            <span className="flex items-center gap-1">
+                              <Bot className="w-2.5 h-2.5 text-purple-400" />
+                              人物库 <span className="text-purple-300">{ts.persona.convCount}</span>次对话
+                            </span>
+                          </>
+                        )}
+                        {/* TCM stat */}
+                        {ts.tcm?.convCount > 0 && (
+                          <>
+                            <span className="flex items-center gap-1">
+                              <Brain className="w-2.5 h-2.5 text-[#c9a84c]" />
+                              中医 <span className="text-[#e8c97a]">{ts.tcm.convCount}</span>次对话
+                            </span>
+                          </>
+                        )}
                         <span className="text-gray-600">·</span>
                         <span>{userGroup.totalMessages} 条消息</span>
                         <span className="text-gray-600">·</span>
@@ -1914,13 +1943,13 @@ function AssetUserChats({ userChatsData, isLoading, onRefresh }: {
                     {isExpanded ? (
                       <span className="text-[10px] text-gray-600">收起</span>
                     ) : (
-                      <span className="text-[10px] text-gray-600">展开 {userGroup.convCount} 个对话</span>
+                      <span className="text-[10px] text-gray-600">{userGroup.convCount} 个对话</span>
                     )}
                     <ChevronRight className={`w-4 h-4 text-gray-500 transition-transform ${isExpanded ? 'rotate-90' : ''}`} />
                   </div>
                 </button>
 
-                {/* Expanded: conversation list */}
+                {/* Expanded: inner type tab + filtered conversation list */}
                 <AnimatePresence>
                   {isExpanded && (
                     <motion.div
@@ -1930,51 +1959,91 @@ function AssetUserChats({ userChatsData, isLoading, onRefresh }: {
                       transition={{ duration: 0.2 }}
                       className="overflow-hidden border-t border-gray-700/40"
                     >
-                      <div className="px-4 py-3 space-y-2">
-                        {userGroup.conversations.map((conv: any) => (
-                          <div key={conv.id} className="bg-gray-900/60 border border-gray-700/40 rounded-lg px-3 py-2">
-                            <div className="flex items-center justify-between gap-2 flex-wrap">
-                              <div className="flex items-center gap-2 flex-wrap">
-                                <span className="text-[10px] text-gray-500">{fmtDate(conv.updatedAt)}</span>
-                                <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-gray-800 text-gray-400">{conv.mode}</span>
-                                <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${conv.billingMode === 'A' ? 'bg-blue-900/30 text-blue-400' : 'bg-green-900/30 text-green-400'}`}>
-                                  {conv.billingMode === 'A' ? 'API Key' : '平台代付'}
-                                </span>
-                                {(conv.personas as Array<{ id: string; name: string; nameZh: string }>)?.length > 0 && (
-                                  <span className="text-[10px] text-gray-500">
-                                    {(conv.personas as Array<{ id: string; name: string; nameZh: string }>).slice(0, 3).map(p => p.nameZh).join(' + ')}
-                                    {conv.personas.length > 3 ? ` +${conv.personas.length - 3}` : ''}
-                                  </span>
-                                )}
-                              </div>
-                              <div className="flex items-center gap-2 text-[10px] text-gray-500">
-                                <span>{conv.messageCount} 条消息</span>
-                                <span className="text-amber-400">¥{Number(conv.totalCost || 0).toFixed(4)}</span>
-                              </div>
-                            </div>
-                            {/* Message preview */}
-                            {conv.messages?.length > 0 && (
-                              <div className="mt-2 space-y-1">
-                                {conv.messages.slice(0, 2).map((msg: any) => {
-                                  const isUser = msg.role === 'user' || msg.role === 'human';
-                                  return (
-                                    <div key={msg.id} className="flex items-start gap-2">
-                                      <span className={`text-[9px] font-bold flex-shrink-0 w-4 ${isUser ? 'text-blue-400' : 'text-purple-400'}`}>
-                                        {isUser ? 'U' : (msg.personaName ? msg.personaName.slice(0, 2) : 'AI')}
-                                      </span>
-                                      <span className="text-[10px] text-gray-400 truncate flex-1">
-                                        {msg.content?.slice(0, 120)}
-                                      </span>
-                                    </div>
-                                  );
-                                })}
-                                {conv.messages.length > 2 && (
-                                  <p className="text-[9px] text-gray-600 pl-6">+{conv.messages.length - 2} 条更多...</p>
-                                )}
-                              </div>
-                            )}
-                          </div>
+                      {/* Inner type tab */}
+                      <div className="px-4 pt-3 flex items-center gap-1 border-b border-gray-800">
+                        {[
+                          { key: 'all', label: `全部 (${userGroup.convCount})` },
+                          { key: 'persona', label: `人物库 (${ts.persona?.convCount ?? 0})` },
+                          { key: 'tcm', label: `中医助手 (${ts.tcm?.convCount ?? 0})` },
+                        ].map(t => (
+                          <button
+                            key={t.key}
+                            onClick={() => setInnerTab(prev => ({ ...prev, [userGroup.user?.id]: t.key as any }))}
+                            className={`px-3 py-1.5 text-xs font-medium transition-all border-b-2 -mb-px ${
+                              activeTab === t.key
+                                ? 'border-purple-400 text-white'
+                                : 'border-transparent text-gray-500 hover:text-gray-300'
+                            }`}
+                          >
+                            {t.label}
+                          </button>
                         ))}
+                        <div className="flex-1" />
+                        <span className="text-[10px] text-gray-600 self-center">
+                          {visibleConvs.length} 个对话
+                        </span>
+                      </div>
+
+                      {/* Conversation list */}
+                      <div className="px-4 py-3 space-y-2 max-h-[50vh] overflow-y-auto">
+                        {visibleConvs.length === 0 ? (
+                          <div className="text-center py-6 text-gray-600 text-xs">
+                            该分类暂无对话
+                          </div>
+                        ) : (
+                          visibleConvs.map((conv: any) => (
+                            <div key={conv.id} className="bg-gray-900/60 border border-gray-700/40 rounded-lg px-3 py-2">
+                              <div className="flex items-center justify-between gap-2 flex-wrap">
+                                <div className="flex items-center gap-2 flex-wrap">
+                                  <span className="text-[10px] text-gray-500">{fmtDate(conv.updatedAt)}</span>
+                                  {/* Type badge */}
+                                  <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium ${
+                                    conv.type === 'TCM'
+                                      ? 'bg-[#c9a84c]/20 text-[#c9a84c] border border-[#c9a84c]/30'
+                                      : 'bg-purple-900/40 text-purple-300 border border-purple-800/40'
+                                  }`}>
+                                    {conv.type === 'TCM' ? '中医' : '人物库'}
+                                  </span>
+                                  <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-gray-800 text-gray-400">{conv.mode}</span>
+                                  <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${conv.billingMode === 'A' ? 'bg-blue-900/30 text-blue-400' : 'bg-green-900/30 text-green-400'}`}>
+                                    {conv.billingMode === 'A' ? 'API Key' : '平台代付'}
+                                  </span>
+                                  {(conv.personas as Array<{ id: string; name: string; nameZh: string }>)?.length > 0 && (
+                                    <span className="text-[10px] text-gray-500">
+                                      {(conv.personas as Array<{ id: string; name: string; nameZh: string }>).slice(0, 3).map(p => p.nameZh).join(' + ')}
+                                      {conv.personas.length > 3 ? ` +${conv.personas.length - 3}` : ''}
+                                    </span>
+                                  )}
+                                </div>
+                                <div className="flex items-center gap-2 text-[10px] text-gray-500">
+                                  <span>{conv.messageCount} 条消息</span>
+                                  <span className="text-amber-400">¥{Number(conv.totalCost || 0).toFixed(4)}</span>
+                                </div>
+                              </div>
+                              {/* Message preview */}
+                              {conv.messages?.length > 0 && (
+                                <div className="mt-2 space-y-1">
+                                  {conv.messages.slice(0, 2).map((msg: any) => {
+                                    const isUser = msg.role === 'user' || msg.role === 'human';
+                                    return (
+                                      <div key={msg.id} className="flex items-start gap-2">
+                                        <span className={`text-[9px] font-bold flex-shrink-0 w-4 ${isUser ? 'text-blue-400' : 'text-purple-400'}`}>
+                                          {isUser ? 'U' : (msg.personaName ? msg.personaName.slice(0, 2) : 'AI')}
+                                        </span>
+                                        <span className="text-[10px] text-gray-400 truncate flex-1">
+                                          {msg.content?.slice(0, 120)}
+                                        </span>
+                                      </div>
+                                    );
+                                  })}
+                                  {conv.messages.length > 2 && (
+                                    <p className="text-[9px] text-gray-600 pl-6">+{conv.messages.length - 2} 条更多...</p>
+                                  )}
+                                </div>
+                              )}
+                            </div>
+                          ))
+                        )}
                       </div>
                     </motion.div>
                   )}
