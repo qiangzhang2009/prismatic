@@ -91,3 +91,43 @@ export async function GET(
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
+
+export async function DELETE(
+  _req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id } = await params;
+
+    const userId = await authenticateRequest(_req);
+    if (!userId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const pool = getPool();
+    try {
+      // Verify ownership before deleting
+      const convResult = await pool.query(
+        `SELECT id FROM conversations WHERE id = $1 AND "userId" = $2 AND type = 'TCM'`,
+        [id, userId]
+      );
+
+      if (convResult.rows.length === 0) {
+        return NextResponse.json({ error: 'Conversation not found' }, { status: 404 });
+      }
+
+      // Delete messages first (foreign key constraint)
+      await pool.query(`DELETE FROM messages WHERE "conversationId" = $1`, [id]);
+      // Delete conversation
+      await pool.query(`DELETE FROM conversations WHERE id = $1`, [id]);
+
+      return NextResponse.json({ success: true });
+    } finally {
+      await pool.end();
+    }
+  } catch (error) {
+    const errMsg = error instanceof Error ? error.message : String(error);
+    console.error('[TCM Conversation DELETE] Error:', errMsg);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
+}
