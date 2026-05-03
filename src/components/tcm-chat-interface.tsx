@@ -119,7 +119,21 @@ export function TCMChatInterface() {
         }),
       });
 
-      if (!res.ok) throw new Error('Request failed');
+      if (!res.ok) {
+        let detail = '请求失败';
+        try {
+          const errData = await res.json();
+          detail = errData.detail || errData.error || detail;
+        } catch {}
+        setMessages(prev => [...prev, {
+          id: `error-${Date.now()}`,
+          role: 'assistant',
+          content: `抱歉，服务暂时不可用 (${detail})。请稍后再试。`,
+          personaId: selectedPersona.id,
+          personaName: selectedPersona.id,
+        }]);
+        return;
+      }
       const data = await res.json();
 
       // 保存 conversationId（用于多轮对话）
@@ -135,6 +149,7 @@ export function TCMChatInterface() {
         personaName: data.personaName,
       }]);
     } catch (err) {
+      console.error('[TCM Chat] Frontend error:', err);
       setMessages(prev => [...prev, {
         id: `error-${Date.now()}`,
         role: 'assistant',

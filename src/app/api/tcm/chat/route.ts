@@ -380,10 +380,11 @@ export async function POST(req: NextRequest) {
       } : null,
       disclaimer: '以上内容仅供参考和学习，不能替代专业医生的诊断和治疗。如有健康问题，请咨询有执照的医疗专业人员。This information is for educational purposes only and is not a substitute for professional medical advice, diagnosis, or treatment.',
     });
-  } catch (err) {
-    console.error('[TCM Chat API] Error:', err);
+  } catch (error) {
+    const errMsg = error instanceof Error ? error.message : String(error);
+    console.error('[TCM Chat] Error:', errMsg);
     return NextResponse.json(
-      { error: 'Internal server error', detail: err instanceof Error ? err.message : String(err) },
+      { error: 'Internal server error', detail: errMsg },
       { status: 500 }
     );
   }
