@@ -22,29 +22,60 @@ const DATA_DIR = path.join(__dirname, '../../data/tcm-rag');
 const SOURCES_DIR = path.join(DATA_DIR, 'sources');
 const MANIFEST = path.join(DATA_DIR, 'manifest.json');
 
-let _manifest = null;
-let _sourceCache = {};
-let _manifestCache = null;
+interface ManifestEntry {
+  sourceId: string;
+  source: string;
+  status: string;
+  chunkCount: number;
+  totalChars: number;
+  createdAt: string;
+}
+
+interface ChunkData {
+  chunkId: string;
+  sourceId: string;
+  source: string;
+  text: string;
+  keywords: string;
+  preview: string;
+  charCount: number;
+  [key: string]: unknown;
+}
+
+interface RetrievedChunk {
+  chunkId: string;
+  sourceId: string;
+  source: string;
+  text: string;
+  keywords: string;
+  preview: string;
+  relevance: number;
+  charCount?: number;
+}
+
+let _manifest: ManifestEntry[] | null = null;
+let _sourceCache: Record<string, ChunkData[]> = {};
+let _manifestCache: ChunkData[] | null = null;
 
 /**
  * Load manifest (cached)
  */
-export async function loadManifest() {
+async function loadManifest(): Promise<ManifestEntry[]> {
   if (_manifest) return _manifest;
   if (!fs.existsSync(MANIFEST)) return [];
-  _manifest = JSON.parse(fs.readFileSync(MANIFEST, 'utf8'));
+  _manifest = JSON.parse(fs.readFileSync(MANIFEST, 'utf8')) as ManifestEntry[];
   return _manifest;
 }
 
 /**
  * Load chunks for a specific source (lazy, cached per source)
  */
-async function loadSource(sourceId: string): Promise<any[]> {
+async function loadSource(sourceId: string): Promise<ChunkData[]> {
   if (_sourceCache[sourceId]) return _sourceCache[sourceId];
   const sourcePath = path.join(SOURCES_DIR, `${sourceId}.json`);
   if (!fs.existsSync(sourcePath)) return [];
   try {
-    _sourceCache[sourceId] = JSON.parse(fs.readFileSync(sourcePath, 'utf8'));
+    _sourceCache[sourceId] = JSON.parse(fs.readFileSync(sourcePath, 'utf8')) as ChunkData[];
   } catch {
     _sourceCache[sourceId] = [];
   }
@@ -55,12 +86,13 @@ async function loadSource(sourceId: string): Promise<any[]> {
  * Load all chunks from manifest (only for local dev with full vectors.json)
  * Used when sources dir is not available.
  */
-async function loadFullStore() {
+async function loadFullStore(): Promise<ChunkData[] | null> {
   const fullPath = path.join(DATA_DIR, 'vectors.json');
   if (!fs.existsSync(fullPath)) return null;
   if (_manifestCache) return _manifestCache;
   try {
-    _manifestCache = JSON.parse(fs.readFileSync(fullPath, 'utf8'));
+    const raw = JSON.parse(fs.readFileSync(fullPath, 'utf8'));
+    _manifestCache = raw.chunks as ChunkData[];
   } catch {
     _manifestCache = null;
   }
@@ -70,18 +102,18 @@ async function loadFullStore() {
 /**
  * BM25-style keyword retrieval (per-source lazy loading)
  */
-function tokenize(text) {
+function tokenize(text: string): string[] {
   return text
     .toLowerCase()
     .replace(/[^\u4e00-\u9fa5a-z0-9]/g, ' ')
     .split(/\s+/)
-    .filter(t => t.length > 1);
+    .filter((t: string) => t.length > 1);
 }
 
-function scoreChunk(chunk, queryTokens) {
+function scoreChunk(chunk: ChunkData, queryTokens: string[]): number {
   const textLower = chunk.text.toLowerCase();
   const kwLower = (chunk.keywords || '').toLowerCase();
-  const score = queryTokens.reduce((acc, token) => {
+  const score = queryTokens.reduce((acc: number, token: string) => {
     const textCount = (textLower.match(new RegExp(token, 'g')) || []).length;
     const kwCount = (kwLower.match(new RegExp(token, 'g')) || []).length;
     // Weight keywords field 3x
@@ -93,12 +125,16 @@ function scoreChunk(chunk, queryTokens) {
 /**
  * Retrieve the most relevant chunks for a given query
  *
- * @param {string} query - User query (symptoms, disease, herb, etc.)
- * @param {number} topK - Number of chunks to return (default 5)
- * @param {string[]} sourceFilter - Optional: restrict to specific source IDs
- * @returns {Promise<Array>} Top-k relevant chunks with source metadata
+ * @param query - User query (symptoms, disease, herb, etc.)
+ * @param topK - Number of chunks to return (default 5)
+ * @param sourceFilter - Optional: restrict to specific source IDs
+ * @returns Top-k relevant chunks with source metadata
  */
-export async function retrieve(query: string, topK = 5, sourceFilter: string[] | null = null) {
+export async function retrieve(
+  query: string,
+  topK = 5,
+  sourceFilter: string[] | null = null
+): Promise<RetrievedChunk[]> {
   const queryTokens = tokenize(query);
 
   if (queryTokens.length === 0) {
@@ -106,7 +142,7 @@ export async function retrieve(query: string, topK = 5, sourceFilter: string[] |
     if (manifest.length > 0) {
       const first = manifest[0];
       const chunks = await loadSource(first.sourceId);
-      return chunks.slice(0, topK).map(c => ({
+      return chunks.slice(0, topK).map((c: ChunkData) => ({
         chunkId: c.chunkId,
         sourceId: c.sourceId,
         source: c.source,
@@ -121,10 +157,10 @@ export async function retrieve(query: string, topK = 5, sourceFilter: string[] |
   }
 
   const manifest = await loadManifest();
-  const targetSources = sourceFilter || manifest.map(m => m.sourceId);
+  const targetSources = sourceFilter || manifest.map((m: ManifestEntry) => m.sourceId);
 
   // Load all relevant sources and score chunks
-  const scored = [];
+  const scored: (ChunkData & { relevance: number })[] = [];
   for (const sourceId of targetSources) {
     const chunks = await loadSource(sourceId);
     for (const chunk of chunks) {
@@ -139,7 +175,7 @@ export async function retrieve(query: string, topK = 5, sourceFilter: string[] |
 
   const top = scored.slice(0, topK);
 
-  return top.map(c => ({
+  return top.map((c: ChunkData & { relevance: number }) => ({
     chunkId: c.chunkId,
     sourceId: c.sourceId,
     source: c.source,
@@ -155,7 +191,11 @@ export async function retrieve(query: string, topK = 5, sourceFilter: string[] |
  * Build an RAG context string from retrieved chunks
  * formatted for injection into LLM prompts
  */
-export async function buildRAGContext(query: string, topK = 5, sourceFilter: string[] | null = null) {
+export async function buildRAGContext(
+  query: string,
+  topK = 5,
+  sourceFilter: string[] | null = null
+): Promise<{ context: string; citations: unknown[]; note: string }> {
   const chunks = await retrieve(query, topK, sourceFilter);
 
   if (chunks.length === 0) {
@@ -166,12 +206,12 @@ export async function buildRAGContext(query: string, topK = 5, sourceFilter: str
     };
   }
 
-  const sections = chunks.map((c, i) => {
+  const sections = chunks.map((c: RetrievedChunk, i: number) => {
     const citation = c.source || c.sourceId;
     return `【古籍${i + 1}】《${citation}》\n${c.text}`;
   });
 
-  const citations = chunks.map(c => ({
+  const citations = chunks.map((c: RetrievedChunk) => ({
     source: c.source || c.sourceId,
     keywords: c.keywords,
     relevance: c.relevance,
@@ -187,16 +227,25 @@ export async function buildRAGContext(query: string, topK = 5, sourceFilter: str
 /**
  * Get RAG store statistics
  */
-export async function getRAGStats() {
+export async function getRAGStats(): Promise<{
+  ready: boolean;
+  error?: string;
+  totalChunks?: number;
+  totalSources?: number;
+  totalChars?: number;
+  totalCharsMB?: string;
+  createdAt?: string;
+  sources?: { sourceId: string; chunkCount: number; totalChars: number }[];
+}> {
   const manifest = await loadManifest();
 
   if (!manifest || manifest.length === 0) {
     return { ready: false, error: 'RAG manifest not found. Run the ingestion script first.' };
   }
 
-  const successfulSources = manifest.filter(m => m.status === 'chunked');
-  const totalChars = successfulSources.reduce((s, m) => s + m.totalChars, 0);
-  const totalChunks = successfulSources.reduce((s, m) => s + m.chunkCount, 0);
+  const successfulSources = manifest.filter((m: ManifestEntry) => m.status === 'chunked');
+  const totalChars = successfulSources.reduce((s: number, m: ManifestEntry) => s + m.totalChars, 0);
+  const totalChunks = successfulSources.reduce((s: number, m: ManifestEntry) => s + m.chunkCount, 0);
 
   return {
     ready: true,
@@ -205,7 +254,7 @@ export async function getRAGStats() {
     totalChars,
     totalCharsMB: (totalChars / 1024 / 1024).toFixed(1),
     createdAt: manifest[0]?.createdAt || '',
-    sources: successfulSources.map(m => ({
+    sources: successfulSources.map((m: ManifestEntry) => ({
       sourceId: m.sourceId,
       chunkCount: m.chunkCount,
       totalChars: m.totalChars,
@@ -216,7 +265,7 @@ export async function getRAGStats() {
 /**
  * Clear the in-memory cache (useful for memory management)
  */
-export function clearCache() {
+export function clearCache(): void {
   _sourceCache = {};
   _manifest = null;
   _manifestCache = null;
