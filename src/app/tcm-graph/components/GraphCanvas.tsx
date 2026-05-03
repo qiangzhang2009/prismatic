@@ -211,6 +211,25 @@ function buildLayout(nodes: TCMNode[], edges: TCMEdge[], eraFilter: string, scho
   return { layoutNodes, layoutEdges };
 }
 
+// ─── Touch + Responsive Helpers ─────────────────────────────────────────────────
+
+interface TouchState {
+  active: boolean;
+  lastX: number;
+  lastY: number;
+  lastDist: number;
+}
+
+function getTouchDist(t1: Touch, t2: Touch): number {
+  const dx = t1.clientX - t2.clientX;
+  const dy = t1.clientY - t2.clientY;
+  return Math.sqrt(dx * dx + dy * dy);
+}
+
+function isMobileDevice(): boolean {
+  return typeof window !== 'undefined' && window.innerWidth < 768;
+}
+
 // ─── SVG Helpers ───────────────────────────────────────────────────────────────
 
 function roundTo(n: number, decimals: number) {
@@ -247,13 +266,31 @@ export function GraphCanvas({ nodes, edges, eraFilter, schoolFilter, edgeTypeFil
   const [scale, setScale] = useState(1);
   const [panelNode, setPanelNode] = useState<TCMNode | null>(null);
   const [showGuide, setShowGuide] = useState(false);
+  const touchStateRef = useRef<TouchState>({ active: false, lastX: 0, lastY: 0, lastDist: 0 });
 
   const { layoutNodes, layoutEdges } = useMemo(
     () => buildLayout(nodes, edges, eraFilter, schoolFilter, edgeTypeFilter),
     [nodes, edges, eraFilter, schoolFilter, edgeTypeFilter]
   );
 
-  // Fit to view on data change — responsive padding so nodes are readable on mobile
+  // Fit to view on mount/data change — mobile uses larger initial viewport so nodes stay readable
+  const containerSizeRef = useRef({ w: 0, h: 0 });
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const obs = new ResizeObserver(entries => {
+      for (const entry of entries) {
+        containerSizeRef.current = {
+          w: entry.contentRect.width,
+          h: entry.contentRect.height,
+        };
+      }
+    });
+    obs.observe(el);
+    containerSizeRef.current = { w: el.clientWidth, h: el.clientHeight };
+    return () => obs.disconnect();
+  }, []);
+
   useEffect(() => {
     if (layoutNodes.length === 0) return;
     const xs = layoutNodes.map(n => n.x);
@@ -262,18 +299,56 @@ export function GraphCanvas({ nodes, edges, eraFilter, schoolFilter, edgeTypeFil
     const maxX = Math.max(...xs);
     const minY = Math.min(...ys);
     const maxY = Math.max(...ys);
-    const contentW = maxX - minX;
-    const contentH = maxY - minY;
-    // Adaptive padding: small on narrow screens so nodes are larger,
-    // normal on wide screens.
+    const { w, h } = containerSizeRef.current;
+    // On mobile: make viewBox match physical pixels so SVG units ≈ px
+    // On desktop: keep virtual coordinate system for SVG features
     const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
-    const padding = isMobile ? 0 : 80;
-    const size = Math.max(contentW, contentH, 400) + padding * 2;
-    const cx = (minX + maxX) / 2;
-    const cy = (minY + maxY) / 2;
-    setViewBox({ minX: cx - size / 2, minY: cy - size / 2, width: size, height: size });
+    if (isMobile) {
+      // Set viewBox to screen pixel dimensions so node coordinates map 1:1
+      const newViewBox = {
+        minX: 0,
+        minY: 0,
+        width: Math.max(w, 320),
+        height: Math.max(h, 480),
+      };
+      setViewBox(newViewBox);
+    } else {
+      // Desktop: virtual coordinate system
+      const contentW = maxX - minX;
+      const contentH = maxY - minY;
+      const padding = 80;
+      const size = Math.max(contentW, contentH, 400) + padding * 2;
+      const cx = (minX + maxX) / 2;
+      const cy = (minY + maxY) / 2;
+      setViewBox({ minX: cx - size / 2, minY: cy - size / 2, width: size, height: size });
+    }
     setScale(1);
   }, [eraFilter, schoolFilter, edgeTypeFilter]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Build layout nodes in absolute pixel coordinates on mobile
+  const mobileLayoutNodes = useMemo(() => {
+    const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+    if (!isMobile) return layoutNodes;
+    const { w, h } = containerSizeRef.current;
+    const size = Math.max(w, 320);
+    const cx = size / 2;
+    const cy = size / 2;
+    const maxRingR = Math.min(cx, cy) * 0.7;
+
+    return layoutNodes.map(n => ({
+      ...n,
+      // Remap from virtual coords to pixel coords centered in container
+      x: cx + n.x,
+      y: cy + n.y,
+      r: Math.max(n.r, 18),
+    }));
+  }, [layoutNodes]);
+
+  // Use mobile layout only on mobile, otherwise original
+  const activeLayoutNodes = useMemo(() => {
+    const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+    return isMobile ? mobileLayoutNodes : layoutNodes;
+  }, [mobileLayoutNodes, layoutNodes]);
 
   // Connected node set
   const connectedIds = useMemo(() => {
@@ -305,11 +380,12 @@ export function GraphCanvas({ nodes, edges, eraFilter, schoolFilter, edgeTypeFil
 
   const handleMouseUp = useCallback(() => setIsPanning(false), []);
 
-  // Wheel zoom — use native addEventListener (not React onWheel) so we can
+  // Wheel zoom + touch pinch-zoom — use native addEventListener (not React onWheel) so we can
   // call preventDefault() without conflicting with Next.js passive listeners.
   useEffect(() => {
     const el = containerRef.current;
     if (!el) return;
+
     const onWheel = (e: WheelEvent) => {
       e.preventDefault();
       const rect = el.getBoundingClientRect();
@@ -330,9 +406,87 @@ export function GraphCanvas({ nodes, edges, eraFilter, schoolFilter, edgeTypeFil
       });
       setScale(s => Math.max(0.2, Math.min(5, s * (e.deltaY > 0 ? 1 / 1.12 : 1.12))));
     };
+
+    // Touch handlers for mobile pinch-zoom + pan
+    const onTouchStart = (e: TouchEvent) => {
+      e.preventDefault();
+      if (e.touches.length === 1) {
+        const t = e.touches[0];
+        touchStateRef.current = {
+          active: true,
+          lastX: t.clientX,
+          lastY: t.clientY,
+          lastDist: 0,
+        };
+        setIsPanning(true);
+      } else if (e.touches.length === 2) {
+        setIsPanning(false);
+        touchStateRef.current.lastDist = getTouchDist(e.touches[0], e.touches[1]);
+      }
+    };
+
+    const onTouchMove = (e: TouchEvent) => {
+      e.preventDefault();
+      const ts = touchStateRef.current;
+      if (!ts.active && e.touches.length < 2) return;
+
+      const rect = el.getBoundingClientRect();
+
+      if (e.touches.length === 1) {
+        // Single-finger pan
+        const t = e.touches[0];
+        const dx = (t.clientX - ts.lastX) / rect.width * viewBox.width;
+        const dy = (t.clientY - ts.lastY) / rect.height * viewBox.height;
+        ts.lastX = t.clientX;
+        ts.lastY = t.clientY;
+        setViewBox(v => ({
+          ...v,
+          minX: v.minX - dx,
+          minY: v.minY - dy,
+        }));
+      } else if (e.touches.length === 2) {
+        // Two-finger pinch zoom
+        const dist = getTouchDist(e.touches[0], e.touches[1]);
+        const midX = (e.touches[0].clientX + e.touches[1].clientX) / 2 - rect.left;
+        const midY = (e.touches[0].clientY + e.touches[1].clientY) / 2 - rect.top;
+        const factor = dist / ts.lastDist;
+        ts.lastDist = dist;
+
+        setViewBox(v => {
+          const newW = Math.max(150, Math.min(5000, v.width / factor));
+          const newH = Math.max(150, Math.min(5000, v.height / factor));
+          const fx = midX / rect.width;
+          const fy = midY / rect.height;
+          return {
+            minX: v.minX + (v.width - newW) * fx,
+            minY: v.minY + (v.height - newH) * fy,
+            width: newW,
+            height: newH,
+          };
+        });
+        setScale(s => Math.max(0.2, Math.min(5, s * factor)));
+      }
+    };
+
+    const onTouchEnd = () => {
+      touchStateRef.current.active = false;
+      touchStateRef.current.lastDist = 0;
+      setIsPanning(false);
+    };
+
     el.addEventListener('wheel', onWheel, { passive: false });
-    return () => el.removeEventListener('wheel', onWheel);
-  }, []);
+    el.addEventListener('touchstart', onTouchStart, { passive: false });
+    el.addEventListener('touchmove', onTouchMove, { passive: false });
+    el.addEventListener('touchend', onTouchEnd, { passive: false });
+    el.addEventListener('touchcancel', onTouchEnd, { passive: false });
+    return () => {
+      el.removeEventListener('wheel', onWheel);
+      el.removeEventListener('touchstart', onTouchStart);
+      el.removeEventListener('touchmove', onTouchMove);
+      el.removeEventListener('touchend', onTouchEnd);
+      el.removeEventListener('touchcancel', onTouchEnd);
+    };
+  }, [viewBox]);
 
   const zoomIn = () => {
     setViewBox(v => {
@@ -432,23 +586,28 @@ export function GraphCanvas({ nodes, edges, eraFilter, schoolFilter, edgeTypeFil
           </filter>
         </defs>
 
-        {/* Grid background dots */}
-        {Array.from({ length: 30 }, (_, i) => (
-          Array.from({ length: 30 }, (_, j) => (
-            <circle
-              key={`dot-${i}-${j}`}
-              cx={roundTo(viewBox.minX + (viewBox.width / 30) * i, 3)}
-              cy={roundTo(viewBox.minY + (viewBox.height / 30) * j, 3)}
-              r={0.8}
-              fill="rgba(148,163,184,0.08)"
-            />
-          ))
-        )).flat()}
+        {/* Grid background dots — hidden on mobile */}
+        <style>{`
+          @media (max-width: 767px) { .grid-dots { display: none; } }
+        `}</style>
+        <g className="grid-dots">
+          {Array.from({ length: 30 }, (_, i) => (
+            Array.from({ length: 30 }, (_, j) => (
+              <circle
+                key={`dot-${i}-${j}`}
+                cx={roundTo(viewBox.minX + (viewBox.width / 30) * i, 3)}
+                cy={roundTo(viewBox.minY + (viewBox.height / 30) * j, 3)}
+                r={0.8}
+                fill="rgba(148,163,184,0.08)"
+              />
+            ))
+          )).flat()}
+        </g>
 
         {/* Edges */}
-        {layoutEdges.map((e, i) => {
-          const src = layoutNodes.find(n => n.id === e.source);
-          const tgt = layoutNodes.find(n => n.id === e.target);
+        {activeLayoutNodes.length > 0 && layoutEdges.map((e, i) => {
+          const src = activeLayoutNodes.find(n => n.id === e.source);
+          const tgt = activeLayoutNodes.find(n => n.id === e.target);
           if (!src || !tgt) return null;
           const edgeColor = EDGE_COLORS[e.type] || '#94a3b8';
           const isEdgeHovered = hoveredNode === e.source || hoveredNode === e.target;
@@ -488,7 +647,7 @@ export function GraphCanvas({ nodes, edges, eraFilter, schoolFilter, edgeTypeFil
         })}
 
         {/* Text nodes (典籍) */}
-        {layoutNodes.filter(n => n.type === 'text').map(node => {
+        {activeLayoutNodes.filter(n => n.type === 'text').map(node => {
           const dim = isDim(node.id);
           const hovered = hoveredNode === node.id;
           const selected = selectedNode?.id === node.id;
@@ -528,7 +687,7 @@ export function GraphCanvas({ nodes, edges, eraFilter, schoolFilter, edgeTypeFil
         })}
 
         {/* Person nodes */}
-        {layoutNodes.filter(n => n.type === 'person').map(node => {
+        {activeLayoutNodes.filter(n => n.type === 'person').map(node => {
           const dim = isDim(node.id);
           const hovered = hoveredNode === node.id;
           const selected = selectedNode?.id === node.id;
@@ -595,7 +754,7 @@ export function GraphCanvas({ nodes, edges, eraFilter, schoolFilter, edgeTypeFil
       {/* Stats badge */}
       <div className="absolute top-4 left-4 glass px-3 py-1.5 rounded-lg text-xs text-slate-400 flex items-center gap-2">
         <Users className="w-3.5 h-3.5" />
-        <span>{layoutNodes.filter(n => n.type === 'person').length} 人物</span>
+        <span>{activeLayoutNodes.filter(n => n.type === 'person').length} 人物</span>
         <span className="text-slate-600">·</span>
         <span>{layoutEdges.length} 关系</span>
         <span className="text-slate-600">·</span>

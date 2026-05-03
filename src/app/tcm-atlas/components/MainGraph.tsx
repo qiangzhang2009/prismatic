@@ -209,6 +209,7 @@ export function MainGraph({
   const [zoom, setZoom] = useState(1);
   const isDragging = useRef(false);
   const dragStart = useRef({ x: 0, y: 0, panX: 0, panY: 0 });
+  const touchStateRef = useRef<{ active: boolean; lastX: number; lastY: number; lastDist: number }>({ active: false, lastX: 0, lastY: 0, lastDist: 0 });
 
   const [tick, setTick] = useState(0);
   useEffect(() => {
@@ -222,7 +223,7 @@ export function MainGraph({
   );
 
   // Compute SVG canvas size from container
-  const [containerSize, setContainerSize] = useState({ w: 1200, h: 900 });
+  const [containerSize, setContainerSize] = useState({ w: 0, h: 0 });
   useEffect(() => {
     const el = containerRef.current;
     if (!el) return;
@@ -232,6 +233,7 @@ export function MainGraph({
       }
     });
     obs.observe(el);
+    // Initial measurement
     setContainerSize({ w: el.clientWidth, h: el.clientHeight });
     return () => obs.disconnect();
   }, []);
@@ -313,6 +315,49 @@ export function MainGraph({
     setZoom(z => Math.max(0.3, Math.min(3, z * factor)));
   }, []);
 
+  // Touch handlers for mobile
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    e.preventDefault();
+    if (e.touches.length === 1) {
+      const t = e.touches[0];
+      isDragging.current = true;
+      dragStart.current = { x: t.clientX, y: t.clientY, panX: pan.x, panY: pan.y };
+      touchStateRef.current = { active: true, lastX: t.clientX, lastY: t.clientY, lastDist: 0 };
+    } else if (e.touches.length === 2) {
+      isDragging.current = false;
+      const dx = e.touches[0].clientX - e.touches[1].clientX;
+      const dy = e.touches[0].clientY - e.touches[1].clientY;
+      touchStateRef.current.lastDist = Math.sqrt(dx * dx + dy * dy);
+    }
+  }, [pan]);
+
+  const handleTouchMove = useCallback((e: React.TouchEvent) => {
+    e.preventDefault();
+    const ts = touchStateRef.current;
+    if (e.touches.length === 1 && isDragging.current) {
+      const t = e.touches[0];
+      const dx = t.clientX - ts.lastX;
+      const dy = t.clientY - ts.lastY;
+      ts.lastX = t.clientX;
+      ts.lastY = t.clientY;
+      setPan({ x: pan.x + dx, y: pan.y + dy });
+    } else if (e.touches.length === 2) {
+      isDragging.current = false;
+      const dx = e.touches[0].clientX - e.touches[1].clientX;
+      const dy = e.touches[0].clientY - e.touches[1].clientY;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      const factor = dist / ts.lastDist;
+      ts.lastDist = dist;
+      setZoom(z => Math.max(0.3, Math.min(3, z * factor)));
+    }
+  }, [pan]);
+
+  const handleTouchEnd = useCallback(() => {
+    isDragging.current = false;
+    touchStateRef.current.active = false;
+    touchStateRef.current.lastDist = 0;
+  }, []);
+
   const handleBgClick = (e: React.MouseEvent) => {
     if ((e.target as Element).closest('[data-node]')) return;
     onNodeSelect(null);
@@ -346,6 +391,10 @@ export function MainGraph({
       onMouseUp={handleMouseUp}
       onMouseLeave={handleMouseUp}
       onWheel={handleWheel}
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
+      onTouchCancel={handleTouchEnd}
       onClick={handleBgClick}
     >
       {/* Star field */}
@@ -371,29 +420,39 @@ export function MainGraph({
         }
       `}</style>
 
-      {/* Ring guide circles */}
-      <div
-        className="absolute pointer-events-none opacity-20"
-        style={{
-          left: pan.x, top: pan.y,
-          width: 760, height: 760,
-          marginLeft: -380, marginTop: -380,
-          transform: `scale(${zoom})`,
-          borderRadius: '50%',
-          border: '1px dashed rgba(255,255,255,0.06)',
-        }}
-      />
-      <div
-        className="absolute pointer-events-none opacity-15"
-        style={{
-          left: pan.x, top: pan.y,
-          width: 220, height: 220,
-          marginLeft: -110, marginTop: -110,
-          transform: `scale(${zoom})`,
-          borderRadius: '50%',
-          border: '1px solid rgba(255,255,255,0.04)',
-        }}
-      />
+      {/* Ring guide circles — size relative to container */}
+      {containerSize.w > 0 && (
+        <>
+          <div
+            className="absolute pointer-events-none"
+            style={{
+              left: pan.x, top: pan.y,
+              width: Math.min(containerSize.w * 0.85, 760),
+              height: Math.min(containerSize.w * 0.85, 760),
+              marginLeft: -Math.min(containerSize.w * 0.85, 760) / 2,
+              marginTop: -Math.min(containerSize.w * 0.85, 760) / 2,
+              transform: `scale(${zoom})`,
+              transformOrigin: 'center center',
+              borderRadius: '50%',
+              border: '1px dashed rgba(255,255,255,0.06)',
+            }}
+          />
+          <div
+            className="absolute pointer-events-none"
+            style={{
+              left: pan.x, top: pan.y,
+              width: Math.min(containerSize.w * 0.25, 220),
+              height: Math.min(containerSize.w * 0.25, 220),
+              marginLeft: -Math.min(containerSize.w * 0.25, 220) / 2,
+              marginTop: -Math.min(containerSize.w * 0.25, 220) / 2,
+              transform: `scale(${zoom})`,
+              transformOrigin: 'center center',
+              borderRadius: '50%',
+              border: '1px solid rgba(255,255,255,0.04)',
+            }}
+          />
+        </>
+      )}
 
       {/* Edge canvas */}
       <canvas
