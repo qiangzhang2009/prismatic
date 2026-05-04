@@ -12,7 +12,7 @@ import { useAuthStore } from '@/lib/auth-store';
 import { LimitReachedModal, type LimitModalType } from '@/components/limit-reached-modal';
 import { ExportPanel } from '@/components/export-panel';
 import { exportChatAsImage, generateChatText, downloadTextViaAPI } from '@/lib/export-chat';
-import type { AgentMessage } from '@/lib/types';
+import type { AgentMessage, Mode } from '@/lib/types';
 
 const TCM_COLORS = {
   bg: 'bg-[#050810]',
@@ -1042,7 +1042,7 @@ export function TCMChatInterface() {
         open={showExportPanel}
         onClose={() => setShowExportPanel(false)}
         messages={messagesAsAgentMessages}
-        mode="solo" as any
+        {...({ mode: 'solo' as Mode })}
         selectedPersonaIds={[selectedPersona.id]}
         personaNames={selectedPersona.nameZh}
       />

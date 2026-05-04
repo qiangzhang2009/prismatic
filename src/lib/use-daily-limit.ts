@@ -48,7 +48,7 @@ function saveDailyCount(count: number) {
 
 export function useDailyLimit() {
   const user = useAuthStore(s => s.user);
-  const refreshUser = useAuthStore(s => s.refreshUser);
+  const refreshUser = useAuthStore(s => s.refresh);
 
   const plan = user?.plan ?? 'FREE';
   const credits = user?.credits ?? 0;
