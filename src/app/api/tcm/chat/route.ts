@@ -300,6 +300,7 @@ export async function POST(req: NextRequest) {
     ];
 
     // 复用 chat API 的 persistConversation（原子事务：conversation + messages）
+    // skipDailyCount=true：TCM 对话内容不计入每日额度，单独由 recordMessage 计数
     const persistResult = await persistConversation(
       userId,
       convId,
@@ -308,7 +309,8 @@ export async function POST(req: NextRequest) {
       [personaId],
       chatMessages,
       totalTokens,
-      cost
+      cost,
+      true, // skipDailyCount
     );
 
     if (!persistResult) {

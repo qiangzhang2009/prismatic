@@ -70,21 +70,31 @@ export async function recordMessage(userId: string): Promise<void> {
 }
 
 // ─── Get daily message count ─────────────────────────────────────────────────
-
+// Excludes:
+//   1. '[message-counted]' placeholder records (used by recordMessage)
+//   2. Records with metadata.skipDailyCount=true (used by TCM persistConversation)
 export async function getDailyMessageCount(userId: string, date?: string): Promise<number> {
   const targetDate = date ? new Date(date) : new Date();
   targetDate.setHours(0, 0, 0, 0);
   const nextDate = new Date(targetDate);
   nextDate.setDate(nextDate.getDate() + 1);
 
-  const count = await prismaStats.message.count({
-    where: {
-      userId,
-      createdAt: { gte: targetDate, lt: nextDate },
-      content: { not: '[message-counted]' },
-    },
-  });
-  return count;
+  // Use raw SQL to filter JSON metadata.skipDailyCount (Prisma count can't do this)
+  const result = await prismaStats.$queryRaw<{ cnt: bigint }[]>`
+    SELECT COUNT(*)::bigint AS cnt
+    FROM messages
+    WHERE "userId" = ${userId}
+      AND "createdAt" >= ${targetDate}
+      AND "createdAt" < ${nextDate}
+      AND content != '[message-counted]'
+      AND (
+        metadata IS NULL
+        OR metadata::text = 'null'
+        OR metadata->>'skipDailyCount' IS NULL
+        OR metadata->>'skipDailyCount' = 'false'
+      )
+  `;
+  return Number(result[0]?.cnt ?? '0');
 }
 
 // ─── Get message history ────────────────────────────────────────────────────

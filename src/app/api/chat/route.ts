@@ -70,7 +70,8 @@ export async function persistConversation(
   participantIds: string[],
   messages: any[],
   totalTokens?: number,
-  totalCost?: number
+  totalCost?: number,
+  skipDailyCount?: boolean,
 ) {
   const totalTokensNum = totalTokens || 0;
   const totalCostNum = totalCost ? parseFloat(String(totalCost)) : 0;
@@ -183,6 +184,16 @@ export async function persistConversation(
           : (tsRaw ? new Date(tsRaw as string | number) : new Date());
         if (isNaN(ts.getTime())) continue; // Skip invalid timestamps
 
+        // Build metadata: inject skipDailyCount flag so getDailyMessageCount can filter it out
+        let metadataValue: string | null = null;
+        if (msg.metadata && typeof msg.metadata === 'object') {
+          const meta = { ...msg.metadata as Record<string, unknown> };
+          if (skipDailyCount) meta.skipDailyCount = true;
+          metadataValue = JSON.stringify(meta);
+        } else if (skipDailyCount) {
+          metadataValue = JSON.stringify({ skipDailyCount: true });
+        }
+
         validMessages.push({
           id: msgId,
           role,
@@ -192,7 +203,7 @@ export async function persistConversation(
           tokensInput: msg._usage?.promptTokens ?? msg.tokensInput ?? null,
           tokensOutput: msg._usage?.completionTokens ?? msg.tokensOutput ?? null,
           apiCost: msg.apiCost ? parseFloat(String(msg.apiCost)) : null,
-          metadata: (msg.metadata && typeof msg.metadata === 'object') ? JSON.stringify(msg.metadata) : null,
+          metadata: metadataValue,
           ts,
         });
       }
