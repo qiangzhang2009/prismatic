@@ -207,12 +207,18 @@ export async function POST(req: NextRequest) {
     const userCredits = user?.credits ?? 0;
     const { allowed, current, limit, reason } = await checkUserDailyLimit(userId, userPlan, userCredits);
     if (!allowed) {
+      // Always include serverDailyCount in error responses so frontend can sync
+      let serverDailyCount: number | undefined;
+      try {
+        serverDailyCount = await getDailyMessageCount(userId);
+      } catch {}
       return NextResponse.json({
         error: `今日对话次数已达上限（${limit}次/天），明天再来吧~`,
         code: 'DAILY_LIMIT_REACHED',
         current,
         limit,
         billingReason: reason,
+        serverDailyCount,
       }, { status: 429 });
     }
 

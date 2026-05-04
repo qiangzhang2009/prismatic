@@ -124,6 +124,7 @@ export function TCMChatInterface() {
   const { pushSnapshot } = useConversationSync();
   const { plan, credits, isPaid, hasCredits, dailyLimit, dailyCount,
     dailyRemaining, limitReached, creditsExhausted, incrementCount,
+    syncDailyCount,
   } = useDailyLimit();
 
   const [selectedPersona, setSelectedPersona] = useState<TCMPersona>(
@@ -403,6 +404,10 @@ export function TCMChatInterface() {
 
       if (res.status === 429) {
         const errData = await res.json().catch(() => ({}));
+        // Sync server count BEFORE showing modal so the pre-check next time shows correct number
+        if (errData.serverDailyCount !== undefined) {
+          syncDailyCount(errData.serverDailyCount);
+        }
         throw Object.assign(new Error(errData.error || '今日对话次数已达上限'), { code: 'DAILY_LIMIT_REACHED' });
       }
 
@@ -430,10 +435,10 @@ export function TCMChatInterface() {
       setMessages(prev => [...prev, assistantMsg]);
       setSyncStatus('saved');
 
-      // 更新本地计数（前端乐观更新）
-      // 优先使用服务器权威计数同步 localStorage，避免硬刷新后计数丢失
+      // 更新本地计数：优先使用服务器权威计数立即同步 state
       if (data.serverDailyCount !== undefined) {
-        saveDailyCount(data.serverDailyCount);
+        // syncDailyCount 同时更新 localStorage 和 React state，触发立即重渲染
+        syncDailyCount(data.serverDailyCount);
       } else {
         incrementCount();
       }

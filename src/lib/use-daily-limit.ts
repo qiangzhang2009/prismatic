@@ -77,6 +77,16 @@ export function useDailyLimit() {
     setDailyCount(next);
   }, [isPaid, hasCredits]);
 
+  // Expose setDailyCount so callers can sync server-authoritative count.
+  // CRITICAL: calling setDailyCount here causes immediate re-render, so the
+  // pre-check on the next render sees the updated count. Without this, the
+  // UI shows stale localStorage data (from before server sync) and the
+  // pre-check allows one extra message before the 429 fires.
+  const syncDailyCount = useCallback((count: number) => {
+    saveDailyCount(count);
+    setDailyCount(count);
+  }, []);
+
   // Re-check on midnight / storage change
   useEffect(() => {
     if (isPaid || hasCredits) return;
@@ -105,5 +115,6 @@ export function useDailyLimit() {
     limitReached,
     creditsExhausted,
     incrementCount,
+    syncDailyCount,
   };
 }

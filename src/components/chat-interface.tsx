@@ -135,6 +135,10 @@ export function ChatInterface({ className, initialPersona, initialMode }: ChatIn
   const toggleRef = useRef<HTMLButtonElement>(null);
   const isPickerOpenRef = useRef(false);
   const [turnCount, setTurnCount] = useState(0);
+  // Reactive daily count — synced from server on every response.
+  // CRITICAL: must be React state (not a local variable from getDailyCount())
+  // so that updates trigger re-renders and the pre-check sees the correct count.
+  const [dailyCountState, setDailyCountState] = useState(() => getDailyCount().count);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const initialized = useRef(false);
@@ -413,9 +417,8 @@ export function ChatInterface({ className, initialPersona, initialMode }: ChatIn
     }
 
     // 每日限制检查：有积分的用户不受 localStorage 每日限制约束
-    const { count } = getDailyCount();
     const limits = getFeatureLimit(currentPlan);
-    if (!currentIsPaid && !currentHasCredits && count >= limits.dailyMessages) {
+    if (!currentIsPaid && !currentHasCredits && dailyCountState >= limits.dailyMessages) {
       setLimitModalType('daily_limit');
       setShowLimitModal(true);
       return;
@@ -467,6 +470,16 @@ export function ChatInterface({ className, initialPersona, initialMode }: ChatIn
         try { data = await response.json(); } catch {}
         const isLimitReached = response.status === 429 || (data?.code === 'DAILY_LIMIT_REACHED');
         if (isLimitReached) {
+          // Sync server count to React state before showing modal
+          if (data.serverDailyCount !== undefined) {
+            try {
+              const today = new Date();
+              today.setHours(0, 0, 0, 0);
+              localStorage.setItem(DAILY_LIMIT_KEY, String(data.serverDailyCount));
+              localStorage.setItem(DAILY_DATE_KEY, today.toDateString());
+              setDailyCountState(data.serverDailyCount);
+            } catch {}
+          }
           setLimitModalType('daily_limit');
           setShowLimitModal(true);
         } else if (response.status === 401) {
@@ -490,6 +503,17 @@ export function ChatInterface({ className, initialPersona, initialMode }: ChatIn
 
       const data = await response.json();
 
+      // Sync server's authoritative daily count to React state + localStorage
+      if (data.serverDailyCount !== undefined) {
+        try {
+          const today = new Date();
+          today.setHours(0, 0, 0, 0);
+          localStorage.setItem(DAILY_LIMIT_KEY, String(data.serverDailyCount));
+          localStorage.setItem(DAILY_DATE_KEY, today.toDateString());
+          setDailyCountState(data.serverDailyCount);
+        } catch {}
+      }
+
       // Update credits display after successful deduction
       // Only show credits_exhausted modal if the user had credits before this message
       // (prevents confusing "credits exhausted" popup when user already had 0 credits)
@@ -501,22 +525,6 @@ export function ChatInterface({ className, initialPersona, initialMode }: ChatIn
         // Update the user's credits in the Zustand store
         const { updateUser } = useAuthStore.getState();
         updateUser({ credits: data.creditsRemaining });
-      }
-
-      // Use serverDailyCount to update localStorage (authoritative source).
-      // If serverDailyCount is unavailable (API returned undefined), fall back to incrementing.
-      if (data.serverDailyCount !== undefined) {
-        // Sync localStorage to server's authoritative count
-        // Next render will read the new value from localStorage via getDailyCount()
-        try {
-          const today = new Date();
-          today.setHours(0, 0, 0, 0);
-          localStorage.setItem(DAILY_LIMIT_KEY, String(data.serverDailyCount));
-          localStorage.setItem(DAILY_DATE_KEY, today.toDateString());
-        } catch {}
-      } else if (currentCredits <= 0 && !currentIsPaid) {
-        // Fallback: optimistic increment if server count unavailable
-        incrementDailyCount();
       }
 
       // Store conversation ID for session continuity
