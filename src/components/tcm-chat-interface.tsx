@@ -13,6 +13,7 @@ import { LimitReachedModal, type LimitModalType } from '@/components/limit-reach
 import { ExportPanel } from '@/components/export-panel';
 import { exportChatAsImage, generateChatText, downloadTextViaAPI } from '@/lib/export-chat';
 import type { AgentMessage, Mode } from '@/lib/types';
+import type { PersonaMeta } from '@/lib/export-chat';
 
 const TCM_COLORS = {
   bg: 'bg-[#050810]',
@@ -513,8 +514,9 @@ export function TCMChatInterface() {
       await exportChatAsImage(
         messagesAsAgentMessages,
         [selectedPersona.id],
-        'solo' as any,
-        `向${selectedPersona.nameZh}提问`
+        'solo',
+        `向${selectedPersona.nameZh}提问`,
+        [selectedPersona as PersonaMeta]
       );
     } catch (error) {
       console.error('[TCM Export] Image export failed:', error);
@@ -531,7 +533,8 @@ export function TCMChatInterface() {
       const content = await generateChatText(
         messagesAsAgentMessages,
         [selectedPersona.id],
-        'solo' as any,
+        'solo',
+        [selectedPersona as PersonaMeta]
       );
       const filename = `中医对话_${new Date().toISOString().slice(0, 10)}.txt`;
       await downloadTextViaAPI(content, filename);
@@ -1045,6 +1048,7 @@ export function TCMChatInterface() {
         {...({ mode: 'solo' as Mode })}
         selectedPersonaIds={[selectedPersona.id]}
         personaNames={selectedPersona.nameZh}
+        personas={[selectedPersona as PersonaMeta]}
       />
       </div>
     </div>

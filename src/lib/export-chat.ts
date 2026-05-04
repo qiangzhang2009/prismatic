@@ -6,6 +6,18 @@
 import { getPersonasByIds } from '@/lib/personas';
 import type { AgentMessage, Mode } from '@/lib/types';
 
+/**
+ * Minimal persona metadata needed for canvas rendering.
+ * Works for both main personas and TCM personas.
+ */
+export interface PersonaMeta {
+  id: string;
+  nameZh: string;
+  accentColor?: string;
+  gradientFrom?: string;
+  gradientTo?: string;
+}
+
 // 网站链接
 const WEBSITE_URL = 'https://prismatic.zxqconsulting.com';
 
@@ -127,12 +139,21 @@ export async function exportChatAsImage(
   messages: AgentMessage[],
   selectedPersonaIds: string[],
   mode: Mode,
-  _conversationTitle?: string
+  _conversationTitle?: string,
+  /**
+   * Explicit persona metadata — bypasses getPersonasByIds lookup.
+   * Use this for TCM personas and any persona not in the main PERSONA_LIST.
+   * When provided, this takes precedence over getPersonasByIds(selectedPersonaIds).
+   */
+  personas?: PersonaMeta[]
 ): Promise<string> {
   console.log('[exportChatAsImage] START', { messageCount: messages.length, personaCount: selectedPersonaIds.length });
-  const personas = getPersonasByIds(selectedPersonaIds);
+  // Use passed personas if available; otherwise fall back to getPersonasByIds lookup
+  const resolved = personas && personas.length > 0
+    ? personas
+    : getPersonasByIds(selectedPersonaIds);
   const modeName = getModeName(mode);
-  const personaNames = personas.map(p => p.nameZh).join('、');
+  const personaNames = resolved.map(p => p.nameZh).join('、');
 
   const chatMessages = messages.filter(m => m.content && m.content.trim());
   console.log('[exportChatAsImage] filtered messages:', chatMessages.length);
@@ -234,7 +255,7 @@ export async function exportChatAsImage(
     } else if (msg.role === 'system') {
       drawSystemMessage(ctx, msg.content, yPos, msgHeight);
     } else {
-      const persona = personas.find(p => p.id === msg.personaId);
+      const persona = resolved.find(p => p.id === msg.personaId);
       drawAgentMessage(ctx, msg.content, yPos, msgHeight, persona);
     }
 
@@ -515,10 +536,16 @@ export async function generateChatText(
   messages: AgentMessage[],
   selectedPersonaIds: string[],
   mode: Mode,
+  /**
+   * Explicit persona metadata — works for both main personas and TCM personas.
+   */
+  personas?: PersonaMeta[]
 ): Promise<string> {
-  const personas = getPersonasByIds(selectedPersonaIds);
+  const resolved = personas && personas.length > 0
+    ? personas
+    : getPersonasByIds(selectedPersonaIds);
   const modeName = getModeName(mode);
-  const personaNames = personas.map(p => p.nameZh).join('、');
+  const personaNames = resolved.map(p => p.nameZh).join('、');
 
   let content = `═══════════════════════════════════════\n`;
   content += `         棱镜对话记录\n`;
@@ -540,7 +567,7 @@ export async function generateChatText(
       content += `${msg.content}\n`;
       content += `═══════════════════════════════════════\n\n`;
     } else {
-      const persona = personas.find(p => p.id === msg.personaId);
+      const persona = resolved.find(p => p.id === msg.personaId);
       const speakerName = persona?.nameZh || 'AI';
       content += `┌──────────────────────────────┐\n`;
       content += `│ 💬 ${speakerName}\n`;

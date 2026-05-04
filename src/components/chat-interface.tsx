@@ -1385,6 +1385,7 @@ export function ChatInterface({ className, initialPersona, initialMode }: ChatIn
         mode={mode}
         selectedPersonaIds={selectedIds}
         personaNames={selectedPersonas.map((p) => p.nameZh).join('、')}
+        personas={selectedPersonas}
       />
     </div>
   );

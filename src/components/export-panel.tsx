@@ -9,7 +9,7 @@ import {
   Hash, SlidersHorizontal, Camera
 } from 'lucide-react';
 import type { AgentMessage, Mode } from '@/lib/types';
-import { exportChatAsImage, generateChatText, downloadTextViaAPI } from '@/lib/export-chat';
+import { exportChatAsImage, generateChatText, downloadTextViaAPI, type PersonaMeta } from '@/lib/export-chat';
 
 type DateFilter = 'all' | 'today' | 'week';
 type ExportFormat = 'image' | 'text';
@@ -22,6 +22,12 @@ interface ExportPanelProps {
   mode: Mode;
   selectedPersonaIds: string[];
   personaNames: string;
+  /**
+   * Explicit persona metadata for canvas rendering.
+   * When provided, this is used instead of getPersonasByIds(selectedPersonaIds).
+   * Essential for TCM personas and any persona not in the main PERSONA_LIST.
+   */
+  personas?: PersonaMeta[];
 }
 
 function isToday(ts: Date | number): boolean {
@@ -60,6 +66,7 @@ export function ExportPanel({
   mode,
   selectedPersonaIds,
   personaNames,
+  personas,
 }: ExportPanelProps) {
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [dateFilter, setDateFilter] = useState<DateFilter>('all');
@@ -254,7 +261,7 @@ export function ExportPanel({
       const msgsToExport = messages.filter((m) => selected.has(m.id));
       if (format === 'image') {
         const dataUrl = await Promise.race([
-          exportChatAsImage(msgsToExport, selectedPersonaIds, mode),
+          exportChatAsImage(msgsToExport, selectedPersonaIds, mode, undefined, personas),
           new Promise<never>((_, reject) =>
             setTimeout(() => reject(new Error('图片生成超时，请重试')), 30000)
           ),
@@ -280,7 +287,7 @@ export function ExportPanel({
         }
         setTimeout(onClose, 800);
       } else {
-        const content = await generateChatText(msgsToExport, selectedPersonaIds, mode);
+        const content = await generateChatText(msgsToExport, selectedPersonaIds, mode, personas);
         const txtFilename = `棱镜对话_${new Date().toISOString().slice(0, 10)}.txt`;
         await downloadTextViaAPI(content, txtFilename);
         setTimeout(onClose, 800);
