@@ -17,11 +17,12 @@ export const USER_DAILY_LIMIT = 20;
 // 检查用户是否达到今日对话配额上限
 //
 // 额度来源（优先级）：
-// 1. 充值积分 > 0 → 使用积分，不扣每日10次限制
-// 2. 付费用户（MONTHLY/YEARLY/LIFETIME）→ 无限制
-// 3. 免费且无积分 → 每日限制 10 条（localStorage 前端计数，server 兜底）
+// 1. 付费用户（MONTHLY/YEARLY/LIFETIME）→ 无限制
+// 2. 充值积分 > 0 → 使用积分，不扣每日限制
+// 3. 免费且无积分 → 每日限制 20 条
 //
-// 注意：积分与每日免费额度互斥。积分是额外权益，不叠加每日限制。
+// 关键设计：服务器 DB 是唯一真相来源。如果 DB 查询失败则 fail-open
+// （允许消息），避免因临时性 DB 问题误拦截用户。同时记录 error 用于监控。
 export async function checkUserDailyLimit(
   userId: string,
   plan: SubscriptionPlan = 'FREE',
@@ -42,8 +43,17 @@ export async function checkUserDailyLimit(
     return { allowed: true, current: 0, limit: credits, reason: 'using_credits' };
   }
 
-  // 优先级 3：免费且无积分 → 每日限制
-  const current = await getDailyMessageCount(userId);
+  // 优先级 3：免费且无积分 → 每日限制，查询服务器 DB
+  let current: number;
+  try {
+    current = await getDailyMessageCount(userId);
+  } catch (err) {
+    // DB 查询失败：fail-open，允许消息通过，避免误拦截用户。
+    // 监控记录：在生产环境打印带 userId 的错误便于排查
+    const msg = err instanceof Error ? err.message : String(err);
+    console.error(`[checkUserDailyLimit] DB query failed for user=${userId}, failing open:`, msg);
+    return { allowed: true, current: 0, limit: USER_DAILY_LIMIT };
+  }
   return {
     allowed: current < USER_DAILY_LIMIT,
     current,
@@ -71,8 +81,13 @@ export async function recordMessage(userId: string): Promise<void> {
 
 // ─── Get daily message count ─────────────────────────────────────────────────
 // Excludes:
-//   1. '[message-counted]' placeholder records (used by recordMessage)
-//   2. Records with metadata.skipDailyCount=true (used by TCM persistConversation)
+//   1. '[message-counted]' placeholder records (created by recordMessage)
+//   2. Records with metadata.skipDailyCount=true (created by persistConversation
+//      when skipDailyCount=true, used by TCM chat)
+//
+// Filter logic: row is counted unless metadata.skipDailyCount = 'true' (exact string).
+// TCM messages have metadata='{"mode":"tcm-assistant"}' (no skipDailyCount field),
+// which gets counted. Correct behavior: recordMessage rows count, TCM rows count.
 export async function getDailyMessageCount(userId: string, date?: string): Promise<number> {
   const targetDate = date ? new Date(date) : new Date();
   targetDate.setHours(0, 0, 0, 0);

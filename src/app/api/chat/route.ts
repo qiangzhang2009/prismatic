@@ -184,12 +184,25 @@ export async function persistConversation(
           : (tsRaw ? new Date(tsRaw as string | number) : new Date());
         if (isNaN(ts.getTime())) continue; // Skip invalid timestamps
 
-        // Build metadata: inject skipDailyCount flag so getDailyMessageCount can filter it out
+        // Build metadata: inject skipDailyCount flag so getDailyMessageCount can filter it out.
+        // Handles both object metadata (normal case) and pre-stringified metadata (TCM passes strings).
         let metadataValue: string | null = null;
-        if (msg.metadata && typeof msg.metadata === 'object') {
-          const meta = { ...msg.metadata as Record<string, unknown> };
-          if (skipDailyCount) meta.skipDailyCount = true;
-          metadataValue = JSON.stringify(meta);
+        if (msg.metadata) {
+          if (typeof msg.metadata === 'object') {
+            const meta = { ...msg.metadata as Record<string, unknown> };
+            if (skipDailyCount) meta.skipDailyCount = true;
+            metadataValue = JSON.stringify(meta);
+          } else if (typeof msg.metadata === 'string') {
+            // Pre-stringified JSON (TCM case) — parse, inject flag, re-stringify
+            try {
+              const meta = JSON.parse(msg.metadata);
+              if (skipDailyCount) meta.skipDailyCount = true;
+              metadataValue = JSON.stringify(meta);
+            } catch {
+              // Invalid JSON: set minimal metadata with skip flag
+              if (skipDailyCount) metadataValue = JSON.stringify({ skipDailyCount: true });
+            }
+          }
         } else if (skipDailyCount) {
           metadataValue = JSON.stringify({ skipDailyCount: true });
         }
