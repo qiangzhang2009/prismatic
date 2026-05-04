@@ -6,9 +6,9 @@
  * 2. 付费用户（MONTHLY/YEARLY/LIFETIME）→ 模式 B 平台代付，无限
  * 3. FREE 用户：
  *    - 有充值积分 → 模式 B 平台代付，每次对话扣 1 积分
- *    - 无积分 → 模式 B，每天限制 10 次（前端 localStorage + 后端双重检查）
+ *    - 无积分 → 模式 B，每天限制 20 次（前端 localStorage + 后端双重检查）
  *
- * 积分与每日免费额度互斥，有积分用户不消耗每日 10 次免费额度。
+ * 积分与每日免费额度互斥，有积分用户不消耗每日 20 次免费额度。
  */
 import { neon } from '@neondatabase/serverless';
 import { prisma } from '@/lib/prisma';

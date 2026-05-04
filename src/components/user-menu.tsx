@@ -34,8 +34,8 @@ import {
 import { cn } from '@/lib/utils';
 import { useAuthStore } from '@/lib/auth-store';
 
-// Daily message limit configuration
-const DAILY_LIMIT = 10;
+// Daily message limit configuration — must match USER_DAILY_LIMIT in message-stats.ts
+const DAILY_LIMIT = 20;
 const DAILY_LIMIT_KEY = 'prismatic-daily-messages';
 const DAILY_DATE_KEY = 'prismatic-daily-date';
 
