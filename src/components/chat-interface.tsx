@@ -503,21 +503,25 @@ export function ChatInterface({ className, initialPersona, initialMode }: ChatIn
         updateUser({ credits: data.creditsRemaining });
       }
 
-      // Increment daily counter for non-credits users (so toolbar shows new remaining count immediately)
-      // Use currentCredits (captured before the API call) to avoid incrementing when user has credits
-      if (currentCredits <= 0 && !currentIsPaid) {
+      // Use serverDailyCount to update localStorage (authoritative source).
+      // If serverDailyCount is unavailable (API returned undefined), fall back to incrementing.
+      if (data.serverDailyCount !== undefined) {
+        // Sync localStorage to server's authoritative count
+        // Next render will read the new value from localStorage via getDailyCount()
+        try {
+          const today = new Date();
+          today.setHours(0, 0, 0, 0);
+          localStorage.setItem(DAILY_LIMIT_KEY, String(data.serverDailyCount));
+          localStorage.setItem(DAILY_DATE_KEY, today.toDateString());
+        } catch {}
+      } else if (currentCredits <= 0 && !currentIsPaid) {
+        // Fallback: optimistic increment if server count unavailable
         incrementDailyCount();
       }
 
       // Store conversation ID for session continuity
       if (data.conversationId) {
         setConversationId(data.conversationId);
-      }
-
-      // Record usage server-side (non-blocking, ignore failures)
-      // Only for authenticated users (guests use localStorage limits only)
-      if (user) {
-        fetch('/api/messages/record', { method: 'POST', credentials: 'include' }).catch(() => {});
       }
 
       // 追踪 AI 响应延迟

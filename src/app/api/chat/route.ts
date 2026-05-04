@@ -19,7 +19,7 @@ import { createLLMProviderWithKey, type LLMResponse } from '@/lib/llm';
 import { getPersonasByIds } from '@/lib/personas';
 import { PERSONA_CONFIDENCE } from '@/lib/confidence';
 import { authenticateRequest, getUserById } from '@/lib/user-management';
-import { checkUserDailyLimit } from '@/lib/message-stats';
+import { checkUserDailyLimit, getDailyMessageCount } from '@/lib/message-stats';
 import { resolveBillingMode } from '@/lib/billing/engine';
 import { prisma } from '@/lib/prisma';
 import { trackEvent, trackEvents, incrementSessionMessages, trackChatStart, trackChatEnd } from '@/lib/analytics';
@@ -1382,7 +1382,15 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    return NextResponse.json({ ...data, creditsRemaining: creditsAfter });
+    // Get authoritative server-side daily count for frontend to sync
+    let serverDailyCount: number | undefined;
+    try {
+      serverDailyCount = await getDailyMessageCount(userId);
+    } catch (err) {
+      console.error('[Chat API] getDailyMessageCount failed:', err);
+    }
+
+    return NextResponse.json({ ...data, creditsRemaining: creditsAfter, serverDailyCount });
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     console.error('[Chat API] Error:', message);
