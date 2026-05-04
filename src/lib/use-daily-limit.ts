@@ -37,7 +37,7 @@ function getDailyCount(): DailyCount {
   }
 }
 
-function saveDailyCount(count: number) {
+export function saveDailyCount(count: number) {
   try {
     localStorage.setItem(DAILY_LIMIT_KEY, JSON.stringify({
       count,

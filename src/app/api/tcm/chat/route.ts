@@ -16,10 +16,9 @@ import { nanoid } from 'nanoid';
 import { createLLMProviderWithKey } from '@/lib/llm';
 import { TCM_PERSONAS } from '@/lib/tcm-personas';
 import { buildRAGContext } from '@/lib/tcm-rag';
-import { buildConversationId } from '@/lib/sync-engine';
 import { authenticateRequest, getUserById } from '@/lib/user-management';
 import { persistConversation } from '@/app/api/chat/route';
-import { checkUserDailyLimit } from '@/lib/message-stats';
+import { checkUserDailyLimit, recordMessage, getDailyMessageCount } from '@/lib/message-stats';
 import { Pool } from '@neondatabase/serverless';
 
 export const runtime = 'nodejs';
@@ -217,8 +216,7 @@ export async function POST(req: NextRequest) {
       }, { status: 429 });
     }
 
-    const convId = conversationId
-      || buildConversationId(userId, [personaId]);
+    const convId = conversationId || nanoid();
 
     // 意图分类：判断是问病情还是聊天/看法
     const intent = classifyUserIntent(message, history);
@@ -349,6 +347,23 @@ export async function POST(req: NextRequest) {
     }
     await pool.end();
 
+    // 记录消息以更新每日计数（必须等待以确保 DB 更新后再查询计数）
+    // recordMessage 内部已 catch 异常，这里不需要额外 try/catch
+    await recordMessage(userId).catch((err: unknown) => {
+      const msg = err instanceof Error ? err.message : String(err);
+      console.error('[TCM Chat] recordMessage failed:', msg);
+    });
+
+    // 获取服务器端权威计数（用于前端同步 localStorage，避免硬刷新后计数丢失）
+    // 即使查询失败也不影响对话响应，serverDailyCount 保持 undefined
+    let serverDailyCount: number | undefined;
+    try {
+      serverDailyCount = await getDailyMessageCount(userId);
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      console.error('[TCM Chat] getDailyMessageCount failed:', msg);
+    }
+
     return NextResponse.json({
       conversationId: convId,
       personaId,
@@ -356,6 +371,7 @@ export async function POST(req: NextRequest) {
       response,
       intent,
       creditsAfter,
+      serverDailyCount,
       rag: ragMetadata ? {
         citations: ragMetadata.citations,
         note: ragContext?.note,

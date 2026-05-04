@@ -7,7 +7,7 @@ import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { TCM_PERSONA_LIST, TCM_PERSONAS } from '@/lib/tcm-personas';
 import { useConversationSync, loadRegistry, saveRegistry as saveSharedRegistry } from '@/lib/use-conversation-sync';
-import { useDailyLimit } from '@/lib/use-daily-limit';
+import { useDailyLimit, saveDailyCount } from '@/lib/use-daily-limit';
 import { useAuthStore } from '@/lib/auth-store';
 import { LimitReachedModal, type LimitModalType } from '@/components/limit-reached-modal';
 import { ExportPanel } from '@/components/export-panel';
@@ -431,7 +431,12 @@ export function TCMChatInterface() {
       setSyncStatus('saved');
 
       // 更新本地计数（前端乐观更新）
-      incrementCount();
+      // 优先使用服务器权威计数同步 localStorage，避免硬刷新后计数丢失
+      if (data.serverDailyCount !== undefined) {
+        saveDailyCount(data.serverDailyCount);
+      } else {
+        incrementCount();
+      }
       // 如果服务端扣了积分，同步到本地 store
       if (data.creditsAfter !== undefined) {
         useAuthStore.getState().updateUser({ credits: data.creditsAfter });
