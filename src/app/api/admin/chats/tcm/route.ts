@@ -69,6 +69,8 @@ export async function GET(req: NextRequest) {
       conditions.push(`(c."personaIds" @> $${p++} OR EXISTS (SELECT 1 FROM messages m WHERE m."conversationId" = c.id AND m."personaId" = $${p++}))`);
       params.push(personaId, personaId);
     }
+    // Only show conversations that have at least one real message
+    conditions.push(`(SELECT COUNT(*) FROM messages m WHERE m."conversationId" = c.id AND m.content != '[message-counted]') > 0`);
 
     const where = conditions.length ? `WHERE ${conditions.join(' AND ')}` : '';
     const offset = (page - 1) * pageSize;
@@ -94,7 +96,7 @@ export async function GET(req: NextRequest) {
             'modelUsed', m."modelUsed", 'createdAt', m."createdAt",
             'metadata', m.metadata
           ) ORDER BY m."createdAt" ASC) as data
-        FROM messages m WHERE m."conversationId" = c.id
+        FROM messages m WHERE m."conversationId" = c.id AND m.content != '[message-counted]'
       ) msgs ON true
       ${where}
       ORDER BY c."updatedAt" DESC
@@ -146,6 +148,7 @@ export async function GET(req: NextRequest) {
         totalTokens: Number(r.totalTokens || 0),
         totalCost: Number(r.totalCost || 0),
         personaIds: r.personaIds,
+        personas: personaNames,
         createdAt: r.createdAt,
         updatedAt: r.updatedAt,
         billingMode: 'B',  // TCM is platform-only for now
@@ -155,7 +158,6 @@ export async function GET(req: NextRequest) {
           email: r['user.email'],
           plan: r['user.plan'],
         } : null,
-        personas: personaNames,
         messages: msgs,
       };
     });

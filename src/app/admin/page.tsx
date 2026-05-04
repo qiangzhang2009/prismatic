@@ -2653,7 +2653,9 @@ function TCMConversationCard({ conv }: { conv: any }) {
                     ))}
                   </div>
                 )}
-                <div className="whitespace-pre-wrap">{msg.content}</div>
+                <div className="whitespace-pre-wrap">
+                  {msg.content ? msg.content : <span className="text-gray-600 italic">[无内容]</span>}
+                </div>
               </div>
             </div>
           ))}
