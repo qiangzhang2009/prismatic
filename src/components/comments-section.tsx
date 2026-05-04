@@ -1116,13 +1116,13 @@ function CommentItem({
         <AnimatePresence>
           {personaInteractions.length > 0 && (
             <motion.div
-              initial={{ opacity: 0, maxHeight: 0 }}
-              animate={{ opacity: 1, maxHeight: 1200 }}
-              exit={{ opacity: 0, maxHeight: 0 }}
-              transition={{ duration: 0.35, ease: 'easeOut' }}
-              className="mt-4 pt-4 border-t border-prism-blue/20 overflow-hidden"
+              initial={{ opacity: 0, display: 'none' }}
+              animate={{ opacity: 1, display: 'block' }}
+              exit={{ opacity: 0, display: 'none' }}
+              transition={{ opacity: { duration: 0.25, ease: 'easeOut' } }}
+              className="mt-4 pt-4 border-t border-prism-blue/20"
             >
-              <div className="space-y-3 max-h-[60vh] overflow-y-auto min-h-0" style={{ maxHeight: 'inherit' }}>
+              <div className="space-y-3 max-h-[60vh] overflow-y-auto min-h-0">
               {personaInteractions.map((interaction) => (
                 <div key={interaction.id} className="flex items-start gap-3 pl-4 border-l-2 border-prism-blue/30">
                   <div
