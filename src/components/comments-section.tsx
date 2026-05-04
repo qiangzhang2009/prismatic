@@ -1038,7 +1038,12 @@ function CommentItem({
                     const guardianName = guardian ? guardian.nameZh : '守望者';
                     const guardianReplyText = guardianRepliesById[reply.id] || reply.mentionedGuardianReply;
                     return (
-                    <div className="mt-2 ml-12 pl-4 pr-3 py-3 rounded-xl bg-prism-blue/5 border border-prism-blue/20 relative">
+                    <motion.div
+                      initial={{ opacity: 0, y: 4 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.2, ease: 'easeOut' }}
+                      className="mt-2 ml-12 pl-4 pr-3 py-3 rounded-xl bg-prism-blue/5 border border-prism-blue/20 relative"
+                    >
                       <div className="flex items-start gap-2">
                         <div
                           className="w-6 h-6 rounded-full flex items-center justify-center text-white text-[10px] font-bold flex-shrink-0 mt-0.5"
@@ -1095,7 +1100,7 @@ function CommentItem({
                           </AnimatePresence>
                         </div>
                       </div>
-                    </div>
+                    </motion.div>
                     );
                   })()}
                 </div>
@@ -1154,7 +1159,7 @@ function CommentItem({
                   </div>
                 </div>
               ))}
-            </div>
+              </div>
             </motion.div>
           )}
         </AnimatePresence>
@@ -1262,11 +1267,11 @@ function ReplyForm({
 
   return (
     <motion.div
-      initial={{ opacity: 0, maxHeight: 0 }}
-      animate={{ opacity: 1, maxHeight: 99999 }}
-      exit={{ opacity: 0, maxHeight: 0 }}
-      transition={{ duration: 0.3, ease: 'easeOut' }}
-      className="mt-4 pl-6 border-l-2 border-prism-blue/30 overflow-hidden"
+      initial={{ opacity: 0, y: -4 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -4 }}
+      transition={{ duration: 0.2, ease: 'easeOut' }}
+      className="mt-4 pl-6 border-l-2 border-prism-blue/30"
     >
       <div>
       {/* Reply-to context header */}
