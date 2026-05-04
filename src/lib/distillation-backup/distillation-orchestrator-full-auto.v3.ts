@@ -101,8 +101,8 @@ function inferPersonaType(persona: Persona): string {
   if (domains.has('investment') || domains.has('business')) return 'business';
   if (domains.has('political')) return 'political';
   const id = persona.id.toLowerCase();
-  if (/socrates|kant|nietszsche|confucius|laozi|wittgen|zhongyong|deleuze|foucault|hegel|aristotle|plato|sartre|camus/.test(id)) return 'philosopher';
-  if (/jiqun|huineng|zhuangzi/.test(id)) return 'spiritual';
+  if (/socrates|kant|nietszsche|confucius|lao-zi|laozi|wittgen|zhongyong|deleuze|foucault|hegel|aristotle|plato|sartre|camus/.test(id)) return 'philosopher';
+  if (/jiqun|huineng|zhuang-zi|zhuangzi/.test(id)) return 'spiritual';
   if (/einstein|tesla|qianxuesen/.test(id)) return 'scientist';
   if (/buffett|munger|musk|bezos/.test(id)) return 'business';
   if (/trump|president/.test(id)) return 'political';

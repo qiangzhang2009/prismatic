@@ -11,15 +11,29 @@ import GithubProvider from 'next-auth/providers/github';
 import CredentialsProvider from 'next-auth/providers/credentials';
 
 // ─── Demo / Experience Accounts ───────────────────────────────────────────────
-// DO NOT display these on the UI. Share privately with clients.
+// Credentials are loaded from environment variables for production safety.
+// Format: DEMO_ACCOUNTS = "email1:pass1,email2:pass2,..."
+// If not set, demo accounts are disabled entirely.
 
-export const DEMO_ACCOUNTS = [
-  { email: 'demo1@prismatic.app', password: 'Prismatic2024!' },
-  { email: 'demo2@prismatic.app', password: 'Prismatic2024!' },
-  { email: 'demo3@prismatic.app', password: 'Prismatic2024!' },
-  { email: 'demo4@prismatic.app', password: 'Prismatic2024!' },
-  { email: 'demo5@prismatic.app', password: 'Prismatic2024!' },
-];
+export interface DemoAccount {
+  email: string;
+  password: string;
+}
+
+function parseDemoAccounts(): DemoAccount[] {
+  const raw = process.env.DEMO_ACCOUNTS;
+  if (!raw) return [];
+  return raw.split(',').map(entry => {
+    const [email, password] = entry.split(':');
+    if (!email || !password) {
+      console.warn('[auth] Invalid DEMO_ACCOUNTS entry:', entry);
+      return null;
+    }
+    return { email: email.trim(), password: password.trim() };
+  }).filter((a): a is DemoAccount => a !== null);
+}
+
+export const DEMO_ACCOUNTS: DemoAccount[] = parseDemoAccounts();
 
 // ─── Auth Options ─────────────────────────────────────────────────────────────
 
@@ -90,6 +104,12 @@ export const authOptions: NextAuthOptions = {
     },
   },
 
-  secret: process.env.AUTH_SECRET ?? 'prismatic-dev-secret-2024',
+  secret: process.env.AUTH_SECRET ?? (() => {
+    if (process.env.NODE_ENV === 'production') {
+      throw new Error('FATAL: AUTH_SECRET environment variable is not set in production. ' +
+        'Set AUTH_SECRET in your Vercel environment variables.');
+    }
+    return 'prismatic-dev-secret-2024';
+  })(),
   debug: process.env.NODE_ENV === 'development',
 };

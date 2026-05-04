@@ -14,7 +14,18 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { jwtVerify } from 'jose';
 
-const AUTH_SECRET = process.env.AUTH_SECRET ?? 'prismatic-dev-secret-2024';
+const AUTH_SECRET = (() => {
+  const secret = process.env.AUTH_SECRET;
+  if (!secret) {
+    if (process.env.NODE_ENV === 'production' || process.env.VERCEL === '1') {
+      throw new Error('FATAL: AUTH_SECRET environment variable is not set. ' +
+        'Requests will be rejected in production.');
+    }
+    console.warn('[middleware] AUTH_SECRET not set — using insecure default (dev only)');
+    return 'prismatic-dev-secret-2024';
+  }
+  return secret;
+})();
 
 function getSecretKey() {
   return new TextEncoder().encode(AUTH_SECRET);
@@ -93,8 +104,13 @@ export async function middleware(req: NextRequest) {
       return NextResponse.redirect(signInUrl);
     }
 
-    // DEMO USER BYPASS: inline check, before DB call
-    if (isDemoUser(payload.userId, payload.email) && process.env.ALLOW_ADMIN_BYPASS === 'true') {
+    // DEMO USER BYPASS: inline check, before DB call.
+    // CRITICAL: bypass is ONLY allowed when BOTH conditions are met:
+    //   1. ALLOW_ADMIN_BYPASS is explicitly set to 'true'
+    //   2. NOT in production (or Vercel preview/local dev only)
+    const canBypass = process.env.ALLOW_ADMIN_BYPASS === 'true'
+      && (process.env.NODE_ENV !== 'production' && process.env.VERCEL_ENV !== 'production');
+    if (isDemoUser(payload.userId, payload.email) && canBypass) {
       return NextResponse.next();
     }
 

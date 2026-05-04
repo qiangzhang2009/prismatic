@@ -13,13 +13,13 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { nanoid } from 'nanoid';
-import { createLLMProviderWithKey } from '@/lib/llm';
+import { safeLLMCall } from '@/lib/llm-safe';
 import { TCM_PERSONAS } from '@/lib/tcm-personas';
 import { buildRAGContext } from '@/lib/tcm-rag';
 import { authenticateRequest, getUserById } from '@/lib/user-management';
 import { persistConversation } from '@/app/api/chat/route';
 import { checkUserDailyLimit, recordMessage, getDailyMessageCount } from '@/lib/message-stats';
-import { Pool } from '@neondatabase/serverless';
+import { getPool } from '@/lib/db-pool';
 
 export const runtime = 'nodejs';
 
@@ -32,10 +32,8 @@ interface TCMChatRequest {
   conversationId?: string;
 }
 
-function getPool() {
-  const url = process.env.DATABASE_URL;
-  if (!url) throw new Error('DATABASE_URL not set');
-  return new Pool({ connectionString: url });
+function getDbPool() {
+  return getPool();
 }
 
 function classifyUserIntent(message: string, history: Array<{ role: string; content: string }>): 'medical' | 'casual' {
@@ -166,17 +164,25 @@ ${persona.values.map(v => `· ${v.nameZh}`).join('\n')}
 }
 
 async function callLLM(
+  userId: string,
+  userPlan: string,
   apiKey: string | undefined,
   messages: Array<{ role: string; content: string }>
 ): Promise<{ content: string; usage?: { promptTokens: number; completionTokens: number; totalTokens: number } }> {
-  const llm = createLLMProviderWithKey('deepseek', apiKey);
-  const response = await llm.chat({
-    model: 'deepseek-chat',
-    messages: messages as Parameters<typeof llm.chat>[0]['messages'],
+  const result = await safeLLMCall({
+    userId,
+    userPlan,
+    messages: messages as Parameters<typeof safeLLMCall>[0]['messages'],
+    apiKey,
     temperature: 0.7,
     maxTokens: 2500,
   });
-  return { content: response.content, usage: response.usage };
+
+  if (!result.success) {
+    throw new Error(result.error || 'LLM call failed');
+  }
+
+  return { content: result.content || '', usage: result.usage };
 }
 
 export async function POST(req: NextRequest) {
@@ -263,7 +269,7 @@ export async function POST(req: NextRequest) {
 
     conversationMessages.push({ role: 'user', content: message });
 
-    const llmResult = await callLLM(undefined, conversationMessages);
+    const llmResult = await callLLM(userId, userPlan, undefined, conversationMessages);
     // 去除 Markdown 格式（##、** 等）
     const response = stripMarkdown(llmResult.content);
     const usage = llmResult.usage;
@@ -347,7 +353,7 @@ export async function POST(req: NextRequest) {
     }
 
     // 补充 title（persistConversation 不处理 title）
-    const pool = getPool();
+    const pool = getDbPool();
     const titleResult = await pool.query(
       `SELECT title FROM conversations WHERE id = $1`,
       [convId]
@@ -356,7 +362,6 @@ export async function POST(req: NextRequest) {
       const title = `向${TCM_PERSONAS[personaId]?.nameZh || personaId}提问：${message.slice(0, 20).replace(/\n/g, ' ').trim()}${message.length >= 20 ? '...' : ''}`;
       await pool.query(`UPDATE conversations SET title = $1 WHERE id = $2`, [title, convId]);
     }
-    await pool.end();
 
     // 记录消息以更新每日计数（必须等待以确保 DB 更新后再查询计数）
     // recordMessage 内部已 catch 异常，这里不需要额外 try/catch
@@ -393,10 +398,21 @@ export async function POST(req: NextRequest) {
   } catch (error) {
     const errMsg = error instanceof Error ? error.message : String(error);
     console.error('[TCM Chat] Error:', errMsg);
-    return NextResponse.json(
-      { error: 'Internal server error', detail: errMsg },
-      { status: 500 }
-    );
+
+    const isBudgetExceeded = errMsg.includes('budget') || errMsg.includes('budget exceeded');
+    const isInjection = errMsg.includes('Invalid input') || errMsg.includes('prompt injection');
+    const isProviderDown = errMsg.includes('AI 提供商暂时不可用') || errMsg.includes('LLM call failed') || errMsg.includes('AI 服务暂时不可用');
+
+    if (isBudgetExceeded) {
+      return NextResponse.json({ error: errMsg, code: 'BUDGET_EXCEEDED' }, { status: 402 });
+    }
+    if (isInjection) {
+      return NextResponse.json({ error: '输入内容包含无效字符，请重新输入。', code: 'INVALID_INPUT' }, { status: 400 });
+    }
+    if (isProviderDown) {
+      return NextResponse.json({ error: 'AI 服务暂时不可用，请稍后重试。', code: 'PROVIDER_DOWN' }, { status: 503 });
+    }
+    return NextResponse.json({ error: 'Internal server error', detail: errMsg }, { status: 500 });
   }
 }
 
