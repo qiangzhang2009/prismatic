@@ -3,7 +3,13 @@
 import Link from 'next/link';
 import { useState } from 'react';
 import { Hexagon, Sparkles, GitBranch, Leaf, Menu, X, Brain, Library } from 'lucide-react';
+import {
+  User, Settings, Bookmark, History, Info,
+  LogIn, UserPlus, ShieldCheck, Star, Crown,
+  LogOut, ChevronRight, Zap,
+} from 'lucide-react';
 import { UserMenu } from '@/components/user-menu';
+import { useAuthStore } from '@/lib/auth-store';
 import { APP_NAME } from '@/lib/constants';
 
 const NAV_LINKS = [
@@ -89,7 +95,7 @@ export function NavBar() {
         </div>
       </div>
 
-      {/* Mobile drawer */}
+        {/* Mobile drawer */}
       {mobileOpen && (
         <div className="md:hidden border-t border-white/5 bg-slate-950/95 backdrop-blur-md">
           {NAV_LINKS.map(link => (
@@ -119,8 +125,130 @@ export function NavBar() {
             <Brain className="w-4 h-4" />
             中医AI助手
           </Link>
+          {/* Mobile: user account links — inline, no portal needed */}
+          <div className="px-6 py-3 border-b border-white/5">
+            <MobileUserSection onClose={() => setMobileOpen(false)} />
+          </div>
         </div>
       )}
     </nav>
+  );
+}
+
+// ─── Mobile User Section (inline, no portal) ────────────────────────────────────
+
+const DAILY_LIMIT = 10;
+
+function MobileUserSection({ onClose }: { onClose: () => void }) {
+  const { user, logout } = useAuthStore();
+
+  if (user) {
+    return (
+      <div>
+        {/* User info header */}
+        <div className="flex items-center gap-3 mb-3">
+          <div className="w-10 h-10 rounded-full bg-prism-gradient flex items-center justify-center text-white text-sm font-medium flex-shrink-0">
+            {user.name?.[0] || user.email[0].toUpperCase()}
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-semibold text-white truncate">{user.name || user.email.split('@')[0]}</p>
+            <p className="text-xs text-text-muted truncate">{user.email}</p>
+          </div>
+          {user.plan !== 'FREE' && (
+            <Crown className="w-4 h-4 text-amber-400 flex-shrink-0" />
+          )}
+        </div>
+
+        {/* Role badge */}
+        <div className="flex flex-wrap items-center gap-2 mb-3">
+          {user.role === 'ADMIN' && (
+            <span className="inline-flex items-center gap-1 text-xs text-prism-purple bg-prism-purple/10 px-2 py-0.5 rounded-full font-medium">
+              <ShieldCheck className="w-3 h-3" />管理员
+            </span>
+          )}
+          {user.role === 'PRO' && (
+            <span className="inline-flex items-center gap-1 text-xs text-amber-400 bg-amber-400/10 px-2 py-0.5 rounded-full font-medium">
+              <Star className="w-3 h-3" />高级用户
+            </span>
+          )}
+          {user.plan !== 'FREE' && (
+            <span className="inline-flex items-center gap-1 text-xs text-green-400 bg-green-400/10 px-2 py-0.5 rounded-full">
+              <Crown className="w-3 h-3" />{user.plan === 'MONTHLY' ? '月度会员' : user.plan === 'YEARLY' ? '年度会员' : '终身会员'}
+            </span>
+          )}
+        </div>
+
+        {/* Menu links */}
+        <div className="space-y-1">
+          <MobileLink href="/app" icon={History} label="历史对话" onClose={onClose} />
+          <MobileLink href="/personas" icon={Bookmark} label="收藏人物" onClose={onClose} />
+          <MobileLink href="/settings" icon={Settings} label="账号设置" onClose={onClose} />
+          {user.role === 'ADMIN' && (
+            <MobileLink href="/admin" icon={ShieldCheck} label="管理后台" onClose={onClose} />
+          )}
+          {user.plan === 'FREE' && (
+            <div className="px-3 py-2.5 rounded-lg bg-gradient-to-r from-amber-500/10 to-prism-purple/10 border border-amber-500/20 mt-2">
+              <p className="text-xs text-text-secondary mb-1">
+                <Crown className="w-3 h-3 inline mr-1 text-amber-400" />升级高级版
+              </p>
+              <p className="text-xs text-text-muted mb-2">无限对话 + 全部人物角色</p>
+              <a href="/contact" target="_blank" rel="noopener noreferrer" className="text-xs text-prism-blue hover:underline">联系我们 →</a>
+            </div>
+          )}
+          <button
+            onClick={async () => { await logout(); onClose(); window.location.href = '/'; }}
+            className="w-full flex items-center gap-3 px-3 py-2.5 text-sm text-red-400 hover:bg-red-400/10 rounded-lg transition-colors"
+          >
+            <LogOut className="w-4 h-4" />
+            退出登录
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // Guest view
+  return (
+    <div>
+      <p className="text-xs text-text-muted mb-3">免费体验，无需注册。注册登录后可保存对话历史，享受高级功能。</p>
+      <div className="space-y-2">
+        <Link
+          href="/auth/signin"
+          onClick={onClose}
+          className="flex items-center justify-center gap-2 w-full text-sm font-medium border border-border-subtle rounded-lg py-2.5 hover:bg-white/5 transition-colors text-text-primary"
+        >
+          <LogIn className="w-4 h-4" />
+          登录
+        </Link>
+        <Link
+          href="/auth/signup"
+          onClick={onClose}
+          className="flex items-center justify-center gap-2 w-full text-sm font-medium bg-prism-gradient text-white rounded-lg py-2.5 hover:opacity-90 transition-all"
+        >
+          <UserPlus className="w-4 h-4" />
+          免费注册
+        </Link>
+      </div>
+    </div>
+  );
+}
+
+function MobileLink({
+  href, icon: Icon, label, onClose,
+}: {
+  href: string;
+  icon: React.ComponentType<{ className?: string }>;
+  label: string;
+  onClose: () => void;
+}) {
+  return (
+    <Link
+      href={href}
+      onClick={onClose}
+      className="flex items-center gap-3 px-3 py-2.5 text-sm text-text-secondary hover:text-white hover:bg-white/5 rounded-lg transition-colors"
+    >
+      <Icon className="w-4 h-4" />
+      {label}
+    </Link>
   );
 }
