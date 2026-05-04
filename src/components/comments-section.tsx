@@ -1120,7 +1120,7 @@ function CommentItem({
               animate={{ opacity: 1, height: 'auto' }}
               exit={{ opacity: 0, height: 0 }}
               transition={{ duration: 0.3, ease: 'easeOut' }}
-              className="mt-4 pt-4 border-t border-prism-blue/20 overflow-hidden"
+              className="mt-4 pt-4 border-t border-prism-blue/20"
             >
               <div className="space-y-3 max-h-[60vh] overflow-y-auto min-h-0">
               {personaInteractions.map((interaction) => (
