@@ -1,31 +1,32 @@
-# Exclude large data and non-essential directories from deployment
-scrapers/
-docs/
+# Vercel build: only upload what the app needs
 node_modules/
-tmp_ocr/
-backups/
-reports/
-development/
-corpus/
-corpus-distilled-backup/
-corpus-tcm-external/
-corpus-tcm-downloads/
-scripts/
-data/
-src/lib/distillation-backup/
-src/corpus/
+.next/
+.vercel/
+.gstack/
+.specstory/
+.cursor/
 .playwright-mcp/
-playwright-report/
-test-results/
-coverage/
-*.log
-
-# Environment files - NEVER deploy these
-.env
-.env.*
-!.env.example
-
-# Subprojects that shouldn't be bundled
-newsnow-local/
+.venv-ocr/
+.venv/
+venv/
+tmp_ocr/
+--source/
+screenshots/
+migrations/
+docs/
 research/
+corpus/
+data/
+public/spark/
+newsnow-local/
 pointcloud-dialogue/
+scripts/
+# Keep only essential public assets
+public/dist/
+# Build artifacts
+*.tsbuildinfo
+next-env.d.ts
+coverage/
+.turbo/
+*.log
+.DS_Store

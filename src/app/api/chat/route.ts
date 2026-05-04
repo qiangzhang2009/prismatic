@@ -1155,7 +1155,6 @@ export async function POST(request: NextRequest) {
         billingReason: reason,
         serverDailyCount,
       }, { status: 429 });
-      }, { status: 429 });
     }
 
     // Deterministic conversation ID: same user + same personas = same conversation.
