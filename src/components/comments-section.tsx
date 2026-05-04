@@ -923,15 +923,13 @@ function CommentItem({
         </div>
         
         {/* Replies */}
-        <AnimatePresence>
-          {showReplies && replies.length > 0 && (
-            <motion.div
-              initial={{ opacity: 0, maxHeight: 0 }}
-              animate={{ opacity: 1, maxHeight: 99999 }}
-              exit={{ opacity: 0, maxHeight: 0 }}
-              transition={{ duration: 0.3, ease: 'easeOut' }}
-              className="mt-4 pt-4 border-t border-white/5"
-            >
+        {showReplies && replies.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.2 }}
+            className="mt-4 pt-4 border-t border-white/5"
+          >
               <div className="space-y-3">
               {/* Replies that are NOT guardian auto-replies */}
               {replies
@@ -1113,7 +1111,6 @@ function CommentItem({
               </div>
             </motion.div>
           )}
-        </AnimatePresence>
 
         {/* Persona Interactions — "守望者计划" responses */}
         <AnimatePresence>
