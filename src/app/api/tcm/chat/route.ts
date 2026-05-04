@@ -211,7 +211,10 @@ export async function POST(req: NextRequest) {
       let serverDailyCount: number | undefined;
       try {
         serverDailyCount = await getDailyMessageCount(userId);
-      } catch {}
+      } catch (e) {
+        console.error('[TCM 429] getDailyMessageCount failed:', e);
+      }
+      console.error(`[TCM 429] userId=${userId} plan=${userPlan} credits=${userCredits} current=${current} serverDailyCount=${serverDailyCount} limit=${limit} reason=${reason}`);
       return NextResponse.json({
         error: `今日对话次数已达上限（${limit}次/天），明天再来吧~`,
         code: 'DAILY_LIMIT_REACHED',

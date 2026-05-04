@@ -1143,7 +1143,10 @@ export async function POST(request: NextRequest) {
       let serverDailyCount: number | undefined;
       try {
         serverDailyCount = await getDailyMessageCount(userId);
-      } catch {}
+      } catch (e) {
+        console.error('[Chat 429] getDailyMessageCount failed:', e);
+      }
+      console.error(`[Chat 429] userId=${userId} plan=${userPlan} credits=${userCredits} current=${current} serverDailyCount=${serverDailyCount} limit=${limit} reason=${reason}`);
       return NextResponse.json({
         error: `今日对话次数已达上限（${limit}次/天），明天再来探索吧~`,
         code: 'DAILY_LIMIT_REACHED',
@@ -1151,6 +1154,7 @@ export async function POST(request: NextRequest) {
         limit,
         billingReason: reason,
         serverDailyCount,
+      }, { status: 429 });
       }, { status: 429 });
     }
 
