@@ -517,21 +517,26 @@ function CommentItem({
   }, [comment.id, comment.mentionedGuardianId]);
 
   // Poll for guardian replies on individual replies
+  // Only fires when new replies with guardian mentions are added (not when guardianRepliesById changes)
+  const replyIdsStr = replies.map(r => r.id).join(',');
+  const guardianRepliesByIdRef = useRef(guardianRepliesById);
+  guardianRepliesByIdRef.current = guardianRepliesById;
   useEffect(() => {
-    const guardianReplies = replies.filter(r => r.mentionedGuardianId && !guardianRepliesById[r.id]);
+    const guardianReplies = replies.filter(r => r.mentionedGuardianId && !guardianRepliesByIdRef.current[r.id]);
     if (guardianReplies.length === 0) return;
 
     const pollReplies = async () => {
       for (const reply of guardianReplies) {
+        if (guardianRepliesByIdRef.current[reply.id]) continue;
         try {
           const res = await fetch(`/api/comments/${reply.id}`);
           if (!res.ok) continue;
           const data = await res.json();
           if (data.comment?.mentionedGuardianReply) {
-            setGuardianRepliesById(prev => ({
-              ...prev,
-              [reply.id]: data.comment.mentionedGuardianReply,
-            }));
+            setGuardianRepliesById(prev => {
+              if (prev[reply.id]) return prev;
+              return { ...prev, [reply.id]: data.comment.mentionedGuardianReply };
+            });
           }
         } catch { /* ignore */ }
       }
@@ -541,7 +546,7 @@ function CommentItem({
     const interval = setInterval(pollReplies, 10000);
     return () => clearInterval(interval);
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [replies.map(r => r.id).join(','), Object.keys(guardianRepliesById).join(',')]);
+  }, [replyIdsStr]);
   
   // Handle when a reply is created via the inline ReplyForm
   const handleReplyCreated = useCallback((reply: Reply) => {
@@ -568,34 +573,38 @@ function CommentItem({
       return;
     }
     setLoadingReplies(true);
+    setShowReplies(true);
     try {
       const res = await fetch(`/api/comments/${comment.id}/replies?parentId=${comment.id}`);
       const data = await res.json();
       const fetchedReplies: Reply[] = data.replies || [];
       setReplies(fetchedReplies);
-      setShowReplies(true);
 
       // Guardian replies (mentionedGuardianReply) are not included in the replies list endpoint.
       // Fetch each reply's full data to get the guardian reply content.
+      const guardianPromises: Promise<void>[] = [];
       for (const reply of fetchedReplies) {
         if (reply.mentionedGuardianId) {
-          try {
-            const fullRes = await fetch(`/api/comments/${reply.id}`);
-            if (fullRes.ok) {
+          const promise = (async () => {
+            try {
+              const fullRes = await fetch(`/api/comments/${reply.id}`);
+              if (!fullRes.ok) return;
               const fullData = await fullRes.json();
               const guardianReply = fullData.comment?.mentionedGuardianReply;
               if (guardianReply) {
-                setGuardianRepliesById(prev => ({
-                  ...prev,
-                  [reply.id]: guardianReply,
-                }));
+                setGuardianRepliesById(prev => {
+                  if (prev[reply.id]) return prev;
+                  return { ...prev, [reply.id]: guardianReply };
+                });
               }
+            } catch (e) {
+              /* ignore */
             }
-          } catch (e) {
-            /* ignore */
-          }
+          })();
+          guardianPromises.push(promise);
         }
       }
+      await Promise.all(guardianPromises);
     } catch (e) {
       console.error('Failed to fetch replies:', e);
     } finally {
