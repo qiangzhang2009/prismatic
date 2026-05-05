@@ -28,6 +28,18 @@ export async function GET(req: NextRequest) {
     if (!userId) return NextResponse.json({ error: '请先登录' }, { status: 401 });
 
     const db = sql();
+
+    // Ensure table exists
+    try {
+      await db`CREATE TABLE IF NOT EXISTS prismatic_persona_bookmarks (
+        id SERIAL PRIMARY KEY,
+        user_id TEXT NOT NULL,
+        persona_slug TEXT NOT NULL,
+        created_at TIMESTAMPTZ DEFAULT NOW(),
+        UNIQUE(user_id, persona_slug)
+      )`;
+    } catch (_) { /* table already exists */ }
+
     const rows = await db`
       SELECT persona_slug, created_at
       FROM prismatic_persona_bookmarks
@@ -40,10 +52,6 @@ export async function GET(req: NextRequest) {
       createdAt: r.created_at,
     })) });
   } catch (err) {
-    // Table might not exist yet — return empty
-    if (String(err).includes('does not exist') || String(err).includes('relation') && String(err).includes('not exist')) {
-      return NextResponse.json({ bookmarks: [] });
-    }
     console.error('[API/bookmarks GET]', err);
     return NextResponse.json({ bookmarks: [], error: String(err) }, { status: 500 });
   }

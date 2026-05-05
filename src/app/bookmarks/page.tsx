@@ -72,7 +72,11 @@ export default function BookmarksPage() {
       });
       if (res.ok) {
         const data = await res.json();
-        if (data.action === 'removed') {
+        if (data.action === 'table_created' && data.retry) {
+          // Table was just created; on retry it will add the item
+          // Since we're in bookmarks page, removal succeeded — just clear locally
+          setBookmarks(prev => prev.filter(b => b.slug !== slug));
+        } else if (data.action === 'removed') {
           setBookmarks(prev => prev.filter(b => b.slug !== slug));
         }
       }

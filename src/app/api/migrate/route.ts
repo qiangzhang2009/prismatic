@@ -285,6 +285,23 @@ export async function POST(req: NextRequest) {
       results.push(`Sample data: ${e.message}`);
     }
 
+    // ── prismatic_persona_bookmarks ─────────────────────────────────────────────
+    try {
+      await sql`
+        CREATE TABLE IF NOT EXISTS public.prismatic_persona_bookmarks (
+          id              SERIAL PRIMARY KEY,
+          user_id         TEXT NOT NULL,
+          persona_slug    TEXT NOT NULL,
+          created_at      TIMESTAMPTZ DEFAULT NOW(),
+          UNIQUE(user_id, persona_slug)
+        )
+      `;
+      await sql`CREATE INDEX IF NOT EXISTS public.prismatic_bookmarks_user_idx ON public.prismatic_persona_bookmarks(user_id)`;
+      results.push('prismatic_persona_bookmarks ✓');
+    } catch (e: any) {
+      results.push('prismatic_persona_bookmarks: ' + e.message);
+    }
+
     return NextResponse.json({ success: true, results });
   } catch (error: any) {
     console.error('Migration failed:', error);

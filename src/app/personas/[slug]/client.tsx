@@ -215,7 +215,21 @@ export function PersonaDetailClient({ persona, colors, dbConfidence }: Props) {
       });
       if (res.ok) {
         const d = await res.json();
-        setIsBookmarked(d.action === 'added');
+        if (d.action === 'table_created' && d.retry) {
+          // Table was just created, retry the toggle
+          const retryRes = await fetch('/api/user/bookmarks', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify({ slug: persona.id }),
+          });
+          if (retryRes.ok) {
+            const rd = await retryRes.json();
+            setIsBookmarked(rd.action === 'added');
+          }
+        } else {
+          setIsBookmarked(d.action === 'added');
+        }
       }
     } finally {
       setBookmarkLoading(false);
