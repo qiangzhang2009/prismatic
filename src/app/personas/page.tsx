@@ -184,14 +184,14 @@ export default function PersonasPage() {
             const rd = await retryRes.json();
             setBookmarkedSlugs(prev => {
               const next = new Set(prev);
-              rd.action === 'added' ? next.add(slug) : next.delete(slug);
+              if (rd.action === 'added') { next.add(slug); } else { next.delete(slug); }
               return next;
             });
           }
         } else {
           setBookmarkedSlugs(prev => {
             const next = new Set(prev);
-            d.action === 'added' ? next.add(slug) : next.delete(slug);
+            if (d.action === 'added') { next.add(slug); } else { next.delete(slug); }
             return next;
           });
         }
