@@ -12,7 +12,7 @@ import {
 } from 'lucide-react';
 
 const BENEFITS = [
-  { icon: TrendingUp, title: '高佣金比例', desc: '成交金额 20% 起，永久分成' },
+  { icon: TrendingUp, title: '高佣金比例', desc: '成交金额 10% 起，永久分成' },
   { icon: Gift, title: '永久有效', desc: '你带来的客户，后续续费依然有分成' },
   { icon: MessageSquare, title: '专属二维码', desc: '一键生成带参数的推广二维码，方便微信群传播' },
   { icon: ShieldCheck, title: '实时统计', desc: '后台实时查看引流数据和佣金明细' },
@@ -199,7 +199,7 @@ export default function PartnersApplyPage() {
                       className="w-20 px-3 py-2 rounded-xl border border-border-subtle bg-bg-surface text-sm text-text-primary focus:outline-none focus:border-prism-blue text-center"
                     />
                     <span className="text-sm text-text-secondary">%</span>
-                    <span className="text-xs text-text-muted">（默认 20%，管理员可调整）</span>
+                    <span className="text-xs text-text-muted">（默认 10%，管理员可调整）</span>
                   </div>
                 )}
 
