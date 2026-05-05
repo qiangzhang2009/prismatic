@@ -9,11 +9,12 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
-import { ArrowLeft, Search, Filter, ArrowUpDown, Shield, TrendingUp, Users, Loader2 } from 'lucide-react';
+import { ArrowLeft, Search, Filter, ArrowUpDown, Shield, TrendingUp, Users, Loader2, Bookmark } from 'lucide-react';
 import { PERSONA_LIST } from '@/lib/personas';
 import { PERSONA_CONFIDENCE, getConfidenceLevel } from '@/lib/confidence';
 import { PersonaCard } from '@/components/persona-card';
 import { cn, unquote, decodeUnicodeEscapes, getDomainGradient } from '@/lib/utils';
+import { useAuthStore } from '@/lib/auth-store';
 import type { Domain } from '@/lib/types';
 import { DOMAINS } from '@/lib/constants';
 
@@ -120,10 +121,22 @@ export default function PersonasPage() {
   const [sortKey, setSortKey] = useState<SortKey>('confidence');
   const [showSortMenu, setShowSortMenu] = useState(false);
   const [loading, setLoading] = useState(true);
+  const { user } = useAuthStore();
+  const [bookmarkedSlugs, setBookmarkedSlugs] = useState<Set<string>>(new Set());
+  const [showBookmarkedOnly, setShowBookmarkedOnly] = useState(false);
 
   // Merged list: initialized empty; DB fetch populates it in useEffect
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [mergedPersonas, setMergedPersonas] = useState<any[]>([]);
+
+  // Fetch bookmarks for logged-in user
+  useEffect(() => {
+    if (!user) return;
+    fetch('/api/user/bookmarks', { credentials: 'include' })
+      .then(r => r.ok ? r.json() : null)
+      .then(d => { if (d?.bookmarks) setBookmarkedSlugs(new Set(d.bookmarks.map((b: any) => b.slug))); })
+      .catch(() => {});
+  }, [user]);
 
   useEffect(() => {
     fetch('/api/persona-library?sortBy=score&limit=100')
@@ -148,6 +161,44 @@ export default function PersonasPage() {
   // Derive domains from merged data
   const domains = Array.from(new Set(mergedPersonas.flatMap(p => p.domain ?? []))) as Domain[];
 
+  const handleBookmarkToggle = async (slug: string) => {
+    if (!user) return;
+    try {
+      const res = await fetch('/api/user/bookmarks', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ slug }),
+      });
+      if (res.ok) {
+        const d = await res.json();
+        if (d.action === 'table_created' && d.retry) {
+          // Table was just created; retry the actual toggle
+          const retryRes = await fetch('/api/user/bookmarks', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify({ slug }),
+          });
+          if (retryRes.ok) {
+            const rd = await retryRes.json();
+            setBookmarkedSlugs(prev => {
+              const next = new Set(prev);
+              rd.action === 'added' ? next.add(slug) : next.delete(slug);
+              return next;
+            });
+          }
+        } else {
+          setBookmarkedSlugs(prev => {
+            const next = new Set(prev);
+            d.action === 'added' ? next.add(slug) : next.delete(slug);
+            return next;
+          });
+        }
+      }
+    } catch (_) {}
+  };
+
   // Build filtered + sorted list in one pass
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const displayList = [...mergedPersonas]
@@ -160,7 +211,8 @@ export default function PersonasPage() {
         (p.name ?? '').toLowerCase().includes(searchQuery.toLowerCase()) ||
         (p.taglineZh ?? '').includes(searchQuery) ||
         (p.briefZh ?? '').includes(searchQuery);
-      return matchesDomain && matchesSearch;
+      const matchesBookmark = !showBookmarkedOnly || bookmarkedSlugs.has(p.id);
+      return matchesDomain && matchesSearch && matchesBookmark;
     })
     .sort((a: any, b: any) => {
       if (sortKey === 'confidence') return b._score - a._score;
@@ -257,6 +309,23 @@ export default function PersonasPage() {
           </div>
 
           <div className="flex items-center gap-2 overflow-x-auto pb-1">
+            {user && bookmarkedSlugs.size > 0 && (
+              <button
+                className={cn(
+                  'px-3 py-1.5 rounded-lg text-sm whitespace-nowrap transition-colors flex items-center gap-1.5',
+                  showBookmarkedOnly
+                    ? 'bg-amber-400/20 text-amber-400 border border-amber-400/40'
+                    : 'text-text-secondary hover:text-amber-400 border border-border-subtle hover:border-amber-400/30',
+                )}
+                onClick={() => setShowBookmarkedOnly(v => !v)}
+              >
+                <Bookmark className="w-3.5 h-3.5" />
+                我的收藏
+                <span className="text-[10px] bg-amber-400/20 text-amber-400 rounded-full px-1.5 py-0.5">
+                  {bookmarkedSlugs.size}
+                </span>
+              </button>
+            )}
             <button
               className={cn('px-3 py-1.5 rounded-lg text-sm whitespace-nowrap transition-colors', selectedDomain === 'all' ? 'bg-prism-blue/20 text-prism-blue border border-prism-blue/30' : 'text-text-secondary hover:text-text-primary border border-border-subtle')}
               onClick={() => setSelectedDomain('all')}
@@ -317,7 +386,12 @@ export default function PersonasPage() {
                   </div>
                 )}
                 <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, delay: i * 0.03 }}>
-                  <PersonaCard persona={persona} distillScore={persona._score} />
+                  <PersonaCard
+                    persona={persona}
+                    distillScore={persona._score}
+                    isBookmarked={bookmarkedSlugs.has(persona.id)}
+                    onBookmarkToggle={user ? handleBookmarkToggle : undefined}
+                  />
                 </motion.div>
                 {sortKey === 'influence' && (
                   <div className="mt-1 px-1">
