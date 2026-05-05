@@ -29,7 +29,10 @@ import {
   AlertCircle,
   TrendingUp,
   Info,
+  Bookmark,
+  Loader2,
 } from 'lucide-react';
+import { useAuthStore } from '@/lib/auth-store';
 import type { Persona } from '@/lib/types';
 import type { ScoreBreakdown } from '@/lib/types';
 import { cn } from '@/lib/utils';
@@ -183,6 +186,41 @@ function DecisionHeuristicCard({ h, accentColor }: { h: Persona['decisionHeurist
 
 export function PersonaDetailClient({ persona, colors, dbConfidence }: Props) {
   const [activeTab, setActiveTab] = useState('mental-models');
+  const { user } = useAuthStore();
+  const [isBookmarked, setIsBookmarked] = useState(false);
+  const [bookmarkLoading, setBookmarkLoading] = useState(false);
+
+  // Load bookmark status
+  useEffect(() => {
+    if (!user) return;
+    fetch('/api/user/bookmarks', { credentials: 'include' })
+      .then(r => r.ok ? r.json() : null)
+      .then(d => {
+        if (d?.bookmarks) {
+          setIsBookmarked(d.bookmarks.some((b: any) => b.slug === persona.id));
+        }
+      })
+      .catch(() => {});
+  }, [user, persona.id]);
+
+  const handleBookmarkToggle = async () => {
+    if (!user) return;
+    setBookmarkLoading(true);
+    try {
+      const res = await fetch('/api/user/bookmarks', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ slug: persona.id }),
+      });
+      if (res.ok) {
+        const d = await res.json();
+        setIsBookmarked(d.action === 'added');
+      }
+    } finally {
+      setBookmarkLoading(false);
+    }
+  };
 
   // 追踪人物详情页浏览
   useEffect(() => {
@@ -207,7 +245,7 @@ export function PersonaDetailClient({ persona, colors, dbConfidence }: Props) {
           </Link>
           <div className="w-px h-5 bg-border-subtle" />
           <div className="flex items-center gap-3">
-            <div 
+            <div
               className="w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold text-white"
               style={{ background: `linear-gradient(135deg, ${colors.from}, ${colors.to})` }}
             >
@@ -215,6 +253,24 @@ export function PersonaDetailClient({ persona, colors, dbConfidence }: Props) {
             </div>
             <span className="font-display font-semibold text-sm">{persona.nameZh}</span>
           </div>
+          {user && (
+            <button
+              onClick={handleBookmarkToggle}
+              disabled={bookmarkLoading}
+              className="ml-2 w-8 h-8 rounded-lg flex items-center justify-center transition-all"
+              style={{
+                color: isBookmarked ? '#f59e0b' : '#6b7280',
+                backgroundColor: isBookmarked ? 'rgba(245,158,11,0.12)' : 'transparent',
+              }}
+              title={isBookmarked ? '取消收藏' : '收藏此人物'}
+            >
+              {bookmarkLoading ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <Bookmark className={`w-4 h-4 ${isBookmarked ? 'fill-current' : ''}`} />
+              )}
+            </button>
+          )}
           <Link
             href={`/app?persona=${persona.id}`}
             className="ml-auto flex items-center gap-2 text-sm px-4 py-1.5 rounded-lg font-medium transition-colors"
@@ -899,17 +955,38 @@ export function PersonaDetailClient({ persona, colors, dbConfidence }: Props) {
           <p className="text-text-secondary mb-6">
             开启与{persona.nameZh}的深度思维协作，探索{persona.taglineZh}
           </p>
-          <Link
-            href={`/app?persona=${persona.id}`}
-            className="btn-primary inline-flex items-center gap-2"
-            style={{
-              background: `linear-gradient(135deg, ${colors.from}, ${colors.to})`,
-            }}
-          >
-            <Play className="w-4 h-4" />
-            开始对话
-            <ArrowRight className="w-4 h-4" />
-          </Link>
+          <div className="flex items-center justify-center gap-3 flex-wrap">
+            {user && (
+              <button
+                onClick={handleBookmarkToggle}
+                disabled={bookmarkLoading}
+                className="flex items-center gap-2 px-4 py-2.5 rounded-xl border text-sm font-medium transition-all"
+                style={{
+                  borderColor: isBookmarked ? '#f59e0b60' : colors.accent + '40',
+                  color: isBookmarked ? '#f59e0b' : colors.accent,
+                  backgroundColor: isBookmarked ? 'rgba(245,158,11,0.08)' : 'transparent',
+                }}
+              >
+                {bookmarkLoading ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <Bookmark className={`w-4 h-4 ${isBookmarked ? 'fill-current' : ''}`} />
+                )}
+                {isBookmarked ? '已收藏' : '收藏人物'}
+              </button>
+            )}
+            <Link
+              href={`/app?persona=${persona.id}`}
+              className="btn-primary inline-flex items-center gap-2"
+              style={{
+                background: `linear-gradient(135deg, ${colors.from}, ${colors.to})`,
+              }}
+            >
+              <Play className="w-4 h-4" />
+              开始对话
+              <ArrowRight className="w-4 h-4" />
+            </Link>
+          </div>
         </div>
       </section>
     </div>

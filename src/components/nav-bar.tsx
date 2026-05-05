@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Hexagon, Sparkles, GitBranch, Leaf, Menu, X, Brain, Library } from 'lucide-react';
 import {
   User, Settings, Bookmark, History, Info,
@@ -19,6 +19,31 @@ const NAV_LINKS = [
   { href: '/tcm-atlas', label: '中医图谱', mdOnly: true, emerald: true },
   { href: '/methodology', label: '蒸馏方法论', mdOnly: true },
 ];
+
+// ─── Bookmark count badge ────────────────────────────────────────────────────
+function BookmarkCount({ children }: { children: React.ReactNode }) {
+  const [count, setCount] = useState(0);
+  const { user } = useAuthStore();
+
+  useEffect(() => {
+    if (!user) return;
+    fetch('/api/user/bookmarks', { credentials: 'include' })
+      .then(r => r.ok ? r.json() : null)
+      .then(d => { if (d?.bookmarks) setCount(d.bookmarks.length); })
+      .catch(() => {});
+  }, [user]);
+
+  return (
+    <>
+      {children}
+      {count > 0 && (
+        <span className="ml-1 text-[10px] bg-amber-400/20 text-amber-400 rounded-full px-1.5 py-0.5 font-medium">
+          {count}
+        </span>
+      )}
+    </>
+  );
+}
 
 export function NavBar() {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -55,6 +80,15 @@ export function NavBar() {
               {link.label}
             </Link>
           ))}
+          <BookmarkCount>
+            <Link
+              href="/bookmarks"
+              className="text-sm text-text-secondary hover:text-amber-400 flex items-center gap-1"
+            >
+              <Bookmark className="w-3.5 h-3.5" />
+              收藏
+            </Link>
+          </BookmarkCount>
           <Link
             href="/tcm-assistant"
             className="text-sm text-[#c9a84c] hover:text-[#b8963e] flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#c9a84c]/10 hover:bg-[#c9a84c]/20 transition-all border border-[#c9a84c]/20 hover:border-[#c9a84c]/40"
@@ -181,7 +215,7 @@ function MobileUserSection({ onClose }: { onClose: () => void }) {
         {/* Menu links */}
         <div className="space-y-1">
           <MobileLink href="/app" icon={History} label="历史对话" onClose={onClose} />
-          <MobileLink href="/personas" icon={Bookmark} label="收藏人物" onClose={onClose} />
+          <MobileLink href="/bookmarks" icon={Bookmark} label="我的收藏" onClose={onClose} />
           <MobileLink href="/settings" icon={Settings} label="账号设置" onClose={onClose} />
           {user.role === 'ADMIN' && (
             <MobileLink href="/admin" icon={ShieldCheck} label="管理后台" onClose={onClose} />
