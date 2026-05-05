@@ -8,6 +8,7 @@
 import { Suspense, useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import dynamic from 'next/dynamic';
+import Link from 'next/link';
 import {
   Users, Search, Crown, UserCheck, UserX, Filter,
   RefreshCw, Ban, ChevronRight, ChevronLeft, Plus, Eye,
@@ -17,7 +18,7 @@ import {
   TrendingDown, DollarSign, Bot, BarChart2, Brain,
   Database, BookOpen, Clock, ArrowUpRight, ArrowDownRight,
   Target, Layers, Sparkles, GitFork, PieChart, Edit3,
-  FlaskConical, UsersRound,
+  FlaskConical, UsersRound, Handshake,
   Cloud, CloudOff, Monitor, Smartphone, AlertTriangle, CheckCircle, XCircle, RefreshCw as SyncIcon, Wifi, WifiOff,
 } from 'lucide-react';
 import {
@@ -37,7 +38,7 @@ import type { User, UserFilter } from '@/lib/use-admin-data';
 
 // ─── Types ─────────────────────────────────────────────────────────────────────
 
-type Tab = 'dashboard' | 'users' | 'assets' | 'distill' | 'sync' | 'tcm';
+type Tab = 'dashboard' | 'users' | 'assets' | 'distill' | 'sync' | 'tcm' | 'partners';
 
 // ─── Helpers ────────────────────────────────────────────────────────────────────
 
@@ -77,6 +78,7 @@ function AdminDashboardPage() {
     { id: 'tcm' as Tab, label: '中医对话', icon: Bot },
     { id: 'distill' as Tab, label: '蒸馏中心', icon: FlaskConical },
     { id: 'sync' as Tab, label: '同步管理', icon: UsersRound },
+    { id: 'partners' as Tab, label: '合伙人', icon: Handshake },
   ];
 
   return (
@@ -117,6 +119,21 @@ function AdminDashboardPage() {
           {activeTab === 'tcm' && <TabPanel key="tcm"><TCMSection /></TabPanel>}
           {activeTab === 'distill' && <TabPanel key="distill"><DistillSection /></TabPanel>}
           {activeTab === 'sync' && <TabPanel key="sync"><SyncSection /></TabPanel>}
+          {activeTab === 'partners' && (
+            <TabPanel key="partners">
+              <div className="h-full flex flex-col items-center justify-center text-gray-400 text-center">
+                <Handshake className="w-12 h-12 mb-4 opacity-50" />
+                <h3 className="text-lg font-medium text-white mb-2">合伙人管理</h3>
+                <p className="text-sm mb-4">管理推广合伙人、审核申请、结算佣金</p>
+                <a
+                  href="/admin/affiliates"
+                  className="px-5 py-2.5 rounded-xl bg-violet-600 hover:bg-violet-500 text-white text-sm font-medium transition-colors"
+                >
+                  打开合伙人管理
+                </a>
+              </div>
+            </TabPanel>
+          )}
         </AnimatePresence>
       </div>
     </div>
