@@ -58,45 +58,39 @@ export default function PartnersDashboardPage() {
   const [withdrawLoading, setWithdrawLoading] = useState(false);
   const [withdrawMsg, setWithdrawMsg] = useState('');
 
-  const token = typeof window !== 'undefined'
-    ? new URLSearchParams(window.location.search).get('token')
-    : null;
+  const [token, setToken] = useState<string | null>(null);
 
-  const fetchStats = useCallback(async () => {
-    if (!data?.affiliate?.id || !token) return;
+  const [pendingApproval, setPendingApproval] = useState(false);
+
+  const initDashboard = useCallback(async () => {
+    if (!token) { setLoading(false); return; }
     setLoading(true);
     try {
-      const res = await fetch(`/api/affiliates/${data.affiliate.id}/stats?token=${token}`);
-      if (!res.ok) throw new Error('Failed to load');
+      const res = await fetch(`/api/affiliates/dashboard?token=${token}`);
       const d = await res.json();
-      setData(d);
-    } catch (e) {
-      setError('加载失败，请刷新重试');
-    } finally { setLoading(false); }
-  }, [data?.affiliate?.id, token]);
+      if (d.pending_approval) {
+        setPendingApproval(true);
+        setData({ affiliate: d.affiliate, recent_conversions: [] });
+      } else if (!res.ok) {
+        throw new Error(d.error || 'Invalid or expired link');
+      } else {
+        setData(d);
+      }
+    } catch (e: any) {
+      setError(e.message || '链接无效或已过期');
+    } finally {
+      setLoading(false);
+    }
+  }, [token]);
 
   useEffect(() => {
-    if (!token) { setLoading(false); return; }
-    // We need to find the affiliate id first — fetch from the affiliate list
-    // Actually, we'll load directly via the token query
-    // The dashboard URL format is /partners/dashboard?token=XXX
-    // We need to find the affiliate by token
-    const init = async () => {
-      try {
-        // First, find the affiliate by trying the affiliates list
-        // Better: we add an endpoint that takes token directly
-        const res = await fetch(`/api/affiliates/dashboard?token=${token}`);
-        if (!res.ok) throw new Error('Invalid or expired link');
-        const d = await res.json();
-        setData(d);
-      } catch (e: any) {
-        setError(e.message || '链接无效或已过期');
-      } finally {
-        setLoading(false);
-      }
-    };
-    init();
-  }, [token]);
+    if (typeof window === 'undefined') return;
+    setToken(new URLSearchParams(window.location.search).get('token'));
+  }, []);
+
+  useEffect(() => {
+    initDashboard();
+  }, [initDashboard]);
 
   const copyLink = () => {
     if (!data?.affiliate?.referral_code) return;
@@ -126,7 +120,7 @@ export default function PartnersDashboardPage() {
       if (!res.ok) throw new Error(d.error ?? '提现失败');
       setWithdrawMsg('提现申请已提交，请等待处理');
       setWithdrawAmount('');
-      fetchStats();
+      initDashboard();
     } catch (e: any) {
       setWithdrawMsg(e.message);
     } finally { setWithdrawLoading(false); }
@@ -156,6 +150,30 @@ export default function PartnersDashboardPage() {
       <div className="min-h-screen bg-bg-base flex flex-col items-center justify-center">
         <Loader2 className="w-6 h-6 text-prism-blue animate-spin mb-3" />
         <p className="text-sm text-text-muted">加载中...</p>
+      </div>
+    );
+  }
+
+  if (pendingApproval) {
+    return (
+      <div className="min-h-screen bg-bg-base flex flex-col items-center justify-center px-4">
+        <div className="w-full max-w-sm rounded-2xl border border-border-subtle bg-bg-elevated p-8 text-center">
+          <div className="w-12 h-12 rounded-full bg-amber-500/15 flex items-center justify-center mx-auto mb-4">
+            <svg className="w-6 h-6 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <h2 className="text-lg font-semibold text-text-primary mb-2">账号审核中</h2>
+          <p className="text-sm text-text-muted mb-6">
+            您的合伙人账号正在审核中，管理员批准后即可正常使用。
+          </p>
+          {data?.affiliate?.name && (
+            <p className="text-xs text-text-muted mb-4">
+              账号：<span className="text-text-secondary">{data.affiliate.name}</span>
+            </p>
+          )}
+          <Link href="/" className="text-prism-blue text-sm hover:underline">返回首页</Link>
+        </div>
       </div>
     );
   }

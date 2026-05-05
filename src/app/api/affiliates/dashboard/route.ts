@@ -32,8 +32,13 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: 'Invalid or expired link' }, { status: 401 });
     }
 
+    // Always return the affiliate record + status; the frontend decides what to show
     if (owner[0].status !== 'active') {
-      return NextResponse.json({ error: '你的账号正在审核中，请等待管理员批准' }, { status: 403 });
+      return NextResponse.json({
+        affiliate: owner[0],
+        recent_conversions: [],
+        pending_approval: true,
+      });
     }
 
     // Compute live stats from the conversions table (not stale cached fields)
