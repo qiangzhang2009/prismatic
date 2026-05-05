@@ -299,8 +299,8 @@ export function UserMenu() {
 
                   {/* Menu Items */}
                   <div className="py-1">
-                    <MenuItem icon={History} label="历史对话" href="/app" onClick={() => setIsOpen(false)} />
-                    <MenuItem icon={Bookmark} label="收藏人物" href="/personas" onClick={() => setIsOpen(false)} />
+                    <MenuItem icon={History} label="历史对话" href="/conversations" onClick={() => setIsOpen(false)} />
+                    <MenuItem icon={Bookmark} label="收藏人物" href="/bookmarks" onClick={() => setIsOpen(false)} />
                     <MenuItem icon={Settings} label="账号设置" href="/settings" onClick={() => setIsOpen(false)} />
 
                     {user.role === 'ADMIN' && (
@@ -377,8 +377,8 @@ export function UserMenu() {
 
                   {/* Menu Items */}
                   <div className="py-1">
-                    <MenuItem icon={History} label="历史对话" href="/app" onClick={() => setIsOpen(false)} />
-                    <MenuItem icon={Bookmark} label="收藏人物" href="/personas" onClick={() => setIsOpen(false)} />
+                    <MenuItem icon={History} label="历史对话" href="/conversations" onClick={() => setIsOpen(false)} />
+                    <MenuItem icon={Bookmark} label="收藏人物" href="/bookmarks" onClick={() => setIsOpen(false)} />
                     <MenuItem icon={Info} label="关于 Prismatic" href="/#about" onClick={() => setIsOpen(false)} />
 
                     <div className="h-px bg-border-subtle my-1" />

@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Send, Loader2, ChevronDown, Settings, Trash2, X, Download, FileText, Image, Zap, CheckSquare, Calendar } from 'lucide-react';
+import { Send, Loader2, ChevronDown, Settings, Trash2, X, Download, FileText, Image, Zap, CheckSquare, Calendar, Bookmark } from 'lucide-react';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { PersonaCard } from '@/components/persona-card';
@@ -20,6 +20,7 @@ import { trackChatStart, trackChatMessage } from '@/lib/use-tracking';
 import { LimitReachedModal, type LimitModalType } from '@/components/limit-reached-modal';
 import { exportChatAsImage, generateChatText, downloadTextViaAPI } from '@/lib/export-chat';
 import { ExportPanel } from '@/components/export-panel';
+import { useBookmarks } from '@/lib/use-bookmarks';
 
 const STORAGE_KEY = 'prismatic-chat-state';
 const DAILY_LIMIT_KEY = 'prismatic-daily-messages';
@@ -150,6 +151,9 @@ export function ChatInterface({ className, initialPersona, initialMode }: ChatIn
   // Persona picker filter state
   const [pickerTab, setPickerTab] = useState<string>('all');
   const [pickerSearch, setPickerSearch] = useState('');
+
+  // Bookmark state
+  const { isBookmarked, toggleBookmark, loading: bookmarkLoading } = useBookmarks();
 
   // DB personas — fetched once, merged with hardcoded PERSONA_LIST
   const [dbPersonas, setDbPersonas] = useState<any[]>([]);
@@ -1098,6 +1102,7 @@ export function ChatInterface({ className, initialPersona, initialMode }: ChatIn
                     <div className="grid grid-cols-4 gap-3">
                       {filteredPersonas.map((persona) => {
                         const isSelected = selectedIds.includes(persona.id);
+                        const bm = isBookmarked(persona.id);
                         return (
                           <button
                             key={persona.id}
@@ -1117,6 +1122,7 @@ export function ChatInterface({ className, initialPersona, initialMode }: ChatIn
                               >
                                 {persona.nameZh.slice(0, 1)}
                               </div>
+                              {/* Selected checkmark */}
                               {isSelected && (
                                 <div
                                   className="absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full flex items-center justify-center"
@@ -1127,6 +1133,19 @@ export function ChatInterface({ className, initialPersona, initialMode }: ChatIn
                                   </svg>
                                 </div>
                               )}
+                              {/* Bookmark toggle */}
+                              <button
+                                onClick={(e) => { e.stopPropagation(); toggleBookmark(persona.id); }}
+                                className={cn(
+                                  'absolute -top-0.5 -right-0.5 w-5 h-5 rounded flex items-center justify-center transition-all text-[10px]',
+                                  bm
+                                    ? 'text-amber-400 bg-amber-400/25 hover:bg-amber-400/35'
+                                    : 'text-text-muted/50 bg-bg-base/80 hover:text-amber-400 hover:bg-amber-400/15'
+                                )}
+                                title={bm ? '取消收藏' : '收藏'}
+                              >
+                                <Bookmark className={cn('w-3 h-3', bm && 'fill-current')} />
+                              </button>
                             </div>
                             <span className="text-[11px] text-text-secondary text-center leading-tight">
                               {persona.nameZh}

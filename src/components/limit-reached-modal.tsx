@@ -3,7 +3,8 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Zap, KeyRound } from 'lucide-react';
+import { useState } from 'react';
+import { X, Zap, KeyRound, Copy, CheckCheck } from 'lucide-react';
 
 export type LimitModalType = 'daily_limit' | 'api_key_required' | 'credits_exhausted';
 
@@ -14,10 +15,65 @@ interface LimitReachedModalProps {
   onSetApiKey?: () => void;
 }
 
-export function LimitReachedModal({ isOpen, type = 'daily_limit', onClose, onSetApiKey }: LimitReachedModalProps) {
+/* ─── Mini Payment Modal (for Limit Reached Modal) ─── */
+function MiniPaymentModal({ onClose }: { onClose: () => void }) {
+  const [copied, setCopied] = useState(false);
+  const handleCopy = () => {
+    navigator.clipboard.writeText('3740977');
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
   return (
-    <AnimatePresence>
-      {isOpen && (
+    <motion.div
+      initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+      className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm p-4"
+      onClick={onClose}
+    >
+      <motion.div
+        initial={{ opacity: 0, scale: 0.92 }} animate={{ opacity: 1, scale: 1 }}
+        exit={{ opacity: 0, scale: 0.92 }}
+        className="w-full max-w-xs rounded-2xl border border-border-subtle bg-bg-elevated p-5 shadow-2xl"
+        onClick={e => e.stopPropagation()}
+      >
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-sm font-medium text-text-primary">扫码支付</h3>
+          <button onClick={onClose} className="text-text-muted hover:text-text-primary transition-colors">
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+        <div className="flex flex-col items-center">
+          <div className="relative w-44 h-44 rounded-xl overflow-hidden border border-border-subtle bg-bg-surface mb-3">
+            <Image src="/wechat-qr.png" alt="微信收款码" fill className="object-cover" unoptimized />
+          </div>
+          <p className="text-xs text-text-secondary mb-3">打开微信，扫描上方二维码付款</p>
+          <div className="w-full flex items-center justify-between rounded-lg bg-bg-surface border border-border-subtle px-3 py-2 mb-3">
+            <div className="flex items-center gap-2">
+              <div className="w-5 h-5 rounded bg-green-500/15 flex items-center justify-center">
+                <span className="text-green-400 font-bold text-[10px]">微</span>
+              </div>
+              <span className="text-xs text-text-secondary font-mono">3740977</span>
+            </div>
+            <button onClick={handleCopy} className="text-[10px] text-prism-blue">
+              {copied ? <><CheckCheck className="w-3 h-3 inline" /> 已复制</> : <><Copy className="w-3 h-3 inline" /> 复制</>}
+            </button>
+          </div>
+          <p className="text-[10px] text-text-muted text-center">
+            备注「Prismatic」，付款后联系 { }
+            <span className="font-mono">3740977</span> 开通服务
+          </p>
+        </div>
+      </motion.div>
+    </motion.div>
+  );
+}
+
+export function LimitReachedModal({ isOpen, type = 'daily_limit', onClose, onSetApiKey }: LimitReachedModalProps) {
+  const [showPayment, setShowPayment] = useState(false);
+
+  return (
+    <>
+      <AnimatePresence>
+        {isOpen && (
         <>
           <motion.div
             initial={{ opacity: 0 }}
@@ -110,7 +166,7 @@ export function LimitReachedModal({ isOpen, type = 'daily_limit', onClose, onSet
                       ].map(item => (
                         <button
                           key={item.name}
-                          onClick={() => { window.location.href = 'weixin://'; }}
+                          onClick={() => { onClose(); setShowPayment(true); }}
                           className="w-full flex items-center justify-between px-4 py-2.5 rounded-xl bg-bg-surface hover:bg-bg-overlay transition-colors"
                         >
                           <div className="flex items-center gap-2">
@@ -161,7 +217,7 @@ export function LimitReachedModal({ isOpen, type = 'daily_limit', onClose, onSet
                       ].map(item => (
                         <button
                           key={item.name}
-                          onClick={() => { window.location.href = 'weixin://'; }}
+                          onClick={() => { onClose(); setShowPayment(true); }}
                           className="w-full flex items-center justify-between px-4 py-2.5 rounded-xl bg-bg-surface hover:bg-bg-overlay transition-colors"
                         >
                           <div className="flex items-center gap-2">
@@ -247,5 +303,10 @@ export function LimitReachedModal({ isOpen, type = 'daily_limit', onClose, onSet
         </>
       )}
     </AnimatePresence>
+
+    <AnimatePresence>
+      {showPayment && <MiniPaymentModal onClose={() => setShowPayment(false)} />}
+    </AnimatePresence>
+  </>
   );
 }

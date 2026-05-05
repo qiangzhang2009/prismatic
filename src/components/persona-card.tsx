@@ -7,6 +7,7 @@ import type { Persona } from '@/lib/types';
 import { trackPersonaView } from '@/lib/use-tracking';
 import { getConfidenceLevel } from '@/lib/confidence-utils';
 import { DOMAINS } from '@/lib/constants';
+import { Bookmark, Loader2 } from 'lucide-react';
 
 function domainLabel(key: string): string {
   return DOMAINS[key as keyof typeof DOMAINS]?.label ?? key;
@@ -22,6 +23,10 @@ interface PersonaCardProps {
   showDistillBadge?: boolean;
   distillGrade?: string;
   distillScore?: number;
+  /** Bookmark support (compact mode) */
+  isBookmarked?: boolean;
+  onBookmarkToggle?: (slug: string) => void;
+  bookmarkLoading?: boolean;
 }
 
 export function PersonaCard({
@@ -34,6 +39,9 @@ export function PersonaCard({
   showDistillBadge,
   distillGrade,
   distillScore,
+  isBookmarked = false,
+  onBookmarkToggle,
+  bookmarkLoading = false,
 }: PersonaCardProps) {
   const gradient = showGradient
     ? `linear-gradient(135deg, ${persona.gradientFrom}18, ${persona.gradientTo}18)`
@@ -86,6 +94,25 @@ export function PersonaCard({
             style={{ backgroundColor: persona.accentColor }}
             layoutId="selected-dot"
           />
+        )}
+        {onBookmarkToggle && (
+          <button
+            onClick={(e) => { e.stopPropagation(); e.preventDefault(); onBookmarkToggle(persona.slug); }}
+            disabled={bookmarkLoading}
+            className={cn(
+              'absolute top-2 left-2 w-6 h-6 rounded flex items-center justify-center transition-all',
+              isBookmarked
+                ? 'text-amber-400 bg-amber-400/20 hover:bg-amber-400/30'
+                : 'text-text-muted/50 bg-bg-base/60 hover:text-amber-400 hover:bg-amber-400/10',
+            )}
+            title={isBookmarked ? '取消收藏' : '收藏'}
+          >
+            {bookmarkLoading ? (
+              <Loader2 className="w-3 h-3 animate-spin" />
+            ) : (
+              <Bookmark className={cn('w-3.5 h-3.5', isBookmarked && 'fill-current')} />
+            )}
+          </button>
         )}
       </motion.button>
     );

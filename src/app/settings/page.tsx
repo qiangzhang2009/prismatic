@@ -16,9 +16,100 @@ import {
   Save, CheckCircle, AlertTriangle, RefreshCw,
   ChevronRight, Smartphone, Github, Crown,
   Edit3, X, Check, Eye, EyeOff, Zap, CreditCard, DollarSign, ChevronDown,
-  Key,
+  Key, QrCode, Copy, CheckCheck,
 } from 'lucide-react';
 import { useAuthMe, type AuthUserMe } from '@/lib/use-auth-me';
+
+/* ─── Payment Modal ─── */
+function PaymentModal({ plan, onClose }: { plan: string; onClose: () => void }) {
+  const [copied, setCopied] = useState(false);
+
+  const planInfo: Record<string, { label: string; price: string }> = {
+    MONTHLY: { label: '月度订阅', price: '¥29/月' },
+    YEARLY:  { label: '年度订阅', price: '¥199/年' },
+    LIFETIME:{ label: '终身会员', price: '¥399' },
+    'starter':{ label: '尝鲜包（200条）', price: '¥9' },
+    'standard':{ label: '标准包（600条）', price: '¥25' },
+    'plus':  { label: '增强包（1500条）', price: '¥59' },
+  };
+
+  const info = planInfo[plan] ?? { label: plan, price: '' };
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText('3740977');
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+    >
+      <motion.div
+        initial={{ opacity: 0, scale: 0.92 }} animate={{ opacity: 1, scale: 1 }}
+        exit={{ opacity: 0, scale: 0.92 }}
+        className="w-full max-w-sm rounded-2xl border border-border-subtle bg-bg-elevated p-6 shadow-2xl"
+      >
+        <div className="flex items-center justify-between mb-5">
+          <div>
+            <h3 className="text-base font-medium text-text-primary">{info.label}</h3>
+            <p className="text-xs text-text-muted mt-0.5">{info.price} · 扫码支付</p>
+          </div>
+          <button onClick={onClose} className="text-text-muted hover:text-text-primary transition-colors">
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+
+        {/* WeChat QR */}
+        <div className="flex flex-col items-center mb-5">
+          <div className="relative w-48 h-48 rounded-xl overflow-hidden border border-border-subtle bg-bg-surface mb-3">
+            <Image unoptimized src="/wechat-qr.png" alt="微信收款码" fill className="object-cover" />
+          </div>
+          <p className="text-sm text-text-secondary">打开微信，扫描上方二维码付款</p>
+        </div>
+
+        {/* Payment info */}
+        <div className="rounded-xl bg-bg-surface border border-border-subtle p-4 mb-4 space-y-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <div className="w-7 h-7 rounded-lg bg-green-500/15 flex items-center justify-center">
+                <span className="text-green-400 font-bold text-sm">微</span>
+              </div>
+              <div>
+                <p className="text-xs text-text-muted">微信号</p>
+                <p className="text-sm font-medium text-text-primary font-mono">3740977</p>
+              </div>
+            </div>
+            <button
+              onClick={handleCopy}
+              className="flex items-center gap-1 text-xs text-prism-blue hover:text-prism-blue/80 transition-colors"
+            >
+              {copied ? <><CheckCheck className="w-3.5 h-3.5" /> 已复制</> : <><Copy className="w-3.5 h-3.5" /> 复制</>}
+            </button>
+          </div>
+          <div className="border-t border-border-subtle pt-3 flex items-center gap-2">
+            <div className="w-7 h-7 rounded-lg bg-blue-500/15 flex items-center justify-center">
+              <span className="text-blue-400 font-bold text-sm">支</span>
+            </div>
+            <div>
+              <p className="text-xs text-text-muted">支付宝收款码</p>
+              <p className="text-xs text-text-muted">如有需要，微信添加后说明需要支付宝</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="rounded-lg bg-amber-500/10 border border-amber-500/20 p-3">
+          <p className="text-xs text-amber-400 font-medium mb-1">付款后自动到账</p>
+          <p className="text-[11px] text-text-muted">
+            付款时备注「Prismatic」，付款后微信搜索 3740977 发送付款截图，备注未填写时需提供注册邮箱核实
+          </p>
+        </div>
+      </motion.div>
+    </motion.div>
+  );
+}
 
 const PROVINCES = [
   '北京', '上海', '天津', '重庆',
@@ -410,6 +501,7 @@ function SubscriptionTab({ user }: { user: AuthUserMe }) {
   const [apiKeyError, setApiKeyError] = useState('');
   const [apiKeySuccess, setApiKeySuccess] = useState('');
   const [showApiKeyInput, setShowApiKeyInput] = useState(false);
+  const [paymentPlan, setPaymentPlan] = useState<string | null>(null);
 
   const [creditLogPage, setCreditLogPage] = useState(1);
   const [creditLogs, setCreditLogs] = useState<any[]>([]);
@@ -633,7 +725,7 @@ function SubscriptionTab({ user }: { user: AuthUserMe }) {
                 : '永久有效，无需续费'}
             </p>
             <button
-              onClick={() => { window.location.href = 'weixin://'; }}
+              onClick={() => setPaymentPlan(plan.id)}
               className={`w-full py-2 rounded-xl text-sm font-medium transition-opacity text-white ${
                 plan.color === 'prism-blue' ? 'bg-prism-blue hover:opacity-90'
                   : plan.color === 'green-500' ? 'bg-green-500 hover:opacity-90'
@@ -663,7 +755,7 @@ function SubscriptionTab({ user }: { user: AuthUserMe }) {
               <p className="text-xs text-text-muted">{pack.credits} 条</p>
               <p className="text-[10px] text-text-muted/60">{pack.per}</p>
               <button
-                onClick={() => { window.location.href = 'weixin://'; }}
+                onClick={() => setPaymentPlan(pack.name === '尝鲜包' ? 'starter' : pack.name === '标准包' ? 'standard' : 'plus')}
                 className="mt-2 w-full py-1.5 rounded-lg bg-bg-surface text-sm text-text-secondary hover:bg-bg-overlay transition-colors"
               >
                 微信购买
@@ -724,6 +816,12 @@ function SubscriptionTab({ user }: { user: AuthUserMe }) {
         <p className="text-sm text-text-secondary mb-1">购买或咨询</p>
         <p className="text-xs text-text-muted">微信搜索 <span className="font-mono font-medium text-text-primary">3740977</span> 备注「Prismatic会员」</p>
       </div>
+
+      <AnimatePresence>
+        {paymentPlan && (
+          <PaymentModal plan={paymentPlan} onClose={() => setPaymentPlan(null)} />
+        )}
+      </AnimatePresence>
     </motion.div>
   );
 }
