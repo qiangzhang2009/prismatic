@@ -60,7 +60,7 @@ function PaymentModal({ planId, onClose }: { planId: string; onClose: () => void
 
         <div className="flex flex-col items-center mb-5">
           <div className="relative w-48 h-48 rounded-2xl overflow-hidden border border-border-medium shadow-xl mb-3">
-            <Image src="/wechat-qr.png" alt="微信收款码" fill className="object-cover" unoptimized />
+            <Image src="/wechat-payment-1.png" alt="微信收款码" fill className="object-cover" unoptimized />
           </div>
           <p className="text-sm text-text-secondary">打开微信，扫描上方二维码付款</p>
         </div>

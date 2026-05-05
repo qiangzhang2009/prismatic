@@ -483,7 +483,7 @@ function SubscribePaymentModal({ plan, onClose }: { plan: string; onClose: () =>
 
         <div className="flex flex-col items-center mb-5">
           <div className="relative w-48 h-48 rounded-xl overflow-hidden border border-border-subtle bg-bg-surface mb-3">
-            <Image unoptimized src="/wechat-qr.png" alt="微信收款码" fill className="object-cover" />
+            <Image unoptimized src="/wechat-payment-1.png" alt="微信收款码" fill className="object-cover" />
           </div>
           <p className="text-sm text-text-secondary">打开微信，扫描上方二维码付款</p>
         </div>

@@ -43,7 +43,7 @@ function MiniPaymentModal({ onClose }: { onClose: () => void }) {
         </div>
         <div className="flex flex-col items-center">
           <div className="relative w-44 h-44 rounded-xl overflow-hidden border border-border-subtle bg-bg-surface mb-3">
-            <Image src="/wechat-qr.png" alt="微信收款码" fill className="object-cover" unoptimized />
+            <Image src="/wechat-payment-1.png" alt="微信收款码" fill className="object-cover" unoptimized />
           </div>
           <p className="text-xs text-text-secondary mb-3">打开微信，扫描上方二维码付款</p>
           <div className="w-full flex items-center justify-between rounded-lg bg-bg-surface border border-border-subtle px-3 py-2 mb-3">
