@@ -116,10 +116,9 @@ export async function POST(req: NextRequest) {
     `;
 
     const affiliate = rows[0];
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL ?? 'https://prismatic.zxqconsulting.com';
     return NextResponse.json({
       affiliate,
-      dashboard_url: `${baseUrl}/partners/dashboard?token=${dashboard_token}`,
+      dashboard_url: `/partners/dashboard?token=${dashboard_token}`,
     }, { status: 201 });
   } catch (err) {
     console.error('[API/affiliates POST]', err);

@@ -256,8 +256,15 @@ export default function PartnersApplyPage() {
             {result?.dashboard_url && (
               <div className="rounded-2xl border border-border-subtle bg-bg-elevated p-5 mb-6">
                 <p className="text-xs text-text-muted mb-2">审核通过后，访问以下地址登录合伙人后台：</p>
-                <code className="text-xs text-prism-blue break-all">{result.dashboard_url}</code>
-                <p className="text-[11px] text-text-muted mt-2">审核通过后，你将收到包含后台链接的通知</p>
+                <a
+                  href={result.dashboard_url}
+                  className="text-xs text-prism-blue hover:underline break-all"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {result.dashboard_url}
+                </a>
+                <p className="text-[11px] text-text-muted mt-2">点击链接即可打开合伙人后台，建议收藏此页面</p>
               </div>
             )}
 
