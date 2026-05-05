@@ -27,7 +27,7 @@ export async function POST(req: NextRequest) {
           email           VARCHAR(255),
           referral_code   VARCHAR(20) UNIQUE NOT NULL,
           commission_type VARCHAR(20) DEFAULT 'percentage',
-          commission_rate DECIMAL(5,2) DEFAULT 20.00,
+          commission_rate DECIMAL(5,2) DEFAULT 10.00,
           commission_fixed DECIMAL(10,2) DEFAULT 0,
           status          VARCHAR(20) DEFAULT 'pending',
           dashboard_token VARCHAR(100) UNIQUE,

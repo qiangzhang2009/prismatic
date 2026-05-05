@@ -36,6 +36,16 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: '你的账号正在审核中，请等待管理员批准' }, { status: 403 });
     }
 
+    // Compute live stats from the conversions table (not stale cached fields)
+    const liveStats = await db`
+      SELECT
+        COUNT(*) AS total_conversions,
+        COALESCE(SUM(commission), 0) AS total_commission,
+        COALESCE(SUM(CASE WHEN commission_status = 'pending' THEN commission ELSE 0 END), 0) AS pending_commission
+      FROM prismatic_conversions
+      WHERE affiliate_id = ${owner[0].id}
+    `;
+
     const recentConversions = await db`
       SELECT id, plan, amount, commission, commission_status, created_at
       FROM prismatic_conversions
@@ -44,7 +54,15 @@ export async function GET(req: NextRequest) {
       LIMIT 50
     `;
 
-    return NextResponse.json({ affiliate: owner[0], recent_conversions: recentConversions });
+    // Merge live stats into the affiliate object
+    const affiliate = {
+      ...owner[0],
+      total_conversions: Number(liveStats[0]?.total_conversions ?? 0),
+      total_commission: Number(liveStats[0]?.total_commission ?? 0),
+      pending_commission: Number(liveStats[0]?.pending_commission ?? 0),
+    };
+
+    return NextResponse.json({ affiliate, recent_conversions: recentConversions });
   } catch (err) {
     console.error('[API/affiliates/dashboard]', err);
     return NextResponse.json({ error: String(err) }, { status: 500 });

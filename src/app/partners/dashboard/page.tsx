@@ -4,13 +4,13 @@
  * Partner Dashboard — /partners/dashboard?token=XXX
  * Full affiliate dashboard: stats, QR codes, conversions, withdrawals.
  */
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import {
   ArrowLeft, Users, TrendingUp, Wallet, QrCode, Copy,
   CheckCheck, ExternalLink, Loader2, ChevronRight, TrendingDown,
-  Gift, Eye, RefreshCw
+  Gift, Eye, RefreshCw, Download
 } from 'lucide-react';
 
 interface AffiliateStats {
@@ -133,8 +133,14 @@ export default function PartnersDashboardPage() {
   };
 
   const baseUrl = 'https://prismatic.zxqconsulting.com';
-  const affiliateLink = data?.affiliate ? `${baseUrl}/?ref=${data.affiliate.referral_code}` : '';
-  const qrUrl = affiliateLink ? `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(affiliateLink)}` : '';
+  const affiliateLink = useMemo(
+    () => data?.affiliate ? `${baseUrl}/?ref=${data.affiliate.referral_code}` : '',
+    [data?.affiliate]
+  );
+  const qrUrl = useMemo(
+    () => affiliateLink ? `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(affiliateLink)}` : '',
+    [affiliateLink]
+  );
 
   if (!token) {
     return (
@@ -218,11 +224,24 @@ export default function PartnersDashboardPage() {
           </div>
 
           <div className="flex flex-col sm:flex-row items-center gap-4">
-            {qrUrl && (
-              <div className="flex-shrink-0">
-                <img src={qrUrl} alt="推广二维码" className="w-36 h-36 rounded-xl border border-border-subtle" />
-              </div>
-            )}
+            <div className="flex-shrink-0 relative">
+              {qrUrl ? (
+                <>
+                  <img src={qrUrl} alt="推广二维码" className="w-36 h-36 rounded-xl border border-border-subtle" />
+                  <a
+                    href={qrUrl}
+                    download={`prismatic-ref-${data.affiliate.referral_code}.png`}
+                    className="absolute bottom-1 right-1 bg-bg-base/80 text-[10px] text-text-muted hover:text-text-primary px-1.5 py-0.5 rounded flex items-center gap-1"
+                  >
+                    <QrCode className="w-3 h-3" /> 下载
+                  </a>
+                </>
+              ) : (
+                <div className="w-36 h-36 rounded-xl border border-border-subtle bg-bg-surface flex items-center justify-center">
+                  <Loader2 className="w-6 h-6 text-text-muted animate-spin" />
+                </div>
+              )}
+            </div>
             <div className="flex-1 space-y-2">
               <p className="text-sm text-text-secondary">分享方式：</p>
               <div className="space-y-2">

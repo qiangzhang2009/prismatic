@@ -106,7 +106,7 @@ export async function POST(req: NextRequest) {
         ${referral_code},
         ${dashboard_token},
         ${commission_type ?? 'percentage'},
-        ${commission_rate != null ? Number(commission_rate) : 20},
+        ${commission_rate != null ? Number(commission_rate) : 10},
         ${commission_fixed != null ? Number(commission_fixed) : 0},
         ${status},
         ${bio ?? null}
