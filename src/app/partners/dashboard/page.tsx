@@ -308,7 +308,7 @@ export default function PartnersDashboardPage() {
             <div className="rounded-2xl border border-border-subtle bg-bg-elevated p-5">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-sm font-medium text-text-primary">近期转化</h3>
-                <button onClick={fetchStats} className="text-xs text-text-muted hover:text-text-primary flex items-center gap-1">
+                <button onClick={initDashboard} className="text-xs text-text-muted hover:text-text-primary flex items-center gap-1">
                   <RefreshCw className="w-3 h-3" /> 刷新
                 </button>
               </div>
