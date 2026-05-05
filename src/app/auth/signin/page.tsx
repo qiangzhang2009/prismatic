@@ -10,6 +10,7 @@ import Link from 'next/link';
 import { useAuthStore } from '@/lib/auth-store';
 import { Hexagon, Mail, Lock, Eye, EyeOff, AlertCircle, ArrowLeft, LogIn } from 'lucide-react';
 import { APP_NAME } from '@/lib/constants';
+import { useAffiliateAttribution } from '@/lib/use-affiliate-attribution';
 
 function getCallbackUrl(): string {
   if (typeof window === 'undefined') return '/app';
@@ -23,6 +24,9 @@ export default function SignInPage() {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
+
+  // Track affiliate referral when user logs in
+  useAffiliateAttribution();
 
   // If already logged in, redirect to callbackUrl or /app
   useEffect(() => {

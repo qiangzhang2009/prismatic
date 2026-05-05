@@ -77,6 +77,23 @@ async function getUserRoleFromDB(userId: string): Promise<string> {
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
+  // ── Affiliate: parse ?ref=CODE and set httpOnly cookie ─────────────────────
+  const ref = req.nextUrl.searchParams.get('ref');
+  if (ref) {
+    const existing = req.cookies.get('prismatic_ref');
+    if (!existing) {
+      const response = NextResponse.next();
+      response.cookies.set('prismatic_ref', ref, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        maxAge: 7 * 24 * 60 * 60,
+        path: '/',
+      });
+      return response;
+    }
+  }
+
   // Auth guard for /app routes
   if (pathname.startsWith('/app')) {
     const token = req.cookies.get('prismatic_token')?.value;
@@ -127,5 +144,5 @@ export async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/app/:path*', '/admin', '/admin/:path*'],
+  matcher: ['/((?!api|_next/static|_next/image|favicon.ico).*)'],
 };

@@ -15,6 +15,7 @@ import {
   UserPlus, Check, Send, User, ChevronDown, Sparkles
 } from 'lucide-react';
 import { APP_NAME } from '@/lib/constants';
+import { useAffiliateAttribution } from '@/lib/use-affiliate-attribution';
 
 // Chinese provinces (major ones for common use)
 const PROVINCES = [
@@ -34,6 +35,9 @@ const GENDER_OPTIONS = [
 
 export default function SignUpPage() {
   const { register, isLoading, user, isInitialized } = useAuthStore();
+
+  // Track affiliate referral when user registers
+  useAffiliateAttribution();
 
   // Form fields
   const [name, setName] = useState('');
