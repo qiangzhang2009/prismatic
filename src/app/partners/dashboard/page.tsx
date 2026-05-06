@@ -59,6 +59,7 @@ export default function PartnersDashboardPage() {
   const [withdrawMsg, setWithdrawMsg] = useState('');
 
   const [token, setToken] = useState<string | null>(null);
+  const [mounted, setMounted] = useState(false);
 
   const [pendingApproval, setPendingApproval] = useState(false);
 
@@ -86,6 +87,7 @@ export default function PartnersDashboardPage() {
   useEffect(() => {
     if (typeof window === 'undefined') return;
     setToken(new URLSearchParams(window.location.search).get('token'));
+    setMounted(true);
   }, []);
 
   useEffect(() => {
@@ -136,20 +138,20 @@ export default function PartnersDashboardPage() {
     [affiliateLink]
   );
 
+  if (!mounted || loading) {
+    return (
+      <div className="min-h-screen bg-bg-base flex flex-col items-center justify-center">
+        <Loader2 className="w-6 h-6 text-prism-blue animate-spin mb-3" />
+        <p className="text-sm text-text-muted">加载中...</p>
+      </div>
+    );
+  }
+
   if (!token) {
     return (
       <div className="min-h-screen bg-bg-base flex flex-col items-center justify-center">
         <p className="text-text-muted text-sm mb-4">请通过合伙人后台链接访问此页面</p>
         <Link href="/" className="text-prism-blue text-sm hover:underline">返回首页</Link>
-      </div>
-    );
-  }
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-bg-base flex flex-col items-center justify-center">
-        <Loader2 className="w-6 h-6 text-prism-blue animate-spin mb-3" />
-        <p className="text-sm text-text-muted">加载中...</p>
       </div>
     );
   }
