@@ -13,7 +13,7 @@ import { motion } from 'framer-motion';
 import Link from 'next/link';
 import {
   Shield, Sparkles, Calendar, ChevronRight, RefreshCw, Eye, CheckCircle2,
-  Clock, Flame, Play, Loader2, MessageSquare, ChevronDown, Send
+  Clock, Flame, Play, Loader2, MessageSquare, ChevronDown, Send, Quote
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { PERSONA_LIST_LIGHT } from '@/lib/persona-list-light';
@@ -81,10 +81,17 @@ function getTimeGreeting(): string {
 
 const SLOT_LABELS = ['壹', '贰', '叁'];
 
-function DebateTurnCard({ turn }: { turn: DebateTurn }) {
+interface DebateTurnCardProps {
+  turn: DebateTurn;
+  onQuote?: (turn: DebateTurn) => void;
+  onFollowUp?: (turn: DebateTurn) => void;
+}
+
+export function DebateTurnCard({ turn, onQuote, onFollowUp }: DebateTurnCardProps) {
   const meta = TONE_META[turn.tone] ?? TONE_META.opening;
   const isModerator = turn.speakerId === 'moderator';
   const persona = PERSONA_LIST_LIGHT.find(p => p.id === turn.speakerId);
+  const [showActions, setShowActions] = useState(false);
 
   return (
     <div className={cn(
@@ -115,6 +122,27 @@ function DebateTurnCard({ turn }: { turn: DebateTurn }) {
       <p className={cn('leading-relaxed', isModerator ? 'text-purple-200' : 'text-gray-300')}>
         {turn.content.length > 200 ? turn.content.slice(0, 200) + '…' : turn.content}
       </p>
+      {/* Action buttons */}
+      {!isModerator && (
+        <div className="mt-3 pt-2 border-t border-white/10">
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => onFollowUp?.(turn)}
+              className="flex items-center gap-1 px-2 py-1 rounded-md bg-prism-blue/10 border border-prism-blue/30 text-prism-blue/80 text-[10px] hover:bg-prism-blue/20 hover:border-prism-blue/50 transition-colors"
+            >
+              <MessageSquare className="w-3 h-3" />
+              追问
+            </button>
+            <button
+              onClick={() => onQuote?.(turn)}
+              className="flex items-center gap-1 px-2 py-1 rounded-md bg-amber-500/10 border border-amber-500/30 text-amber-400/80 text-[10px] hover:bg-amber-500/20 hover:border-amber-500/50 transition-colors"
+            >
+              <Quote className="w-3 h-3" />
+              引用
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -144,6 +172,12 @@ export function GuardianBanner() {
   const [adminLoading, setAdminLoading] = useState(false);
   const [adminMsg, setAdminMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   const [showAllTurns, setShowAllTurns] = useState(false);
+
+  // Quote/Follow-up state
+  const [quotedTurn, setQuotedTurn] = useState<DebateTurn | null>(null);
+  const [showFollowUpModal, setShowFollowUpModal] = useState(false);
+  const [followUpText, setFollowUpText] = useState('');
+  const [submittingFollowUp, setSubmittingFollowUp] = useState(false);
 
   useEffect(() => { setMounted(true); }, []);
 
@@ -247,6 +281,37 @@ export function GuardianBanner() {
     } finally {
       setAdminLoading(false);
     }
+  };
+
+  // Handle quote from debate turn — insert into participation textarea
+  const handleQuoteTurn = (turn: DebateTurn) => {
+    const quotedContent = `"${turn.content.slice(0, 100)}${turn.content.length > 100 ? '…' : ''}" — ${turn.speakerName}`;
+    setContributionText(prev => prev ? `${prev}\n\n${quotedContent}\n\n` : `${quotedContent}\n\n`);
+    setShowParticipation(true);
+    // Scroll to the participation form
+    document.getElementById('debate-participation')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  };
+
+  // Handle follow-up — open modal to ask the persona a question
+  const handleFollowUpTurn = (turn: DebateTurn) => {
+    const persona = PERSONA_LIST_LIGHT.find(p => p.id === turn.speakerId);
+    if (!persona) return;
+    setQuotedTurn(turn);
+    setFollowUpText(`针对您刚才说的：\n"${turn.content.slice(0, 80)}${turn.content.length > 80 ? '…' : ''}"\n\n我想追问：`);
+    setShowFollowUpModal(true);
+  };
+
+  // Submit follow-up question — redirects to persona chat
+  const handleSubmitFollowUp = async () => {
+    if (!quotedTurn || !followUpText.trim()) return;
+    const persona = PERSONA_LIST_LIGHT.find(p => p.id === quotedTurn.speakerId);
+    if (!persona) return;
+
+    // Build the chat URL with the question pre-filled
+    const topic = encodeURIComponent(followUpText.trim());
+    const debateContext = debate ? `\n\n【辩论背景】今日辩题：${debate.topic}` : '';
+    const fullQuestion = encodeURIComponent(followUpText.trim() + debateContext);
+    window.location.href = `/app?mode=guardian&persona=${persona.slug || persona.id}&question=${fullQuestion}`;
   };
 
   const slotLabels = ['壹', '贰', '叁'];
@@ -546,7 +611,12 @@ export function GuardianBanner() {
               {debate && debate.turns.length > 0 && (
                 <div className="space-y-2">
                   {(displayedTurns ?? []).map((turn, idx) => (
-                    <DebateTurnCard key={idx} turn={turn} />
+                    <DebateTurnCard
+                      key={idx}
+                      turn={turn}
+                      onQuote={handleQuoteTurn}
+                      onFollowUp={handleFollowUpTurn}
+                    />
                   ))}
                   {debate.turns.length > 3 && (
                     <button
@@ -649,6 +719,77 @@ export function GuardianBanner() {
       {/* Calendar Modal */}
       {showCalendar && (
         <GuardianCalendarModal onClose={() => setShowCalendar(false)} />
+      )}
+
+      {/* Follow-up Modal */}
+      {showFollowUpModal && quotedTurn && (
+        <>
+          <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50" onClick={() => setShowFollowUpModal(false)} />
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none">
+            <div
+              className="bg-bg-elevated border border-prism-blue/30 rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl pointer-events-auto"
+              onClick={e => e.stopPropagation()}
+            >
+              <div className="flex items-center justify-between px-6 py-4 border-b border-border-subtle">
+                <div>
+                  <h3 className="text-base font-semibold text-text-primary flex items-center gap-2">
+                    <MessageSquare className="w-4 h-4 text-prism-blue" />
+                    向 {quotedTurn.speakerName} 追问
+                  </h3>
+                  <p className="text-xs text-text-muted mt-0.5">辩论结束后，继续与思想家交流</p>
+                </div>
+                <button
+                  onClick={() => setShowFollowUpModal(false)}
+                  className="p-2 rounded-lg hover:bg-bg-surface text-text-muted hover:text-text-primary transition-colors"
+                >
+                  ✕
+                </button>
+              </div>
+              <div className="p-6 space-y-4">
+                {/* Quoted content */}
+                <div className="bg-white/5 rounded-lg p-3 border border-white/10">
+                  <p className="text-[10px] text-text-muted mb-1">引用 {quotedTurn.speakerName} 的发言：</p>
+                  <p className="text-xs text-gray-300 leading-relaxed">
+                    &ldquo;{quotedTurn.content.slice(0, 150)}{quotedTurn.content.length > 150 ? '…' : ''}&rdquo;
+                  </p>
+                </div>
+                {/* Follow-up input */}
+                <div>
+                  <label className="block text-xs text-text-secondary mb-2">写下你的追问：</label>
+                  <textarea
+                    value={followUpText}
+                    onChange={e => setFollowUpText(e.target.value)}
+                    placeholder="围绕辩题和刚才的发言，提出你的追问..."
+                    rows={4}
+                    className="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-text-primary placeholder:text-text-muted text-sm focus:outline-none focus:border-prism-blue/50 transition-colors resize-none"
+                    autoFocus
+                  />
+                  <p className="text-[10px] text-text-muted mt-1 text-right">{followUpText.length}/500</p>
+                </div>
+                {/* Actions */}
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => setShowFollowUpModal(false)}
+                    className="flex-1 px-4 py-2 rounded-lg bg-white/5 border border-white/10 text-text-secondary text-sm hover:bg-white/10 transition-colors"
+                  >
+                    取消
+                  </button>
+                  <button
+                    onClick={handleSubmitFollowUp}
+                    disabled={!followUpText.trim() || followUpText.length < 5}
+                    className="flex-1 px-4 py-2 rounded-lg bg-prism-gradient text-white text-sm font-medium hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-opacity flex items-center justify-center gap-2"
+                  >
+                    <MessageSquare className="w-4 h-4" />
+                    开始追问
+                  </button>
+                </div>
+                <p className="text-[10px] text-text-muted text-center">
+                  将跳转到与 {quotedTurn.speakerName} 的对话页面
+                </p>
+              </div>
+            </div>
+          </div>
+        </>
       )}
     </section>
   );

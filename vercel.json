@@ -3,15 +3,15 @@
   "crons": [
     {
       "path": "/api/cron/guardian-discussions",
-      "schedule": "0 9 * * *"
+      "schedule": "0 1 * * *"
     },
     {
       "path": "/api/cron/daily-debate",
-      "schedule": "0 20 * * *"
+      "schedule": "0 4 * * *"
     },
     {
       "path": "/api/cron/capacity-check",
-      "schedule": "0 9 * * *"
+      "schedule": "0 1 * * *"
     }
   ]
 }

@@ -931,9 +931,8 @@ function CommentItem({
             className="mt-4 pt-4 border-t border-white/5"
           >
               <div className="space-y-3">
-              {/* Replies that are NOT guardian auto-replies */}
+              {/* All replies - user content is shown regardless of guardian reply status */}
               {replies
-                .filter(reply => !reply.mentionedGuardianReply)
                 .map((reply) => (
                 <div key={reply.id}>
                   {/* Reply item — user reply content */}
@@ -1111,11 +1110,11 @@ function CommentItem({
         <AnimatePresence>
           {personaInteractions.length > 0 && (
             <motion.div
-              initial={{ opacity: 0, display: 'none' }}
-              animate={{ opacity: 1, display: 'block' }}
-              exit={{ opacity: 0, display: 'none' }}
-              transition={{ opacity: { duration: 0.25, ease: 'easeOut' } }}
-              className="mt-4 pt-4 border-t border-prism-blue/20"
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ opacity: { duration: 0.25, ease: 'easeOut' }, height: { duration: 0.3, ease: 'easeInOut' } }}
+              className="mt-4 pt-4 border-t border-prism-blue/20 overflow-hidden"
             >
               <div className="space-y-3 max-h-[60vh] overflow-y-auto min-h-0">
               {personaInteractions.map((interaction) => (
