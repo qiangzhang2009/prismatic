@@ -31,7 +31,7 @@ export default function PartnersApplyPage() {
     wechat_id: '',
     email: '',
     commission_type: 'percentage',
-    commission_rate: '20',
+    commission_rate: '10',
     commission_fixed: '',
     bio: '',
   });
