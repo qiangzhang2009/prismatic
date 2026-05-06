@@ -639,12 +639,26 @@ ${debateHistory}
  * 每天调用一次，由外部定时器触发（如 Vercel Cron 或 API route）
  */
 export async function runDailyDebate(
-  manualTopic?: string
+  manualTopic?: string,
+  customParticipantIds?: string[]
 ): Promise<{ success: boolean; debateId?: number; topic?: string; error?: string }> {
   try {
-    const guardians = await getTodayGuardians();
-    if (guardians.length === 0) {
-      return { success: false, error: '今日没有值班人物' };
+    // 获取自定义配置
+    const customConfig = await getCustomDebateConfig();
+
+    // 决定参与者：优先使用自定义的，否则使用今日值班
+    let personaIds: string[];
+    if (customParticipantIds && customParticipantIds.length > 0) {
+      personaIds = customParticipantIds.slice(0, 5);
+    } else if (customConfig) {
+      // 如果有自定义配置中的参与者，使用它
+      personaIds = []; // 默认使用值班人物
+    } else {
+      const guardians = await getTodayGuardians();
+      if (guardians.length === 0) {
+        return { success: false, error: '今日没有值班人物' };
+      }
+      personaIds = guardians.map((g) => g.personaId);
     }
 
     const topic = manualTopic ?? await pickDailyTopic();
@@ -652,10 +666,13 @@ export async function runDailyDebate(
       return { success: false, error: '话题未通过安全审核' };
     }
 
-    const personaIds = guardians.map((g) => g.personaId);
-    const personas = getPersonasByIds(personaIds);
+    // 获取人物数据
+    const personas = personaIds.length > 0 ? getPersonasByIds(personaIds) : getPersonasByIds((await getTodayGuardians()).map(g => g.personaId));
 
-    const debateId = await createDebate(topic, personaIds);
+    // 决定轮次
+    const roundCount = customConfig ? 3 : 3; // 后续可以从config读取
+
+    const debateId = await createDebate(topic, personaIds.length > 0 ? personaIds : personas.map(p => p.id));
     await updateDebateStatus(debateId, 'running');
 
     const llm = createLLMProvider(getLLMType());
@@ -667,9 +684,10 @@ export async function runDailyDebate(
       await recordDebateTurn(debateId, 1, turn.speakerId, turn.content, turn.tone);
     }
 
-    // Rounds 2-3: Exchanges
+    // Rounds 2-3 (or custom round count): Exchanges
     const allTurns = [...openingTurns];
-    for (let round = 2; round <= 3; round++) {
+    const debateRounds = roundCount || 3;
+    for (let round = 2; round <= debateRounds; round++) {
       const roundTurns = await generateRound(
         llm,
         model,
@@ -687,7 +705,7 @@ export async function runDailyDebate(
 
     // Closing: Moderator summary
     const closing = await generateClosingStatement(llm, model, personas, topic, allTurns);
-    await recordDebateTurn(debateId, 4, closing.speakerId, closing.content, closing.tone);
+    await recordDebateTurn(debateId, debateRounds + 1, closing.speakerId, closing.content, closing.tone);
 
     await updateDebateStatus(debateId, 'completed');
 

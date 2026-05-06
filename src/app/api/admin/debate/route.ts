@@ -3,18 +3,21 @@
  * POST /api/admin/debate/config — 设置临时辩论计划
  * DELETE /api/admin/debate/config — 清除临时计划
  * POST /api/admin/debate/trigger — 手动触发辩论
+ * POST /api/admin/debate/control — 控制辩论（暂停/恢复/强制结束）
+ * DELETE /api/admin/debate/:id — 删除辩论记录
  */
 export const runtime = 'nodejs';
 
 import { NextRequest, NextResponse } from 'next/server';
 import { neon, NeonQueryFunction } from '@neondatabase/serverless';
 import { authenticateAdminRequest } from '@/lib/user-management';
-import { getDebateByDate, getRecentDebates, runDailyDebate } from '@/lib/debate-arena-engine';
+import { getDebateByDate, getRecentDebates, runDailyDebate, getDebateById } from '@/lib/debate-arena-engine';
 import {
   DEBATE_SAFE_TOPICS,
   DEBATE_TCM_INTERNATIONAL_TOPICS,
   isTCMInternationalPeriod,
 } from '@/lib/constants';
+import { PERSONAS, BANNED_PERSONAS } from '@/lib/personas';
 
 function getSql(): NeonQueryFunction<false, false> {
   const connectionString = process.env.DATABASE_URL;
@@ -23,11 +26,27 @@ function getSql(): NeonQueryFunction<false, false> {
   return neon(connectionString) as NeonQueryFunction<false, false>;
 }
 
+// 可用于辩论的人物列表
+function getAvailablePersonas() {
+  return Object.values(PERSONAS)
+    .filter(p => p && !BANNED_PERSONAS.includes(p.id as any))
+    .map(p => ({
+      id: p.id,
+      name: p.name,
+      nameZh: (p as any).nameZh || p.name,
+      tagline: (p as any).tagline || '',
+    }));
+}
+
 interface DebateConfig {
   id: number;
   topics: string[];
   start_date: string;
   end_date: string;
+  round_count: number;
+  participant_ids: string[];
+  speed_seconds: number;
+  fake_viewers: number;
   created_at: string;
   created_by: string;
 }
@@ -48,6 +67,10 @@ async function getDebateConfig(): Promise<DebateConfig | null> {
       topics: typeof row.topics === 'string' ? JSON.parse(row.topics) : row.topics || [],
       start_date: row.start_date,
       end_date: row.end_date,
+      round_count: row.round_count ?? 3,
+      participant_ids: typeof row.participant_ids === 'string' ? JSON.parse(row.participant_ids) : row.participant_ids || [],
+      speed_seconds: row.speed_seconds ?? 30,
+      fake_viewers: row.fake_viewers ?? 0,
       created_at: row.created_at instanceof Date ? row.created_at.toISOString() : String(row.created_at),
       created_by: row.created_by,
     };
@@ -61,18 +84,35 @@ async function saveDebateConfig(params: {
   topics: string[];
   startDate: string;
   endDate: string;
+  roundCount?: number;
+  participantIds?: string[];
+  speedSeconds?: number;
+  fakeViewers?: number;
   adminId: string;
 }): Promise<DebateConfig> {
   const sql = getSql();
   const topicsJson = JSON.stringify(params.topics);
+  const participantIdsJson = params.participantIds ? JSON.stringify(params.participantIds) : null;
 
   // 删除旧的配置
   await sql`DELETE FROM prismatic_debate_config`;
 
   // 插入新配置
   const rows = await sql`
-    INSERT INTO prismatic_debate_config (topics, start_date, end_date, created_by)
-    VALUES (${topicsJson}::jsonb, ${params.startDate}, ${params.endDate}, ${params.adminId})
+    INSERT INTO prismatic_debate_config (
+      topics, start_date, end_date, created_by,
+      round_count, participant_ids, speed_seconds, fake_viewers
+    )
+    VALUES (
+      ${topicsJson}::jsonb,
+      ${params.startDate},
+      ${params.endDate},
+      ${params.adminId},
+      ${params.roundCount ?? 3},
+      ${participantIdsJson}::jsonb,
+      ${params.speedSeconds ?? 30},
+      ${params.fakeViewers ?? 0}
+    )
     RETURNING *
   `;
 
@@ -82,6 +122,10 @@ async function saveDebateConfig(params: {
     topics: typeof row.topics === 'string' ? JSON.parse(row.topics) : row.topics || [],
     start_date: row.start_date,
     end_date: row.end_date,
+    round_count: row.round_count ?? 3,
+    participant_ids: typeof row.participant_ids === 'string' ? JSON.parse(row.participant_ids) : row.participant_ids || [],
+    speed_seconds: row.speed_seconds ?? 30,
+    fake_viewers: row.fake_viewers ?? 0,
     created_at: row.created_at instanceof Date ? row.created_at.toISOString() : String(row.created_at),
     created_by: row.created_by,
   };
@@ -143,11 +187,23 @@ async function ensureConfigTable(): Promise<void> {
       topics JSONB NOT NULL DEFAULT '[]',
       start_date DATE NOT NULL,
       end_date DATE NOT NULL,
+      round_count INTEGER DEFAULT 3,
+      participant_ids JSONB DEFAULT '[]',
+      speed_seconds INTEGER DEFAULT 30,
+      fake_viewers INTEGER DEFAULT 0,
       created_by TEXT,
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )`;
   } catch {
-    // 表可能已存在
+    // 表可能已存在，尝试添加新列
+    try {
+      await sql`ALTER TABLE prismatic_debate_config ADD COLUMN IF NOT EXISTS round_count INTEGER DEFAULT 3`;
+      await sql`ALTER TABLE prismatic_debate_config ADD COLUMN IF NOT EXISTS participant_ids JSONB DEFAULT '[]'`;
+      await sql`ALTER TABLE prismatic_debate_config ADD COLUMN IF NOT EXISTS speed_seconds INTEGER DEFAULT 30`;
+      await sql`ALTER TABLE prismatic_debate_config ADD COLUMN IF NOT EXISTS fake_viewers INTEGER DEFAULT 0`;
+    } catch {
+      // 忽略错误
+    }
   }
 }
 
@@ -190,6 +246,7 @@ export async function GET(req: NextRequest) {
         '基因编辑的伦理边界',
         '虚拟现实社交的未来',
       ],
+      availablePersonas: getAvailablePersonas(),
     });
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
@@ -219,7 +276,7 @@ export async function POST(req: NextRequest) {
 
     if (action === 'config') {
       // 设置临时辩论计划
-      const { topics, startDate, endDate } = body;
+      const { topics, startDate, endDate, roundCount, participantIds, speedSeconds, fakeViewers } = body;
       if (!Array.isArray(topics) || topics.length === 0) {
         return NextResponse.json({ error: 'topics 必须是非空数组' }, { status: 400 });
       }
@@ -227,10 +284,23 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ error: '需要提供 startDate 和 endDate' }, { status: 400 });
       }
 
+      // 验证轮次
+      const rounds = typeof roundCount === 'number' ? Math.max(2, Math.min(6, roundCount)) : 3;
+      // 验证速度
+      const speed = typeof speedSeconds === 'number' ? Math.max(5, Math.min(300, speedSeconds)) : 30;
+      // 验证围观人数
+      const viewers = typeof fakeViewers === 'number' ? Math.max(0, Math.min(100000, fakeViewers)) : 0;
+      // 验证参与者
+      const participants = Array.isArray(participantIds) ? participantIds.slice(0, 5) : [];
+
       const config = await saveDebateConfig({
         topics,
         startDate,
         endDate,
+        roundCount: rounds,
+        participantIds: participants,
+        speedSeconds: speed,
+        fakeViewers: viewers,
         adminId,
       });
 
@@ -252,8 +322,14 @@ export async function POST(req: NextRequest) {
 
     if (action === 'trigger') {
       // 手动触发辩论
-      const { topic } = body;
-      const result = await runDailyDebate(topic);
+      const { topic, participantIds } = body;
+
+      // 如果指定了参与者，使用指定的参与者
+      const personaIds = Array.isArray(participantIds) && participantIds.length > 0
+        ? participantIds.slice(0, 5)
+        : undefined;
+
+      const result = await runDailyDebate(topic, personaIds);
 
       if (!result.success) {
         return NextResponse.json({ error: result.error }, { status: 400 });
@@ -267,6 +343,47 @@ export async function POST(req: NextRequest) {
       });
     }
 
+    if (action === 'control') {
+      // 控制辩论（暂停/恢复/强制结束）
+      const { debateId, action: controlAction } = body;
+
+      if (!debateId || !controlAction) {
+        return NextResponse.json({ error: '需要提供 debateId 和 controlAction' }, { status: 400 });
+      }
+
+      const sql = getSql();
+
+      if (controlAction === 'pause') {
+        await sql`UPDATE prismatic_forum_debates SET status = 'paused' WHERE id = ${debateId}`;
+        return NextResponse.json({ success: true, message: '辩论已暂停' });
+      }
+
+      if (controlAction === 'resume') {
+        await sql`UPDATE prismatic_forum_debates SET status = 'running' WHERE id = ${debateId}`;
+        return NextResponse.json({ success: true, message: '辩论已恢复' });
+      }
+
+      if (controlAction === 'complete') {
+        await sql`UPDATE prismatic_forum_debates SET status = 'completed', completed_at = NOW() WHERE id = ${debateId}`;
+        return NextResponse.json({ success: true, message: '辩论已强制结束' });
+      }
+
+      return NextResponse.json({ error: '未知的控制操作' }, { status: 400 });
+    }
+
+    if (action === 'set_viewers') {
+      // 设置围观人数
+      const { debateId, viewers } = body;
+
+      if (!debateId || typeof viewers !== 'number') {
+        return NextResponse.json({ error: '需要提供 debateId 和 viewers' }, { status: 400 });
+      }
+
+      const sql = getSql();
+      await sql`UPDATE prismatic_forum_debates SET live_viewers = ${Math.max(0, viewers)} WHERE id = ${debateId}`;
+      return NextResponse.json({ success: true, message: '围观人数已更新' });
+    }
+
     return NextResponse.json({ error: '未知 action' }, { status: 400 });
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
@@ -275,7 +392,7 @@ export async function POST(req: NextRequest) {
   }
 }
 
-// DELETE — 清除临时辩论计划
+// DELETE — 清除临时辩论计划 或 删除辩论记录
 export async function DELETE(req: NextRequest) {
   let adminId: string | null = null;
   try {
@@ -289,6 +406,26 @@ export async function DELETE(req: NextRequest) {
   }
 
   try {
+    // 检查是否有辩论ID参数
+    const url = new URL(req.url);
+    const pathParts = url.pathname.split('/');
+    const debateIdParam = pathParts[pathParts.length - 1];
+
+    // 如果是删除特定辩论记录
+    if (debateIdParam && debateIdParam !== 'debate' && !isNaN(Number(debateIdParam))) {
+      const debateId = Number(debateIdParam);
+      const sql = getSql();
+      await sql`DELETE FROM prismatic_forum_debate_turns WHERE debate_id = ${debateId}`;
+      await sql`DELETE FROM prismatic_forum_debate_votes WHERE debate_id = ${debateId}`;
+      await sql`DELETE FROM prismatic_forum_debate_views WHERE debate_id = ${debateId}`;
+      await sql`DELETE FROM prismatic_forum_debates WHERE id = ${debateId}`;
+      return NextResponse.json({
+        success: true,
+        message: '辩论记录已删除',
+      });
+    }
+
+    // 默认清除临时辩论计划
     await ensureConfigTable();
     await clearDebateConfig();
     return NextResponse.json({
