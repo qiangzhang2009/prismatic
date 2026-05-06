@@ -225,6 +225,28 @@ export const DAILY_LIMITS = {
   GUARDIAN: 65,    // 值班人物每日互动上限（含主动辩论）
 } as const;
 
+// ─── Debate Arena — TCM Internationalization Topics (临时主题) ─────────────────────
+// 2026-05-07 至 2026-05-13 一周围绕"中医出海"主题
+
+export const DEBATE_TCM_INTERNATIONAL_TOPICS = [
+  '中医国际化的最大障碍是文化差异还是科学验证？',
+  '中医诊所出海：应该坚持传统辨证还是接受标准化改造？',
+  '中药国际化：成分标准化会失去疗效，还是走向世界的必经之路？',
+  '针灸的国际传播：是科学还是文化？',
+  '中医教育输出：培养海外中医人才还是服务当地患者更重要？',
+  '中医与西医合作：互补共进还是各守阵地？',
+  '中医膳补产品出海：食品监管框架下的机遇与挑战',
+  '中医出海：应该服务华人社区还是真正走进当地主流市场？',
+] as const;
+
+// 临时主题有效期：2026-05-07 00:00:00 至 2026-05-14 00:00:00
+export function isTCMInternationalPeriod(): boolean {
+  const now = new Date();
+  const start = new Date('2026-05-07T00:00:00+08:00');
+  const end = new Date('2026-05-14T00:00:00+08:00');
+  return now >= start && now < end;
+}
+
 // ─── Debate Arena — Smart Topic Pool ─────────────────────────────────────────
 // 经审核的安全话题池，辩论引擎会从中选取话题
 // 政治/暴力/仇恨/色情话题已全部过滤

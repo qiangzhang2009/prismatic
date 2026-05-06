@@ -17,6 +17,8 @@ import { createLLMProvider } from '@/lib/llm';
 import {
   DEBATE_SAFE_TOPICS,
   DEBATE_BANNED_KEYWORDS,
+  DEBATE_TCM_INTERNATIONAL_TOPICS,
+  isTCMInternationalPeriod,
   DAILY_LIMITS,
 } from '@/lib/constants';
 
@@ -96,6 +98,14 @@ function isTopicSafe(topic: string): boolean {
 }
 
 function pickDailyTopic(): string {
+  // 临时主题：未来一周围绕"中医出海"
+  if (isTCMInternationalPeriod()) {
+    const dayOfWeek = new Date().getDay(); // 0=周日, 1=周一...
+    const dayIndex = dayOfWeek === 0 ? 6 : dayOfWeek - 1; // 转换为 0=周一 ... 6=周日
+    return DEBATE_TCM_INTERNATIONAL_TOPICS[dayIndex % DEBATE_TCM_INTERNATIONAL_TOPICS.length] ?? DEBATE_TCM_INTERNATIONAL_TOPICS[0];
+  }
+
+  // 正常选题逻辑
   const dayOfYear = Math.floor(
     (Date.now() - new Date(new Date().getFullYear(), 0, 0).getTime()) / (1000 * 60 * 60 * 24)
   );
