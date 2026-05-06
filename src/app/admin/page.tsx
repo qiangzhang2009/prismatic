@@ -20,6 +20,7 @@ import {
   Target, Layers, Sparkles, GitFork, PieChart, Edit3,
   FlaskConical, UsersRound, Handshake,
   Cloud, CloudOff, Monitor, Smartphone, AlertTriangle, CheckCircle, XCircle, RefreshCw as SyncIcon, Wifi, WifiOff,
+  MessageSquarePlus,
 } from 'lucide-react';
 import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip,
@@ -38,7 +39,7 @@ import type { User, UserFilter } from '@/lib/use-admin-data';
 
 // ─── Types ─────────────────────────────────────────────────────────────────────
 
-type Tab = 'dashboard' | 'users' | 'assets' | 'distill' | 'sync' | 'tcm' | 'partners';
+type Tab = 'dashboard' | 'users' | 'assets' | 'distill' | 'sync' | 'tcm' | 'partners' | 'debate';
 
 // ─── Helpers ────────────────────────────────────────────────────────────────────
 
@@ -77,6 +78,7 @@ function AdminDashboardPage() {
     { id: 'assets' as Tab, label: '对话资产', icon: BookOpen },
     { id: 'tcm' as Tab, label: '中医对话', icon: Bot },
     { id: 'distill' as Tab, label: '蒸馏中心', icon: FlaskConical },
+    { id: 'debate' as Tab, label: '守望者辩论', icon: MessageSquarePlus },
     { id: 'sync' as Tab, label: '同步管理', icon: UsersRound },
     { id: 'partners' as Tab, label: '合伙人', icon: Handshake },
   ];
@@ -134,6 +136,9 @@ function AdminDashboardPage() {
               </div>
             </TabPanel>
           )}
+          {activeTab === 'debate' && (
+            <TabPanel key="debate"><DebateSection /></TabPanel>
+          )}
         </AnimatePresence>
       </div>
     </div>
@@ -166,6 +171,439 @@ const DistillAdminPage = dynamic(() => import('@/app/admin/distill/page'), {
 
 function DistillSection() {
   return <DistillAdminPage />;
+}
+
+// ─── Tab: 守望者辩论 ─────────────────────────────────────────────────────────
+
+function DebateSection() {
+  const [loading, setLoading] = useState(false);
+  const [data, setData] = useState<any>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [selectedTopics, setSelectedTopics] = useState<string[]>([]);
+  const [customTopics, setCustomTopics] = useState<string[]>([]);
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
+  const [triggerTopic, setTriggerTopic] = useState('');
+  const [triggering, setTriggering] = useState(false);
+  const [triggerResult, setTriggerResult] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
+  const [saveResult, setSaveResult] = useState<string | null>(null);
+
+  // 获取辩论状态
+  const fetchDebateStatus = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await fetch('/api/admin/debate');
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.error || '获取失败');
+      }
+      const json = await res.json();
+      setData(json);
+      if (json.config) {
+        setSelectedTopics(json.config.topics);
+        setStartDate(json.config.start_date?.slice(0, 10) || '');
+        setEndDate(json.config.end_date?.slice(0, 10) || '');
+      }
+    } catch (e: any) {
+      setError(e.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchDebateStatus();
+  }, []);
+
+  // 保存临时计划
+  const handleSaveConfig = async () => {
+    if (selectedTopics.length === 0) {
+      setSaveResult('请至少选择一个话题');
+      return;
+    }
+    if (!startDate || !endDate) {
+      setSaveResult('请设置时间窗口');
+      return;
+    }
+    if (new Date(endDate) < new Date(startDate)) {
+      setSaveResult('结束日期不能早于开始日期');
+      return;
+    }
+
+    setSaving(true);
+    setSaveResult(null);
+    try {
+      const res = await fetch('/api/admin/debate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'config',
+          topics: selectedTopics,
+          startDate,
+          endDate,
+        }),
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error);
+      setSaveResult('临时计划已保存！');
+      await fetchDebateStatus();
+    } catch (e: any) {
+      setSaveResult('保存失败: ' + e.message);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  // 清除临时计划
+  const handleClearConfig = async () => {
+    if (!confirm('确定要清除临时辩论计划吗？')) return;
+    setSaving(true);
+    try {
+      const res = await fetch('/api/admin/debate', { method: 'DELETE' });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error);
+      setSaveResult('临时计划已清除');
+      setSelectedTopics([]);
+      setStartDate('');
+      setEndDate('');
+      await fetchDebateStatus();
+    } catch (e: any) {
+      setSaveResult('清除失败: ' + e.message);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  // 手动触发辩论
+  const handleTrigger = async () => {
+    setTriggering(true);
+    setTriggerResult(null);
+    try {
+      const res = await fetch('/api/admin/debate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'trigger',
+          topic: triggerTopic || undefined,
+        }),
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error);
+      setTriggerResult(`辩论已开始！话题: "${json.topic}"`);
+      setTriggerTopic('');
+      await fetchDebateStatus();
+    } catch (e: any) {
+      setTriggerResult('触发失败: ' + e.message);
+    } finally {
+      setTriggering(false);
+    }
+  };
+
+  // 添加自定义话题
+  const addCustomTopic = (topic: string) => {
+    if (topic.trim() && !selectedTopics.includes(topic.trim())) {
+      setSelectedTopics([...selectedTopics, topic.trim()]);
+    }
+  };
+
+  // 切换话题选择
+  const toggleTopic = (topic: string) => {
+    if (selectedTopics.includes(topic)) {
+      setSelectedTopics(selectedTopics.filter(t => t !== topic));
+    } else {
+      setSelectedTopics([...selectedTopics, topic]);
+    }
+  };
+
+  const weekDays = ['周一', '周二', '周三', '周四', '周五', '周六', '周日'];
+
+  return (
+    <div className="space-y-8">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-xl font-bold text-white flex items-center gap-3">
+            <MessageSquarePlus className="w-6 h-6 text-blue-400" />
+            守望者辩论管理
+          </h2>
+          <p className="text-gray-400 text-sm mt-1">设置临时辩论计划，手动触发辩论</p>
+        </div>
+        <button
+          onClick={fetchDebateStatus}
+          className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gray-800 hover:bg-gray-700 text-gray-300 text-sm transition-colors"
+        >
+          <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+          刷新
+        </button>
+      </div>
+
+      {error && (
+        <div className="p-4 rounded-xl bg-red-900/20 border border-red-500/30 text-red-400 text-sm">
+          {error}
+        </div>
+      )}
+
+      {/* 当前状态卡片 */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="p-5 rounded-xl bg-gray-900 border border-gray-800">
+          <div className="flex items-center gap-3 mb-3">
+            <div className={`w-3 h-3 rounded-full ${data?.customActive ? 'bg-green-400 animate-pulse' : 'bg-gray-600'}`} />
+            <span className="text-gray-400 text-sm">自定义临时计划</span>
+          </div>
+          <p className="text-white font-medium">{data?.customActive ? '生效中' : '未设置'}</p>
+          {data?.config && (
+            <p className="text-xs text-gray-500 mt-1">
+              {data.config.start_date?.slice(0, 10)} ~ {data.config.end_date?.slice(0, 10)}
+            </p>
+          )}
+        </div>
+
+        <div className="p-5 rounded-xl bg-gray-900 border border-gray-800">
+          <div className="flex items-center gap-3 mb-3">
+            <div className={`w-3 h-3 rounded-full ${data?.tcmActive ? 'bg-amber-400 animate-pulse' : 'bg-gray-600'}`} />
+            <span className="text-gray-400 text-sm">中医出海主题</span>
+          </div>
+          <p className="text-white font-medium">{data?.tcmActive ? '生效中' : '未激活'}</p>
+        </div>
+
+        <div className="p-5 rounded-xl bg-gray-900 border border-gray-800">
+          <div className="flex items-center gap-3 mb-3">
+            <div className="w-3 h-3 rounded-full bg-blue-400" />
+            <span className="text-gray-400 text-sm">今日辩题</span>
+          </div>
+          <p className="text-white font-medium text-sm leading-relaxed">{data?.currentTopic || '—'}</p>
+        </div>
+      </div>
+
+      {/* 临时计划设置 */}
+      <div className="p-6 rounded-xl bg-gray-900/50 border border-gray-800">
+        <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+          <Sparkles className="w-5 h-5 text-amber-400" />
+          临时辩论计划
+        </h3>
+
+        {/* 时间窗口 */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+          <div>
+            <label className="block text-sm text-gray-400 mb-2">开始日期</label>
+            <input
+              type="date"
+              value={startDate}
+              onChange={e => setStartDate(e.target.value)}
+              className="w-full px-4 py-2.5 rounded-lg bg-gray-800 border border-gray-700 text-white text-sm focus:outline-none focus:border-blue-500 transition-colors"
+            />
+          </div>
+          <div>
+            <label className="block text-sm text-gray-400 mb-2">结束日期</label>
+            <input
+              type="date"
+              value={endDate}
+              onChange={e => setEndDate(e.target.value)}
+              className="w-full px-4 py-2.5 rounded-lg bg-gray-800 border border-gray-700 text-white text-sm focus:outline-none focus:border-blue-500 transition-colors"
+            />
+          </div>
+        </div>
+
+        {/* 话题分配到每天 */}
+        <div className="mb-6">
+          <label className="block text-sm text-gray-400 mb-3">每日话题（共 {selectedTopics.length} 个，按顺序分配到周一~周日）</label>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            {weekDays.map((day, idx) => {
+              const topic = selectedTopics[idx] || null;
+              return (
+                <div key={day} className="flex items-center gap-3 p-3 rounded-lg bg-gray-800/50 border border-gray-700/50">
+                  <span className="text-sm font-medium text-gray-400 w-12">{day}</span>
+                  <div className={`flex-1 px-3 py-1.5 rounded-md text-sm ${topic ? 'bg-blue-900/30 text-blue-300 border border-blue-700/30' : 'bg-gray-700/30 text-gray-500 border border-dashed border-gray-600'}`}>
+                    {topic || '待设置'}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* 建议话题 */}
+        <div className="mb-6">
+          <label className="block text-sm text-gray-400 mb-3">建议话题（点击添加到计划）</label>
+          <div className="flex flex-wrap gap-2">
+            {(data?.suggestedTopics || []).map((topic: string) => (
+              <button
+                key={topic}
+                onClick={() => addCustomTopic(topic)}
+                disabled={selectedTopics.includes(topic) || selectedTopics.length >= 7}
+                className={`px-3 py-1.5 rounded-full text-xs transition-colors ${
+                  selectedTopics.includes(topic)
+                    ? 'bg-blue-600 text-white cursor-default'
+                    : 'bg-gray-800 hover:bg-gray-700 text-gray-300 border border-gray-700 hover:border-gray-600'
+                }`}
+              >
+                {topic}
+                {selectedTopics.includes(topic) && ' ✓'}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* 自定义话题输入 */}
+        <div className="mb-6">
+          <label className="block text-sm text-gray-400 mb-2">添加自定义话题</label>
+          <div className="flex gap-2">
+            <input
+              type="text"
+              value={customTopics[customTopics.length - 1] || ''}
+              onChange={e => {
+                const val = e.target.value;
+                setCustomTopics([val]);
+              }}
+              onKeyDown={e => {
+                if (e.key === 'Enter' && customTopics[customTopics.length - 1]?.trim()) {
+                  addCustomTopic(customTopics[customTopics.length - 1]);
+                  setCustomTopics([]);
+                }
+              }}
+              placeholder="输入话题后按 Enter 添加"
+              className="flex-1 px-4 py-2.5 rounded-lg bg-gray-800 border border-gray-700 text-white text-sm placeholder:text-gray-500 focus:outline-none focus:border-blue-500 transition-colors"
+            />
+            <button
+              onClick={() => {
+                if (customTopics[customTopics.length - 1]?.trim()) {
+                  addCustomTopic(customTopics[customTopics.length - 1]);
+                  setCustomTopics([]);
+                }
+              }}
+              className="px-4 py-2.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-sm font-medium transition-colors"
+            >
+              添加
+            </button>
+          </div>
+        </div>
+
+        {/* 已选话题管理 */}
+        {selectedTopics.length > 0 && (
+          <div className="mb-6">
+            <label className="block text-sm text-gray-400 mb-2">已选话题（点击移除）</label>
+            <div className="flex flex-wrap gap-2">
+              {selectedTopics.map((topic, idx) => (
+                <div
+                  key={idx}
+                  onClick={() => toggleTopic(topic)}
+                  className="flex items-center gap-2 px-3 py-2 rounded-lg bg-blue-900/30 border border-blue-700/30 text-blue-300 text-xs cursor-pointer hover:bg-red-900/30 hover:border-red-700/30 hover:text-red-300 transition-colors"
+                >
+                  <span className="text-gray-500">{idx + 1}.</span>
+                  <span>{topic}</span>
+                  <span className="text-gray-600">×</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* 操作按钮 */}
+        <div className="flex gap-3">
+          <button
+            onClick={handleSaveConfig}
+            disabled={saving || selectedTopics.length === 0}
+            className="px-5 py-2.5 rounded-lg bg-blue-600 hover:bg-blue-500 disabled:bg-gray-700 disabled:text-gray-500 text-white text-sm font-medium transition-colors flex items-center gap-2"
+          >
+            {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
+            保存临时计划
+          </button>
+          {data?.config && (
+            <button
+              onClick={handleClearConfig}
+              disabled={saving}
+              className="px-5 py-2.5 rounded-lg bg-red-900/30 hover:bg-red-900/50 disabled:bg-gray-800 disabled:text-gray-600 text-red-400 text-sm font-medium border border-red-800 transition-colors"
+            >
+              清除临时计划
+            </button>
+          )}
+        </div>
+
+        {saveResult && (
+          <div className={`mt-4 p-3 rounded-lg text-sm ${saveResult.includes('失败') || saveResult.includes('请') ? 'bg-red-900/20 border border-red-800 text-red-400' : 'bg-green-900/20 border border-green-800 text-green-400'}`}>
+            {saveResult}
+          </div>
+        )}
+      </div>
+
+      {/* 手动触发辩论 */}
+      <div className="p-6 rounded-xl bg-gray-900/50 border border-gray-800">
+        <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+          <Zap className="w-5 h-5 text-amber-400" />
+          手动触发辩论
+        </h3>
+
+        <div className="mb-4">
+          <label className="block text-sm text-gray-400 mb-2">指定话题（留空则使用今日自动选题）</label>
+          <input
+            type="text"
+            value={triggerTopic}
+            onChange={e => setTriggerTopic(e.target.value)}
+            placeholder="例如：人工智能对教育的影响"
+            className="w-full px-4 py-2.5 rounded-lg bg-gray-800 border border-gray-700 text-white text-sm placeholder:text-gray-500 focus:outline-none focus:border-blue-500 transition-colors"
+          />
+        </div>
+
+        <button
+          onClick={handleTrigger}
+          disabled={triggering}
+          className="px-5 py-2.5 rounded-lg bg-amber-600 hover:bg-amber-500 disabled:bg-gray-700 disabled:text-gray-500 text-white text-sm font-medium transition-colors flex items-center gap-2"
+        >
+          {triggering ? <Loader2 className="w-4 h-4 animate-spin" /> : <Zap className="w-4 h-4" />}
+          立即触发辩论
+        </button>
+
+        {triggerResult && (
+          <div className={`mt-4 p-3 rounded-lg text-sm ${triggerResult.includes('失败') ? 'bg-red-900/20 border border-red-800 text-red-400' : 'bg-green-900/20 border border-green-800 text-green-400'}`}>
+            {triggerResult}
+          </div>
+        )}
+      </div>
+
+      {/* 近期辩论记录 */}
+      {data?.recentDebates?.length > 0 && (
+        <div className="p-6 rounded-xl bg-gray-900/50 border border-gray-800">
+          <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+            <Clock className="w-5 h-5 text-gray-400" />
+            近期辩论记录
+          </h3>
+          <div className="space-y-3">
+            {data.recentDebates.map((debate: any) => (
+              <div key={debate.id} className="flex items-center gap-4 p-4 rounded-lg bg-gray-800/50 border border-gray-700/50">
+                <div className="flex-1">
+                  <p className="text-white text-sm font-medium">{debate.topic}</p>
+                  <p className="text-gray-500 text-xs mt-1">{debate.date}</p>
+                </div>
+                <div className={`px-3 py-1 rounded-full text-xs font-medium ${
+                  debate.status === 'completed' ? 'bg-green-900/30 text-green-400 border border-green-800/30' :
+                  debate.status === 'running' ? 'bg-blue-900/30 text-blue-400 border border-blue-800/30' :
+                  'bg-gray-700/50 text-gray-400 border border-gray-600/30'
+                }`}>
+                  {debate.status === 'completed' ? '已完成' : debate.status === 'running' ? '进行中' : '已安排'}
+                </div>
+                <div className="text-gray-500 text-xs">
+                  {debate.turns?.length || 0} 轮
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* 说明 */}
+      <div className="p-4 rounded-xl bg-gray-900/30 border border-gray-800/50">
+        <h4 className="text-sm font-medium text-gray-400 mb-2">说明</h4>
+        <ul className="text-xs text-gray-500 space-y-1">
+          <li>• 自定义临时计划：设置时间段和话题，系统会按顺序（周一~周日）使用话题</li>
+          <li>• 临时计划优先级高于「中医出海」主题，高于普通选题</li>
+          <li>• 手动触发辩论：立即生成辩论，忽略今日是否已有辩论</li>
+          <li>• 辩论在北京时间 12:00 自动运行，也可手动随时触发</li>
+        </ul>
+      </div>
+    </div>
+  );
 }
 
 // ─── Tab 1: 数据驾驶舱 ────────────────────────────────────────────────────────

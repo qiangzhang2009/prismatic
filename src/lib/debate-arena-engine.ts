@@ -97,11 +97,70 @@ function isTopicSafe(topic: string): boolean {
   return true;
 }
 
-function pickDailyTopic(): string {
-  // 临时主题：未来一周围绕"中医出海"
+// ─── Custom Debate Config ───────────────────────────────────────────────────────
+
+interface CustomDebateConfig {
+  topics: string[];
+  startDate: Date;
+  endDate: Date;
+}
+
+let cachedConfig: { config: CustomDebateConfig | null; fetchedAt: number } = {
+  config: null,
+  fetchedAt: 0,
+};
+
+async function getCustomDebateConfig(): Promise<CustomDebateConfig | null> {
+  // Cache for 1 minute to avoid excessive DB calls
+  if (cachedConfig.config && Date.now() - cachedConfig.fetchedAt < 60_000) {
+    return cachedConfig.config;
+  }
+
+  try {
+    const sql = getSql();
+    const rows = await safeQuery((s) => s`
+      SELECT * FROM prismatic_debate_config
+      ORDER BY id DESC LIMIT 1
+    `);
+
+    if (!Array.isArray(rows) || rows.length === 0) {
+      cachedConfig = { config: null, fetchedAt: Date.now() };
+      return null;
+    }
+
+    const row = rows[0] as any;
+    const topics = typeof row.topics === 'string' ? JSON.parse(row.topics) : row.topics || [];
+    const startDate = new Date(row.start_date);
+    const endDate = new Date(row.end_date);
+    const now = new Date();
+
+    // Check if within date range
+    if (now >= startDate && now <= endDate && topics.length > 0) {
+      cachedConfig = { config: { topics, startDate, endDate }, fetchedAt: Date.now() };
+      return cachedConfig.config;
+    }
+
+    cachedConfig = { config: null, fetchedAt: Date.now() };
+    return null;
+  } catch {
+    return null;
+  }
+}
+
+async function pickDailyTopic(): Promise<string> {
+  // 优先级 1: 自定义临时计划（管理员设置）
+  const customConfig = await getCustomDebateConfig();
+  if (customConfig) {
+    const dayOfWeek = new Date().getDay();
+    const dayIndex = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+    const topic = customConfig.topics[dayIndex % customConfig.topics.length];
+    if (topic) return topic;
+  }
+
+  // 优先级 2: 中医出海临时主题
   if (isTCMInternationalPeriod()) {
-    const dayOfWeek = new Date().getDay(); // 0=周日, 1=周一...
-    const dayIndex = dayOfWeek === 0 ? 6 : dayOfWeek - 1; // 转换为 0=周一 ... 6=周日
+    const dayOfWeek = new Date().getDay();
+    const dayIndex = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
     return DEBATE_TCM_INTERNATIONAL_TOPICS[dayIndex % DEBATE_TCM_INTERNATIONAL_TOPICS.length] ?? DEBATE_TCM_INTERNATIONAL_TOPICS[0];
   }
 
@@ -110,8 +169,7 @@ function pickDailyTopic(): string {
     (Date.now() - new Date(new Date().getFullYear(), 0, 0).getTime()) / (1000 * 60 * 60 * 24)
   );
   const safeTopics = DEBATE_SAFE_TOPICS.filter(isTopicSafe);
-  const index = dayOfYear % safeTopics.length;
-  return safeTopics[index] ?? 'AI 会取代大部分人类工作吗？';
+  return safeTopics[dayOfYear % safeTopics.length] ?? 'AI 会取代大部分人类工作吗？';
 }
 
 // ─── Debate Turn Types ─────────────────────────────────────────────────────────
@@ -589,7 +647,7 @@ export async function runDailyDebate(
       return { success: false, error: '今日没有值班人物' };
     }
 
-    const topic = manualTopic ?? pickDailyTopic();
+    const topic = manualTopic ?? await pickDailyTopic();
     if (!isTopicSafe(topic)) {
       return { success: false, error: '话题未通过安全审核' };
     }
@@ -732,7 +790,7 @@ export async function previewTodaysDebate(): Promise<{
     console.warn('[DebateArena] previewTodaysDebate — getTodayGuardians failed:', err instanceof Error ? err.message : String(err));
   }
 
-  const topic = pickDailyTopic();
+  const topic = await pickDailyTopic();
 
   // 基于话题生成亮点和矛盾点
   const highlights = generateDebateHighlights(topic, guardians.map(g => g.personaNameZh));
