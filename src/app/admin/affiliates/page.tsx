@@ -391,7 +391,9 @@ export default function AdminAffiliatesPage() {
                   : 'text-text-muted border border-border-subtle hover:text-text-primary'
               }`}>
                 {f === 'all' ? '全部' : STATUS_LABEL[f] || f}
-                {f !== 'all' && f in totals && f !== 'all' && <span className="ml-1 opacity-60">({f === 'pending' ? totals.pending : f === 'active' ? totals.active : affiliates.filter(a => a.status === f).length})</span>}
+                {f !== 'all' && (f === 'pending' ? totals.pending : f === 'active' ? totals.active : affiliates.filter(a => a.status === f).length) > 0 && (
+                  <span className="ml-1 opacity-60">({f === 'pending' ? totals.pending : f === 'active' ? totals.active : affiliates.filter(a => a.status === f).length})</span>
+                )}
               </button>
             ))}
           </div>
@@ -796,11 +798,11 @@ function FormField({ label, required, children }: { label: string; required?: bo
   );
 }
 
-function InfoRow({ label, value }: { label: string; value: React.ReactNode }) {
+function InfoRow({ label, value, children }: { label: string; value?: React.ReactNode; children?: React.ReactNode }) {
   return (
     <div className="flex justify-between items-center">
       <span className="text-text-muted">{label}</span>
-      <span className="text-text-primary">{value}</span>
+      <span className="text-text-primary">{children ?? value}</span>
     </div>
   );
 }
