@@ -19,11 +19,11 @@ export async function GET(req: NextRequest) {
     const db = sql();
 
     const owner = await db`
-      SELECT id, partner_id, name, wechat_id, referral_code,
+      SELECT id, partner_id, name, wechat_id, email, referral_code,
              commission_type, commission_rate, commission_fixed,
              total_referrals, total_conversions,
              total_commission, pending_commission, withdrawn_commission,
-             bio, created_at
+             bio, status, created_at
       FROM prismatic_affiliates
       WHERE dashboard_token = ${token}
     `;
