@@ -28,9 +28,9 @@ export default function RootLayout({
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
-        {/* Prismatic Analytics Tracking SDK */}
+        {/* Prismatic Analytics Tracking SDK — served as static file from Vercel CDN */}
         <Script
-          src="/api/tracking-sdk"
+          src="/tracking-sdk.js"
           strategy="lazyOnload"
         />
       </head>
