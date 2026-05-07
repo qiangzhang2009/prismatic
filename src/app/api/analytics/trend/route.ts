@@ -3,6 +3,11 @@
  *
  * Returns daily aggregated metrics: DAU, sessions, messages, conversations.
  * Uses @neondatabase/serverless neon() tagged template for Edge runtime compatibility.
+ *
+ * Timezone handling:
+ * - Date grouping uses CURRENT_DATE - generate_series to ensure timezone consistency
+ * - Messages are grouped by their createdAt date directly (assuming timestamps are consistent)
+ * - Uses generate_series to fill in missing dates
  */
 import { NextRequest, NextResponse } from 'next/server';
 import { neon } from '@neondatabase/serverless';
@@ -21,48 +26,51 @@ export async function GET(request: NextRequest) {
 
   try {
     const sql = getSql();
-    const startDate = new Date();
-    startDate.setDate(startDate.getDate() - days);
-    startDate.setHours(0, 0, 0, 0);
 
+    // Use SQL to get the date range - this ensures timezone consistency
+    // Generate dates using generate_series for missing date filling
     const dailyTrendRaw = await sql`
+      WITH date_range AS (
+        SELECT generate_series(
+          CURRENT_DATE - INTERVAL '${sql`${days - 1} days`}',
+          CURRENT_DATE,
+          '1 day'::interval
+        )::date as date
+      ),
+      daily_metrics AS (
+        SELECT
+          DATE(m."createdAt") as msg_date,
+          COUNT(DISTINCT m."conversationId") as conversations,
+          COUNT(DISTINCT m."userId") as dau,
+          COUNT(*) FILTER (WHERE m.content != '[message-counted]') as messages
+        FROM messages m
+        WHERE m."createdAt" >= CURRENT_DATE - INTERVAL '${sql`${days} days`}'
+          AND m."createdAt" <= CURRENT_DATE + INTERVAL '1 day'
+        GROUP BY DATE(m."createdAt")
+      )
       SELECT
-        DATE("createdAt" at time zone 'utc') as date,
-        COUNT(DISTINCT "conversationId") as conversations,
-        COUNT(DISTINCT "userId") as dau,
-        COUNT(*) as messages,
-        0 as sessions
-      FROM "messages"
-      WHERE "createdAt" >= ${startDate}
-        AND "createdAt" < NOW()
-      GROUP BY DATE("createdAt" at time zone 'utc')
-      ORDER BY date ASC
+        dr.date,
+        COALESCE(dm.dau, 0)::integer as dau,
+        0 as sessions,
+        COALESCE(dm.messages, 0)::integer as messages,
+        COALESCE(dm.conversations, 0)::integer as conversations
+      FROM date_range dr
+      LEFT JOIN daily_metrics dm ON dr.date = dm.msg_date
+      ORDER BY dr.date ASC
     `;
 
     const trend: { date: string; dau: number; sessions: number; messages: number; conversations: number }[] = dailyTrendRaw.map((row: any) => ({
-      date: new Date(String(row.date)).toISOString().split('T')[0],
+      date: String(row.date),
       dau: parseInt(String(row.dau), 10),
       sessions: 0,
       messages: parseInt(String(row.messages), 10),
       conversations: parseInt(String(row.conversations), 10),
     }));
 
-    const padded: { date: string; dau: number; sessions: number; messages: number; conversations: number }[] = [];
-    for (let i = days - 1; i >= 0; i--) {
-      const d = new Date();
-      d.setDate(d.getDate() - i);
-      const dateStr = d.toISOString().split('T')[0];
-      padded.push({ date: dateStr, dau: 0, sessions: 0, messages: 0, conversations: 0 });
-    }
-
-    for (const row of trend) {
-      const idx = padded.findIndex(p => p.date === row.date);
-      if (idx !== -1) padded[idx] = row;
-    }
-
-    return NextResponse.json(padded);
+    return NextResponse.json(trend);
   } catch (error) {
     console.error('[Analytics/Trend]', error);
+    // Fallback: return empty data for all days
     const degraded: { date: string; dau: number; sessions: number; messages: number; conversations: number }[] = [];
     for (let i = days - 1; i >= 0; i--) {
       const d = new Date();
