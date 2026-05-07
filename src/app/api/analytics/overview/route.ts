@@ -37,10 +37,10 @@ export async function GET(request: NextRequest) {
     const sql = getSql();
 
     // All metrics use the same period window for consistency.
-    // Work around Neon/Vercel edge caching: SELECT rows + .length is more reliable
-    // than COUNT(*) on the users table when deployed to Vercel Edge Runtime.
+    // Use the same query pattern for consistency with users API
+    // Default: exclude DELETED users, consistent with /api/admin/users
     const [totalUsersRows, activeUsersRows, paidUsersRows, metricsRows] = await Promise.all([
-      sql`SELECT id FROM users`,
+      sql`SELECT id FROM users WHERE status != 'DELETED'`,
       sql`SELECT id FROM users WHERE status = 'ACTIVE'`,
       sql`SELECT id FROM users WHERE status = 'ACTIVE' AND plan != 'FREE' AND plan IS NOT NULL`,
       sql`
