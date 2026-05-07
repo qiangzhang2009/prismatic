@@ -357,14 +357,21 @@ export function TCMChatInterface() {
   }, [userId]);
 
   async function sendMessage() {
-    if (!input.trim() || isLoading) return;
+    // 防重复点击：立即设置加载状态，防止竞态条件
+    if (!input.trim()) return;
+    if (isLoading) return;
+    setIsLoading(true);
+    setSyncStatus('syncing');
+
     if (!userId) {
+      setIsLoading(false);
       alert('请先登录后再使用中医对话功能');
       return;
     }
 
     // 额度预检查（与人物库一致）
     if (limitReached) {
+      setIsLoading(false);
       setLimitModalType('daily_limit');
       setShowLimitModal(true);
       return;
@@ -381,8 +388,6 @@ export function TCMChatInterface() {
 
     setMessages(prev => [...prev, userMsg]);
     setInput('');
-    setIsLoading(true);
-    setSyncStatus('syncing');
 
     try {
       const res = await fetch('/api/tcm/chat', {

@@ -69,10 +69,16 @@ export async function GET(req: NextRequest) {
         -- Billing mode breakdown
         COUNT(*) FILTER (WHERE u."apiKeyEncrypted" IS NOT NULL AND u."apiKeyStatus" = 'valid') as api_key_count,
         COUNT(*) FILTER (WHERE u."apiKeyEncrypted" IS NULL OR u."apiKeyStatus" != 'valid') as platform_count,
-        -- Conversation mode breakdown
+        -- Conversation mode breakdown (all modes)
         COUNT(*) FILTER (WHERE c.mode = 'solo') as solo_count,
         COUNT(*) FILTER (WHERE c.mode = 'roundtable') as roundtable_count,
-        COUNT(*) FILTER (WHERE c.mode = 'mirror') as mirror_count
+        COUNT(*) FILTER (WHERE c.mode = 'prism') as prism_count,
+        COUNT(*) FILTER (WHERE c.mode = 'mission') as mission_count,
+        COUNT(*) FILTER (WHERE c.mode = 'epoch') as epoch_count,
+        COUNT(*) FILTER (WHERE c.mode = 'council') as council_count,
+        COUNT(*) FILTER (WHERE c.mode = 'oracle') as oracle_count,
+        COUNT(*) FILTER (WHERE c.mode = 'fiction') as fiction_count,
+        COUNT(*) FILTER (WHERE c.mode = 'tcm-assistant') as tcm_count
       FROM conversations c
       LEFT JOIN users u ON u.id = c."userId"
       LEFT JOIN LATERAL (
@@ -99,7 +105,13 @@ export async function GET(req: NextRequest) {
       mode: {
         solo: r.solo_count,
         roundtable: r.roundtable_count,
-        mirror: r.mirror_count,
+        prism: r.prism_count,
+        mission: r.mission_count,
+        epoch: r.epoch_count,
+        council: r.council_count,
+        oracle: r.oracle_count,
+        fiction: r.fiction_count,
+        'tcm-assistant': r.tcm_count,
       },
     });
   } catch (err) {

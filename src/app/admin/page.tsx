@@ -181,6 +181,7 @@ function DebateSection() {
   const [error, setError] = useState<string | null>(null);
   const [selectedTopics, setSelectedTopics] = useState<string[]>([]);
   const [customTopics, setCustomTopics] = useState<string[]>([]);
+  const [customTopicInput, setCustomTopicInput] = useState('');
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [roundCount, setRoundCount] = useState(3);
@@ -661,15 +662,12 @@ function DebateSection() {
               <div className="flex gap-2">
                 <input
                   type="text"
-                  value={customTopics[customTopics.length - 1] || ''}
-                  onChange={e => {
-                    const val = e.target.value;
-                    setCustomTopics([val]);
-                  }}
+                  value={customTopicInput}
+                  onChange={e => setCustomTopicInput(e.target.value)}
                   onKeyDown={e => {
-                    if (e.key === 'Enter' && customTopics[customTopics.length - 1]?.trim()) {
-                      addCustomTopic(customTopics[customTopics.length - 1]);
-                      setCustomTopics([]);
+                    if (e.key === 'Enter' && customTopicInput.trim()) {
+                      addCustomTopic(customTopicInput);
+                      setCustomTopicInput('');
                     }
                   }}
                   placeholder="输入话题后按 Enter 添加"
@@ -677,9 +675,9 @@ function DebateSection() {
                 />
                 <button
                   onClick={() => {
-                    if (customTopics[customTopics.length - 1]?.trim()) {
-                      addCustomTopic(customTopics[customTopics.length - 1]);
-                      setCustomTopics([]);
+                    if (customTopicInput.trim()) {
+                      addCustomTopic(customTopicInput);
+                      setCustomTopicInput('');
                     }
                   }}
                   className="px-4 py-2.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-sm font-medium transition-colors"
@@ -1306,11 +1304,13 @@ function StorageCard({ capacity }: { capacity: any }) {
     );
   }
 
+  const safePercent = isNaN(Number(storage.usedPercent)) ? 0 : Number(storage.usedPercent) * 100;
   const barColor = storage.status === 'red' ? 'bg-red-500' : storage.status === 'yellow' ? 'bg-yellow-500' : 'bg-green-500';
   const statusLabel = storage.status === 'red' ? '紧急' : storage.status === 'yellow' ? '预警' : '正常';
   const statusBg = storage.status === 'red' ? 'bg-red-900/30 text-red-400' : storage.status === 'yellow' ? 'bg-yellow-900/30 text-yellow-400' : 'bg-green-900/30 text-green-400';
 
   const fmtBytes = (bytes: number) => {
+    if (!bytes || isNaN(bytes)) return '0 B';
     if (bytes < 1024 * 1024 * 1024) return `${Number(bytes / 1024 / 1024).toFixed(1)} MB`;
     return `${Number(bytes / 1024 / 1024 / 1024).toFixed(2)} GB`;
   };
@@ -1333,7 +1333,7 @@ function StorageCard({ capacity }: { capacity: any }) {
         </div>
       </div>
       <p className="text-3xl font-bold text-white">
-        {Number(storage.usedPercent * 100).toFixed(1)}
+        {safePercent.toFixed(1)}
         <span className="text-lg text-gray-400 font-normal">%</span>
       </p>
       <div className="mt-2 text-xs text-gray-400 mb-3">
@@ -1341,7 +1341,7 @@ function StorageCard({ capacity }: { capacity: any }) {
       </div>
       <div className="w-full bg-gray-800 rounded-full h-2 overflow-hidden">
         <div className={`h-2 rounded-full transition-all ${barColor}`}
-          style={{ width: `${Math.min(Number(storage.usedPercent * 100), 100).toFixed(1)}%` }} />
+          style={{ width: `${Math.min(safePercent, 100).toFixed(1)}%` }} />
       </div>
       {storage.daysUntilFull !== null && (
         <p className="text-[10px] text-gray-500 mt-2">
@@ -1604,13 +1604,13 @@ function UsersSection() {
         {/* Pagination */}
         {!isLoading && !error && totalPages > 1 && (
           <div className="flex items-center justify-between px-4 py-3 border-t border-gray-800">
-            <div className="text-sm text-gray-400">第 {filters.page} / {totalPages} 页，共 {data?.total || 0} 条</div>
+            <div className="text-sm text-gray-400">第 {(filters.page ?? 1)} / {totalPages} 页，共 {data?.total || 0} 条</div>
             <div className="flex items-center gap-2">
-              <button onClick={() => handlePage(filters.page! - 1)} disabled={filters.page === 1}
+              <button onClick={() => handlePage((filters.page ?? 1) - 1)} disabled={(filters.page ?? 1) === 1}
                 className="flex items-center gap-1 px-3 py-1.5 bg-gray-800 hover:bg-gray-700 disabled:opacity-30 disabled:cursor-not-allowed rounded-lg text-sm transition-colors">
                 <ChevronLeft className="w-4 h-4" /> 上一页
               </button>
-              <button onClick={() => handlePage(filters.page! + 1)} disabled={filters.page === totalPages}
+              <button onClick={() => handlePage((filters.page ?? 1) + 1)} disabled={(filters.page ?? 1) === totalPages}
                 className="flex items-center gap-1 px-3 py-1.5 bg-gray-800 hover:bg-gray-700 disabled:opacity-30 disabled:cursor-not-allowed rounded-lg text-sm transition-colors">
                 下一页 <ChevronRight className="w-4 h-4" />
               </button>
@@ -1627,7 +1627,11 @@ function UsersSection() {
 function UserFilterDropdown({ value, onChange }: { value: string; onChange: (id: string) => void }) {
   const { data, isLoading } = useQuery({
     queryKey: ['admin', 'users', 'filter-list'],
-    queryFn: () => fetch('/api/admin/users?pageSize=500&status=ACTIVE', { credentials: 'include' }).then(r => r.json()),
+    queryFn: async () => {
+      const r = await fetch('/api/admin/users?pageSize=500&status=ACTIVE', { credentials: 'include' });
+      if (!r.ok) throw new Error(`HTTP ${r.status}`);
+      return r.json();
+    },
     staleTime: 1000 * 60 * 5,
   });
 
@@ -1701,7 +1705,14 @@ function AssetsSection() {
 
   const { data: convData, isLoading: convLoading, refetch, isError: convError } = useQuery({
     queryKey: ['admin', 'chats', params.toString()],
-    queryFn: () => fetch(`/api/admin/chats?${params}`, { credentials: 'include' }).then(r => r.json()),
+    queryFn: async () => {
+      const r = await fetch(`/api/admin/chats?${params}`, { credentials: 'include' });
+      if (!r.ok) {
+        const err = await r.json().catch(() => ({ error: `HTTP ${r.status}` }));
+        throw new Error(err.error || `请求失败 (${r.status})`);
+      }
+      return r.json();
+    },
     staleTime: 0,
     refetchOnWindowFocus: true,
   });
@@ -1717,13 +1728,21 @@ function AssetsSection() {
 
   const { data: totalsData } = useQuery({
     queryKey: ['admin', 'chats', 'totals', totalsParams.toString()],
-    queryFn: () => fetch(`/api/admin/chats/totals?${totalsParams}`, { credentials: 'include' }).then(r => r.json()),
+    queryFn: async () => {
+      const r = await fetch(`/api/admin/chats/totals?${totalsParams}`, { credentials: 'include' });
+      if (!r.ok) throw new Error(`HTTP ${r.status}`);
+      return r.json();
+    },
     staleTime: 1000 * 60,
   });
 
   const { data: userChatsData, isLoading: userChatsLoading, refetch: refetchUserChats } = useQuery({
     queryKey: ['admin', 'chats', 'by-user', params.toString()],
-    queryFn: () => fetch(`/api/admin/chats/by-user?${params}`, { credentials: 'include' }).then(r => r.json()),
+    queryFn: async () => {
+      const r = await fetch(`/api/admin/chats/by-user?${params}`, { credentials: 'include' });
+      if (!r.ok) throw new Error(`HTTP ${r.status}`);
+      return r.json();
+    },
     staleTime: 0,
     refetchOnWindowFocus: true,
   });
@@ -1971,7 +1990,7 @@ function ConversationCard({ conv }: { conv: any }) {
         </div>
         <div className="flex items-center gap-2 flex-shrink-0">
           {hasMore && !expanded && (
-            <span className="text-xs text-gray-600">+{msgs.length - 3} 条</span>
+            <span className="text-xs text-gray-600">+{Math.max(msgs.length - 3, 0)} 条</span>
           )}
           <ChevronRight className={`w-4 h-4 text-gray-500 transition-transform ${expanded ? 'rotate-90' : ''}`} />
         </div>
@@ -2085,16 +2104,20 @@ function AssetOverview({ convData, totalsData }: { convData: any; totalsData: an
   const totalTokens = t?.totalTokens ?? 0;
   const apiKeyCount = t?.billing?.apiKey ?? 0;
   const platformCount = t?.billing?.platform ?? 0;
-  const soloCount = t?.mode?.solo ?? 0;
-  const roundtableCount = t?.mode?.roundtable ?? 0;
-  const mirrorCount = t?.mode?.mirror ?? 0;
 
+  // 从 API 获取所有模式计数
+  const modeData = t?.mode || {};
+  
+  // 构建模式计数对象（过滤掉为0的模式）
   const modeCount: Record<string, number> = {};
-  if (soloCount > 0) modeCount['solo'] = soloCount;
-  if (roundtableCount > 0) modeCount['roundtable'] = roundtableCount;
-  if (mirrorCount > 0) modeCount['mirror'] = mirrorCount;
+  for (const [mode, count] of Object.entries(modeData)) {
+    if (typeof count === 'number' && count > 0) {
+      modeCount[mode] = count;
+    }
+  }
+  
   // Fallback: aggregate from current page data if totals API not yet loaded
-  if (totalConversations === 0) {
+  if (totalConversations === 0 && convs.length > 0) {
     for (const c of convs) {
       const m = c.mode || 'unknown';
       modeCount[m] = (modeCount[m] || 0) + 1;
@@ -2272,12 +2295,18 @@ function AssetCostAnalysis({ days }: { days: number }) {
 function AssetTopics({ days }: { days: number }) {
   const { data, isLoading } = useQuery({
     queryKey: ['admin', 'chats', 'topics', days],
-    queryFn: () => fetch(`/api/admin/chats/topics?days=${days}`, { credentials: 'include' }).then(r => r.json()),
+    queryFn: async () => {
+      const r = await fetch(`/api/admin/chats/topics?days=${days}`, { credentials: 'include' });
+      if (!r.ok) throw new Error(`HTTP ${r.status}`);
+      return r.json();
+    },
     staleTime: 1000 * 60 * 30,
   });
 
   const topics = data?.topics || [];
   const total = data?.totalConversations || 0;
+  const error = data?.error;
+  const isLoadingData = isLoading;
 
   return (
     <div className="space-y-4">
@@ -2289,12 +2318,18 @@ function AssetTopics({ days }: { days: number }) {
             : `${total} 条对话`}
         </span>
       </div>
-      {isLoading ? (
+      {isLoadingData ? (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">{[1,2,3,4].map(i => <div key={i} className="h-28 bg-gray-800 rounded-xl animate-pulse" />)}</div>
       ) : topics.length === 0 ? (
         <div className="text-center py-12 text-gray-500 text-sm">
           <Layers className="w-10 h-10 mx-auto mb-2 opacity-30" />
-          暂无话题数据（请确保 DEEPSEEK_API_KEY 已配置）
+          {error ? (
+            <p className="text-amber-400">{error}</p>
+          ) : total === 0 ? (
+            <p>暂无对话数据</p>
+          ) : (
+            <p>话题聚类需要更多对话数据（当前 {total} 条）</p>
+          )}
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -2326,7 +2361,11 @@ function AssetTopics({ days }: { days: number }) {
 function AssetPersonas({ days }: { days: number }) {
   const { data, isLoading } = useQuery({
     queryKey: ['admin', 'chats', 'personas', days],
-    queryFn: () => fetch(`/api/admin/chats/personas?days=${days || ''}`, { credentials: 'include' }).then(r => r.json()),
+    queryFn: async () => {
+      const r = await fetch(`/api/admin/chats/personas?days=${days || ''}`, { credentials: 'include' });
+      if (!r.ok) throw new Error(`HTTP ${r.status}`);
+      return r.json();
+    },
     staleTime: 1000 * 60 * 5,
   });
 
@@ -2476,7 +2515,11 @@ function AssetPersonas({ days }: { days: number }) {
 function AssetBehavior({ days }: { days: number }) {
   const { data, isLoading } = useQuery({
     queryKey: ['admin', 'chats', 'behavior', days],
-    queryFn: () => fetch(`/api/admin/chats/behavior?days=${days}`, { credentials: 'include' }).then(r => r.json()),
+    queryFn: async () => {
+      const r = await fetch(`/api/admin/chats/behavior?days=${days}`, { credentials: 'include' });
+      if (!r.ok) throw new Error(`HTTP ${r.status}`);
+      return r.json();
+    },
     staleTime: 1000 * 60 * 30,
   });
 
@@ -2802,7 +2845,7 @@ function AssetUserChats({ userChatsData, isLoading, onRefresh }: {
                                       );
                                     })}
                                     {conv.messages.length > 2 && (
-                                      <p className="text-[9px] text-gray-600 pl-6">+{conv.messages.length - 2} 条更多...</p>
+                                      <p className="text-[9px] text-gray-600 pl-6">+{Math.max(conv.messages.length - 2, 0)} 条更多...</p>
                                     )}
                                   </div>
                                 )}
@@ -3177,7 +3220,11 @@ function TCMSection() {
 
   const { data: tcmData, isLoading, refetch, isError } = useQuery({
     queryKey: ['admin', 'chats', 'tcm', params.toString()],
-    queryFn: () => fetch(`/api/admin/chats/tcm?${params}`, { credentials: 'include' }).then(r => r.json()),
+    queryFn: async () => {
+      const r = await fetch(`/api/admin/chats/tcm?${params}`, { credentials: 'include' });
+      if (!r.ok) throw new Error(`HTTP ${r.status}`);
+      return r.json();
+    },
     staleTime: 0,
     refetchOnWindowFocus: true,
   });

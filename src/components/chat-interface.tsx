@@ -406,7 +406,12 @@ export function ChatInterface({ className, initialPersona, initialMode }: ChatIn
   }, [messages, scrollToBottom]);
 
   const handleSend = async () => {
-    if (!input.trim() || isLoading) return;
+    // 防重复点击：在任何检查之前先标记为加载中
+    if (!input.trim()) return;
+    if (isLoading) return;
+
+    // 立即设置 isLoading，防止竞态条件导致的重复发送
+    setIsLoading(true);
 
     // Read fresh auth state from store (handles restored accounts with server-synced credits)
     const { user } = useAuthStore.getState();
