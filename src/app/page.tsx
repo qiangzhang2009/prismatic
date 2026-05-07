@@ -27,12 +27,12 @@ import { CommentsSection } from '@/components/comments-section';
 import { cn, getDomainGradient } from '@/lib/utils';
 
 // ─── Hero Stats ────────────────────────────────────────────────────────────────
-// Real data from project census (2026-05-03)
-// 82 defined personas (PERSONA_LIST_LIGHT), 8 total modes (6 visible), ~3GB persona corpus
+// Real data from project census (2026-05-07)
+// 87 defined personas (PERSONA_LIST_LIGHT), 8 total modes (6 visible), ~9.7GB persona corpus
 const HERO_STATS = [
-  { value: '82', label: '蒸馏人物', icon: BookOpen, color: '#4d96ff' },
+  { value: '87', label: '蒸馏人物', icon: BookOpen, color: '#4d96ff' },
   { value: '6', label: '协作模式', icon: Layers, color: '#6bcb77' },
-  { value: '3GB', label: '原始语料', icon: BarChart3, color: '#c77dff' },
+  { value: '9.7GB', label: '原始语料', icon: BarChart3, color: '#c77dff' },
   { value: '∞', label: '视角组合', icon: TrendingUp, color: '#ff9f43' },
 ];
 
@@ -52,9 +52,15 @@ const DOMAIN_CATEGORIES = [
   },
   {
     label: '东方智慧',
-    domains: ['zen-buddhism', 'spirituality', 'chinese-medicine'],
+    domains: ['zen-buddhism', 'spirituality'],
     color: '#ff6b6b',
     fallbackPersonas: ['jiqun', 'lao-zi', 'zhuang-zi', 'confucius', 'mencius', 'hui-neng', 'liduomin', 'liudunhou', 'zhangjingyue', 'wujutong', 'zhudanhsi', 'zhadanxin', 'wangqingren', 'yetianshi'],
+  },
+  {
+    label: '中医思想',
+    domains: ['chinese-medicine'],
+    color: '#22c55e',
+    fallbackPersonas: ['huafu', 'huangdi', 'lishizhen', 'sunsimiao', 'zhang-zhongjing', 'caraka', 'hippocrates', 'sushruta'],
   },
   {
     label: '科技思想',
@@ -538,7 +544,7 @@ export default function HomePage() {
                 中医思想家影响力图谱
               </h2>
               <p className="text-text-muted text-sm max-w-xl">
-                从《黄帝内经》到温病学说，22 位跨文明医家的知识传承网络
+                从《黄帝内经》到温病学说，19 位跨文明医家的知识传承网络
               </p>
             </div>
             <Link
@@ -648,7 +654,7 @@ export default function HomePage() {
             {/* Stats overlay */}
             <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-6">
               {[
-                { value: '22', label: '思想家', icon: Users },
+                { value: '19', label: '思想家', icon: Users },
                 { value: '7', label: '经典典籍', icon: BookOpen },
                 { value: '28', label: '知识关系', icon: Network },
                 { value: '6', label: '关系类型', icon: LineChart },

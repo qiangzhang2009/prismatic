@@ -180,6 +180,7 @@ export const DOMAINS = {
   fiction: { label: '文学创作', labelEn: 'Fiction' },
   medicine: { label: '医学', labelEn: 'Medicine' },
   semiconductor: { label: '半导体', labelEn: 'Semiconductor' },
+  'chinese-medicine': { label: '中医', labelEn: 'Chinese Medicine' },
 } as const;
 
 // Color palette for personas

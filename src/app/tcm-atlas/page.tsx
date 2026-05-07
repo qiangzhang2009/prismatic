@@ -8,7 +8,7 @@ import tcmEdges from '@/lib/tcm-data/tcm-edges.json';
 
 export const metadata: Metadata = {
   title: '中医思想家影响力图谱 | Prismatic',
-  description: '全球首个专业中医思想家动态知识图谱，涵盖 22 位历代名医、7 部经典典籍、6 种关系类型。可视化展示流派传承、派系对立、跨文化共鸣网络。',
+  description: '全球首个专业中医思想家动态知识图谱，涵盖 19 位历代名医、7 部经典典籍、6 种关系类型。可视化展示流派传承、派系对立、跨文化共鸣网络。',
   keywords: ['中医', '知识图谱', '张仲景', '黄帝内经', '流派', '中医史', '可视化'],
 };
 
