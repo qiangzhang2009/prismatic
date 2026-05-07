@@ -10,8 +10,6 @@
  * - Tokens: summed from conversations.totalTokens (authoritative)
  * - All period-filtered metrics (messages, cost, tokens) use the 'days' window
  * - User counts (total, paid) are all-time, not filtered by period
- * - Timezone handling: uses CURRENT_DATE in SQL to avoid JavaScript timezone issues
- *   when Vercel server runs in UTC but database stores local time
  */
 import { NextRequest, NextResponse } from 'next/server';
 import { neon } from '@neondatabase/serverless';
@@ -29,33 +27,37 @@ export async function GET(request: NextRequest) {
     const searchParams = request.nextUrl.searchParams;
     const days = parseInt(searchParams.get('days') || '7', 10);
 
+    // Use UTC midnight for consistent timezone handling
+    // This ensures DAU calculation uses the same date boundary as the server
+    const today = new Date();
+    today.setUTCHours(0, 0, 0, 0);
+    const periodStart = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
+    periodStart.setUTCHours(0, 0, 0, 0);
+
     const sql = getSql();
 
     // All metrics use the same period window for consistency.
     // Work around Neon/Vercel edge caching: SELECT rows + .length is more reliable
     // than COUNT(*) on the users table when deployed to Vercel Edge Runtime.
-    // Use SQL CURRENT_DATE for timezone-safe date boundaries.
     const [totalUsersRows, activeUsersRows, paidUsersRows, metricsRows] = await Promise.all([
       sql`SELECT id FROM users`,
       sql`SELECT id FROM users WHERE status = 'ACTIVE'`,
       sql`SELECT id FROM users WHERE status = 'ACTIVE' AND plan != 'FREE' AND plan IS NOT NULL`,
       sql`
         SELECT
-          (SELECT COUNT(*) FROM users WHERE "createdAt" >= CURRENT_DATE - INTERVAL '${sql`${days} days`}') as new_users,
+          (SELECT COUNT(*) FROM users WHERE "createdAt" >= ${periodStart}) as new_users,
           -- Messages: exclude '[message-counted]' sentinel rows
-          -- Use CURRENT_DATE for timezone-safe period calculation
-          (SELECT COUNT(*) FROM messages WHERE "createdAt" >= CURRENT_DATE - INTERVAL '${sql`${days} days`}' AND content != '[message-counted]') as period_messages,
+          (SELECT COUNT(*) FROM messages WHERE "createdAt" >= ${periodStart} AND content != '[message-counted]') as period_messages,
           -- Conversations: count distinct conversationIds from messages in the period (consistent with trend API)
-          -- This gives the number of conversations that had messages in the period
-          (SELECT COUNT(DISTINCT "conversationId") FROM messages WHERE "createdAt" >= CURRENT_DATE - INTERVAL '${sql`${days} days`}' AND content != '[message-counted]') as period_conversations,
-          -- DAU: distinct users who sent a message today (use CURRENT_DATE for timezone-safe "today")
-          (SELECT COUNT(DISTINCT "userId") FROM messages WHERE "createdAt" >= CURRENT_DATE AND content != '[message-counted]') as dau,
+          (SELECT COUNT(DISTINCT "conversationId") FROM messages WHERE "createdAt" >= ${periodStart} AND content != '[message-counted]') as period_conversations,
+          -- DAU: distinct users who sent a message today (using UTC midnight for consistency)
+          (SELECT COUNT(DISTINCT "userId") FROM messages WHERE "createdAt" >= ${today} AND content != '[message-counted]') as dau,
           -- MAU: distinct users active in the period
-          (SELECT COUNT(DISTINCT "userId") FROM messages WHERE "createdAt" >= CURRENT_DATE - INTERVAL '${sql`${days} days`}' AND content != '[message-counted]') as mau,
+          (SELECT COUNT(DISTINCT "userId") FROM messages WHERE "createdAt" >= ${periodStart} AND content != '[message-counted]') as mau,
           -- Cost: sum from conversations.totalCost (authoritative — computed by persistConversation)
-          (SELECT COALESCE(SUM("totalCost"), 0) FROM conversations WHERE "updatedAt" >= CURRENT_DATE - INTERVAL '${sql`${days} days`}') as period_cost,
+          (SELECT COALESCE(SUM("totalCost"), 0) FROM conversations WHERE "updatedAt" >= ${periodStart}) as period_cost,
           -- Tokens: sum from conversations.totalTokens (authoritative)
-          (SELECT COALESCE(SUM("totalTokens"), 0) FROM conversations WHERE "updatedAt" >= CURRENT_DATE - INTERVAL '${sql`${days} days`}') as period_tokens,
+          (SELECT COALESCE(SUM("totalTokens"), 0) FROM conversations WHERE "updatedAt" >= ${periodStart}) as period_tokens,
           -- All-time cost from conversations (for totalApiCost legacy field)
           (SELECT COALESCE(SUM("totalCost"), 0) FROM conversations) as alltime_cost
       `,
