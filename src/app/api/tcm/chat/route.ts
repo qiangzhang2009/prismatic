@@ -338,15 +338,26 @@ export async function POST(req: NextRequest) {
 
     // ── 扣减积分（与 chat API 一致）─────────────────────────────────────────
     // 免费且有积分的用户扣减积分
+    // CRITICAL: re-fetch credits from DB to get the authoritative value.
     let creditsAfter = userCredits;
     if (userPlan === 'FREE' && userCredits > 0) {
       try {
-        const { deductCredits } = await import('@/lib/billing/engine');
-        const result = await deductCredits(userId, 1, {
-          description: '中医对话消耗',
-          conversationId: convId,
+        // Fetch fresh credits from DB before deducting
+        const freshUser = await prisma.user.findUnique({
+          where: { id: userId },
+          select: { credits: true },
         });
-        creditsAfter = result.newBalance;
+        const realCredits = freshUser?.credits ?? 0;
+        if (realCredits > 0) {
+          const { deductCredits } = await import('@/lib/billing/engine');
+          const result = await deductCredits(userId, 1, {
+            description: '中医对话消耗',
+            conversationId: convId,
+          });
+          creditsAfter = result.newBalance;
+        } else {
+          creditsAfter = 0;
+        }
       } catch (err) {
         console.error('[TCM Chat] Failed to deduct credits:', err);
       }

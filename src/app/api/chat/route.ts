@@ -1441,15 +1441,29 @@ export async function POST(request: NextRequest) {
 
     // ── Deduct credits (if user has paid credits) ────────────────────────────
     // Only deduct for FREE users who have credits. Paid users are unlimited.
+    // CRITICAL: re-fetch credits from DB to get the authoritative value.
+    // If DB credits are 0, skip deduction (don't go negative).
     let creditsAfter = userCredits;
     if (userPlan === 'FREE' && userCredits > 0) {
       try {
-        const { deductCredits } = await import('@/lib/billing/engine');
-        const result = await deductCredits(userId, 1, {
-          description: '对话消耗',
-          conversationId: convId,
+        // Fetch fresh credits from DB before deducting
+        const freshUser = await prisma.user.findUnique({
+          where: { id: userId },
+          select: { credits: true },
         });
-        creditsAfter = result.newBalance;
+        const realCredits = freshUser?.credits ?? 0;
+        if (realCredits > 0) {
+          const { deductCredits } = await import('@/lib/billing/engine');
+          const result = await deductCredits(userId, 1, {
+            description: '对话消耗',
+            conversationId: convId,
+          });
+          creditsAfter = result.newBalance;
+        } else {
+          // DB credits are already 0 — user should use daily free limit.
+          // Set creditsAfter to 0 so frontend shows correct exhausted state.
+          creditsAfter = 0;
+        }
       } catch (err) {
         console.error('[Chat API] Failed to deduct credits:', err);
       }

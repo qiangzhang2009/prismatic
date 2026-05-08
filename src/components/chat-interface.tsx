@@ -545,10 +545,12 @@ export function ChatInterface({ className, initialPersona, initialMode }: ChatIn
       }
 
       // Update credits display after successful deduction
-      // Only show credits_exhausted modal if the user had credits before this message
-      // (prevents confusing "credits exhausted" popup when user already had 0 credits)
+      // creditsRemaining === 0 on success means credits were deducted to 0.
+      // This overrides localStorage daily limit (credits users don't consume daily limit).
+      // Only skip modal if user had 0 credits going in (daily_free user, handled by 429).
       if (data.creditsRemaining !== undefined) {
-        if (data.creditsRemaining === 0 && currentCredits > 0) {
+        const hadCreditsBefore = currentCredits > 0;
+        if (data.creditsRemaining === 0 && hadCreditsBefore) {
           setLimitModalType('credits_exhausted');
           setShowLimitModal(true);
         }
