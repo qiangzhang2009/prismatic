@@ -130,7 +130,6 @@ export function TCMChatInterface() {
 
   // ── Sync latest credits from server on mount ────────────────────────────────
   // 关键：直接从 API 获取最新积分，忽略可能不准确的 store 数据
-  const [creditsLoaded, setCreditsLoaded] = useState(false);
   useEffect(() => {
     let cancelled = false;
     async function syncCredits() {
@@ -143,7 +142,6 @@ export function TCMChatInterface() {
           }
         }
       } catch {}
-      if (!cancelled) setCreditsLoaded(true);
     }
     syncCredits();
     return () => { cancelled = true; };
