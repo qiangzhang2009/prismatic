@@ -24,8 +24,9 @@ import dynamic from 'next/dynamic';
 import { cn, getDomainGradient } from '@/lib/utils';
 
 // Lazy-load comments section — heavy, not needed for LCP
+// Use .then() to extract the named export so dynamic() gets a component, not a module
 const CommentsSection = dynamic(
-  () => import('@/components/comments-section'),
+  () => import('@/components/comments-section').then(m => m.CommentsSection),
   { ssr: false, loading: () => <div className="py-12 text-center text-sm text-text-muted" /> }
 );
 
