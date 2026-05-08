@@ -18,15 +18,15 @@ import { nanoid } from 'nanoid';
 import { createLLMProviderWithKey, type LLMResponse } from '@/lib/llm';
 import { getPersonasByIds } from '@/lib/personas';
 import { PERSONA_CONFIDENCE } from '@/lib/confidence';
-import { authenticateRequest, getUserById } from '@/lib/user-management';
-import { checkUserDailyLimit, getDailyMessageCount } from '@/lib/message-stats';
-import { resolveBillingMode } from '@/lib/billing/engine';
+import { authenticateRequest } from '@/lib/user-management';
 import { prisma } from '@/lib/prisma';
 import { trackEvent, trackEvents, incrementSessionMessages, trackChatStart, trackChatEnd } from '@/lib/analytics';
 import { buildConversationId } from '@/lib/sync-engine';
 import type { Mode } from '@/lib/types';
 import { getPool } from '@/lib/db-pool';
 import { safeLLMCall, type SafeLLMResult } from '@/lib/llm-safe';
+import { checkUserPoints, deductPoints } from '@/lib/points-service';
+import { resolveBillingMode } from '@/lib/billing/engine';
 
 export const runtime = 'nodejs';
 
@@ -1174,39 +1174,28 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'No valid personas' }, { status: 400 });
     }
 
-    // ── Billing mode resolution ─────────────────────────────────────────────
-    const billing = await resolveBillingMode(userId);
-    if (!billing.allowed) {
-      return NextResponse.json({ error: billing.reason }, { status: 401 });
-    }
-
-    // ── Daily usage limit check ──────────────────────────────────────────────
-    const user = await getUserById(userId);
-    const userPlan = user?.plan ?? 'FREE';
-    const userCredits = user?.credits ?? 0;
-    const { allowed, current, limit, reason } = await checkUserDailyLimit(userId, userPlan, userCredits);
-    if (!allowed) {
-      // Always include serverDailyCount so frontend can sync even on 429
-      let serverDailyCount: number | undefined;
-      try {
-        serverDailyCount = await getDailyMessageCount(userId);
-      } catch (e) {
-        console.error('[Chat 429] getDailyMessageCount failed:', e);
-      }
-      console.error(`[Chat 429] userId=${userId} plan=${userPlan} credits=${userCredits} current=${current} serverDailyCount=${serverDailyCount} limit=${limit} reason=${reason}`);
+    // ── Points check (new unified system) ────────────────────────────────────────
+    // 使用纯积分系统：检查积分，扣除积分
+    const { checkUserPoints, deductPoints } = await import('@/lib/points-service');
+    const { resolveBillingMode } = await import('@/lib/billing/engine');
+    const pointsCheck = await checkUserPoints(userId);
+    if (!pointsCheck.allowed) {
+      console.error(`[Chat 429] userId=${userId} points=${pointsCheck.totalPoints} reason=${pointsCheck.reason}`);
       return NextResponse.json({
-        error: `今日对话次数已达上限（${limit}次/天），明天再来探索吧~`,
-        code: 'DAILY_LIMIT_REACHED',
-        current,
-        limit,
-        billingReason: reason,
-        serverDailyCount,
+        error: `积分不足：${pointsCheck.reason}`,
+        code: 'POINTS_EXHAUSTED',
+        totalPoints: pointsCheck.totalPoints,
+        dailyPoints: pointsCheck.dailyPoints,
+        paidPoints: pointsCheck.paidPoints,
       }, { status: 429 });
     }
 
+    // Billing mode resolution (for LLM API key selection)
+    const billing = await resolveBillingMode(userId);
+
     // Create LLM context: userId + plan enable safeLLM (circuit-breaker, budget guard, injection filter)
     const llmApiKey = billing.apiKey || billing.platformApiKey;
-    const llmContext = { userId, userPlan, provider: billing.provider, apiKey: llmApiKey };
+    const llmContext = { userId, userPlan: 'FREE', provider: billing.provider, apiKey: llmApiKey };
 
     // Deterministic conversation ID: same user + same personas = same conversation.
     // This replaces the previous random nanoid() approach and prevents cross-user
@@ -1439,52 +1428,37 @@ export async function POST(request: NextRequest) {
       console.error('[Chat API] Failed to record message:', err);
     }
 
-    // ── Deduct credits (if user has paid credits) ────────────────────────────
-    // Only deduct for FREE users who have credits. Paid users are unlimited.
-    // CRITICAL: re-fetch credits from DB to get the authoritative value.
-    // If DB credits are 0, skip deduction (don't go negative).
-    let creditsAfter = userCredits;
-    let creditsDeducted = false;
-    console.log(`[chat] userId=${userId}, userCredits=${userCredits}, userPlan=${userPlan}`);
-    if (userPlan === 'FREE' && userCredits > 0) {
-      try {
-        // Fetch fresh credits from DB before deducting
-        const freshUser = await prisma.user.findUnique({
-          where: { id: userId },
-          select: { credits: true },
-        });
-        const realCredits = freshUser?.credits ?? 0;
-        console.log(`[chat] freshUser.credits=${realCredits}`);
-        if (realCredits > 0) {
-          const { deductCredits } = await import('@/lib/billing/engine');
-          const result = await deductCredits(userId, 1, {
-            description: '对话消耗',
-            conversationId: convId,
-          });
-          console.log(`[chat] deductCredits success: newBalance=${result.newBalance}`);
-          creditsAfter = result.newBalance;
-          creditsDeducted = true;
-        } else {
-          // DB credits are already 0 — user should use daily free limit.
-          // Set creditsAfter to 0 so frontend shows correct exhausted state.
-          console.log(`[chat] realCredits=0, skipping deduction`);
-          creditsAfter = 0;
-          creditsDeducted = false;
-        }
-      } catch (err) {
-        console.error('[Chat API] Failed to deduct credits:', err);
-      }
-    }
+    // ── Deduct points (new unified system) ─────────────────────────────────────
+    // 使用纯积分系统：优先扣每日积分，不足则扣充值积分
+    let pointsAfter = pointsCheck.totalPoints;
+    let pointsDeducted = false;
+    let dailyPointsAfter = pointsCheck.dailyPoints;
+    let paidPointsAfter = pointsCheck.paidPoints;
 
-    // Get authoritative server-side daily count for frontend to sync
-    let serverDailyCount: number | undefined;
     try {
-      serverDailyCount = await getDailyMessageCount(userId);
+      const deductResult = await deductPoints(userId, 1, {
+        description: '对话消耗',
+        conversationId: convId,
+      });
+      if (deductResult.success) {
+        pointsAfter = deductResult.remainingPoints;
+        dailyPointsAfter = deductResult.dailyPointsRemaining;
+        paidPointsAfter = deductResult.paidPointsRemaining;
+        pointsDeducted = true;
+        console.log(`[chat] deductPoints success: remaining=${pointsAfter}, daily=${dailyPointsAfter}, paid=${paidPointsAfter}`);
+      }
     } catch (err) {
-      console.error('[Chat API] getDailyMessageCount failed:', err);
+      console.error('[Chat API] Failed to deduct points:', err);
     }
 
-    return NextResponse.json({ ...data, creditsRemaining: creditsAfter, creditsDeducted, serverDailyCount });
+    return NextResponse.json({
+      ...data,
+      pointsRemaining: pointsAfter,
+      dailyPointsRemaining: dailyPointsAfter,
+      paidPointsRemaining: paidPointsAfter,
+      pointsDeducted,
+      totalPoints: pointsAfter,
+    });
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     console.error('[Chat API] Error:', message);

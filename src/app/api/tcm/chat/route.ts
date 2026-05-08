@@ -16,10 +16,11 @@ import { nanoid } from 'nanoid';
 import { safeLLMCall } from '@/lib/llm-safe';
 import { TCM_PERSONAS } from '@/lib/tcm-personas';
 import { buildRAGContext } from '@/lib/tcm-rag';
-import { authenticateRequest, getUserById } from '@/lib/user-management';
+import { authenticateRequest } from '@/lib/user-management';
 import { prisma } from '@/lib/prisma';
 import { persistConversation } from '@/app/api/chat/route';
-import { checkUserDailyLimit, recordMessage, getDailyMessageCount } from '@/lib/message-stats';
+import { checkUserPoints, deductPoints } from '@/lib/points-service';
+import { recordMessage } from '@/lib/message-stats';
 import { getPool } from '@/lib/db-pool';
 
 export const runtime = 'nodejs';
@@ -208,29 +209,21 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: '请先登录后再使用中医对话功能' }, { status: 401 });
     }
 
-    // 额度检查（与 chat API 一致）
-    const user = await getUserById(userId);
-    const userPlan = user?.plan ?? 'FREE';
-    const userCredits = user?.credits ?? 0;
-    const { allowed, current, limit, reason } = await checkUserDailyLimit(userId, userPlan, userCredits);
-    if (!allowed) {
-      // Always include serverDailyCount in error responses so frontend can sync
-      let serverDailyCount: number | undefined;
-      try {
-        serverDailyCount = await getDailyMessageCount(userId);
-      } catch (e) {
-        console.error('[TCM 429] getDailyMessageCount failed:', e);
-      }
-      console.error(`[TCM 429] userId=${userId} plan=${userPlan} credits=${userCredits} current=${current} serverDailyCount=${serverDailyCount} limit=${limit} reason=${reason}`);
+    // 使用纯积分系统检查
+    const pointsCheck = await checkUserPoints(userId);
+    if (!pointsCheck.allowed) {
+      console.error(`[TCM 429] userId=${userId} points=${pointsCheck.totalPoints} reason=${pointsCheck.reason}`);
       return NextResponse.json({
-        error: `今日对话次数已达上限（${limit}次/天），明天再来吧~`,
-        code: 'DAILY_LIMIT_REACHED',
-        current,
-        limit,
-        billingReason: reason,
-        serverDailyCount,
+        error: `积分不足：${pointsCheck.reason}`,
+        code: 'POINTS_EXHAUSTED',
+        totalPoints: pointsCheck.totalPoints,
+        dailyPoints: pointsCheck.dailyPoints,
+        paidPoints: pointsCheck.paidPoints,
       }, { status: 429 });
     }
+
+    // 兼容旧 API：设置 userPlan 为 FREE（积分系统会处理限制）
+    const userPlan = 'FREE';
 
     const convId = conversationId || nanoid();
 
@@ -337,34 +330,27 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // ── 扣减积分（与 chat API 一致）─────────────────────────────────────────
-    // 免费且有积分的用户扣减积分
-    // CRITICAL: re-fetch credits from DB to get the authoritative value.
-    let creditsAfter = userCredits;
-    let creditsDeducted = false;
-    if (userPlan === 'FREE' && userCredits > 0) {
-      try {
-        // Fetch fresh credits from DB before deducting
-        const freshUser = await prisma.user.findUnique({
-          where: { id: userId },
-          select: { credits: true },
-        });
-        const realCredits = freshUser?.credits ?? 0;
-        if (realCredits > 0) {
-          const { deductCredits } = await import('@/lib/billing/engine');
-          const result = await deductCredits(userId, 1, {
-            description: '中医对话消耗',
-            conversationId: convId,
-          });
-          creditsAfter = result.newBalance;
-          creditsDeducted = true;
-        } else {
-          creditsAfter = 0;
-          creditsDeducted = false;
-        }
-      } catch (err) {
-        console.error('[TCM Chat] Failed to deduct credits:', err);
+    // ── 扣减积分（使用纯积分系统）─────────────────────────────────────────
+    // 优先扣每日积分，不足则扣充值积分
+    let pointsAfter = pointsCheck.totalPoints;
+    let pointsDeducted = false;
+    let dailyPointsAfter = pointsCheck.dailyPoints;
+    let paidPointsAfter = pointsCheck.paidPoints;
+
+    try {
+      const deductResult = await deductPoints(userId, 1, {
+        description: '中医对话消耗',
+        conversationId: convId,
+      });
+      if (deductResult.success) {
+        pointsAfter = deductResult.remainingPoints;
+        dailyPointsAfter = deductResult.dailyPointsRemaining;
+        paidPointsAfter = deductResult.paidPointsRemaining;
+        pointsDeducted = true;
+        console.log(`[TCM] deductPoints success: remaining=${pointsAfter}`);
       }
+    } catch (err) {
+      console.error('[TCM Chat] Failed to deduct points:', err);
     }
 
     // 补充 title（persistConversation 不处理 title）
@@ -378,22 +364,11 @@ export async function POST(req: NextRequest) {
       await pool.query(`UPDATE conversations SET title = $1 WHERE id = $2`, [title, convId]);
     }
 
-    // 记录消息以更新每日计数（必须等待以确保 DB 更新后再查询计数）
-    // recordMessage 内部已 catch 异常，这里不需要额外 try/catch
+    // 记录消息以更新每日计数
     await recordMessage(userId).catch((err: unknown) => {
       const msg = err instanceof Error ? err.message : String(err);
       console.error('[TCM Chat] recordMessage failed:', msg);
     });
-
-    // 获取服务器端权威计数（用于前端同步 localStorage，避免硬刷新后计数丢失）
-    // 即使查询失败也不影响对话响应，serverDailyCount 保持 undefined
-    let serverDailyCount: number | undefined;
-    try {
-      serverDailyCount = await getDailyMessageCount(userId);
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : String(err);
-      console.error('[TCM Chat] getDailyMessageCount failed:', msg);
-    }
 
     return NextResponse.json({
       conversationId: convId,
@@ -401,9 +376,11 @@ export async function POST(req: NextRequest) {
       personaName: TCM_PERSONAS[personaId]?.nameZh,
       response,
       intent,
-      creditsAfter,
-      creditsDeducted,
-      serverDailyCount,
+      pointsRemaining: pointsAfter,
+      dailyPointsRemaining: dailyPointsAfter,
+      paidPointsRemaining: paidPointsAfter,
+      pointsDeducted,
+      totalPoints: pointsAfter,
       rag: ragMetadata ? {
         citations: ragMetadata.citations,
         note: ragContext?.note,

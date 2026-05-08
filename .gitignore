@@ -68,6 +68,9 @@ corpus/
 data/tcm-rag/sources/
 data/tcm-rag/vectors.json
 
+# Database backups
+backups/
+
 # 3DGS splat files — large binary assets (use download_splat_scene.py)
 public/splats/*.rad
 public/splats/*.radc

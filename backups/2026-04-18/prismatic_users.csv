@@ -1,5 +1,0 @@
-id,email,password_hash,name,gender,province,email_verified,role,plan,credits,is_active,created_at,updated_at
-3f3b057f-fb67-4e46-af93-49c505dcfa4e,test-1776437853063@example.com,$2b$12$FzMAkCxsigyW19vAq0CETed.RHsS6Q.e5sLBqYf117iEbuYfZSBm.,Test User,male,,false,FREE,FREE,0,true,"""2026-04-17T14:57:34.041Z""","""2026-04-17T14:57:34.041Z"""
-9b3b16a8-baf1-406a-bf9f-a809aaf3a493,test-1776438698800@example.com,$2b$12$1/vf458/uQzysY4eWJJ4YecCzR7kQ5ncPT2M6Ru8sbUDRHpCoYoCa,Test User,male,,false,FREE,FREE,0,true,"""2026-04-17T15:11:39.871Z""","""2026-04-17T15:11:39.871Z"""
-128aa7db-3e84-47c1-8f00-b33e0071ef92,test-1776438935579@example.com,$2b$12$x0.Uie7W9vnhQLUzxM0szeZ9UBQ6hZ2PyC.GSwntKc0JX1E1nA32K,Test User,male,,false,FREE,FREE,0,true,"""2026-04-17T15:15:36.866Z""","""2026-04-17T15:15:36.866Z"""
-admin-001,zxq@zxqconsulting.com,$2b$12$c.2AtF3XG0B7cyI1nIOgBuo1VZXh06Uy6s5Tbqz9Ctt.QwczY9gV.,Admin,,,true,ADMIN,LIFETIME,999999,true,"""2026-04-17T12:49:40.511Z""","""2026-04-18T00:23:37.147Z"""

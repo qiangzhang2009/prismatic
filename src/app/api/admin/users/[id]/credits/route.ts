@@ -1,6 +1,7 @@
 /**
- * POST /api/admin/users/[id]/credits — Add credits to a user (admin only)
- * Records the operation in UserCreditLog for auditability.
+ * POST /api/admin/users/[id]/credits — Add paid credits to a user (admin only)
+ * 
+ * 新纯积分系统：充值积分操作
  */
 export const runtime = 'nodejs';
 
@@ -54,11 +55,52 @@ export async function POST(
 
     return NextResponse.json({
       id,
-      credits: result.newBalance,
+      paidCredits: result.newBalance,
+      dailyCredits: 20, // 每日积分由定时任务管理
       added: amount,
     });
   } catch (error) {
     console.error('[Admin POST /users/[id]/credits] Error:', error);
     return NextResponse.json({ error: 'Failed to add credits' }, { status: 500 });
+  }
+}
+
+/**
+ * GET /api/admin/users/[id]/credits — Get user points info
+ */
+export async function GET(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const adminId = await authenticateAdminRequest(req);
+  if (!adminId) {
+    return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
+  }
+
+  const { id } = await params;
+
+  try {
+    const user = await prisma.user.findUnique({
+      where: { id },
+      select: {
+        credits: true,
+        dailyCredits: true,
+        lastDailyResetAt: true,
+      },
+    });
+
+    if (!user) {
+      return NextResponse.json({ error: 'User not found' }, { status: 404 });
+    }
+
+    return NextResponse.json({
+      paidCredits: user.credits || 0,
+      dailyCredits: user.dailyCredits || 20,
+      lastDailyResetAt: user.lastDailyResetAt,
+      totalCredits: (user.credits || 0) + (user.dailyCredits || 20),
+    });
+  } catch (error) {
+    console.error('[Admin GET /users/[id]/credits] Error:', error);
+    return NextResponse.json({ error: 'Failed to get credits' }, { status: 500 });
   }
 }

@@ -1,10 +1,12 @@
 /**
- * User credits + billing mode info
- * GET — returns current credits, plan, and active billing mode
+ * User points info
+ * GET — returns current points, daily points, paid points, and last reset time
+ * 
+ * 新纯积分系统 API
  */
 import { NextRequest, NextResponse } from 'next/server';
 import { authenticateRequest } from '@/lib/user-management';
-import { prisma } from '@/lib/prisma';
+import { getUserPointsInfo } from '@/lib/points-service';
 
 export async function GET(request: NextRequest) {
   const userId = await authenticateRequest(request);
@@ -12,29 +14,20 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: '请先登录' }, { status: 401 });
   }
 
-  const user = await prisma.user.findUnique({
-    where: { id: userId },
-    select: {
-      credits: true,
-      plan: true,
-      apiKeyEncrypted: true,
-      apiKeyStatus: true,
-    },
-  });
+  const pointsInfo = await getUserPointsInfo(userId);
 
-  if (!user) {
+  if (!pointsInfo) {
     return NextResponse.json({ error: 'User not found' }, { status: 404 });
   }
 
-  const hasApiKey = !!(user.apiKeyEncrypted && user.apiKeyStatus === 'valid');
-  const activeMode = hasApiKey ? 'A' : 'B';
-
   return NextResponse.json({
-    credits: user.plan !== 'FREE' ? -1 : (user.credits ?? 0),
-    plan: user.plan ?? 'FREE',
-    isUnlimited: user.plan !== 'FREE',
-    hasApiKey,
-    apiKeyStatus: user.apiKeyStatus,
-    activeMode,
+    totalPoints: pointsInfo.totalPoints,
+    dailyPoints: pointsInfo.dailyPoints,
+    paidPoints: pointsInfo.paidPoints,
+    lastResetAt: pointsInfo.lastResetAt,
+    isResetDue: pointsInfo.isResetDue,
+    // 兼容旧 API
+    credits: pointsInfo.totalPoints,
+    isUnlimited: false,
   });
 }

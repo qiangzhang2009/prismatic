@@ -67,10 +67,28 @@ model User {
   bannedAt      DateTime?
   banReason     String?
 
-  // Role & Subscription (新增字段 - 替代旧 prismatic_users 表)
+  // Role & Subscription
   role          UserRole?  @default(FREE)  // ADMIN, PRO, FREE
   plan          SubscriptionPlan? @default(FREE)  // FREE, MONTHLY, YEARLY, LIFETIME
-  credits       Int        @default(0)  // 充值问答条数
+
+  // ─── Simplified Points System (Pure Credit Model) ────────────────────────────
+  // 统一积分系统：所有 AI 互动消耗积分，打通全站
+  //
+  // 积分来源：
+  // 1. 每日积分 (dailyCredits)：每天凌晨 0 点自动获得 20 积分，不积累
+  // 2. 充值积分 (credits)：永久有效，用于超额消费
+  //
+  // 消耗规则：
+  // - 优先消耗每日积分，用完则消耗充值积分
+  // - 充值积分用完后才弹窗提醒购买
+  //
+  // 字段说明：
+  // - credits: 充值积分余额（永久有效）
+  // - dailyCredits: 当日积分余额（每日重置）
+  // - lastDailyResetAt: 上次每日重置时间（用于判断是否需要刷新）
+  credits       Int        @default(0)  // 充值积分（永久有效）
+  dailyCredits  Int        @default(20) // 当日积分（每日凌晨重置）
+  lastDailyResetAt DateTime @default(now()) // 上次每日重置时间
 
   // Token bucket for rate limiting
   tokenCount    Int        @default(0)
@@ -611,6 +629,7 @@ model UserCreditLog {
   user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   type            String   // RECHARGE | CONSUME | EXPIRE | ADMIN_ADD | ADMIN_DEDUCT | REFUND
+                          // DAILY_GRANT | DAILY_RESET（新增每日积分相关类型）
 
   amount          Int       // 正数=增加，负数=减少
   balance         Int       // 变动后即时余额

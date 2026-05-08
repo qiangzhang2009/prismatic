@@ -242,59 +242,41 @@ export function UserMenu() {
                     </div>
                   </div>
 
-                  {/* Daily Quota Section */}
+                  {/* Points Section - 纯积分系统 */}
                   <div className="px-4 py-3 border-b border-border-subtle bg-gradient-to-b from-transparent to-bg-surface/30">
                     <div className="flex items-center justify-between mb-2">
                       <div className="flex items-center gap-2">
-                        <MessageSquare className="w-4 h-4 text-prism-blue" />
-                        <span className="text-sm font-medium text-text-primary">今日对话额度</span>
+                        <Zap className="w-4 h-4 text-prism-blue" />
+                        <span className="text-sm font-medium text-text-primary">剩余积分</span>
                       </div>
                       <div className="flex items-center gap-1">
-                        {user.plan === 'FREE' ? (
-                          <span className="text-sm font-bold">
-                            <span className={dailyInfo.remaining < 10 ? 'text-amber-400' : 'text-prism-blue'}>
-                              {dailyInfo.remaining}
-                            </span>
-                            <span className="text-text-muted"> / {DAILY_LIMIT}</span>
-                          </span>
-                        ) : (
-                          <span className="text-xs text-green-400 font-medium">无限</span>
-                        )}
+                        <span className={cn(
+                          "text-sm font-bold",
+                          dailyInfo.remaining > 5 ? 'text-prism-blue' : 'text-amber-400'
+                        )}>
+                          {dailyInfo.remaining}
+                        </span>
+                        <span className="text-xs text-text-muted">积分</span>
                       </div>
                     </div>
-                    {user.plan === 'FREE' && (
-                      <div className="w-full h-1.5 bg-bg-surface rounded-full overflow-hidden">
-                        <div
-                          className={cn(
-                            'h-full rounded-full transition-all',
-                            dailyInfo.remaining < 10 ? 'bg-amber-400' : 'bg-prism-blue'
-                          )}
-                          style={{ width: `${(dailyInfo.remaining / DAILY_LIMIT) * 100}%` }}
-                        />
-                      </div>
-                    )}
-                    {user.plan === 'FREE' && dailyInfo.remaining < 10 && (
-                      <p className="text-xs text-amber-400 mt-2 flex items-center gap-1">
+                    <div className="w-full h-1.5 bg-bg-surface rounded-full overflow-hidden">
+                      <div
+                        className={cn(
+                          'h-full rounded-full transition-all',
+                          dailyInfo.remaining > 5 ? 'bg-prism-blue' : 'bg-amber-400'
+                        )}
+                        style={{ width: `${Math.min((dailyInfo.remaining / DAILY_LIMIT) * 100, 100)}%` }}
+                      />
+                    </div>
+                    <p className="text-xs text-text-muted mt-2">
+                      每天 00:00 重置 20 积分
+                    </p>
+                    {dailyInfo.remaining <= 5 && dailyInfo.remaining > 0 && (
+                      <p className="text-xs text-amber-400 mt-1 flex items-center gap-1">
                         <Zap className="w-3 h-3" />
-                        额度不足？联系我们升级高级版
+                        积分不足？充值可继续使用
                       </p>
                     )}
-                  </div>
-
-                  {/* Member Benefits */}
-                  <div className="px-4 py-3 border-b border-border-subtle">
-                    <div className="flex items-center gap-2 mb-2">
-                      <Crown className={cn('w-4 h-4', currentPlan?.color)} />
-                      <span className="text-sm font-medium text-text-primary">{currentPlan?.label}</span>
-                    </div>
-                    <div className="space-y-1">
-                      {currentPlan?.features.map((feature, i) => (
-                        <div key={i} className="flex items-center gap-2 text-xs text-text-muted">
-                          <div className="w-1 h-1 rounded-full bg-current" />
-                          {feature}
-                        </div>
-                      ))}
-                    </div>
                   </div>
 
                   {/* Menu Items */}
