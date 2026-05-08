@@ -486,11 +486,14 @@ export function TCMChatInterface() {
         incrementCount();
       }
       // 如果服务端扣了积分，同步到本地 store 并检查是否耗尽
-      // API 返回 pointsRemaining/dailyPointsRemaining，前端需要更新两个字段
+      // NOTE: We no longer update dailyCredits from chat response because the API
+      // may return incorrect values due to daily reset logic. Instead, we rely on
+      // the /api/auth/me endpoint to provide correct values after page reload.
       if (data.pointsRemaining !== undefined || data.dailyPointsRemaining !== undefined) {
         useAuthStore.getState().updateUser({
           credits: data.paidPointsRemaining ?? 0,  // 充值积分
-          dailyCredits: data.dailyPointsRemaining ?? 0,  // 每日积分
+          // dailyCredits is intentionally NOT updated here to avoid incorrect values
+          // from the chat API's daily reset logic
         });
         // 如果积分耗尽，显示弹窗
         if (data.pointsDeducted && data.pointsRemaining === 0) {

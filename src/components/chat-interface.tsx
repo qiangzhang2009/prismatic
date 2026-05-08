@@ -88,9 +88,6 @@ export function ChatInterface({ className, initialPersona, initialMode }: ChatIn
   const pathname = usePathname();
   const { user, init, isInitialized } = useAuthStore();
 
-  // Debug: log user data on every render
-  console.log('[ChatInterface] DEBUG: user=', user?.id, 'dailyCredits=', user?.dailyCredits, 'isInitialized=', isInitialized);
-
   const saved = loadSavedState();
   const { count: dailyCount } = getDailyCount();
   const plan = user?.plan ?? 'FREE';
@@ -592,13 +589,16 @@ export function ChatInterface({ className, initialPersona, initialMode }: ChatIn
         }
       }
       // Update credits in Zustand store using the correct field names from API
+      // NOTE: We no longer update dailyCredits from chat response because the API
+      // may return incorrect values due to daily reset logic. Instead, we rely on
+      // the /api/auth/me endpoint to provide correct values after page reload.
       if (data.pointsRemaining !== undefined || data.dailyPointsRemaining !== undefined) {
-        // Update the user's credits in the Zustand store
-        // CRITICAL: use paidPointsRemaining for credits field, not pointsRemaining (total)
+        // Only update paid credits from chat response - don't trust dailyPointsRemaining
         const { updateUser } = useAuthStore.getState();
         updateUser({
           credits: data.paidPointsRemaining ?? 0,  // 充值积分
-          dailyCredits: data.dailyPointsRemaining ?? 0,  // 每日积分
+          // dailyCredits is intentionally NOT updated here to avoid incorrect values
+          // from the chat API's daily reset logic
         });
       }
 
