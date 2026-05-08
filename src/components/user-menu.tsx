@@ -96,30 +96,6 @@ async function getPointsInfo(): Promise<{ total: number; daily: number; paid: nu
   };
 }
 
-// 获取每日消息计数（用于本地追踪）
-function getDailyCount(): { count: number; remaining: number; resetDate: string } {
-  try {
-    const today = new Date().toISOString().slice(0, 10);
-    const savedDate = localStorage.getItem(DAILY_DATE_KEY);
-
-    let count = 0;
-    if (savedDate !== today) {
-      localStorage.setItem(DAILY_LIMIT_KEY, '0');
-      localStorage.setItem(DAILY_DATE_KEY, today);
-    } else {
-      count = parseInt(localStorage.getItem(DAILY_LIMIT_KEY) ?? '0', 10);
-    }
-
-    return {
-      count,
-      remaining: Math.max(0, DAILY_LIMIT - count),
-      resetDate: today,
-    };
-  } catch {
-    return { count: 0, remaining: DAILY_LIMIT, resetDate: '' };
-  }
-}
-
 export function UserMenu() {
   const { user, logout } = useAuthStore();
   const [isOpen, setIsOpen] = useState(false);
