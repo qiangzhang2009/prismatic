@@ -99,6 +99,11 @@ export function ChatInterface({ className, initialPersona, initialMode }: ChatIn
   const dailyCredits = user?.dailyCredits ?? 0;
   // 充值积分
   const paidCredits = user?.credits ?? 0;
+  
+  // DEBUG: Log credit values
+  if (typeof window !== 'undefined' && (dailyCredits !== 0 || paidCredits !== 0)) {
+    console.log('[ChatInterface] Credits debug:', { dailyCredits, paidCredits, userLoaded, isInitialized });
+  }
   // 有任何积分（每日+充值）- 这是最重要的判断
   const hasAnyCredits = dailyCredits > 0 || paidCredits > 0;
   // 用户是否已登录且数据加载完成
