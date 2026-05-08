@@ -7,24 +7,27 @@
  */
 
 import { useState, useEffect } from 'react';
-import Image from 'next/image';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import {
-  Hexagon, Sparkles, ArrowRight, Play, GitFork,
+  Hexagon, Sparkles, ArrowRight, Play,
   Target, Brain, Layers, BarChart3, TrendingUp, Sparkle,
-  BookOpen, MessageSquare, GitMerge, Zap, Crown, GitBranch,
+  BookOpen, MessageSquare, GitMerge, Zap, Crown,
   Leaf, Users, Network, LineChart,
 } from 'lucide-react';
 import { PERSONA_LIST_LIGHT } from '@/lib/persona-list-light';
 import { CONFIDENCE_LIGHT } from '@/lib/confidence-light';
 import { MODES, APP_NAME, APP_DESCRIPTION } from '@/lib/constants';
-import { PersonaCard } from '@/components/persona-card';
-import { ModeSelector } from '@/components/mode-selector';
 import { Footer } from '@/components/footer';
-import { CommentsSection } from '@/components/comments-section';
+import dynamic from 'next/dynamic';
 import { cn, getDomainGradient } from '@/lib/utils';
+
+// Lazy-load comments section — heavy, not needed for LCP
+const CommentsSection = dynamic(() => import('@/components/comments-section'), {
+  loading: () => <div className="py-12 text-center text-sm text-text-muted" />,
+  ssr: false,
+});
 
 // ─── Hero Stats ────────────────────────────────────────────────────────────────
 // Real data from project census (2026-05-07)
