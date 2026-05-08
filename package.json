@@ -2,6 +2,7 @@
   "name": "prismatic",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "bin": {
     "prismatic-distill": "./dist/lib/distillation/cli.js"
   },
@@ -21,7 +22,7 @@
     "-- Safe migration (production): Runs pending migrations with safety checks --": "",
     "db:migrate:safe": "ts-node scripts/pre-migration-hook.ts && npx prisma migrate deploy",
     "-- Backup: Creates a timestamped backup before any changes --": "",
-    "db:backup": "node scripts/backup-workflow.js",
+    "db:backup": "node scripts/backup-workflow.mjs",
     "-- Backup + status: Full pre-change check --": "",
     "db:check": "npm run db:backup && npm run db:status",
     "-- RLS setup: Run once after initial deployment --": "",
@@ -99,6 +100,8 @@
     "postcss": "^8.4.38",
     "prisma": "^5.22.0",
     "tailwindcss": "^3.4.3",
+    "ts-node": "^10.9.2",
+    "tsx": "^4.19.0",
     "typescript": "^5.4.5",
     "vitest": "^1.5.0"
   }

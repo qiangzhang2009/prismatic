@@ -55,9 +55,18 @@ async function main() {
   console.log('📋 步骤 1/4: 检查最新备份...');
   const backupDir = path.join(process.cwd(), 'backups');
   const today = new Date().toISOString().slice(0, 10);
-  const todayBackup = path.join(backupDir, today);
 
-  if (!fs.existsSync(todayBackup)) {
+  // Find backup directories that start with today's date
+  const todayBackups = fs.readdirSync(backupDir)
+    .filter(f => f.startsWith(today + 'T') || f === today)
+    .sort()
+    .reverse();
+
+  const todayBackup = todayBackups.length > 0
+    ? path.join(backupDir, todayBackups[0])
+    : null;
+
+  if (!todayBackup) {
     console.log('  ⚠️  警告: 今天 (' + today + ') 没有备份');
     console.log('');
     console.log('  建议: 先运行备份再执行迁移');
