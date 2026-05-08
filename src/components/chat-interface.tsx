@@ -94,12 +94,18 @@ export function ChatInterface({ className, initialPersona, initialMode }: ChatIn
   const limits = getFeatureLimit(plan);
   const isPaid = limits.dailyMessages >= 9999;
   const dailyLimit = limits.dailyMessages;
-  const hasCredits = (user?.credits ?? 0) > 0;
+  // 每日积分（优先显示）
+  const dailyCredits = user?.dailyCredits ?? 0;
+  // 充值积分
+  const paidCredits = user?.credits ?? 0;
+  // 有任何积分（每日+充值）
+  const hasAnyCredits = dailyCredits > 0 || paidCredits > 0;
   // 有积分用户不受 localStorage 每日限制约束
-  const limitReached = !isPaid && !hasCredits && dailyCount >= dailyLimit;
+  const limitReached = !isPaid && !hasAnyCredits && dailyCount >= dailyLimit;
   // 积分已耗尽（用于显示和弹窗判断）
-  const creditsExhausted = (user?.credits ?? 0) <= 0;
-  const dailyRemaining = isPaid ? '∞' : hasCredits ? String(user?.credits ?? 0) : Math.max(0, dailyLimit - dailyCount);
+  const creditsExhausted = dailyCredits <= 0 && paidCredits <= 0;
+  // 优先显示每日积分，每日积分用完则显示充值积分
+  const dailyRemaining = isPaid ? '∞' : dailyCredits > 0 ? String(dailyCredits) : paidCredits > 0 ? String(paidCredits) : String(Math.max(0, dailyLimit - dailyCount));
 
   // Priority: URL param > saved state > default (steve-jobs for backwards compat)
   const getInitialPersonaId = () => {
@@ -415,19 +421,20 @@ export function ChatInterface({ className, initialPersona, initialMode }: ChatIn
 
     // Read fresh auth state from store (handles restored accounts with server-synced credits)
     const { user } = useAuthStore.getState();
-    const currentCredits = user?.credits ?? 0;
+    const currentDailyCredits = user?.dailyCredits ?? 0;
+    const currentPaidCredits = user?.credits ?? 0;
     const currentPlan = user?.plan ?? 'FREE';
     const currentIsPaid = currentPlan !== 'FREE';
-    const currentHasCredits = currentCredits > 0;
+    const currentHasAnyCredits = currentDailyCredits > 0 || currentPaidCredits > 0;
 
     // 有积分的用户：重置 localStorage 每日计数器（避免旧计数器阻止积分用户）
-    if (currentHasCredits) {
+    if (currentHasAnyCredits) {
       resetDailyCount();
     }
 
     // 每日限制预检查：使用服务器端权威计数，避免 localStorage 不同步导致误拦截
     const limits = getFeatureLimit(currentPlan);
-    if (!currentIsPaid && !currentHasCredits) {
+    if (!currentIsPaid && !currentHasAnyCredits) {
       try {
         const res = await fetch('/api/quota/check', { credentials: 'include' });
         if (res.ok) {
@@ -937,14 +944,20 @@ export function ChatInterface({ className, initialPersona, initialMode }: ChatIn
           >
             额度已用完
           </Link>
-        ) : hasCredits ? (
-          /* 有积分用户：只显示积分余额（积分通道与每日免费互斥，不应同时显示） */
-          <div className="flex items-center gap-1 bg-prism-blue/10 px-2 py-1 rounded-full">
-            <Zap className="w-3 h-3 text-prism-blue" />
-            <span className="text-xs text-prism-blue font-medium">{user?.credits} 条积分</span>
-          </div>
         ) : isPaid ? (
           <span className="text-xs text-green-400 font-medium">无限制</span>
+        ) : dailyCredits > 0 ? (
+          /* 有每日积分：优先显示每日积分 */
+          <div className="flex items-center gap-1 bg-prism-blue/10 px-2 py-1 rounded-full">
+            <Zap className="w-3 h-3 text-prism-blue" />
+            <span className="text-xs text-prism-blue font-medium">{dailyCredits} 条今日</span>
+          </div>
+        ) : paidCredits > 0 ? (
+          /* 每日积分用完但有充值积分 */
+          <div className="flex items-center gap-1 bg-prism-amber/10 px-2 py-1 rounded-full">
+            <Zap className="w-3 h-3 text-prism-amber" />
+            <span className="text-xs text-prism-amber font-medium">{paidCredits} 条充值</span>
+          </div>
         ) : creditsExhausted ? (
           /* 积分耗尽但每日还有 → 显示每日剩余次数 */
           <div className="flex items-center gap-1.5">
