@@ -36,10 +36,67 @@ import { useAuthStore } from '@/lib/auth-store';
 
 // Daily message limit configuration — must match USER_DAILY_LIMIT in message-stats.ts
 const DAILY_LIMIT = 20;
-const DAILY_LIMIT_KEY = 'prismatic-daily-messages';
-const DAILY_DATE_KEY = 'prismatic-daily-date';
 
-// Get daily message count from localStorage
+// 积分信息缓存（避免频繁请求）
+interface CachedPointsInfo {
+  totalPoints: number;
+  dailyPoints: number;
+  paidPoints: number;
+  timestamp: number;
+}
+let cachedPoints: CachedPointsInfo | null = null;
+const POINTS_CACHE_TTL = 30000; // 30秒缓存
+
+// 从 API 获取真实积分
+async function fetchRealPoints(): Promise<{ total: number; daily: number; paid: number }> {
+  try {
+    const response = await fetch('/api/points/check', {
+      credentials: 'include',
+      cache: 'no-store',
+    });
+    if (response.ok) {
+      const data = await response.json();
+      return {
+        total: data.totalPoints || 0,
+        daily: data.dailyPoints || 0,
+        paid: data.paidPoints || 0,
+      };
+    }
+  } catch (e) {
+    console.error('[user-menu] Failed to fetch points:', e);
+  }
+  return { total: 0, daily: 0, paid: 0 };
+}
+
+// 获取积分信息（带缓存）
+async function getPointsInfo(): Promise<{ total: number; daily: number; paid: number; remaining: number }> {
+  const now = Date.now();
+  if (cachedPoints && (now - cachedPoints.timestamp) < POINTS_CACHE_TTL) {
+    return {
+      total: cachedPoints.totalPoints,
+      daily: cachedPoints.dailyPoints,
+      paid: cachedPoints.paidPoints,
+      remaining: cachedPoints.totalPoints,
+    };
+  }
+
+  const points = await fetchRealPoints();
+  cachedPoints = {
+    totalPoints: points.total,
+    dailyPoints: points.daily,
+    paidPoints: points.paid,
+    timestamp: now,
+  };
+
+  return {
+    total: points.total,
+    daily: points.daily,
+    paid: points.paid,
+    remaining: points.total,
+  };
+}
+
+// 获取每日消息计数（用于本地追踪）
 function getDailyCount(): { count: number; remaining: number; resetDate: string } {
   try {
     const today = new Date().toISOString().slice(0, 10);
@@ -47,7 +104,6 @@ function getDailyCount(): { count: number; remaining: number; resetDate: string 
 
     let count = 0;
     if (savedDate !== today) {
-      // Reset for new day
       localStorage.setItem(DAILY_LIMIT_KEY, '0');
       localStorage.setItem(DAILY_DATE_KEY, today);
     } else {
@@ -68,17 +124,20 @@ export function UserMenu() {
   const { user, logout } = useAuthStore();
   const [isOpen, setIsOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
-  const [dailyInfo, setDailyInfo] = useState({ count: 0, remaining: DAILY_LIMIT });
+  const [pointsInfo, setPointsInfo] = useState({ total: 0, daily: 0, paid: 0, remaining: 0 });
   const menuRef = useRef<HTMLDivElement>(null);
 
   // Handle hydration - localStorage is not available during SSR
   useEffect(() => {
     setMounted(true);
-    // Update daily info when menu opens
-    if (isOpen) {
-      setDailyInfo(getDailyCount());
+  }, []);
+
+  // 菜单打开时刷新积分信息
+  useEffect(() => {
+    if (isOpen && user) {
+      getPointsInfo().then(setPointsInfo);
     }
-  }, [isOpen]);
+  }, [isOpen, user]);
 
   // Close menu when clicking outside
   useEffect(() => {
@@ -153,8 +212,9 @@ export function UserMenu() {
       <button
         onClick={() => {
           setIsOpen(!isOpen);
-          if (!isOpen) {
-            setDailyInfo(getDailyCount());
+          if (!isOpen && user) {
+            // 打开菜单时获取真实积分
+            getPointsInfo().then(setPointsInfo);
           }
         }}
         className="flex items-center gap-2 p-1.5 rounded-full hover:bg-bg-elevated transition-colors"
@@ -242,7 +302,7 @@ export function UserMenu() {
                     </div>
                   </div>
 
-                  {/* Points Section - 纯积分系统 */}
+                  {/* Points Section - 真实积分显示 */}
                   <div className="px-4 py-3 border-b border-border-subtle bg-gradient-to-b from-transparent to-bg-surface/30">
                     <div className="flex items-center justify-between mb-2">
                       <div className="flex items-center gap-2">
@@ -252,29 +312,48 @@ export function UserMenu() {
                       <div className="flex items-center gap-1">
                         <span className={cn(
                           "text-sm font-bold",
-                          dailyInfo.remaining > 5 ? 'text-prism-blue' : 'text-amber-400'
+                          pointsInfo.total > 5 ? 'text-prism-blue' : 'text-amber-400'
                         )}>
-                          {dailyInfo.remaining}
+                          {pointsInfo.total}
                         </span>
                         <span className="text-xs text-text-muted">积分</span>
                       </div>
+                    </div>
+                    {/* 积分明细 */}
+                    <div className="flex items-center gap-3 text-xs text-text-muted mb-2">
+                      <span className="flex items-center gap-1">
+                        <span className="w-2 h-2 rounded-full bg-prism-blue/60" />
+                        每日: {pointsInfo.daily}
+                      </span>
+                      {pointsInfo.paid > 0 && (
+                        <span className="flex items-center gap-1">
+                          <span className="w-2 h-2 rounded-full bg-amber-400/60" />
+                          充值: {pointsInfo.paid}
+                        </span>
+                      )}
                     </div>
                     <div className="w-full h-1.5 bg-bg-surface rounded-full overflow-hidden">
                       <div
                         className={cn(
                           'h-full rounded-full transition-all',
-                          dailyInfo.remaining > 5 ? 'bg-prism-blue' : 'bg-amber-400'
+                          pointsInfo.total > 5 ? 'bg-prism-blue' : 'bg-amber-400'
                         )}
-                        style={{ width: `${Math.min((dailyInfo.remaining / DAILY_LIMIT) * 100, 100)}%` }}
+                        style={{ width: `${Math.min((pointsInfo.total / DAILY_LIMIT) * 100, 100)}%` }}
                       />
                     </div>
                     <p className="text-xs text-text-muted mt-2">
                       每天 00:00 重置 20 积分
                     </p>
-                    {dailyInfo.remaining <= 5 && dailyInfo.remaining > 0 && (
+                    {pointsInfo.total <= 5 && pointsInfo.total > 0 && (
                       <p className="text-xs text-amber-400 mt-1 flex items-center gap-1">
                         <Zap className="w-3 h-3" />
                         积分不足？充值可继续使用
+                      </p>
+                    )}
+                    {pointsInfo.total === 0 && (
+                      <p className="text-xs text-red-400 mt-1 flex items-center gap-1">
+                        <Zap className="w-3 h-3" />
+                        积分已用完，请明天再来或充值
                       </p>
                     )}
                   </div>
