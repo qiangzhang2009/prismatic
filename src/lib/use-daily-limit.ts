@@ -113,10 +113,8 @@ export function useDailyLimit() {
     return () => clearInterval(interval);
   }, [isPaid, hasCredits]);
 
-  // Re-check when user changes
-  useEffect(() => {
-    refreshUser?.();
-  }, [refreshUser]);
+  // NOTE: Removed refreshUser() call here - it can overwrite fresh login data
+  // User data is refreshed via init() which preserves login response data
 
   return {
     plan,

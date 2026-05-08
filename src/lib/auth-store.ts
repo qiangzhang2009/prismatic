@@ -60,17 +60,35 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
     // Clearing `user` caused old data to flash on Settings page.
     // Zustand's in-memory store is session-only; we want the existing
     // data to remain visible while fetching fresh data.
+    // 
+    // IMPORTANT: If user is already logged in (e.g. after login()), don't overwrite
+    // the user data as it may have fresh credits from the login response.
+    const currentUser = get().user;
     set({ isLoading: true });
     try {
       const res = await fetch('/api/user/me', { credentials: 'include' });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
       const newUser = data.user || null;
-      set({ user: newUser, isLoading: false, isInitialized: true });
-      if (!newUser) {
-        console.warn('[auth] init: /api/user/me returned null user');
+      
+      // Only update if we don't have user data yet, or if the new data has more credits
+      // (avoiding race conditions where login() set fresh data but init() overwrites it)
+      const shouldUpdate = !currentUser || 
+        (newUser && ((newUser.dailyCredits || 0) > (currentUser.dailyCredits || 0) || 
+                     (newUser.credits || 0) > (currentUser.credits || 0)));
+      
+      if (shouldUpdate && newUser) {
+        set({ user: newUser, isLoading: false, isInitialized: true });
+        console.log('[auth] init: updated user from server', newUser.email, newUser.dailyCredits, newUser.credits);
       } else {
-        console.log('[auth] init: loaded user', newUser.email, newUser.role, newUser.plan, newUser.credits);
+        set({ isLoading: false, isInitialized: true });
+        if (currentUser) {
+          console.log('[auth] init: keeping existing user data (login response may be fresher)', currentUser.dailyCredits, currentUser.credits);
+        }
+      }
+      
+      if (!newUser && !currentUser) {
+        console.warn('[auth] init: /api/user/me returned null user');
       }
     } catch (err) {
       console.error('[auth] init: failed to fetch user', err);
