@@ -48,6 +48,7 @@ export function saveDailyCount(count: number) {
 
 export function useDailyLimit() {
   const user = useAuthStore(s => s.user);
+  const isInitialized = useAuthStore(s => s.isInitialized);
   const refreshUser = useAuthStore(s => s.refresh);
 
   const plan = user?.plan ?? 'FREE';
@@ -63,6 +64,16 @@ export function useDailyLimit() {
     if (isPaid || hasCredits) return 0;
     return getDailyCount().count;
   });
+
+  // 当用户数据加载完成且有积分时，重置 localStorage 计数为 0
+  // 这确保页面加载时显示真实积分而不是旧的 localStorage 值
+  useEffect(() => {
+    if (isInitialized && hasCredits && dailyCount > 0) {
+      // 有积分的用户不应该使用 localStorage 计数
+      setDailyCount(0);
+      saveDailyCount(0);
+    }
+  }, [isInitialized, hasCredits]);
 
   // 真正的额度用完：没有付费、没有积分且 localStorage 计数已达上限
   const limitReached = !isPaid && !hasCredits && dailyCount >= dailyLimit;
