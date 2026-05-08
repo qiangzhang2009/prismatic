@@ -570,11 +570,13 @@ export function ChatInterface({ className, initialPersona, initialMode }: ChatIn
         }
       }
       // Update credits in Zustand store using the correct field names from API
-      const remainingCredits = data.pointsRemaining ?? data.totalPoints;
-      if (remainingCredits !== undefined) {
+      if (data.pointsRemaining !== undefined || data.dailyPointsRemaining !== undefined) {
         // Update the user's credits in the Zustand store
         const { updateUser } = useAuthStore.getState();
-        updateUser({ credits: remainingCredits });
+        updateUser({
+          credits: data.pointsRemaining ?? data.paidPointsRemaining ?? 0,
+          dailyCredits: data.dailyPointsRemaining ?? 0,
+        });
       }
 
       // Store conversation ID for session continuity
