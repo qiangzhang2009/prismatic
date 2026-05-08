@@ -4,6 +4,8 @@
  *   - DB holds: scores, system prompts, corpus sources, mentalModels
  *   - personas.ts holds: strengths, blindspots (always in Chinese)
  *   - Display: always prefer code data for strengths/blindspots
+ *
+ * Note: force-dynamic to avoid SSG build timeout from API calls
  */
 
 import { notFound } from 'next/navigation';
@@ -13,11 +15,7 @@ import type { Persona } from '@/lib/types';
 import { PersonaDetailClient } from './client';
 import { PERSONA_LIST_LIGHT } from '@/lib/persona-list-light';
 
-export const revalidate = 3600;
-
-export async function generateStaticParams() {
-  return PERSONA_LIST_LIGHT.map((p) => ({ slug: p.slug }));
-}
+export const dynamic = 'force-dynamic';
 
 // Build Persona from DB record, merging code data where DB is incomplete
 function buildPersonaFromDB(db: Record<string, unknown>): Persona {
