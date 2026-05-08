@@ -505,8 +505,9 @@ export function ChatInterface({ className, initialPersona, initialMode }: ChatIn
       if (!response.ok) {
         let data: any = {};
         try { data = await response.json(); } catch {}
-        const isLimitReached = response.status === 429 || (data?.code === 'DAILY_LIMIT_REACHED');
-        if (isLimitReached) {
+        const isDailyLimitReached = response.status === 429 || (data?.code === 'DAILY_LIMIT_REACHED');
+        const isPointsExhausted = response.status === 429 && data?.code === 'POINTS_EXHAUSTED';
+        if (isDailyLimitReached) {
           // Sync server count to React state before showing modal
           if (data.serverDailyCount !== undefined) {
             try {
@@ -517,7 +518,8 @@ export function ChatInterface({ className, initialPersona, initialMode }: ChatIn
               setDailyCountState(data.serverDailyCount);
             } catch {}
           }
-          setLimitModalType('daily_limit');
+          // 根据错误码区分弹窗类型：POINTS_EXHAUSTED 是积分耗尽，否则是每日次数限制
+          setLimitModalType(isPointsExhausted ? 'credits_exhausted' : 'daily_limit');
           setShowLimitModal(true);
         } else if (response.status === 401) {
           router.push('/auth/signin');
@@ -554,15 +556,17 @@ export function ChatInterface({ className, initialPersona, initialMode }: ChatIn
       // creditsDeducted flag tells us if credits were actually deducted this turn.
       // If creditsDeducted && creditsRemaining === 0, it means credits just ran out → show modal.
       // If creditsDeducted is false, credits weren't deducted (user had 0 or was on daily free) → no modal.
+      // Note: API returns pointsRemaining/dailyPointsRemaining/paidPointsRemaining
       if (data.creditsDeducted !== undefined) {
-        console.log(`[chat] creditsDeducted=${data.creditsDeducted}, creditsRemaining=${data.creditsRemaining}`);
-        if (data.creditsDeducted && data.creditsRemaining === 0) {
+        const remainingPoints = data.pointsRemaining ?? data.totalPoints;
+        console.log(`[chat] creditsDeducted=${data.creditsDeducted}, pointsRemaining=${remainingPoints}`);
+        if (data.creditsDeducted && remainingPoints === 0) {
           setLimitModalType('credits_exhausted');
           setShowLimitModal(true);
         }
       }
-      // API returns totalPoints, not creditsRemaining - fix the field name mismatch
-      const remainingCredits = data.creditsRemaining ?? data.totalPoints;
+      // Update credits in Zustand store using the correct field names from API
+      const remainingCredits = data.pointsRemaining ?? data.totalPoints;
       if (remainingCredits !== undefined) {
         // Update the user's credits in the Zustand store
         const { updateUser } = useAuthStore.getState();
