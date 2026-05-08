@@ -130,11 +130,12 @@ export function TCMChatInterface() {
 
   // ── Sync latest credits from server on mount ────────────────────────────────
   // 关键：直接从 API 获取最新积分，忽略可能不准确的 store 数据
+  // 使用 /api/auth/me 因为它返回正确的 dailyCredits
   useEffect(() => {
     let cancelled = false;
     async function syncCredits() {
       try {
-        const res = await fetch('/api/user/me', { credentials: 'include' });
+        const res = await fetch('/api/auth/me', { credentials: 'include' });
         if (res.ok && !cancelled) {
           const data = await res.json();
           if (data.user) {
