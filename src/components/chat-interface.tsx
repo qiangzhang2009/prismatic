@@ -554,10 +554,12 @@ export function ChatInterface({ className, initialPersona, initialMode }: ChatIn
           setShowLimitModal(true);
         }
       }
-      if (data.creditsRemaining !== undefined) {
+      // API returns totalPoints, not creditsRemaining - fix the field name mismatch
+      const remainingCredits = data.creditsRemaining ?? data.totalPoints;
+      if (remainingCredits !== undefined) {
         // Update the user's credits in the Zustand store
         const { updateUser } = useAuthStore.getState();
-        updateUser({ credits: data.creditsRemaining });
+        updateUser({ credits: remainingCredits });
       }
 
       // Store conversation ID for session continuity

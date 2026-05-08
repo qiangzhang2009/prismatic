@@ -95,6 +95,7 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
       }
 
       // Use user from login response directly — avoids /api/auth/me race for demo users.
+      console.log('[auth] login response user.credits:', data.user?.credits, 'dailyCredits:', data.user?.dailyCredits, 'paidCredits:', data.user?.paidCredits);
       set({ user: data.user || null, isLoading: false });
       return { success: true };
     } catch {
