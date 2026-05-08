@@ -129,12 +129,12 @@ export function TCMChatInterface() {
   } = useDailyLimit();
 
   // ── Refresh user data on mount to get latest credits ────────────────────────
-  const refreshUser = useAuthStore(s => s.fetchUser);
   useEffect(() => {
     if (isInitialized) {
-      refreshUser();
+      // 直接调用 fetchUser，不依赖 useAuthStore 返回的函数引用
+      useAuthStore.getState().fetchUser();
     }
-  }, [isInitialized, refreshUser]);
+  }, [isInitialized]);
 
   const [selectedPersona, setSelectedPersona] = useState<TCMPersona>(
     () => TCM_PERSONA_LIST[0] as TCMPersona

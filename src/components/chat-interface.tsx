@@ -169,12 +169,12 @@ export function ChatInterface({ className, initialPersona, initialMode }: ChatIn
   const [dbPersonas, setDbPersonas] = useState<any[]>([]);
 
   // ── Refresh user data on mount to get latest credits ────────────────────────
-  const refreshUser = useAuthStore(s => s.fetchUser);
   useEffect(() => {
     if (isInitialized) {
-      refreshUser();
+      // 直接调用 fetchUser，不依赖 useAuthStore 返回的函数引用
+      useAuthStore.getState().fetchUser();
     }
-  }, [isInitialized, refreshUser]);
+  }, [isInitialized]);
 
   // ── Migrate legacy conversation keys to user-isolated keys on login ──────────
   useEffect(() => {
