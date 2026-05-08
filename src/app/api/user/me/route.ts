@@ -69,7 +69,7 @@ export async function GET(_req: NextRequest) {
 
     try {
       const sql = neon(DATABASE_URL);
-      const rows = await sql`SELECT id, email, name, avatar, role, plan, credits, "emailVerified", "createdAt", "updatedAt", preferences, "apiKeyStatus", "apiKeyProvider" FROM users WHERE id = ${payload.userId} LIMIT 1`;
+      const rows = await sql`SELECT id, email, name, avatar, role, plan, credits, "dailyCredits", "emailVerified", "createdAt", "updatedAt", preferences, "apiKeyStatus", "apiKeyProvider" FROM users WHERE id = ${payload.userId} LIMIT 1`;
 
       if (rows.length === 0) return NextResponse.json({ user: null }, { headers: NO_CACHE_HEADERS });
 
@@ -77,6 +77,8 @@ export async function GET(_req: NextRequest) {
       const { gender, province } = parsePrefs(u.preferences);
       const role = u.role || 'FREE';
       const plan = u.plan || 'FREE';
+      const paidCredits = u.credits || 0;
+      const dailyCredits = u.dailyCredits || 0;
 
       return NextResponse.json({
         user: {
@@ -88,7 +90,9 @@ export async function GET(_req: NextRequest) {
           emailVerified: !!u.emailVerified,
           role,
           plan,
-          credits: u.credits || 0,
+          credits: paidCredits,
+          dailyCredits,
+          paidCredits,
           avatar: u.avatar,
           canUseProFeatures: canUseProFeatures(role, plan),
           isAdmin: role === 'ADMIN',
@@ -139,13 +143,15 @@ export async function PUT(req: NextRequest) {
         }
       }
 
-      const rows = await sql`SELECT id, email, name, avatar, role, plan, credits, "emailVerified", "createdAt", "updatedAt", preferences, "apiKeyStatus", "apiKeyProvider" FROM users WHERE id = ${payload.userId} LIMIT 1`;
+      const rows = await sql`SELECT id, email, name, avatar, role, plan, credits, "dailyCredits", "emailVerified", "createdAt", "updatedAt", preferences, "apiKeyStatus", "apiKeyProvider" FROM users WHERE id = ${payload.userId} LIMIT 1`;
       if (rows.length === 0) return NextResponse.json({ error: 'User not found' }, { status: 404, headers: NO_CACHE_HEADERS });
 
       const u: any = rows[0];
       const { gender: g, province: p } = parsePrefs(u.preferences);
       const role = u.role || 'FREE';
       const plan = u.plan || 'FREE';
+      const paidCredits = u.credits || 0;
+      const dailyCredits = u.dailyCredits || 0;
 
       return NextResponse.json({
         user: {
@@ -157,7 +163,9 @@ export async function PUT(req: NextRequest) {
           emailVerified: !!u.emailVerified,
           role,
           plan,
-          credits: u.credits || 0,
+          credits: paidCredits,
+          dailyCredits,
+          paidCredits,
           avatar: u.avatar,
           canUseProFeatures: canUseProFeatures(role, plan),
           isAdmin: role === 'ADMIN',
