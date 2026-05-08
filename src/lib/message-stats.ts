@@ -1,14 +1,15 @@
 /**
  * Prismatic — Message Usage Tracking
- * Uses Prisma messages table (replaces deprecated prismatic_message_stats).
+ * Uses raw SQL with pg Pool for hot-path (check/record) and Prisma for admin stats queries.
  */
 
+import { getPool } from '@/lib/db-pool';
 import { PrismaClient } from '@prisma/client';
 import type { SubscriptionPlan } from '@/lib/user-management';
 
-const globalForPrisma = globalThis as unknown as { prisma: PrismaClient | undefined };
-export const prismaStats = globalForPrisma.prisma ?? new PrismaClient();
-if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prismaStats;
+const globalForPrisma = globalThis as unknown as { prismaStats: PrismaClient | undefined };
+const prismaStats = globalForPrisma.prismaStats ?? new PrismaClient();
+if (process.env.NODE_ENV !== 'production') globalForPrisma.prismaStats = prismaStats;
 
 // ─── Daily limit constants ───────────────────────────────────────────────────
 
@@ -66,17 +67,19 @@ export async function checkUserDailyLimit(
 
 export async function recordMessage(userId: string): Promise<void> {
   try {
-    await prismaStats.message.create({
-      data: {
-        conversationId: 'system',
-        userId,
-        role: 'user',
-        content: '[message-counted]',
-      },
-    });
+    const pool = getPool();
+    await pool.query(
+      `INSERT INTO messages (id, "conversationId", "userId", role, content, "createdAt")
+       VALUES ($1, 'system', $2, 'user', '[message-counted]', NOW())`,
+      [nanoid_msg(), userId]
+    );
   } catch (error) {
     console.error('[recordMessage] Error:', error);
   }
+}
+
+function nanoid_msg() {
+  return 'msg_' + Math.random().toString(36).substring(2, 10) + Date.now().toString(36);
 }
 
 // ─── Get daily message count ─────────────────────────────────────────────────
@@ -94,22 +97,23 @@ export async function getDailyMessageCount(userId: string, date?: string): Promi
   const nextDate = new Date(targetDate);
   nextDate.setDate(nextDate.getDate() + 1);
 
-  // Use raw SQL to filter JSON metadata.skipDailyCount (Prisma count can't do this)
-  const result = await prismaStats.$queryRaw<{ cnt: bigint }[]>`
-    SELECT COUNT(*)::bigint AS cnt
-    FROM messages
-    WHERE "userId" = ${userId}
-      AND "createdAt" >= ${targetDate}
-      AND "createdAt" < ${nextDate}
-      AND content != '[message-counted]'
-      AND (
-        metadata IS NULL
-        OR metadata::text = 'null'
-        OR metadata->>'skipDailyCount' IS NULL
-        OR metadata->>'skipDailyCount' = 'false'
-      )
-  `;
-  return Number(result[0]?.cnt ?? '0');
+  const pool = getPool();
+  const result = await pool.query(
+    `SELECT COUNT(*)::int AS cnt
+     FROM messages
+     WHERE "userId" = $1
+       AND "createdAt" >= $2
+       AND "createdAt" < $3
+       AND content != $4
+       AND (
+         metadata IS NULL
+         OR metadata::text = 'null'
+         OR metadata->>'skipDailyCount' IS NULL
+         OR metadata->>'skipDailyCount' = 'false'
+       )`,
+    [userId, targetDate, nextDate, '[message-counted]']
+  );
+  return result.rows[0]?.cnt ?? 0;
 }
 
 // ─── Get message history ────────────────────────────────────────────────────

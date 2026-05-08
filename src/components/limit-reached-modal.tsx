@@ -121,7 +121,7 @@ export function LimitReachedModal({ isOpen, type = 'daily_limit', onClose, onSet
                         今日免费次数已用完
                       </h2>
                       <p className="text-sm text-text-secondary">
-                        每天 10 次免费对话额度已耗尽，明天自动刷新
+                        每天 20 次免费对话额度已耗尽，明天自动刷新
                       </p>
                     </>
                   )}
@@ -204,7 +204,7 @@ export function LimitReachedModal({ isOpen, type = 'daily_limit', onClose, onSet
                   <>
                     <div className="p-3 rounded-xl bg-amber-500/5 border border-amber-500/15 mb-4">
                       <p className="text-xs text-amber-400 leading-relaxed">
-                        充值条数已耗尽，但每日仍有 10 次免费额度。充值条数永久有效，用完再买。
+                        充值条数已耗尽，但每日仍有 20 次免费额度。充值条数永久有效，用完再买。
                       </p>
                     </div>
 

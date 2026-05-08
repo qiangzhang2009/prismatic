@@ -369,12 +369,29 @@ export function TCMChatInterface() {
       return;
     }
 
-    // 额度预检查（与人物库一致）
-    if (limitReached) {
-      setIsLoading(false);
-      setLimitModalType('daily_limit');
-      setShowLimitModal(true);
-      return;
+    // 额度预检查：使用服务器端权威计数，避免 localStorage 不同步导致误拦截
+    if (!isPaid && !hasCredits) {
+      try {
+        const res = await fetch('/api/quota/check', { credentials: 'include' });
+        if (res.ok) {
+          const data = await res.json();
+          syncDailyCount(data.current);
+          if (!data.allowed) {
+            setIsLoading(false);
+            setLimitModalType('daily_limit');
+            setShowLimitModal(true);
+            return;
+          }
+        }
+      } catch {
+        // Network error: fallback to local pre-check
+        if (limitReached) {
+          setIsLoading(false);
+          setLimitModalType('daily_limit');
+          setShowLimitModal(true);
+          return;
+        }
+      }
     }
 
     const userMsg: TCMMessage = {
@@ -469,13 +486,19 @@ export function TCMChatInterface() {
     } catch (err) {
       setSyncStatus('error');
       const errMsg = err instanceof Error ? err.message : '服务暂时不可用';
-      setMessages(prev => [...prev, {
-        id: `error-${Date.now()}`,
-        role: 'assistant',
-        content: `抱歉：${errMsg}。请稍后再试。`,
-        personaId: selectedPersona.id,
-        personaName: selectedPersona.nameZh,
-      }]);
+      const isDailyLimit = (err as any)?.code === 'DAILY_LIMIT_REACHED';
+      if (isDailyLimit) {
+        setLimitModalType('daily_limit');
+        setShowLimitModal(true);
+      } else {
+        setMessages(prev => [...prev, {
+          id: `error-${Date.now()}`,
+          role: 'assistant',
+          content: `抱歉：${errMsg}。请稍后再试。`,
+          personaId: selectedPersona.id,
+          personaName: selectedPersona.nameZh,
+        }]);
+      }
     } finally {
       setIsLoading(false);
     }

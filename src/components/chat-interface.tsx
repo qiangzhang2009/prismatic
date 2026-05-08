@@ -425,12 +425,33 @@ export function ChatInterface({ className, initialPersona, initialMode }: ChatIn
       resetDailyCount();
     }
 
-    // 每日限制检查：有积分的用户不受 localStorage 每日限制约束
+    // 每日限制预检查：使用服务器端权威计数，避免 localStorage 不同步导致误拦截
     const limits = getFeatureLimit(currentPlan);
-    if (!currentIsPaid && !currentHasCredits && dailyCountState >= limits.dailyMessages) {
-      setLimitModalType('daily_limit');
-      setShowLimitModal(true);
-      return;
+    if (!currentIsPaid && !currentHasCredits) {
+      try {
+        const res = await fetch('/api/quota/check', { credentials: 'include' });
+        if (res.ok) {
+          const data = await res.json();
+          // Sync server count to localStorage + React state
+          const today = new Date();
+          today.setHours(0, 0, 0, 0);
+          localStorage.setItem(DAILY_LIMIT_KEY, String(data.current));
+          localStorage.setItem(DAILY_DATE_KEY, today.toDateString());
+          setDailyCountState(data.current);
+          if (!data.allowed) {
+            setLimitModalType('daily_limit');
+            setShowLimitModal(true);
+            return;
+          }
+        }
+      } catch {
+        // Network error: fallback to localStorage pre-check
+        if (dailyCountState >= limits.dailyMessages) {
+          setLimitModalType('daily_limit');
+          setShowLimitModal(true);
+          return;
+        }
+      }
     }
 
     const userMessage: AgentMessage = {
