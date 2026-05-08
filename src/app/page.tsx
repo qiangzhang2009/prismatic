@@ -24,10 +24,10 @@ import dynamic from 'next/dynamic';
 import { cn, getDomainGradient } from '@/lib/utils';
 
 // Lazy-load comments section — heavy, not needed for LCP
-const CommentsSection = dynamic(() => import('@/components/comments-section'), {
-  loading: () => <div className="py-12 text-center text-sm text-text-muted" />,
-  ssr: false,
-});
+const CommentsSection = dynamic(
+  () => import('@/components/comments-section'),
+  { ssr: false, loading: () => <div className="py-12 text-center text-sm text-text-muted" /> }
+);
 
 // ─── Hero Stats ────────────────────────────────────────────────────────────────
 // Real data from project census (2026-05-07)
