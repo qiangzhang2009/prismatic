@@ -56,6 +56,8 @@ export async function GET(_req: NextRequest) {
           role: 'PRO',
           plan: 'LIFETIME',
           credits: 0,
+          dailyCredits: 9999,
+          paidCredits: 0,
           avatar: null,
           canUseProFeatures: true,
           isAdmin: false,
