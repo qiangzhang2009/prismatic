@@ -71,7 +71,11 @@ export async function GET(_req: NextRequest) {
 
     try {
       const sql = neon(DATABASE_URL);
+      console.log('[GET /api/user/me] Using DATABASE_URL:', DATABASE_URL?.replace(/password[^@]+@/, '***@'));
+      
       const rows = await sql`SELECT id, email, name, avatar, role, plan, credits, "dailyCredits", "emailVerified", "createdAt", "updatedAt", preferences, "apiKeyStatus", "apiKeyProvider" FROM users WHERE id = ${payload.userId} LIMIT 1`;
+
+      console.log('[GET /api/user/me] DB result:', rows[0] ? { credits: rows[0].credits, dailyCredits: rows[0].dailyCredits } : 'NOT FOUND');
 
       if (rows.length === 0) return NextResponse.json({ user: null }, { headers: NO_CACHE_HEADERS });
 
