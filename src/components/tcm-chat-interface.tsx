@@ -119,6 +119,7 @@ function DisclaimerBanner() {
 }
 
 export function TCMChatInterface() {
+  // FIXED: don't update dailyCredits from chat API
   const user = useAuthStore(s => s.user);
   const isInitialized = useAuthStore(s => s.isInitialized);
   const userId = user?.id;

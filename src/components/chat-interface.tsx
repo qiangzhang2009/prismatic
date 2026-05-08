@@ -86,6 +86,7 @@ interface ChatInterfaceProps {
 export function ChatInterface({ className, initialPersona, initialMode }: ChatInterfaceProps) {
   const router = useRouter();
   const pathname = usePathname();
+  // FIXED: don't update dailyCredits from chat API to avoid incorrect reset logic
   const { user, init, isInitialized } = useAuthStore();
 
   const saved = loadSavedState();
