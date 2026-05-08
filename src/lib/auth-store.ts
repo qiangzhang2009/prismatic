@@ -56,15 +56,8 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
   isInitialized: false,
 
   init: async () => {
-    // Only show loading state — do NOT clear user data here.
-    // Clearing `user` caused old data to flash on Settings page.
-    // Zustand's in-memory store is session-only; we want the existing
-    // data to remain visible while fetching fresh data.
-    // 
-    // IMPORTANT: If user is already logged in (e.g. after login()), don't overwrite
-    // the user data as it may have fresh credits from the login response.
     const currentUser = get().user;
-    console.log('[auth] init: currentUser', currentUser ? `id=${currentUser.id} dailyCredits=${currentUser.dailyCredits} credits=${currentUser.credits}` : 'null');
+    console.log('[auth] init: currentUser', currentUser ? `id=${currentUser.id} dailyCredits=${currentUser.dailyCredits}` : 'null');
     set({ isLoading: true });
     try {
       const res = await fetch('/api/user/me', { credentials: 'include' });
@@ -73,19 +66,9 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
       const newUser = data.user || null;
       console.log('[auth] init: server returned user', newUser ? `id=${newUser.id} dailyCredits=${newUser.dailyCredits} credits=${newUser.credits}` : 'null');
       
-      // Only update if we don't have user data yet
-      // Always trust server data when logging in/first load — it has the authoritative credit state
-      const shouldUpdate = !currentUser;
-      
-      if (shouldUpdate && newUser) {
-        set({ user: newUser, isLoading: false, isInitialized: true });
-        console.log('[auth] init: UPDATED user from server');
-      } else {
-        set({ isLoading: false, isInitialized: true });
-        if (currentUser) {
-          console.log('[auth] init: kept existing user data (login response was fresher)');
-        }
-      }
+      // Always update with server data - server is authoritative
+      set({ user: newUser, isLoading: false, isInitialized: true });
+      console.log('[auth] init: UPDATED user, isInitialized=true');
       
       if (!newUser && !currentUser) {
         console.warn('[auth] init: /api/user/me returned null user');
