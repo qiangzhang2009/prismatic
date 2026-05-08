@@ -96,7 +96,8 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
 
       // Use user from login response directly — avoids /api/auth/me race for demo users.
       console.log('[auth] login response user.credits:', data.user?.credits, 'dailyCredits:', data.user?.dailyCredits, 'paidCredits:', data.user?.paidCredits);
-      set({ user: data.user || null, isLoading: false });
+      // 必须设置 isInitialized 为 true，否则 ChatInterface 的 limitReached 判断会出错
+      set({ user: data.user || null, isLoading: false, isInitialized: true });
       return { success: true };
     } catch {
       set({ isLoading: false });
@@ -121,7 +122,8 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
       }
 
       // Use user from register response directly — avoids /api/auth/me race.
-      set({ user: data.user || null, isLoading: false });
+      // 必须设置 isInitialized 为 true，否则 ChatInterface 的 limitReached 判断会出错
+      set({ user: data.user || null, isLoading: false, isInitialized: true });
       return { success: true };
     } catch {
       set({ isLoading: false });
