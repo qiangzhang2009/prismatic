@@ -51,6 +51,9 @@ export function useDailyLimit() {
   const isInitialized = useAuthStore(s => s.isInitialized);
   const refreshUser = useAuthStore(s => s.refresh);
 
+  // 用户数据是否已加载
+  const userLoaded = isInitialized && user !== null;
+  
   const plan = user?.plan ?? 'FREE';
   const credits = user?.credits ?? 0;      // 充值积分
   const dailyCredits = user?.dailyCredits ?? 0;  // 每日积分
@@ -76,11 +79,20 @@ export function useDailyLimit() {
   }, [isInitialized, hasCredits]);
 
   // 真正的额度用完：没有付费、没有积分且 localStorage 计数已达上限
-  const limitReached = !isPaid && !hasCredits && dailyCount >= dailyLimit;
+  const limitReached = userLoaded && !isPaid && !hasCredits && dailyCount >= dailyLimit;
   // 积分已耗尽
-  const creditsExhausted = credits <= 0 && dailyCredits <= 0;
+  const creditsExhausted = userLoaded && credits <= 0 && dailyCredits <= 0;
   // 显示剩余：优先显示每日积分，每日积分用完则显示充值积分
-  const dailyRemaining = isPaid ? '∞' : dailyCredits > 0 ? String(dailyCredits) : credits > 0 ? String(credits) : Math.max(0, dailyLimit - dailyCount);
+  // CRITICAL: 只有用户数据加载完成后才显示 fallback 值，否则显示加载中状态 '...'
+  const dailyRemaining = isPaid 
+    ? '∞' 
+    : dailyCredits > 0 
+      ? String(dailyCredits) 
+      : credits > 0 
+        ? String(credits) 
+        : userLoaded 
+          ? Math.max(0, dailyLimit - dailyCount)
+          : '...';
 
   // Increment and persist count (called after a successful message)
   const incrementCount = useCallback(() => {

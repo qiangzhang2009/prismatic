@@ -106,10 +106,10 @@ export function ChatInterface({ className, initialPersona, initialMode }: ChatIn
   // 注意：有积分的用户不受 localStorage 每日限制约束，应该使用真实积分数据
   const limitReached = userLoaded && !isPaid && !hasAnyCredits && dailyCount >= dailyLimit;
   // 积分已耗尽（用于显示和弹窗判断）
-  const creditsExhausted = dailyCredits <= 0 && paidCredits <= 0;
+  const creditsExhausted = userLoaded && dailyCredits <= 0 && paidCredits <= 0;
   // 优先显示每日积分，每日积分用完则显示充值积分
-  // 有积分时直接用积分数据，不依赖 localStorage 的每日计数
-  const dailyRemaining = isPaid ? '∞' : dailyCredits > 0 ? String(dailyCredits) : paidCredits > 0 ? String(paidCredits) : String(Math.max(0, dailyLimit - dailyCount));
+  // CRITICAL: 只有用户数据加载完成后才显示 fallback 值，否则显示加载中状态
+  const dailyRemaining = isPaid ? '∞' : dailyCredits > 0 ? String(dailyCredits) : paidCredits > 0 ? String(paidCredits) : userLoaded ? String(Math.max(0, dailyLimit - dailyCount)) : '...';
 
   // Priority: URL param > saved state > default (steve-jobs for backwards compat)
   const getInitialPersonaId = () => {
