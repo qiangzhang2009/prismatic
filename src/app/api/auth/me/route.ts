@@ -65,12 +65,11 @@ export async function GET(req: NextRequest) {
     const role = u.role || 'FREE';
     const plan = u.plan || 'FREE';
 
-    // 计算总积分 = 每日积分 + 充值积分
+    // 每日积分和充值积分分开返回，不合并
     const dailyCredits = u.dailyCredits || 0;
     const paidCredits = u.credits || 0;
-    const totalCredits = dailyCredits + paidCredits;
 
-    console.log(`[/api/auth/me] userId=${userId}, dailyCredits=${dailyCredits}, paidCredits=${paidCredits}, totalCredits=${totalCredits}, plan=${plan}`);
+    console.log(`[/api/auth/me] userId=${userId}, dailyCredits=${dailyCredits}, paidCredits=${paidCredits}, plan=${plan}`);
     return NextResponse.json({ 
       user: { 
         id: u.id, 
@@ -81,9 +80,9 @@ export async function GET(req: NextRequest) {
         emailVerified: !!u.emailVerified, 
         role, 
         plan, 
-        credits: totalCredits,  // 返回总积分
-        dailyCredits,            // 每日积分
-        paidCredits,             // 充值积分
+        credits: paidCredits,        // 只返回充值积分
+        dailyCredits,               // 每日积分
+        paidCredits,                // 充值积分
         avatar: u.avatar, 
         createdAt: u.createdAt, 
         lastLoginAt: u.updatedAt, 
@@ -138,10 +137,9 @@ export async function PUT(req: NextRequest) {
     const role = u.role || 'FREE';
     const plan = u.plan || 'FREE';
 
-    // 计算总积分
+    // 每日积分和充值积分分开返回，不合并
     const dailyCredits = u.dailyCredits || 0;
     const paidCredits = u.credits || 0;
-    const totalCredits = dailyCredits + paidCredits;
 
     return NextResponse.json({ 
       user: { 
@@ -153,9 +151,9 @@ export async function PUT(req: NextRequest) {
         emailVerified: !!u.emailVerified, 
         role, 
         plan, 
-        credits: totalCredits,
-        dailyCredits,
-        paidCredits,
+        credits: paidCredits,       // 只返回充值积分
+        dailyCredits,              // 每日积分
+        paidCredits,               // 充值积分
         avatar: u.avatar, 
         createdAt: u.createdAt, 
         lastLoginAt: u.updatedAt, 

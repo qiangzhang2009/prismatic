@@ -197,7 +197,6 @@ export async function POST(req: NextRequest) {
         `;
         const dailyCredits = user.dailyCredits || 0;
         const paidCredits = user.credits || 0;
-        const totalCredits = dailyCredits + paidCredits;
         const token = createToken(user.id, user.email || email.toLowerCase());
         const response = NextResponse.json(
           {
@@ -207,7 +206,7 @@ export async function POST(req: NextRequest) {
               name: user.name || restored.name,
               role: user.role || 'FREE',
               plan: user.plan || 'FREE',
-              credits: totalCredits,
+              credits: paidCredits,
               dailyCredits,
               paidCredits,
               avatar: user.avatar,
@@ -250,9 +249,8 @@ export async function POST(req: NextRequest) {
 
     const dailyCredits = user.dailyCredits || 0;
     const paidCredits = user.credits || 0;
-    const totalCredits = dailyCredits + paidCredits;
     const token = createToken(user.id, user.email);
-    console.log(`[login] Success for ${email}: credits=${paidCredits}, dailyCredits=${dailyCredits}, total=${totalCredits}, plan=${user.plan}`);
+    console.log(`[login] Success for ${email}: credits=${paidCredits}, dailyCredits=${dailyCredits}, plan=${user.plan}`);
     const response = NextResponse.json(
       {
         user: {
@@ -261,9 +259,9 @@ export async function POST(req: NextRequest) {
           name: user.name,
           role: user.role,
           plan: user.plan,
-          credits: totalCredits,        // 总积分 = 每日 + 充值
-          dailyCredits,                 // 每日积分
-          paidCredits,                  // 充值积分
+          credits: paidCredits,        // 只返回充值积分
+          dailyCredits,               // 每日积分
+          paidCredits,                // 充值积分
           avatar: user.avatar,
           canUseProFeatures: canUseProFeatures(user.role, user.plan),
           isAdmin: user.role === 'ADMIN',
