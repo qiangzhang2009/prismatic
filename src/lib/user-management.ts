@@ -22,7 +22,9 @@ export interface PublicUser {
   emailVerified: boolean;
   role: UserRole;
   plan: SubscriptionPlan;
-  credits: number;
+  credits: number;        // 充值积分（兼容旧字段）
+  dailyCredits?: number; // 每日积分
+  paidCredits?: number;  // 充值积分（新字段，与 credits 相同）
   avatar: string | null;
   createdAt: Date;
   lastLoginAt: Date | null;
@@ -81,7 +83,7 @@ export async function createUser(input: CreateUserInput & { emailVerified?: bool
 
     try {
       await sql`
-        INSERT INTO users (id, email, "passwordHash", name, preferences, status, role, plan, credits, "emailVerified", "createdAt", "updatedAt")
+        INSERT INTO users (id, email, "passwordHash", name, preferences, status, role, plan, credits, "dailyCredits", "emailVerified", "createdAt", "updatedAt")
         VALUES (
           ${userId},
           ${input.email.toLowerCase()},
@@ -92,6 +94,7 @@ export async function createUser(input: CreateUserInput & { emailVerified?: bool
           'FREE',
           'FREE',
           10,
+          20,
           ${input.emailVerified ? new Date() : null},
           NOW(),
           NOW()
@@ -112,6 +115,8 @@ export async function createUser(input: CreateUserInput & { emailVerified?: bool
       role: 'FREE',
       plan: 'FREE',
       credits: 10,
+      dailyCredits: 20,
+      paidCredits: 10,
       avatar: null,
       createdAt: new Date(),
       lastLoginAt: null,
