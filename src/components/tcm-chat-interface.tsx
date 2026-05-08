@@ -465,10 +465,14 @@ export function TCMChatInterface() {
         incrementCount();
       }
       // 如果服务端扣了积分，同步到本地 store 并检查是否耗尽
-      if (data.creditsAfter !== undefined) {
-        useAuthStore.getState().updateUser({ credits: data.creditsAfter });
-        // creditsDeducted && creditsAfter === 0 means credits just ran out
-        if (data.creditsDeducted && data.creditsAfter === 0) {
+      // API 返回 pointsRemaining/dailyPointsRemaining，前端需要更新两个字段
+      if (data.pointsRemaining !== undefined || data.dailyPointsRemaining !== undefined) {
+        useAuthStore.getState().updateUser({
+          credits: data.pointsRemaining ?? data.paidPointsRemaining ?? 0,
+          dailyCredits: data.dailyPointsRemaining ?? 0,
+        });
+        // 如果积分耗尽，显示弹窗
+        if (data.pointsDeducted && data.pointsRemaining === 0) {
           setLimitModalType('credits_exhausted');
           setShowLimitModal(true);
         }
