@@ -341,6 +341,7 @@ export async function POST(req: NextRequest) {
     // 免费且有积分的用户扣减积分
     // CRITICAL: re-fetch credits from DB to get the authoritative value.
     let creditsAfter = userCredits;
+    let creditsDeducted = false;
     if (userPlan === 'FREE' && userCredits > 0) {
       try {
         // Fetch fresh credits from DB before deducting
@@ -356,8 +357,10 @@ export async function POST(req: NextRequest) {
             conversationId: convId,
           });
           creditsAfter = result.newBalance;
+          creditsDeducted = true;
         } else {
           creditsAfter = 0;
+          creditsDeducted = false;
         }
       } catch (err) {
         console.error('[TCM Chat] Failed to deduct credits:', err);
@@ -399,6 +402,7 @@ export async function POST(req: NextRequest) {
       response,
       intent,
       creditsAfter,
+      creditsDeducted,
       serverDailyCount,
       rag: ragMetadata ? {
         citations: ragMetadata.citations,

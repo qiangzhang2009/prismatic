@@ -543,17 +543,17 @@ export function ChatInterface({ className, initialPersona, initialMode }: ChatIn
           setDailyCountState(data.serverDailyCount);
         } catch {}
       }
-
       // Update credits display after successful deduction
-      // creditsRemaining === 0 on success means credits were deducted to 0.
-      // This overrides localStorage daily limit (credits users don't consume daily limit).
-      // Only skip modal if user had 0 credits going in (daily_free user, handled by 429).
-      if (data.creditsRemaining !== undefined) {
-        const hadCreditsBefore = currentCredits > 0;
-        if (data.creditsRemaining === 0 && hadCreditsBefore) {
+      // creditsDeducted flag tells us if credits were actually deducted this turn.
+      // If creditsDeducted && creditsRemaining === 0, it means credits just ran out → show modal.
+      // If creditsDeducted is false, credits weren't deducted (user had 0 or was on daily free) → no modal.
+      if (data.creditsDeducted !== undefined) {
+        if (data.creditsDeducted && data.creditsRemaining === 0) {
           setLimitModalType('credits_exhausted');
           setShowLimitModal(true);
         }
+      }
+      if (data.creditsRemaining !== undefined) {
         // Update the user's credits in the Zustand store
         const { updateUser } = useAuthStore.getState();
         updateUser({ credits: data.creditsRemaining });

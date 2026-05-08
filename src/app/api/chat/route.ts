@@ -1444,6 +1444,7 @@ export async function POST(request: NextRequest) {
     // CRITICAL: re-fetch credits from DB to get the authoritative value.
     // If DB credits are 0, skip deduction (don't go negative).
     let creditsAfter = userCredits;
+    let creditsDeducted = false;
     if (userPlan === 'FREE' && userCredits > 0) {
       try {
         // Fetch fresh credits from DB before deducting
@@ -1459,10 +1460,12 @@ export async function POST(request: NextRequest) {
             conversationId: convId,
           });
           creditsAfter = result.newBalance;
+          creditsDeducted = true;
         } else {
           // DB credits are already 0 — user should use daily free limit.
           // Set creditsAfter to 0 so frontend shows correct exhausted state.
           creditsAfter = 0;
+          creditsDeducted = false;
         }
       } catch (err) {
         console.error('[Chat API] Failed to deduct credits:', err);
@@ -1477,7 +1480,7 @@ export async function POST(request: NextRequest) {
       console.error('[Chat API] getDailyMessageCount failed:', err);
     }
 
-    return NextResponse.json({ ...data, creditsRemaining: creditsAfter, serverDailyCount });
+    return NextResponse.json({ ...data, creditsRemaining: creditsAfter, creditsDeducted, serverDailyCount });
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     console.error('[Chat API] Error:', message);

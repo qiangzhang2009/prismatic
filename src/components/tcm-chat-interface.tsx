@@ -467,8 +467,8 @@ export function TCMChatInterface() {
       // 如果服务端扣了积分，同步到本地 store 并检查是否耗尽
       if (data.creditsAfter !== undefined) {
         useAuthStore.getState().updateUser({ credits: data.creditsAfter });
-        // creditsAfter === 0 说明充值积分已耗尽，显示充值弹窗
-        if (data.creditsAfter === 0) {
+        // creditsDeducted && creditsAfter === 0 means credits just ran out
+        if (data.creditsDeducted && data.creditsAfter === 0) {
           setLimitModalType('credits_exhausted');
           setShowLimitModal(true);
         }
