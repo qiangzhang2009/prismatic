@@ -1,4 +1,0 @@
-[    1859ms] [VERBOSE] [DOM] Input elements should have autocomplete attributes (suggested: "current-password"): (More info: https://goo.gl/9p2vKq) %o @ https://prismatic-app.vercel.app/auth/signin:0
-[    2198ms] [LOG] [auth store init] /api/auth/me returned: undefined undefined undefined raw data: {"user":null} @ https://prismatic-app.vercel.app/_next/static/chunks/3033-fb31d700b9159820.js:66
-[    2198ms] [WARNING] [auth] init: /api/auth/me returned null user — redirect should happen @ https://prismatic-app.vercel.app/_next/static/chunks/3033-fb31d700b9159820.js:66
-[   35790ms] [ERROR] Failed to load resource: the server responded with a status of 401 () @ https://prismatic-app.vercel.app/api/auth/login:0

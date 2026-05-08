@@ -27,7 +27,9 @@ export interface AuthUser {
   emailVerified: boolean;
   role: UserRole;
   plan: SubscriptionPlan;
-  credits: number;
+  credits: number;        // 总积分 = dailyCredits + paidCredits
+  dailyCredits?: number;  // 每日积分
+  paidCredits?: number;   // 充值积分
   avatar: string | null;
   canUseProFeatures: boolean;
 }

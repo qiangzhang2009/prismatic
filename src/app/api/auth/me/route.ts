@@ -50,14 +50,14 @@ export async function GET(req: NextRequest) {
   const { userId } = payload;
 
   if (isDemoUserId(userId)) {
-    return NextResponse.json({ user: { id: userId, email: payload.email || 'demo@prismatic.app', name: '演示账号', gender: null, province: null, emailVerified: true, role: 'PRO', plan: 'LIFETIME', credits: 0, avatar: null, createdAt: new Date(), lastLoginAt: new Date(), canUseProFeatures: true, isAdmin: false } }, { headers: NO_CACHE_HEADERS });
+    return NextResponse.json({ user: { id: userId, email: payload.email || 'demo@prismatic.app', name: '演示账号', gender: null, province: null, emailVerified: true, role: 'PRO', plan: 'LIFETIME', credits: 999, dailyCredits: 20, paidCredits: 979, avatar: null, createdAt: new Date(), lastLoginAt: new Date(), canUseProFeatures: true, isAdmin: false } }, { headers: NO_CACHE_HEADERS });
   }
 
   if (!DATABASE_URL) return NextResponse.json({ user: null }, { headers: NO_CACHE_HEADERS });
 
   const sql = neon(DATABASE_URL);
   try {
-    const rows = await sql`SELECT id, email, name, avatar, role, plan, credits, "emailVerified", "createdAt", "updatedAt", preferences FROM users WHERE id = ${userId} LIMIT 1`;
+    const rows = await sql`SELECT id, email, name, avatar, role, plan, credits, "dailyCredits", "lastDailyResetAt", "emailVerified", "createdAt", "updatedAt", preferences FROM users WHERE id = ${userId} LIMIT 1`;
     if (rows.length === 0) return NextResponse.json({ user: null }, { headers: NO_CACHE_HEADERS });
 
     const u: any = rows[0];
@@ -65,8 +65,32 @@ export async function GET(req: NextRequest) {
     const role = u.role || 'FREE';
     const plan = u.plan || 'FREE';
 
-    console.log(`[/api/auth/me] userId=${userId}, credits=${u.credits}, plan=${plan}`);
-    return NextResponse.json({ user: { id: u.id, email: u.email || '', name: u.name, gender, province, emailVerified: !!u.emailVerified, role, plan, credits: u.credits || 0, avatar: u.avatar, createdAt: u.createdAt, lastLoginAt: u.updatedAt, canUseProFeatures: canUseProFeatures(role, plan), isAdmin: role === 'ADMIN' } }, { headers: NO_CACHE_HEADERS });
+    // 计算总积分 = 每日积分 + 充值积分
+    const dailyCredits = u.dailyCredits || 0;
+    const paidCredits = u.credits || 0;
+    const totalCredits = dailyCredits + paidCredits;
+
+    console.log(`[/api/auth/me] userId=${userId}, dailyCredits=${dailyCredits}, paidCredits=${paidCredits}, totalCredits=${totalCredits}, plan=${plan}`);
+    return NextResponse.json({ 
+      user: { 
+        id: u.id, 
+        email: u.email || '', 
+        name: u.name, 
+        gender, 
+        province, 
+        emailVerified: !!u.emailVerified, 
+        role, 
+        plan, 
+        credits: totalCredits,  // 返回总积分
+        dailyCredits,            // 每日积分
+        paidCredits,             // 充值积分
+        avatar: u.avatar, 
+        createdAt: u.createdAt, 
+        lastLoginAt: u.updatedAt, 
+        canUseProFeatures: canUseProFeatures(role, plan), 
+        isAdmin: role === 'ADMIN' 
+      } 
+    }, { headers: NO_CACHE_HEADERS });
   } catch (error) {
     console.error('[GET /api/auth/me] error:', error);
     return NextResponse.json({ user: null }, { headers: NO_CACHE_HEADERS });
@@ -83,7 +107,7 @@ export async function PUT(req: NextRequest) {
   const { userId } = payload;
 
   if (isDemoUserId(userId)) {
-    return NextResponse.json({ user: { id: userId, email: payload.email || 'demo@prismatic.app', name: '演示账号', role: 'PRO', plan: 'LIFETIME', credits: 0, canUseProFeatures: true, isAdmin: false } }, { headers: NO_CACHE_HEADERS });
+    return NextResponse.json({ user: { id: userId, email: payload.email || 'demo@prismatic.app', name: '演示账号', role: 'PRO', plan: 'LIFETIME', credits: 999, dailyCredits: 20, paidCredits: 979, canUseProFeatures: true, isAdmin: false } }, { headers: NO_CACHE_HEADERS });
   }
 
   if (!DATABASE_URL) return NextResponse.json({ error: 'Server error' }, { status: 500, headers: NO_CACHE_HEADERS });
@@ -106,7 +130,7 @@ export async function PUT(req: NextRequest) {
       }
     }
 
-    const rows = await sql`SELECT id, email, name, avatar, role, plan, credits, "emailVerified", "createdAt", "updatedAt", preferences FROM users WHERE id = ${userId} LIMIT 1`;
+    const rows = await sql`SELECT id, email, name, avatar, role, plan, credits, "dailyCredits", "lastDailyResetAt", "emailVerified", "createdAt", "updatedAt", preferences FROM users WHERE id = ${userId} LIMIT 1`;
     if (rows.length === 0) return NextResponse.json({ error: 'User not found' }, { status: 404, headers: NO_CACHE_HEADERS });
 
     const u: any = rows[0];
@@ -114,7 +138,29 @@ export async function PUT(req: NextRequest) {
     const role = u.role || 'FREE';
     const plan = u.plan || 'FREE';
 
-    return NextResponse.json({ user: { id: u.id, email: u.email || '', name: u.name, gender: g, province: p, emailVerified: !!u.emailVerified, role, plan, credits: u.credits || 0, avatar: u.avatar, createdAt: u.createdAt, lastLoginAt: u.updatedAt } }, { headers: NO_CACHE_HEADERS });
+    // 计算总积分
+    const dailyCredits = u.dailyCredits || 0;
+    const paidCredits = u.credits || 0;
+    const totalCredits = dailyCredits + paidCredits;
+
+    return NextResponse.json({ 
+      user: { 
+        id: u.id, 
+        email: u.email || '', 
+        name: u.name, 
+        gender: g, 
+        province: p, 
+        emailVerified: !!u.emailVerified, 
+        role, 
+        plan, 
+        credits: totalCredits,
+        dailyCredits,
+        paidCredits,
+        avatar: u.avatar, 
+        createdAt: u.createdAt, 
+        lastLoginAt: u.updatedAt, 
+      } 
+    }, { headers: NO_CACHE_HEADERS });
   } catch (error) {
     console.error('[PUT /api/auth/me] error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500, headers: NO_CACHE_HEADERS });
