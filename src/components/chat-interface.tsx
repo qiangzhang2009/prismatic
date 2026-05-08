@@ -978,44 +978,27 @@ export function ChatInterface({ className, initialPersona, initialMode }: ChatIn
           </Link>
         ) : isPaid ? (
           <span className="text-xs text-green-400 font-medium">无限制</span>
-        ) : dailyCredits > 0 ? (
-          /* 有每日积分：优先显示每日积分 */
-          <div className="flex items-center gap-1 bg-prism-blue/10 px-2 py-1 rounded-full">
-            <Zap className="w-3 h-3 text-prism-blue" />
-            <span className="text-xs text-prism-blue font-medium">{dailyCredits} 条今日</span>
-          </div>
-        ) : paidCredits > 0 ? (
-          /* 每日积分用完但有充值积分 */
-          <div className="flex items-center gap-1 bg-prism-amber/10 px-2 py-1 rounded-full">
-            <Zap className="w-3 h-3 text-prism-amber" />
-            <span className="text-xs text-prism-amber font-medium">{paidCredits} 条充值</span>
-          </div>
-        ) : creditsExhausted ? (
-          /* 积分耗尽但每日还有 → 显示每日剩余次数 */
-          <div className="flex items-center gap-1.5">
-            {Number(dailyRemaining) <= 3 ? (
-              <div className="flex items-center gap-1 bg-amber-500/10 px-2 py-1 rounded-full">
-                <div className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
-                <span className="text-xs text-amber-400 font-medium">{dailyRemaining} 条今日</span>
-              </div>
-            ) : (
-              <div className="flex items-center gap-1.5">
-                <span className="text-xs text-green-400 font-medium">{dailyRemaining}</span>
-                <span className="text-xs text-text-muted">/ {dailyLimit} 条今日</span>
+        ) : (
+          /* 显示积分信息：同时显示每日额度和充值额度（如果有） */
+          <div className="flex items-center gap-2">
+            {dailyCredits > 0 && (
+              <div className="flex items-center gap-1 bg-prism-blue/10 px-2 py-1 rounded-full">
+                <Zap className="w-3 h-3 text-prism-blue" />
+                <span className="text-xs text-prism-blue font-medium">{dailyCredits} 条免费</span>
               </div>
             )}
-          </div>
-        ) : Number(dailyRemaining) <= 3 ? (
-          <div className="flex items-center gap-1.5 bg-amber-500/10 px-2 py-1 rounded-full">
-            <div className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
-            <span className="text-xs text-amber-400 font-medium">
-              {dailyRemaining} 条剩余
-            </span>
-          </div>
-        ) : (
-          <div className="flex items-center gap-1.5">
-            <span className="text-xs text-green-400 font-medium">{dailyRemaining}</span>
-            <span className="text-xs text-text-muted">/ {dailyLimit} 条今日</span>
+            {paidCredits > 0 && (
+              <div className="flex items-center gap-1 bg-prism-amber/10 px-2 py-1 rounded-full">
+                <Zap className="w-3 h-3 text-prism-amber" />
+                <span className="text-xs text-prism-amber font-medium">{paidCredits} 条充值</span>
+              </div>
+            )}
+            {dailyCredits <= 0 && paidCredits <= 0 && creditsExhausted && (
+              <div className="flex items-center gap-1.5 bg-red-500/10 px-2 py-1 rounded-full">
+                <div className="w-1.5 h-1.5 rounded-full bg-red-400 animate-pulse" />
+                <span className="text-xs text-red-400 font-medium">额度已用完</span>
+              </div>
+            )}
           </div>
         )}
 

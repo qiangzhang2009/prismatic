@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Send, Loader2, ChevronDown, Sparkles, ShieldAlert, BookOpen, Brain, Globe, User, RefreshCw, Clock, Trash2, MessageSquare, X, Download, Image, FileText } from 'lucide-react';
+import { Send, Loader2, ChevronDown, Sparkles, ShieldAlert, BookOpen, Brain, Globe, User, RefreshCw, Clock, Trash2, MessageSquare, X, Download, Image, FileText, Zap } from 'lucide-react';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { TCM_PERSONA_LIST, TCM_PERSONAS } from '@/lib/tcm-personas';
@@ -124,7 +124,7 @@ export function TCMChatInterface() {
   const isInitialized = useAuthStore(s => s.isInitialized);
   const userId = user?.id;
   const { pushSnapshot } = useConversationSync();
-  const { plan, credits, isPaid, hasCredits, dailyLimit, dailyCount,
+  const { plan, credits, dailyCredits, isPaid, hasCredits, dailyLimit, dailyCount,
     dailyRemaining, limitReached, creditsExhausted, incrementCount,
     syncDailyCount,
   } = useDailyLimit();
@@ -767,31 +767,25 @@ export function TCMChatInterface() {
             </Link>
           ) : isPaid ? (
             <span className="text-xs text-green-400 font-medium">无限制</span>
-          ) : creditsExhausted ? (
-            <div className="flex items-center gap-1.5">
-              {Number(dailyRemaining) <= 3 ? (
-                <div className="flex items-center gap-1 bg-amber-500/10 px-2 py-0.5 rounded-full">
-                  <div className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
-                  <span className="text-xs text-amber-400 font-medium">{dailyRemaining} 条今日</span>
-                </div>
-              ) : (
-                <div className="flex items-center gap-1">
-                  <span className="text-xs text-green-400 font-medium">{dailyRemaining}</span>
-                  <span className="text-xs text-slate-600">/ {dailyLimit} 条今日</span>
+          ) : (
+            /* 显示积分信息：同时显示每日额度和充值额度（如果有） */
+            <div className="flex items-center gap-2">
+              {dailyCredits > 0 && (
+                <div className="flex items-center gap-1 bg-prism-blue/10 px-2 py-1 rounded-full">
+                  <Zap className="w-3 h-3 text-prism-blue" />
+                  <span className="text-xs text-prism-blue font-medium">{dailyCredits} 条免费</span>
                 </div>
               )}
-            </div>
-          ) : (
-            <div className="flex items-center gap-1.5">
-              {Number(dailyRemaining) <= 3 ? (
-                <div className="flex items-center gap-1 bg-amber-500/10 px-2 py-0.5 rounded-full">
-                  <div className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
-                  <span className="text-xs text-amber-400 font-medium">{dailyRemaining} 条剩余</span>
+              {credits > 0 && (
+                <div className="flex items-center gap-1 bg-prism-amber/10 px-2 py-1 rounded-full">
+                  <Zap className="w-3 h-3 text-prism-amber" />
+                  <span className="text-xs text-prism-amber font-medium">{credits} 条充值</span>
                 </div>
-              ) : (
-                <div className="flex items-center gap-1">
-                  <span className="text-xs text-green-400 font-medium">{dailyRemaining}</span>
-                  <span className="text-xs text-slate-600">/ {dailyLimit} 条今日</span>
+              )}
+              {dailyCredits <= 0 && credits <= 0 && creditsExhausted && (
+                <div className="flex items-center gap-1.5 bg-red-500/10 px-2 py-1 rounded-full">
+                  <div className="w-1.5 h-1.5 rounded-full bg-red-400 animate-pulse" />
+                  <span className="text-xs text-red-400 font-medium">额度已用完</span>
                 </div>
               )}
             </div>

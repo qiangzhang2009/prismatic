@@ -130,7 +130,8 @@ export function useDailyLimit() {
 
   return {
     plan,
-    credits,
+    credits,        // 充值积分
+    dailyCredits,  // 每日积分（免费额度）
     isPaid,
     hasCredits,
     dailyLimit,
