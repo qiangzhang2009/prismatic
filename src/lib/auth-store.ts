@@ -64,12 +64,14 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
     // IMPORTANT: If user is already logged in (e.g. after login()), don't overwrite
     // the user data as it may have fresh credits from the login response.
     const currentUser = get().user;
+    console.log('[auth] init: currentUser', currentUser ? `id=${currentUser.id} dailyCredits=${currentUser.dailyCredits} credits=${currentUser.credits}` : 'null');
     set({ isLoading: true });
     try {
       const res = await fetch('/api/user/me', { credentials: 'include' });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
       const newUser = data.user || null;
+      console.log('[auth] init: server returned user', newUser ? `id=${newUser.id} dailyCredits=${newUser.dailyCredits} credits=${newUser.credits}` : 'null');
       
       // Only update if we don't have user data yet, or if the new data has more credits
       // (avoiding race conditions where login() set fresh data but init() overwrites it)
@@ -77,13 +79,15 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
         (newUser && ((newUser.dailyCredits || 0) > (currentUser.dailyCredits || 0) || 
                      (newUser.credits || 0) > (currentUser.credits || 0)));
       
+      console.log('[auth] init: shouldUpdate=', shouldUpdate, 'reason:', !currentUser ? 'no current user' : newUser && ((newUser.dailyCredits || 0) > (currentUser.dailyCredits || 0) ? 'more dailyCredits' : (newUser.credits || 0) > (currentUser.credits || 0) ? 'more credits' : 'server has less'));
+      
       if (shouldUpdate && newUser) {
         set({ user: newUser, isLoading: false, isInitialized: true });
-        console.log('[auth] init: updated user from server', newUser.email, newUser.dailyCredits, newUser.credits);
+        console.log('[auth] init: UPDATED user from server');
       } else {
         set({ isLoading: false, isInitialized: true });
         if (currentUser) {
-          console.log('[auth] init: keeping existing user data (login response may be fresher)', currentUser.dailyCredits, currentUser.credits);
+          console.log('[auth] init: kept existing user data (login response was fresher)');
         }
       }
       
@@ -112,10 +116,22 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
         return { success: false, error: data.error || 'Login failed' };
       }
 
-      // Use user from login response directly — avoids /api/auth/me race for demo users.
+      // Log full user object for debugging
+      console.log('[auth] login response data.user:', JSON.stringify(data.user));
       console.log('[auth] login response user.credits:', data.user?.credits, 'dailyCredits:', data.user?.dailyCredits, 'paidCredits:', data.user?.paidCredits);
+      
+      // Validate the user object has required fields
+      if (data.user && typeof data.user.dailyCredits === 'undefined') {
+        console.error('[auth] login: ERROR - dailyCredits is undefined in login response!');
+      }
+      
       // 必须设置 isInitialized 为 true，否则 ChatInterface 的 limitReached 判断会出错
       set({ user: data.user || null, isLoading: false, isInitialized: true });
+      
+      // Double-check the user was set correctly
+      const setUser = get().user;
+      console.log('[auth] login: after set, get().user.dailyCredits:', setUser?.dailyCredits, 'credits:', setUser?.credits);
+      
       return { success: true };
     } catch {
       set({ isLoading: false });
