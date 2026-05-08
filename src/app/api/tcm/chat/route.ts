@@ -17,6 +17,7 @@ import { safeLLMCall } from '@/lib/llm-safe';
 import { TCM_PERSONAS } from '@/lib/tcm-personas';
 import { buildRAGContext } from '@/lib/tcm-rag';
 import { authenticateRequest, getUserById } from '@/lib/user-management';
+import { prisma } from '@/lib/prisma';
 import { persistConversation } from '@/app/api/chat/route';
 import { checkUserDailyLimit, recordMessage, getDailyMessageCount } from '@/lib/message-stats';
 import { getPool } from '@/lib/db-pool';
