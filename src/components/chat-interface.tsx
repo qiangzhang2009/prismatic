@@ -99,15 +99,13 @@ export function ChatInterface({ className, initialPersona, initialMode }: ChatIn
   const dailyCredits = user?.dailyCredits ?? 0;
   // 充值积分
   const paidCredits = user?.credits ?? 0;
-  
-  // DEBUG: Log credit values
-  if (typeof window !== 'undefined' && (dailyCredits !== 0 || paidCredits !== 0)) {
-    console.log('[ChatInterface] Credits debug:', { dailyCredits, paidCredits, userLoaded, isInitialized });
-  }
   // 有任何积分（每日+充值）- 这是最重要的判断
   const hasAnyCredits = dailyCredits > 0 || paidCredits > 0;
   // 用户是否已登录且数据加载完成
   const userLoaded = isInitialized && user !== null;
+  
+  // DEBUG: Log credit values
+  console.log('[ChatInterface] Credits debug:', { dailyCredits, paidCredits, userLoaded, isInitialized });
   // 真正的额度用完：用户数据已加载、没有付费计划且没有任何积分且 localStorage 计数已达上限
   // 注意：有积分的用户不受 localStorage 每日限制约束，应该使用真实积分数据
   const limitReached = userLoaded && !isPaid && !hasAnyCredits && dailyCount >= dailyLimit;
