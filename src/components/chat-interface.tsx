@@ -548,6 +548,7 @@ export function ChatInterface({ className, initialPersona, initialMode }: ChatIn
       // If creditsDeducted && creditsRemaining === 0, it means credits just ran out → show modal.
       // If creditsDeducted is false, credits weren't deducted (user had 0 or was on daily free) → no modal.
       if (data.creditsDeducted !== undefined) {
+        console.log(`[chat] creditsDeducted=${data.creditsDeducted}, creditsRemaining=${data.creditsRemaining}`);
         if (data.creditsDeducted && data.creditsRemaining === 0) {
           setLimitModalType('credits_exhausted');
           setShowLimitModal(true);

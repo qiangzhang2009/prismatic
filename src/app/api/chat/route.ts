@@ -1445,6 +1445,7 @@ export async function POST(request: NextRequest) {
     // If DB credits are 0, skip deduction (don't go negative).
     let creditsAfter = userCredits;
     let creditsDeducted = false;
+    console.log(`[chat] userId=${userId}, userCredits=${userCredits}, userPlan=${userPlan}`);
     if (userPlan === 'FREE' && userCredits > 0) {
       try {
         // Fetch fresh credits from DB before deducting
@@ -1453,17 +1454,20 @@ export async function POST(request: NextRequest) {
           select: { credits: true },
         });
         const realCredits = freshUser?.credits ?? 0;
+        console.log(`[chat] freshUser.credits=${realCredits}`);
         if (realCredits > 0) {
           const { deductCredits } = await import('@/lib/billing/engine');
           const result = await deductCredits(userId, 1, {
             description: '对话消耗',
             conversationId: convId,
           });
+          console.log(`[chat] deductCredits success: newBalance=${result.newBalance}`);
           creditsAfter = result.newBalance;
           creditsDeducted = true;
         } else {
           // DB credits are already 0 — user should use daily free limit.
           // Set creditsAfter to 0 so frontend shows correct exhausted state.
+          console.log(`[chat] realCredits=0, skipping deduction`);
           creditsAfter = 0;
           creditsDeducted = false;
         }

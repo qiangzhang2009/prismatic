@@ -243,6 +243,7 @@ export async function POST(req: NextRequest) {
     }
 
     const token = createToken(user.id, user.email);
+    console.log(`[login] Success for ${email}: credits=${user.credits}, plan=${user.plan}`);
     const response = NextResponse.json(
       {
         user: {

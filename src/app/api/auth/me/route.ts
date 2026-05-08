@@ -65,6 +65,7 @@ export async function GET(req: NextRequest) {
     const role = u.role || 'FREE';
     const plan = u.plan || 'FREE';
 
+    console.log(`[/api/auth/me] userId=${userId}, credits=${u.credits}, plan=${plan}`);
     return NextResponse.json({ user: { id: u.id, email: u.email || '', name: u.name, gender, province, emailVerified: !!u.emailVerified, role, plan, credits: u.credits || 0, avatar: u.avatar, createdAt: u.createdAt, lastLoginAt: u.updatedAt, canUseProFeatures: canUseProFeatures(role, plan), isAdmin: role === 'ADMIN' } }, { headers: NO_CACHE_HEADERS });
   } catch (error) {
     console.error('[GET /api/auth/me] error:', error);
