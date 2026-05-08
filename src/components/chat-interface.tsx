@@ -591,10 +591,11 @@ export function ChatInterface({ className, initialPersona, initialMode }: ChatIn
       // Update credits in Zustand store using the correct field names from API
       if (data.pointsRemaining !== undefined || data.dailyPointsRemaining !== undefined) {
         // Update the user's credits in the Zustand store
+        // CRITICAL: use paidPointsRemaining for credits field, not pointsRemaining (total)
         const { updateUser } = useAuthStore.getState();
         updateUser({
-          credits: data.pointsRemaining ?? data.paidPointsRemaining ?? 0,
-          dailyCredits: data.dailyPointsRemaining ?? 0,
+          credits: data.paidPointsRemaining ?? 0,  // 充值积分
+          dailyCredits: data.dailyPointsRemaining ?? 0,  // 每日积分
         });
       }
 

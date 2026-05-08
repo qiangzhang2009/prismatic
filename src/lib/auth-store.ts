@@ -73,13 +73,9 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
       const newUser = data.user || null;
       console.log('[auth] init: server returned user', newUser ? `id=${newUser.id} dailyCredits=${newUser.dailyCredits} credits=${newUser.credits}` : 'null');
       
-      // Only update if we don't have user data yet, or if the new data has more credits
-      // (avoiding race conditions where login() set fresh data but init() overwrites it)
-      const shouldUpdate = !currentUser || 
-        (newUser && ((newUser.dailyCredits || 0) > (currentUser.dailyCredits || 0) || 
-                     (newUser.credits || 0) > (currentUser.credits || 0)));
-      
-      console.log('[auth] init: shouldUpdate=', shouldUpdate, 'reason:', !currentUser ? 'no current user' : newUser && ((newUser.dailyCredits || 0) > (currentUser.dailyCredits || 0) ? 'more dailyCredits' : (newUser.credits || 0) > (currentUser.credits || 0) ? 'more credits' : 'server has less'));
+      // Only update if we don't have user data yet
+      // Always trust server data when logging in/first load — it has the authoritative credit state
+      const shouldUpdate = !currentUser;
       
       if (shouldUpdate && newUser) {
         set({ user: newUser, isLoading: false, isInitialized: true });

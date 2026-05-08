@@ -488,8 +488,8 @@ export function TCMChatInterface() {
       // API 返回 pointsRemaining/dailyPointsRemaining，前端需要更新两个字段
       if (data.pointsRemaining !== undefined || data.dailyPointsRemaining !== undefined) {
         useAuthStore.getState().updateUser({
-          credits: data.pointsRemaining ?? data.paidPointsRemaining ?? 0,
-          dailyCredits: data.dailyPointsRemaining ?? 0,
+          credits: data.paidPointsRemaining ?? 0,  // 充值积分
+          dailyCredits: data.dailyPointsRemaining ?? 0,  // 每日积分
         });
         // 如果积分耗尽，显示弹窗
         if (data.pointsDeducted && data.pointsRemaining === 0) {
