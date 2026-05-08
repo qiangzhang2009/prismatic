@@ -51,10 +51,12 @@ export function useDailyLimit() {
   const refreshUser = useAuthStore(s => s.refresh);
 
   const plan = user?.plan ?? 'FREE';
-  const credits = user?.credits ?? 0;
+  const credits = user?.credits ?? 0;      // 充值积分
+  const dailyCredits = user?.dailyCredits ?? 0;  // 每日积分
   const limits = getFeatureLimit(plan);
   const isPaid = limits.dailyMessages >= 9999;
-  const hasCredits = credits > 0;
+  // 有任何积分（每日+充值）
+  const hasCredits = credits > 0 || dailyCredits > 0;
   const dailyLimit = limits.dailyMessages;
 
   const [dailyCount, setDailyCount] = useState<number>(() => {
@@ -62,11 +64,12 @@ export function useDailyLimit() {
     return getDailyCount().count;
   });
 
+  // 真正的额度用完：没有付费、没有积分且 localStorage 计数已达上限
   const limitReached = !isPaid && !hasCredits && dailyCount >= dailyLimit;
-  const creditsExhausted = credits <= 0;
-  const dailyRemaining = isPaid ? '∞' : hasCredits
-    ? String(credits)
-    : Math.max(0, dailyLimit - dailyCount);
+  // 积分已耗尽
+  const creditsExhausted = credits <= 0 && dailyCredits <= 0;
+  // 显示剩余：优先显示每日积分，每日积分用完则显示充值积分
+  const dailyRemaining = isPaid ? '∞' : dailyCredits > 0 ? String(dailyCredits) : credits > 0 ? String(credits) : Math.max(0, dailyLimit - dailyCount);
 
   // Increment and persist count (called after a successful message)
   const incrementCount = useCallback(() => {

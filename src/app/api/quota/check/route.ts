@@ -20,7 +20,7 @@ export async function GET(req: NextRequest) {
 
     // 1. Get user plan + credits in one query
     const userRows = await pool.query(
-      `SELECT plan::text AS plan, credits FROM users WHERE id = $1 AND status = 'ACTIVE' LIMIT 1`,
+      `SELECT plan::text AS plan, credits, "dailyCredits" FROM users WHERE id = $1 AND status = 'ACTIVE' LIMIT 1`,
       [userId]
     );
 
@@ -28,14 +28,19 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
-    const { plan, credits } = userRows.rows[0] as { plan: string; credits: number };
+    const { plan, credits, dailyCredits } = userRows.rows[0] as { plan: string; credits: number; dailyCredits: number };
 
     // Paid users: unlimited
     if (plan !== 'FREE') {
       return NextResponse.json({ allowed: true, current: 0, limit: 999999, reason: 'paid' });
     }
 
-    // Has credits: unlimited daily
+    // Has daily credits: unlimited daily (优先检查每日积分)
+    if (dailyCredits > 0) {
+      return NextResponse.json({ allowed: true, current: 0, limit: dailyCredits, reason: 'daily_credits' });
+    }
+
+    // Has paid credits: unlimited daily
     if (credits > 0) {
       return NextResponse.json({ allowed: true, current: 0, limit: credits, reason: 'credits' });
     }
