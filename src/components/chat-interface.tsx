@@ -88,6 +88,9 @@ export function ChatInterface({ className, initialPersona, initialMode }: ChatIn
   const pathname = usePathname();
   const { user, init, isInitialized } = useAuthStore();
 
+  // Debug: log user data on every render
+  console.log('[ChatInterface] DEBUG: user=', user?.id, 'dailyCredits=', user?.dailyCredits, 'isInitialized=', isInitialized);
+
   const saved = loadSavedState();
   const { count: dailyCount } = getDailyCount();
   const plan = user?.plan ?? 'FREE';
