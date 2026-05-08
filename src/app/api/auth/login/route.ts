@@ -155,7 +155,7 @@ export async function POST(req: NextRequest) {
               name: restored.name,
               role: 'FREE',
               plan: 'FREE',
-              credits: restored.credits || 0,
+              credits: 0,
               avatar: null,
               canUseProFeatures: false,
               isAdmin: false,
