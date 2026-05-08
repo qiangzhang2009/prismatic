@@ -57,12 +57,6 @@ export function useDailyLimit() {
   const plan = user?.plan ?? 'FREE';
   const credits = user?.credits ?? 0;      // 充值积分
   const dailyCredits = user?.dailyCredits ?? 0;  // 每日积分
-  
-  // Debug logging
-  if (typeof window !== 'undefined') {
-    console.log('[useDailyLimit] userLoaded=', userLoaded, 'dailyCredits=', dailyCredits, 'credits=', credits);
-  }
-  
   const limits = getFeatureLimit(plan);
   const isPaid = limits.dailyMessages >= 9999;
   // 有任何积分（每日+充值）

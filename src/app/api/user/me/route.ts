@@ -71,15 +71,7 @@ export async function GET(_req: NextRequest) {
 
     try {
       const sql = neon(DATABASE_URL);
-      console.log('[GET /api/user/me] Using DATABASE_URL:', DATABASE_URL?.replace(/password[^@]+@/, '***@'));
-      console.log('[GET /api/user/me] userId from token:', payload.userId);
-      
       const rows = await sql`SELECT id, email, name, avatar, role, plan, credits, "dailyCredits", "emailVerified", "createdAt", "updatedAt", preferences, "apiKeyStatus", "apiKeyProvider" FROM users WHERE id = ${payload.userId} LIMIT 1`;
-
-      console.log('[GET /api/user/me] DB result rows:', rows.length);
-      if (rows[0]) {
-        console.log('[GET /api/user/me] DB row raw dailyCredits:', rows[0].dailyCredits, 'type:', typeof rows[0].dailyCredits);
-      }
 
       if (rows.length === 0) return NextResponse.json({ user: null }, { headers: NO_CACHE_HEADERS });
 
@@ -89,8 +81,6 @@ export async function GET(_req: NextRequest) {
       const plan = u.plan || 'FREE';
       const paidCredits = u.credits || 0;
       const dailyCredits = u.dailyCredits || 0;
-
-      console.log('[GET /api/user/me] Constructed dailyCredits:', dailyCredits);
 
       return NextResponse.json({
         user: {

@@ -60,7 +60,9 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
     console.log('[auth] init: currentUser', currentUser ? `id=${currentUser.id} dailyCredits=${currentUser.dailyCredits}` : 'null');
     set({ isLoading: true });
     try {
-      const res = await fetch('/api/user/me', { credentials: 'include' });
+      // Use /api/auth/me instead of /api/user/me because they may return different values
+      // /api/auth/me returns correct dailyCredits from database
+      const res = await fetch('/api/auth/me', { credentials: 'include' });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
       const newUser = data.user || null;
@@ -71,7 +73,7 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
       console.log('[auth] init: UPDATED user, isInitialized=true');
       
       if (!newUser && !currentUser) {
-        console.warn('[auth] init: /api/user/me returned null user');
+        console.warn('[auth] init: /api/auth/me returned null user');
       }
     } catch (err) {
       console.error('[auth] init: failed to fetch user', err);
