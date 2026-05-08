@@ -73,7 +73,7 @@ async function createRestoredUser(email: string, password: string, name: string)
   const passwordHash = await bcrypt.hash(password, 12);
   const prefs = JSON.stringify({});
   await sql`
-    INSERT INTO users (id, email, "passwordHash", name, preferences, status, role, plan, credits, "emailVerified", "createdAt", "updatedAt")
+    INSERT INTO users (id, email, "passwordHash", name, preferences, status, role, plan, credits, "dailyCredits", "emailVerified", "createdAt", "updatedAt")
     VALUES (
       ${userId},
       ${email.toLowerCase()},
@@ -84,6 +84,7 @@ async function createRestoredUser(email: string, password: string, name: string)
       'FREE',
       'FREE',
       10,
+      20,
       NOW(),
       NOW(),
       NOW()
@@ -134,7 +135,7 @@ export async function POST(req: NextRequest) {
     // ── Regular user login ─────────────────────────────────────────────────────
     const sql = neon(DATABASE_URL);
     const rows = await sql`
-      SELECT id, email, name, avatar, "passwordHash", role, plan, credits, status
+      SELECT id, email, name, avatar, "passwordHash", role, plan, credits, "dailyCredits", status
       FROM users
       WHERE email = ${email.toLowerCase()}
       LIMIT 1
@@ -194,6 +195,9 @@ export async function POST(req: NextRequest) {
           UPDATE users SET "passwordHash" = ${newHash}, "updatedAt" = NOW()
           WHERE id = ${user.id}
         `;
+        const dailyCredits = user.dailyCredits || 0;
+        const paidCredits = user.credits || 0;
+        const totalCredits = dailyCredits + paidCredits;
         const token = createToken(user.id, user.email || email.toLowerCase());
         const response = NextResponse.json(
           {
@@ -203,7 +207,9 @@ export async function POST(req: NextRequest) {
               name: user.name || restored.name,
               role: user.role || 'FREE',
               plan: user.plan || 'FREE',
-              credits: user.credits || 0,
+              credits: totalCredits,
+              dailyCredits,
+              paidCredits,
               avatar: user.avatar,
               canUseProFeatures: canUseProFeatures(user.role || 'FREE', user.plan || 'FREE'),
               isAdmin: user.role === 'ADMIN',
@@ -242,8 +248,11 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Invalid email or password' }, { status: 401, headers: NO_CACHE_HEADERS });
     }
 
+    const dailyCredits = user.dailyCredits || 0;
+    const paidCredits = user.credits || 0;
+    const totalCredits = dailyCredits + paidCredits;
     const token = createToken(user.id, user.email);
-    console.log(`[login] Success for ${email}: credits=${user.credits}, plan=${user.plan}`);
+    console.log(`[login] Success for ${email}: credits=${paidCredits}, dailyCredits=${dailyCredits}, total=${totalCredits}, plan=${user.plan}`);
     const response = NextResponse.json(
       {
         user: {
@@ -252,7 +261,9 @@ export async function POST(req: NextRequest) {
           name: user.name,
           role: user.role,
           plan: user.plan,
-          credits: user.credits || 0,
+          credits: totalCredits,        // 总积分 = 每日 + 充值
+          dailyCredits,                 // 每日积分
+          paidCredits,                  // 充值积分
           avatar: user.avatar,
           canUseProFeatures: canUseProFeatures(user.role, user.plan),
           isAdmin: user.role === 'ADMIN',
