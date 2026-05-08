@@ -487,14 +487,13 @@ export function TCMChatInterface() {
         incrementCount();
       }
       // 如果服务端扣了积分，同步到本地 store 并检查是否耗尽
-      // NOTE: We no longer update dailyCredits from chat response because the API
-      // may return incorrect values due to daily reset logic. Instead, we rely on
-      // the /api/auth/me endpoint to provide correct values after page reload.
+      // Update credits in Zustand store using the correct field names from API
+      // The chat API returns the correct remaining daily credits after deduction,
+      // so we should trust it for the dailyCredits value
       if (data.pointsRemaining !== undefined || data.dailyPointsRemaining !== undefined) {
         useAuthStore.getState().updateUser({
           credits: data.paidPointsRemaining ?? 0,  // 充值积分
-          // dailyCredits is intentionally NOT updated here to avoid incorrect values
-          // from the chat API's daily reset logic
+          dailyCredits: data.dailyPointsRemaining ?? user?.dailyCredits ?? 0, // 每日积分
         });
         // 如果积分耗尽，显示弹窗
         if (data.pointsDeducted && data.pointsRemaining === 0) {

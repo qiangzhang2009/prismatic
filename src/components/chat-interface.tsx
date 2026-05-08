@@ -591,16 +591,13 @@ export function ChatInterface({ className, initialPersona, initialMode }: ChatIn
         }
       }
       // Update credits in Zustand store using the correct field names from API
-      // NOTE: We no longer update dailyCredits from chat response because the API
-      // may return incorrect values due to daily reset logic. Instead, we rely on
-      // the /api/auth/me endpoint to provide correct values after page reload.
+      // The chat API returns the correct remaining daily credits after deduction,
+      // so we should trust it for the dailyCredits value
       if (data.pointsRemaining !== undefined || data.dailyPointsRemaining !== undefined) {
-        // Only update paid credits from chat response - don't trust dailyPointsRemaining
         const { updateUser } = useAuthStore.getState();
         updateUser({
           credits: data.paidPointsRemaining ?? 0,  // 充值积分
-          // dailyCredits is intentionally NOT updated here to avoid incorrect values
-          // from the chat API's daily reset logic
+          dailyCredits: data.dailyPointsRemaining ?? user?.dailyCredits ?? 0, // 每日积分
         });
       }
 
