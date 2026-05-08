@@ -109,7 +109,8 @@ export function ChatInterface({ className, initialPersona, initialMode }: ChatIn
   const creditsExhausted = dailyCredits <= 0 && paidCredits <= 0;
   // 优先显示每日积分，每日积分用完则显示充值积分
   // 有积分时直接用积分数据，不依赖 localStorage 的每日计数
-  const dailyRemaining = isPaid ? '∞' : dailyCredits > 0 ? String(dailyCredits) : paidCredits > 0 ? String(paidCredits) : String(Math.max(0, dailyLimit - dailyCount));
+  // creditsLoaded 确保从服务器获取最新数据后再显示
+  const dailyRemaining = isPaid ? '∞' : !creditsLoaded ? '...' : dailyCredits > 0 ? String(dailyCredits) : paidCredits > 0 ? String(paidCredits) : String(Math.max(0, dailyLimit - dailyCount));
 
   // Priority: URL param > saved state > default (steve-jobs for backwards compat)
   const getInitialPersonaId = () => {
@@ -168,13 +169,26 @@ export function ChatInterface({ className, initialPersona, initialMode }: ChatIn
   // DB personas — fetched once, merged with hardcoded PERSONA_LIST
   const [dbPersonas, setDbPersonas] = useState<any[]>([]);
 
-  // ── Refresh user data on mount to get latest credits ────────────────────────
+  // ── Sync latest credits from server on mount ────────────────────────────────
+  // 关键：直接从 API 获取最新积分，忽略可能不准确的 store 数据
+  const [creditsLoaded, setCreditsLoaded] = useState(false);
   useEffect(() => {
-    if (isInitialized) {
-      // 直接调用 fetchUser，不依赖 useAuthStore 返回的函数引用
-      useAuthStore.getState().fetchUser();
+    let cancelled = false;
+    async function syncCredits() {
+      try {
+        const res = await fetch('/api/user/me', { credentials: 'include' });
+        if (res.ok && !cancelled) {
+          const data = await res.json();
+          if (data.user) {
+            useAuthStore.getState().updateUser(data.user);
+          }
+        }
+      } catch {}
+      if (!cancelled) setCreditsLoaded(true);
     }
-  }, [isInitialized]);
+    syncCredits();
+    return () => { cancelled = true; };
+  }, []);
 
   // ── Migrate legacy conversation keys to user-isolated keys on login ──────────
   useEffect(() => {

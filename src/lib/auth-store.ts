@@ -142,10 +142,14 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
 
   updateUser: (data: Partial<AuthUser>) => {
     const current = get().user;
+    console.log('[updateUser] current:', current?.dailyCredits, 'new:', data?.dailyCredits);
     if (current) {
-      set({ user: { ...current, ...data } });
+      const updated = { ...current, ...data };
+      console.log('[updateUser] merged:', updated.dailyCredits);
+      set({ user: updated });
     } else if (data && Object.keys(data).length > 0) {
       // No current user — treat partial data as the full user object (first load)
+      console.log('[updateUser] no current user, setting:', data.dailyCredits);
       set({ user: data as AuthUser });
     }
   },

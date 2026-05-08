@@ -128,13 +128,26 @@ export function TCMChatInterface() {
     syncDailyCount,
   } = useDailyLimit();
 
-  // ── Refresh user data on mount to get latest credits ────────────────────────
+  // ── Sync latest credits from server on mount ────────────────────────────────
+  // 关键：直接从 API 获取最新积分，忽略可能不准确的 store 数据
+  const [creditsLoaded, setCreditsLoaded] = useState(false);
   useEffect(() => {
-    if (isInitialized) {
-      // 直接调用 fetchUser，不依赖 useAuthStore 返回的函数引用
-      useAuthStore.getState().fetchUser();
+    let cancelled = false;
+    async function syncCredits() {
+      try {
+        const res = await fetch('/api/user/me', { credentials: 'include' });
+        if (res.ok && !cancelled) {
+          const data = await res.json();
+          if (data.user) {
+            useAuthStore.getState().updateUser(data.user);
+          }
+        }
+      } catch {}
+      if (!cancelled) setCreditsLoaded(true);
     }
-  }, [isInitialized]);
+    syncCredits();
+    return () => { cancelled = true; };
+  }, []);
 
   const [selectedPersona, setSelectedPersona] = useState<TCMPersona>(
     () => TCM_PERSONA_LIST[0] as TCMPersona
