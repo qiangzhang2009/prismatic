@@ -161,15 +161,27 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
       const newUser = data.user || null;
       if (newUser) {
         set(state => {
+          // 检查是否有变化（包括 dailyCredits）
           const changed = state.user
-            ? JSON.stringify({ role: state.user.role, plan: state.user.plan, credits: state.user.credits })
-            !== JSON.stringify({ role: newUser.role, plan: newUser.plan, credits: newUser.credits })
+            ? JSON.stringify({ 
+                role: state.user.role, 
+                plan: state.user.plan, 
+                credits: state.user.credits,
+                dailyCredits: state.user.dailyCredits 
+              })
+            !== JSON.stringify({ 
+                role: newUser.role, 
+                plan: newUser.plan, 
+                credits: newUser.credits,
+                dailyCredits: newUser.dailyCredits 
+              })
             : true;
           if (changed) {
             console.log('[auth] fetchUser: user data changed → updating store', {
               role: `${state.user?.role} → ${newUser.role}`,
               plan: `${state.user?.plan} → ${newUser.plan}`,
               credits: `${state.user?.credits} → ${newUser.credits}`,
+              dailyCredits: `${state.user?.dailyCredits} → ${newUser.dailyCredits}`,
             });
           }
           return { user: newUser };

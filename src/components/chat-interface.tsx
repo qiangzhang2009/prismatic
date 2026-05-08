@@ -168,6 +168,14 @@ export function ChatInterface({ className, initialPersona, initialMode }: ChatIn
   // DB personas — fetched once, merged with hardcoded PERSONA_LIST
   const [dbPersonas, setDbPersonas] = useState<any[]>([]);
 
+  // ── Refresh user data on mount to get latest credits ────────────────────────
+  const refreshUser = useAuthStore(s => s.fetchUser);
+  useEffect(() => {
+    if (isInitialized) {
+      refreshUser();
+    }
+  }, [isInitialized, refreshUser]);
+
   // ── Migrate legacy conversation keys to user-isolated keys on login ──────────
   useEffect(() => {
     if (user?.id) {

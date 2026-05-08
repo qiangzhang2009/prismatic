@@ -120,12 +120,21 @@ function DisclaimerBanner() {
 
 export function TCMChatInterface() {
   const user = useAuthStore(s => s.user);
+  const isInitialized = useAuthStore(s => s.isInitialized);
   const userId = user?.id;
   const { pushSnapshot } = useConversationSync();
   const { plan, credits, isPaid, hasCredits, dailyLimit, dailyCount,
     dailyRemaining, limitReached, creditsExhausted, incrementCount,
     syncDailyCount,
   } = useDailyLimit();
+
+  // ── Refresh user data on mount to get latest credits ────────────────────────
+  const refreshUser = useAuthStore(s => s.fetchUser);
+  useEffect(() => {
+    if (isInitialized) {
+      refreshUser();
+    }
+  }, [isInitialized, refreshUser]);
 
   const [selectedPersona, setSelectedPersona] = useState<TCMPersona>(
     () => TCM_PERSONA_LIST[0] as TCMPersona
