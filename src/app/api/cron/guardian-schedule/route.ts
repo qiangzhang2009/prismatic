@@ -1,15 +1,23 @@
 /**
  * POST /api/cron/guardian-schedule — Vercel Cron entry point for Guardian Schedule Generation
- * Triggered every day at 00:00 (Asia/Shanghai) via vercel.json cron config.
+ * Triggered every day at 00:30 (Asia/Shanghai) via vercel.json cron config.
  * 
  * This ensures the schedule table always has data for the next 14 days.
  */
 
 import { NextRequest, NextResponse } from 'next/server';
 import { neon } from '@neondatabase/serverless';
-import { getWeekStart } from '@/lib/guardian';
 
 const DATABASE_URL = process.env.DATABASE_URL;
+
+// ─── Utilities ────────────────────────────────────────────────────────────────
+
+function getWeekStart(date: Date): Date {
+  const d = new Date(date);
+  const day = d.getDay();
+  const diff = d.getDate() - day + (day === 0 ? -6 : 1);
+  return new Date(d.setDate(diff));
+}
 
 // Guardian persona pool
 const GUARDIAN_POOL = [
@@ -59,7 +67,7 @@ const SHIFT_THEMES = [
 /**
  * Generate deterministic schedule for a week using week number as seed
  */
-function generateWeekSchedule(weekStart: Date, startDay: number = 0): Array<{
+function generateWeekSchedule(weekStart: Date): Array<{
   date: string;
   slot: number;
   personaId: string;
@@ -83,7 +91,7 @@ function generateWeekSchedule(weekStart: Date, startDay: number = 0): Array<{
   });
 
   // Generate for 7 days, 3 slots each
-  for (let dayOffset = startDay; dayOffset < 7; dayOffset++) {
+  for (let dayOffset = 0; dayOffset < 7; dayOffset++) {
     const date = new Date(weekStart);
     date.setDate(date.getDate() + dayOffset);
     const dateStr = date.toISOString().slice(0, 10);
