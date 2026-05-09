@@ -8,6 +8,7 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
+import { PERSONA_LIST_LIGHT } from '@/lib/persona-list-light';
 import {
   Hexagon,
   Sparkles,
@@ -235,7 +236,7 @@ export default function MethodologyPage() {
           >
             {[
               { value: '6层', label: '自动蒸馏管道' },
-              { value: '82', label: '已蒸馏人物' },
+              { value: String(PERSONA_LIST_LIGHT.length), label: '已蒸馏人物' },
               { value: '3GB', label: '原始语料' },
               { value: 'Gate 1-4', label: '四层质量门' },
             ].map((s) => (
@@ -469,7 +470,7 @@ export default function MethodologyPage() {
           >
             <h2 className="text-2xl font-display font-bold mb-4">亲身体验蒸馏的力量</h2>
             <p className="text-text-secondary mb-8 max-w-lg mx-auto">
-              82位经过科学蒸馏的思维伙伴已经就位。选择一位或多位，开启真正有深度的认知协作。
+              {PERSONA_LIST_LIGHT.length}位经过科学蒸馏的思维伙伴已经就位。选择一位或多位，开启真正有深度的认知协作。
             </p>
             <div className="flex items-center justify-center gap-4">
               <Link href="/app" className="btn-primary inline-flex items-center gap-2">

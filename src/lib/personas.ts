@@ -1,6 +1,6 @@
 /**
  * Personas Registry
- * 62 pre-built distilled thinking personas
+ * 87 pre-built distilled thinking personas
  */
 
 import type { Persona } from './types';

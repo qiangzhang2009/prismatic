@@ -51,7 +51,7 @@
   <img src="screenshots/prismatic-01-homepage-hero.png" width="100%" alt="Prismatic Homepage — Multi-Agent Collaboration Modes" />
 </p>
 
-### 人物档案馆 · 48 位蒸馏灵魂
+### 人物档案馆 · 83 位蒸馏灵魂
 
 <p align="center">
   <img src="screenshots/prismatic-02-persona-library.png" width="100%" alt="Persona Library — 48 Distilled Thinkers" />
@@ -105,7 +105,7 @@
 │  Presentation   Next.js 14 · TypeScript · Tailwind CSS  │
 │  Orchestration  Multi-Agent Router · Debate Engine       │
 │  Agent Layer    Persona Skills · Context Manager         │
-│  Knowledge     48 Distilled Personas · Persona Registry │
+│  Knowledge     83 Distilled Personas · Persona Registry │
 │  LLM Gateway  DeepSeek · OpenAI · Anthropic (Hotswap)│
 │  Database      Neon Serverless PostgreSQL                │
 └─────────────────────────────────────────────────────────┘

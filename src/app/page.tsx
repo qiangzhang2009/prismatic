@@ -31,10 +31,9 @@ const CommentsSection = dynamic(
 );
 
 // ─── Hero Stats ────────────────────────────────────────────────────────────────
-// Real data from project census (2026-05-09)
-// 87 defined personas (PERSONA_LIST_LIGHT), 8 modes, ~9.7GB persona corpus, 58 corpus dirs
+// Dynamic data from PERSONA_LIST_LIGHT
 const HERO_STATS = [
-  { value: '87', label: '蒸馏人物', icon: BookOpen, color: '#4d96ff' },
+  { value: String(PERSONA_LIST_LIGHT.length), label: '蒸馏人物', icon: BookOpen, color: '#4d96ff' },
   { value: '8', label: '协作模式', icon: Layers, color: '#6bcb77' },
   { value: '9.7GB', label: '原始语料', icon: BarChart3, color: '#c77dff' },
   { value: '∞', label: '视角组合', icon: TrendingUp, color: '#ff9f43' },
