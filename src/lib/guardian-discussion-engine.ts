@@ -16,6 +16,7 @@ import { getTodayGuardians } from '@/lib/guardian';
 import { getPersonasByIds } from '@/lib/personas';
 import { createLLMProvider } from '@/lib/llm';
 import { COUNTRY_NAMES } from '@/lib/geo';
+import { nanoid } from 'nanoid';
 
 const prisma = new PrismaClient();
 
@@ -103,7 +104,7 @@ interface GuardianComment {
 async function createDiscussion(
   topic: string,
   participantIds: string[]
-): Promise<number> {
+): Promise<string> {
   await requireTable('guardian_discussions');
 
   const sql = getSql();
@@ -116,17 +117,19 @@ async function createDiscussion(
     return (existing[0] as any).id;
   }
 
+  // Generate UUID for id column
+  const discussionId = `gd_${nanoid(12)}`;
   const rows = await sql`
-    INSERT INTO guardian_discussions (topic, "participantIds", status, "startedAt")
-    VALUES (${topic}, ${participantIds}, ${'active'}, NOW())
+    INSERT INTO guardian_discussions (id, topic, "participantIds", status, "startedAt")
+    VALUES (${discussionId}, ${topic}, ${participantIds}, ${'active'}, NOW())
     RETURNING id
   `;
-  return (rows as any[])?.[0]?.id ?? 0;
+  return (rows as any[])?.[0]?.id ?? discussionId;
 }
 
 export async function getRecentDiscussions(limit: number = 5): Promise<
   Array<{
-    id: number;
+    id: string;
     topic: string;
     participantIds: string[];
     participantNames: string[];
@@ -293,7 +296,7 @@ function buildPriorContext(comments: GuardianComment[]): string {
 
 export async function runGuardianAutonomousDiscussion(
   manualTopic?: string
-): Promise<{ success: boolean; discussionId?: number; topic?: string; error?: string }> {
+): Promise<{ success: boolean; discussionId?: string; topic?: string; error?: string }> {
   try {
     const guardians = await getTodayGuardians();
     if (guardians.length === 0) {
