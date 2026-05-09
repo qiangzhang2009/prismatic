@@ -65,10 +65,34 @@ export async function GET(req: NextRequest) {
     const role = u.role || 'FREE';
     const plan = u.plan || 'FREE';
 
+    // 后备重置逻辑：如果上次重置在今天之前，自动重置积分
+    // 这样即使用户今天还没用过积分，下次访问时也会显示正确的 20 条
+    const now = new Date();
+    const todayStart = new Date(now);
+    todayStart.setHours(0, 0, 0, 0);
+    const lastReset = new Date(u.lastDailyResetAt);
+
+    let effectiveDailyCredits = u.dailyCredits || 0;
+    let needsReset = false;
+
+    if (lastReset < todayStart) {
+      // 上次重置在今天之前，需要重置
+      needsReset = true;
+      effectiveDailyCredits = 20;
+
+      // 异步更新数据库（不阻塞响应）
+      sql`UPDATE users SET "dailyCredits" = 20, "lastDailyResetAt" = NOW() WHERE id = ${userId}`.catch(
+        (err: any) => console.error('[auth/me] Auto reset failed:', err)
+      );
+    }
+
     // 每日积分和充值积分分开返回，不合并
-    const dailyCredits = u.dailyCredits || 0;
+    const dailyCredits = effectiveDailyCredits;
     const paidCredits = u.credits || 0;
 
+    if (needsReset) {
+      console.log(`[/api/auth/me] userId=${userId}, auto-reset dailyCredits to 20 (lastReset=${u.lastDailyResetAt})`);
+    }
     console.log(`[/api/auth/me] userId=${userId}, dailyCredits=${dailyCredits}, paidCredits=${paidCredits}, plan=${plan}`);
     return NextResponse.json({ 
       user: { 
@@ -81,7 +105,7 @@ export async function GET(req: NextRequest) {
         role, 
         plan, 
         credits: paidCredits,        // 只返回充值积分
-        dailyCredits,               // 每日积分
+        dailyCredits,               // 每日积分（已自动重置）
         paidCredits,                // 充值积分
         avatar: u.avatar, 
         createdAt: u.createdAt, 

@@ -369,22 +369,24 @@ export async function addPaidCredits(
 /**
  * 每日重置所有用户的每日积分（由定时任务调用）
  * 
- * 注意：这个函数会遍历所有活跃用户，性能可能较慢
- * 建议使用增量更新，只重置当天未刷新过的用户
+ * 逻辑：只重置上次重置时间在今天之前的用户
+ * 无论当前余额多少，都需要更新时间戳以确保正确判断
  */
 export async function resetDailyCredits(): Promise<{ resetCount: number }> {
   const pool = getPool();
   const resetTime = getResetTime();
   const resetTimeStr = resetTime.toISOString();
 
-  // 只重置当天未重置的用户
+  // BUG FIX: 移除 "dailyCredits < $1" 条件
+  // 原因：如果用户今天还没用过积分，余额=20，不会触发重置
+  //      这导致 lastDailyResetAt 永远是上次使用的日期，而不是今天
+  // 正确的逻辑：只根据时间判断是否需要重置
   const result = await pool.query(
     `UPDATE users
      SET "dailyCredits" = $1,
          "lastDailyResetAt" = $2::timestamp
      WHERE status = 'ACTIVE'
-       AND "lastDailyResetAt" < $2::timestamp
-       AND "dailyCredits" < $1`,
+       AND "lastDailyResetAt" < $2::timestamp`,
     [DAILY_CREDITS, resetTimeStr]
   );
 
@@ -402,8 +404,7 @@ export async function resetDailyCredits(): Promise<{ resetCount: number }> {
        NOW()
      FROM users
      WHERE status = 'ACTIVE'
-       AND "lastDailyResetAt" < $1::timestamp
-       AND "dailyCredits" < $1`,
+       AND "lastDailyResetAt" < $1::timestamp`,
     [resetTimeStr, DAILY_CREDITS]
   );
 
