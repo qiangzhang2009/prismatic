@@ -2,6 +2,10 @@
   "regions": ["hkg1"],
   "crons": [
     {
+      "path": "/api/cron/guardian-schedule",
+      "schedule": "30 0 * * *"
+    },
+    {
       "path": "/api/cron/guardian-discussions",
       "schedule": "0 1 * * *"
     },
