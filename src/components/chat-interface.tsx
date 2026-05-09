@@ -172,6 +172,31 @@ export function ChatInterface({ className, initialPersona, initialMode }: ChatIn
   // DB personas — fetched once, merged with hardcoded PERSONA_LIST
   const [dbPersonas, setDbPersonas] = useState<any[]>([]);
 
+  // ── Force sync user data on mount to ensure correct dailyCredits ─────────────────
+  // This fixes the issue where the component renders with stale 0 dailyCredits
+  // because AuthInitializer's init() hasn't completed yet.
+  const syncRef = useRef(false);
+  useEffect(() => {
+    if (syncRef.current) return;
+    if (!isInitialized) return;
+    if (!user?.id) return;
+
+    syncRef.current = true;
+    // If user exists but dailyCredits is 0 (or undefined), force refresh from server
+    if (user && (user.dailyCredits === 0 || user.dailyCredits === undefined)) {
+      console.log('[ChatInterface] dailyCredits is 0/undefined, forcing sync from server');
+      fetch('/api/auth/me', { credentials: 'include' })
+        .then(r => r.json())
+        .then(data => {
+          if (data.user) {
+            console.log('[ChatInterface] Synced from server: dailyCredits=', data.user.dailyCredits);
+            useAuthStore.getState().updateUser(data.user);
+          }
+        })
+        .catch(console.error);
+    }
+  }, [isInitialized, user]);
+
   // ── Migrate legacy conversation keys to user-isolated keys on login ──────────
   useEffect(() => {
     if (user?.id) {

@@ -129,6 +129,31 @@ export function TCMChatInterface() {
     syncDailyCount,
   } = useDailyLimit();
 
+  // ── Force sync user data on mount to ensure correct dailyCredits ─────────────────
+  // This fixes the issue where the component renders with stale 0 dailyCredits
+  // because AuthInitializer's init() hasn't completed yet.
+  const syncRef = useRef(false);
+  useEffect(() => {
+    if (syncRef.current) return;
+    if (!isInitialized) return;
+    if (!userId) return;
+    
+    syncRef.current = true;
+    // If user exists but dailyCredits is 0 (or undefined), force refresh from server
+    if (user && (user.dailyCredits === 0 || user.dailyCredits === undefined)) {
+      console.log('[TCMChat] dailyCredits is 0/undefined, forcing sync from server');
+      fetch('/api/auth/me', { credentials: 'include' })
+        .then(r => r.json())
+        .then(data => {
+          if (data.user) {
+            console.log('[TCMChat] Synced from server: dailyCredits=', data.user.dailyCredits);
+            useAuthStore.getState().updateUser(data.user);
+          }
+        })
+        .catch(console.error);
+    }
+  }, [isInitialized, userId, user]);
+
   const [selectedPersona, setSelectedPersona] = useState<TCMPersona>(
     () => TCM_PERSONA_LIST[0] as TCMPersona
   );
