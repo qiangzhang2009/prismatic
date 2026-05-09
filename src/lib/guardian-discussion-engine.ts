@@ -110,15 +110,15 @@ async function createDiscussion(
   const today = new Date().toISOString().slice(0, 10);
 
   const existing = await sql`
-    SELECT id FROM guardian_discussions WHERE DATE(started_at) = ${today} LIMIT 1
+    SELECT id FROM guardian_discussions WHERE DATE("startedAt") = ${today} LIMIT 1
   `;
   if (existing.length > 0) {
     return (existing[0] as any).id;
   }
 
   const rows = await sql`
-    INSERT INTO guardian_discussions (topic, participant_ids, status)
-    VALUES (${topic}, ${participantIds}, ${'active'})
+    INSERT INTO guardian_discussions (topic, "participantIds", status, "startedAt")
+    VALUES (${topic}, ${participantIds}, ${'active'}, NOW())
     RETURNING id
   `;
   return (rows as any[])?.[0]?.id ?? 0;
@@ -144,25 +144,25 @@ export async function getRecentDiscussions(limit: number = 5): Promise<
 
   const sql = getSql();
   const rows = await sql`
-    SELECT id, topic, participant_ids, round_count, view_count, status, started_at
+    SELECT id, topic, "participantIds", "roundCount", "viewCount", status, "startedAt"
     FROM guardian_discussions
-    ORDER BY started_at DESC
+    ORDER BY "startedAt" DESC
     LIMIT ${limit}
   `;
 
-  const participantIds = [...new Set((rows as any[]).flatMap((r) => r.participant_ids ?? []))];
+  const participantIds = [...new Set((rows as any[]).flatMap((r) => r.participantIds ?? []))];
   const personas = getPersonasByIds(participantIds);
   const nameMap = new Map(personas.map((p) => [p.id, p.nameZh]));
 
   return (rows as any[]).map((r) => ({
     id: r.id,
     topic: r.topic,
-    participantIds: r.participant_ids ?? [],
-    participantNames: (r.participant_ids ?? []).map((id: string) => nameMap.get(id) ?? id),
-    roundCount: r.round_count ?? 0,
-    viewCount: r.view_count ?? 0,
+    participantIds: r.participantIds ?? [],
+    participantNames: (r.participantIds ?? []).map((id: string) => nameMap.get(id) ?? id),
+    roundCount: r.roundCount ?? 0,
+    viewCount: r.viewCount ?? 0,
     status: r.status,
-    startedAt: r.started_at instanceof Date ? r.started_at.toISOString() : String(r.started_at),
+    startedAt: r.startedAt instanceof Date ? r.startedAt.toISOString() : String(r.startedAt),
   }));
 }
 
@@ -403,9 +403,10 @@ export async function runGuardianAutonomousDiscussion(
         await sql`
           UPDATE guardian_discussions
           SET
-            round_count = ${allComments.length},
+            "roundCount" = ${allComments.length},
             content = ${summary},
-            status = ${'completed'}
+            status = ${'completed'},
+            "endedAt" = NOW()
           WHERE id = ${discussionId}
         `;
       } catch { /* non-fatal */ }
