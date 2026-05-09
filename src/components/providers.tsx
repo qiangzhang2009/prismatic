@@ -28,9 +28,33 @@ export function Providers({ children }: { children: ReactNode }) {
     <QueryClientProvider client={queryClient}>
       <AuthInitializer />
       <TrackingInitializer />
-      {children}
+      <AuthReadyGate>{children}</AuthReadyGate>
     </QueryClientProvider>
   );
+}
+
+/**
+ * Gate that waits for auth initialization before rendering children.
+ * This ensures user data (including dailyCredits) is loaded before
+ * any component tries to read it from the store.
+ */
+function AuthReadyGate({ children }: { children: ReactNode }) {
+  const isInitialized = useAuthStore((s) => s.isInitialized);
+  const [ready, setReady] = useState(false);
+
+  useEffect(() => {
+    if (isInitialized) {
+      setReady(true);
+    }
+  }, [isInitialized]);
+
+  // Don't render children until auth is initialized
+  // This prevents showing stale credit values (e.g., 5 instead of 20)
+  if (!ready) {
+    return null;
+  }
+
+  return <>{children}</>;
 }
 
 /**

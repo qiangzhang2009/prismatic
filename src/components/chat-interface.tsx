@@ -172,26 +172,6 @@ export function ChatInterface({ className, initialPersona, initialMode }: ChatIn
   // DB personas — fetched once, merged with hardcoded PERSONA_LIST
   const [dbPersonas, setDbPersonas] = useState<any[]>([]);
 
-  // ── Sync latest credits from server on mount ────────────────────────────────
-  // 关键：直接从 API 获取最新积分，忽略可能不准确的 store 数据
-  // 注意：使用 /api/auth/me 而不是 /api/user/me，因为后者返回的 dailyCredits 可能不准确
-  useEffect(() => {
-    let cancelled = false;
-    async function syncCredits() {
-      try {
-        const res = await fetch('/api/auth/me', { credentials: 'include' }); // FIXED: use /api/auth/me
-        if (res.ok && !cancelled) {
-          const data = await res.json();
-          if (data.user) {
-            useAuthStore.getState().updateUser(data.user);
-          }
-        }
-      } catch {}
-    }
-    syncCredits();
-    return () => { cancelled = true; };
-  }, []);
-
   // ── Migrate legacy conversation keys to user-isolated keys on login ──────────
   useEffect(() => {
     if (user?.id) {
