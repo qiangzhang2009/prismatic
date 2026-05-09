@@ -31,11 +31,11 @@ const CommentsSection = dynamic(
 );
 
 // ─── Hero Stats ────────────────────────────────────────────────────────────────
-// Real data from project census (2026-05-07)
-// 87 defined personas (PERSONA_LIST_LIGHT), 8 total modes (6 visible), ~9.7GB persona corpus
+// Real data from project census (2026-05-09)
+// 87 defined personas (PERSONA_LIST_LIGHT), 8 modes, ~9.7GB persona corpus, 58 corpus dirs
 const HERO_STATS = [
   { value: '87', label: '蒸馏人物', icon: BookOpen, color: '#4d96ff' },
-  { value: '6', label: '协作模式', icon: Layers, color: '#6bcb77' },
+  { value: '8', label: '协作模式', icon: Layers, color: '#6bcb77' },
   { value: '9.7GB', label: '原始语料', icon: BarChart3, color: '#c77dff' },
   { value: '∞', label: '视角组合', icon: TrendingUp, color: '#ff9f43' },
 ];
@@ -191,7 +191,7 @@ export default function HomePage() {
           >
             每个人的一生都是一本书，每本书都是一个人的灵魂。
             当我们阅读那些卓越人物的著作时，不仅是在获取知识，更是在与一个伟大的灵魂对话。
-            <br />{APP_NAME} 已蒸馏 {PERSONA_LIST_LIGHT.length} 位卓越人物，涵盖哲学、投资、科技、科学、东方智慧等领域。
+            <br />{APP_NAME} 已蒸馏 {PERSONA_LIST_LIGHT.length} 位卓越人物，涵盖哲学、投资、科技、科学、东方智慧、中医思想等领域。
             让乔布斯、马斯克、芒格、费曼同时为你思考——不是引用他们说过的话，而是用他们的方式去思考你的问题。
           </motion.p>
 
@@ -306,7 +306,7 @@ export default function HomePage() {
             viewport={{ once: true }}
             transition={{ delay: 0.6 }}
             className="text-center text-xs text-text-muted mt-8 border-t border-border-subtle pt-6">
-            数据来源：PerseusDL · chinese-philosophy · The-Digital-Stoic-Library · 全唐诗 (quantangshi) · 古希腊哲学 (greek-classics) · 等 54 个语料目录
+            数据来源：PerseusDL · chinese-philosophy · The-Digital-Stoic-Library · 全唐诗 (quantangshi) · 古希腊哲学 (greek-classics) · 中医经典 (tcm/) · 等 58 个语料目录
           </motion.p>
         </div>
       </section>
@@ -478,7 +478,7 @@ export default function HomePage() {
                 蒸馏人物
               </h2>
               <p className="text-text-muted text-sm">
-                覆盖哲学、投资、科技、科学、东方智慧等多个领域
+                覆盖哲学、投资、科技、科学、东方智慧、中医思想等多个领域
               </p>
             </div>
             <Link
@@ -760,7 +760,7 @@ export default function HomePage() {
             <p className="text-text-secondary leading-relaxed max-w-2xl mx-auto">
               {APP_NAME} 基于「认知蒸馏」技术，通过深度访谈、文献研究、著作分析等方式，
               对人类历史上最卓越的思考者进行系统性分析，重构他们的思维模型、决策框架和表达 DNA。
-              <br />目前已蒸馏 {PERSONA_LIST_LIGHT.length} 位卓越人物，支持 6 种协作模式，从单人深度追问到多智能体实时辩论，
+              <br />目前已蒸馏 {PERSONA_LIST_LIGHT.length} 位卓越人物，支持 8 种协作模式，从单人深度追问到多智能体实时辩论，
               让不同领域的顶尖头脑同时为你思考，发现单一视角无法产生的洞见。
             </p>
           </motion.div>
