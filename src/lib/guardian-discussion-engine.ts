@@ -197,7 +197,7 @@ async function generateGuardianComment(
   priorContent?: string
 ): Promise<string> {
   const llm = createLLMProvider('deepseek');
-  const model = 'deepseek-chat';
+  const model = 'deepseek-v4-flash';
 
   try {
     const userPrompt = TONE_PROMPTS[tone](personaNameZh, topic, priorContent);

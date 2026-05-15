@@ -271,7 +271,7 @@ async function extractWithLLM<T>(
   llm: any
 ): Promise<ExtractionResult<T>> {
   const response = await llm.chat({
-    model: 'deepseek-chat',
+    model: 'deepseek-v4-flash',
     messages: [
       {
         role: 'user',
@@ -340,7 +340,7 @@ async function extractWithLLM<T>(
     confidence: 0.8,
     autoFixable: true,
     warnings: [],
-    llmModel: response.model ?? 'deepseek-chat',
+    llmModel: response.model ?? 'deepseek-v4-flash',
     tokensUsed: {
       prompt: response.usage?.prompt_tokens ?? 0,
       completion: response.usage?.completion_tokens ?? 0,

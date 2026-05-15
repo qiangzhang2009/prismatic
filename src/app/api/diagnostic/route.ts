@@ -46,7 +46,7 @@ export async function GET(req: NextRequest) {
           'Authorization': `Bearer ${apiKey}`,
         },
         body: JSON.stringify({
-          model: 'deepseek-chat',
+          model: 'deepseek-v4-flash',
           messages: [{ role: 'user', content: 'hi' }],
           max_tokens: 5,
         }),

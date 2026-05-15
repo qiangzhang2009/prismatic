@@ -18,7 +18,9 @@ import { LLMMessage } from '../../llm';
 // =============================================================================
 
 const PRICING: Record<string, { input: number; output: number }> = {
-  'deepseek-chat': { input: 0.27, output: 1.1 },
+  'deepseek-v4-flash': { input: 0.27, output: 0.27 },
+  'deepseek-v4-pro': { input: 3.10, output: 1.10 },
+  'deepseek-chat': { input: 0.27, output: 0.27 },
   'deepseek-reasoner': { input: 0.27, output: 2.19 },
   'deepseek-embedding': { input: 0.13, output: 0 },
   'gpt-4o': { input: 5.0, output: 15.0 },
@@ -162,7 +164,7 @@ export async function callLLM(
   session?: LLMSession,
   phase?: string
 ): Promise<LLMResponse> {
-  const model = options.model ?? 'deepseek-chat';
+  const model = options.model ?? 'deepseek-v4-flash';
   const temperature = options.temperature ?? 0.3;
   const maxTokens = options.maxTokens ?? 4000;
   const startTime = Date.now();

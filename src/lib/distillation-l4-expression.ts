@@ -473,7 +473,7 @@ ${sample}
 === END CORPUS ===`;
 
   const response = await llm.chat({
-    model: 'deepseek-chat',
+    model: 'deepseek-v4-flash',
     messages: [{ role: 'user', content: prompt }],
     temperature: 0.2,
     maxTokens: 2000,

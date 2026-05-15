@@ -82,7 +82,7 @@ function getModelName(): string {
   const p = process.env.LLM_PROVIDER;
   if (p === 'openai') return 'gpt-4o';
   if (p === 'anthropic') return 'claude-sonnet-4-20250514';
-  return 'deepseek-chat';
+  return 'deepseek-v4-flash';
 }
 
 // ─── Content Safety ─────────────────────────────────────────────────────────────

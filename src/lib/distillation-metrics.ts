@@ -407,7 +407,7 @@ export function calculateSafetyCompliance(
 export function calculateDistillationScore(
   persona: Persona,
   corpusSample?: string,
-  modelUsed: string = 'deepseek-chat'
+  modelUsed: string = 'deepseek-v4-flash'
 ): DistillationScore {
   const confidence = PERSONA_CONFIDENCE[persona.id] as ConfidenceScore | undefined;
 

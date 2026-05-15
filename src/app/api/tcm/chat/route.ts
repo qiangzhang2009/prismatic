@@ -299,7 +299,7 @@ export async function POST(req: NextRequest) {
         role: 'assistant',
         content: response,
         personaId: personaId,
-        modelUsed: 'deepseek-chat',
+        modelUsed: 'deepseek-v4-flash',
         tokensInput: usage?.promptTokens ?? null,
         tokensOutput: usage?.completionTokens ?? null,
         apiCost: cost,

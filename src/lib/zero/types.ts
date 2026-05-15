@@ -808,7 +808,7 @@ export interface ZeroConfig {
 
 export const DEFAULT_ZERO_CONFIG: ZeroConfig = {
   llm: {
-    primaryModel: 'deepseek-chat',
+    primaryModel: 'deepseek-v4-flash',
     embeddingModel: 'deepseek-embedding',
     maxTokensPerCall: 8000,
     defaultTemperature: 0.3,

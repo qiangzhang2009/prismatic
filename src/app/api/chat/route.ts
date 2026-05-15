@@ -34,7 +34,7 @@ function getModelName(llmType: 'deepseek' | 'openai' | 'anthropic'): string {
   switch (llmType) {
     case 'openai': return 'gpt-4o';
     case 'anthropic': return 'claude-sonnet-4-20250514';
-    default: return 'deepseek-chat';
+    default: return 'deepseek-v4-flash';
   }
 }
 
@@ -296,12 +296,16 @@ export async function persistConversation(
 function estimateTokenCost(model: string, inputTokens: number, outputTokens: number): { tokensInput: number; tokensOutput: number; cost: number } {
   // 简化的估算模型（实际应从 LLM provider 响应头获取）
   const inputCostPer1k: Record<string, number> = {
-    'deepseek-chat': 0.014,   // $0.014 / 1K input tokens
+    'deepseek-v4-flash': 0.00027,   // 0.27 CNY / 1M tokens = 0.00027 CNY / 1K
+    'deepseek-v4-pro': 0.00310,
+    'deepseek-chat': 0.00027,
     'gpt-4o': 0.03,
     'claude-sonnet-4-20250514': 0.03,
   };
   const outputCostPer1k: Record<string, number> = {
-    'deepseek-chat': 0.014,
+    'deepseek-v4-flash': 0.00027,
+    'deepseek-v4-pro': 0.00110,
+    'deepseek-chat': 0.00027,
     'gpt-4o': 0.06,
     'claude-sonnet-4-20250514': 0.15,
   };

@@ -317,8 +317,8 @@ export async function translateField(
   const prompt = buildTranslationPromptForField(text, sourceLang, 'zh', options);
 
   try {
-    const response = await llm.chat({
-      model: 'deepseek-chat',
+  const response = await llm.chat({
+    model: 'deepseek-v4-flash',
       messages: [{ role: 'user', content: prompt }],
       temperature: 0.3,
       maxTokens: Math.min(text.length * 3, 2000),

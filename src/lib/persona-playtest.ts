@@ -426,7 +426,7 @@ export class PersonaPlaytestEngine {
 
   constructor(config?: Partial<PlaytestRunnerConfig>) {
     this.config = {
-      model: 'deepseek-chat',
+      model: 'deepseek-v4-flash',
       temperature: 0.7,
       maxTokens: 500,
       concurrency: 2,
