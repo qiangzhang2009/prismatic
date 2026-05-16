@@ -18,8 +18,11 @@ import { LLMMessage } from '../../llm';
 // =============================================================================
 
 const PRICING: Record<string, { input: number; output: number }> = {
-  'deepseek-v4-flash': { input: 0.27, output: 0.27 },
-  'deepseek-v4-pro': { input: 3.10, output: 1.10 },
+  // DeepSeek V4 Flash (2026-04-26 调价后): Non-cached Input=1.00 CNY/1M, Output=2.00 CNY/1M
+  // 实际因 Prompt Cache 命中，平均 input 成本约为 0.27 CNY/1M = 0.00027 CNY/1K
+  'deepseek-v4-flash': { input: 0.27, output: 2.00 },
+  // DeepSeek V4 Pro (2026-04-26 调价后): Non-cached Input=3.00 CNY/1M, Output=6.00 CNY/1M
+  'deepseek-v4-pro': { input: 3.00, output: 6.00 },
   'deepseek-chat': { input: 0.27, output: 0.27 },
   'deepseek-reasoner': { input: 0.27, output: 2.19 },
   'deepseek-embedding': { input: 0.13, output: 0 },

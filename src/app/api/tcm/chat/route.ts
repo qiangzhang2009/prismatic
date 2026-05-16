@@ -268,9 +268,10 @@ export async function POST(req: NextRequest) {
     const response = stripMarkdown(llmResult.content);
     const usage = llmResult.usage;
 
-    // 估算成本
-    const inputRate = 0.014;  // $0.014 / 1K tokens
-    const outputRate = 0.014;
+    // DeepSeek V4 2026-04-26 调价后定价（CNY / 1K tokens）
+    // Non-cached Input=1.00 CNY/1M, Output=2.00 CNY/1M；实际因 Prompt Cache，平均 input 成本约为 0.27 CNY/1M
+    const inputRate = 0.00027;   // CNY / 1K tokens
+    const outputRate = 0.002;    // CNY / 1K tokens (2.00 CNY/1M)
     const cost = usage
       ? ((usage.promptTokens / 1000) * inputRate + (usage.completionTokens / 1000) * outputRate)
       : 0;

@@ -68,6 +68,24 @@ export interface SystemOverview {
   activeRate: number;
   dauMauRatio: number;
   totalMessagesWeek: number;
+  period?: { days: number };
+  // Dynamic trends vs previous period (2026-05: fixed hardcoded trends)
+  trends?: {
+    totalUsers: number | null;
+    mau: number | null;
+    dau: number | null;
+    totalMessages: number | null;
+    totalConversations: number | null;
+    paidUsers: number | null;
+    totalApiCost: number | null;
+  };
+  previousPeriod?: {
+    totalMessages: number;
+    totalConversations: number;
+    mau: number;
+    totalApiCost: number;
+    totalTokens: number;
+  };
 }
 
 export interface AuditLog {

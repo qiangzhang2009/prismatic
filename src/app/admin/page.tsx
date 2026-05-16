@@ -932,6 +932,15 @@ function DashboardSection() {
     }));
   }, [trend]);
 
+  // Compute avg messages per user trend from overview data
+  const avgMsgsTrend = useMemo(() => {
+    const cur = overview?.totalMessages ?? 0;
+    const prev = overview?.previousPeriod?.totalMessages ?? 0;
+    if (prev === 0) return null;
+    const pct = Math.round(((cur - prev) / prev) * 1000) / 10;
+    return pct;
+  }, [overview]);
+
   const personasData = useMemo(() => {
     if (!Array.isArray(personas)) return [];
     return personas.slice(0, 8).map(p => ({
@@ -1020,7 +1029,7 @@ function DashboardSection() {
             sub={`+${overview?.newUsers ?? 0} 新增`}
             icon={Users}
             accent="purple"
-            trend={{ value: 5.2, positive: true }}
+            trend={overview?.trends?.totalUsers !== undefined ? { value: Math.abs(overview.trends.totalUsers ?? 0), positive: (overview.trends.totalUsers ?? 0) >= 0 } : undefined}
           />
           <KPICard
             label="月活 (MAU)"
@@ -1028,7 +1037,7 @@ function DashboardSection() {
             sub={`DAU/MAU ${Number(overview?.dauMauRatio ?? 0).toFixed(1)}%`}
             icon={Activity}
             accent="cyan"
-            trend={{ value: 8.1, positive: true }}
+            trend={overview?.trends?.mau !== undefined ? { value: Math.abs(overview.trends.mau ?? 0), positive: (overview.trends.mau ?? 0) >= 0 } : undefined}
           />
           <KPICard
             label="日活 (DAU)"
@@ -1036,7 +1045,7 @@ function DashboardSection() {
             sub={`活跃率 ${Number(overview?.activeRate ?? 0).toFixed(1)}%`}
             icon={TrendingUp}
             accent="green"
-            trend={{ value: 3.4, positive: true }}
+            trend={overview?.trends?.dau !== undefined ? { value: Math.abs(overview.trends.dau ?? 0), positive: (overview.trends.dau ?? 0) >= 0 } : undefined}
           />
           <KPICard
             label="总消息数"
@@ -1044,7 +1053,7 @@ function DashboardSection() {
             sub="条消息"
             icon={MessageSquare}
             accent="amber"
-            trend={{ value: -2.1, positive: false }}
+            trend={overview?.trends?.totalMessages !== undefined ? { value: Math.abs(overview.trends.totalMessages ?? 0), positive: (overview.trends.totalMessages ?? 0) >= 0 } : undefined}
           />
           <KPICard
             label="总对话数"
@@ -1052,7 +1061,7 @@ function DashboardSection() {
             sub="次对话"
             icon={GitFork}
             accent="pink"
-            trend={{ value: 4.7, positive: true }}
+            trend={overview?.trends?.totalConversations !== undefined ? { value: Math.abs(overview.trends.totalConversations ?? 0), positive: (overview.trends.totalConversations ?? 0) >= 0 } : undefined}
           />
           <KPICard
             label="付费用户"
@@ -1060,7 +1069,7 @@ function DashboardSection() {
             sub={`占总 ${overview?.totalUsers ? Number((overview.paidUsers / overview.totalUsers) * 100).toFixed(1) : 0}%`}
             icon={Crown}
             accent="indigo"
-            trend={{ value: 12.0, positive: true }}
+            trend={overview?.trends?.paidUsers !== undefined ? { value: Math.abs(overview.trends.paidUsers ?? 0), positive: (overview.trends.paidUsers ?? 0) >= 0 } : undefined}
           />
         </div>
       </div>
@@ -1184,8 +1193,18 @@ function DashboardSection() {
               ¥{Number(overview?.totalApiCost ?? 0).toFixed(4)}
             </p>
             <div className="mt-3 flex items-center gap-1.5 text-xs">
-              <ArrowUpRight className="w-3 h-3 text-red-400" />
-              <span className="text-gray-400">+15.2% vs 上期</span>
+              {(overview?.trends?.totalApiCost !== undefined && overview?.trends?.totalApiCost !== null) ? (
+                <>
+                  {(overview.trends.totalApiCost ?? 0) >= 0 ? (
+                    <ArrowUpRight className="w-3 h-3 text-red-400" />
+                  ) : (
+                    <ArrowDownRight className="w-3 h-3 text-green-400" />
+                  )}
+                  <span className="text-gray-400">{overview.trends.totalApiCost >= 0 ? '+' : ''}{overview.trends.totalApiCost?.toFixed(1)}% vs 上期</span>
+                </>
+              ) : (
+                <span className="text-gray-500">vs 上期 —</span>
+              )}
             </div>
           </div>
           {/* 人均消息数 */}
@@ -1205,8 +1224,18 @@ function DashboardSection() {
                 : '0'}
             </p>
             <div className="mt-3 flex items-center gap-1.5 text-xs">
-              <ArrowDownRight className="w-3 h-3 text-green-400" />
-              <span className="text-gray-400">-2.1% vs 上期</span>
+              {avgMsgsTrend !== null ? (
+                <>
+                  {avgMsgsTrend >= 0 ? (
+                    <ArrowUpRight className="w-3 h-3 text-green-400" />
+                  ) : (
+                    <ArrowDownRight className="w-3 h-3 text-red-400" />
+                  )}
+                  <span className="text-gray-400">{avgMsgsTrend >= 0 ? '+' : ''}{avgMsgsTrend.toFixed(1)}% vs 上期</span>
+                </>
+              ) : (
+                <span className="text-gray-500">vs 上期 —</span>
+              )}
             </div>
           </div>
         </div>
@@ -1261,19 +1290,11 @@ function DashboardSection() {
           <div className="flex items-center justify-between mb-4">
             <div>
               <h3 className="text-base font-semibold text-white">用户参与度分布</h3>
-              <p className="text-xs text-gray-500 mt-0.5">按消息数分群 · 洞察深度用户</p>
+              <p className="text-xs text-gray-500 mt-0.5">按对话数分群 · 近 {days} 天</p>
             </div>
             <Layers className="w-5 h-5 text-cyan-400" />
           </div>
-          <div className="space-y-3">
-            {/* 用户参与度数据来自行为分群 API，真实数据请到「对话资产 → 用户分群」查看 */}
-            <div className="flex items-center justify-center h-20 rounded-xl border border-dashed border-gray-700">
-              <p className="text-xs text-gray-600">
-                用户分布数据请至 <span className="text-gray-500">「对话资产 → 用户分群」</span> 查看
-              </p>
-            </div>
-          </div>
-
+          <EngagementCard days={days} />
           <div className="mt-5 p-3 bg-gray-800/50 rounded-xl border border-gray-700/30">
             <p className="text-xs text-gray-400 leading-relaxed">
               用户参与度分布基于真实对话数据。详细分群请切换到<span className="text-purple-400 font-medium">「对话资产 → 用户分群」</span>查看各用户群体的真实规模和贡献。
@@ -1282,6 +1303,82 @@ function DashboardSection() {
         </div>
       </div>
 
+    </div>
+  );
+}
+
+// ─── Inline Engagement Card (Dashboard version) ───────────────────────────────────
+
+function EngagementCard({ days }: { days: number }) {
+  const { data, isLoading } = useQuery({
+    queryKey: ['admin', 'chats', 'behavior', days],
+    queryFn: async () => {
+      const r = await fetch(`/api/admin/chats/behavior?days=${days}`, { credentials: 'include' });
+      if (!r.ok) throw new Error(`HTTP ${r.status}`);
+      return r.json();
+    },
+    staleTime: 1000 * 60 * 5,
+  });
+
+  const clusters = data?.clusters;
+  const totalUsers = data?.totalActiveUsers || 0;
+
+  const CLUSTER_META: Record<string, { color: string; label: string; desc: string }> = {
+    heavy:    { color: 'purple', label: '重度用户', desc: '≥20 次对话' },
+    explorer: { color: 'cyan',   label: '探索型',   desc: '10-19 次对话' },
+    casual:   { color: 'amber', label: '轻量用户',  desc: '3-9 次对话' },
+    dormant:  { color: 'gray',  label: '沉默用户',  desc: '1-2 次对话' },
+  };
+
+  const colorClasses: Record<string, string> = {
+    purple: 'bg-purple-500/10 border-purple-500/20 text-purple-400',
+    cyan:   'bg-cyan-500/10 border-cyan-500/20 text-cyan-400',
+    amber:  'bg-amber-500/10 border-amber-500/20 text-amber-400',
+    gray:   'bg-gray-500/10 border-gray-500/20 text-gray-400',
+  };
+
+  if (isLoading) {
+    return (
+      <div className="space-y-3">
+        {[1,2,3,4].map(i => (
+          <div key={i} className="h-12 bg-gray-800/50 rounded-xl animate-pulse" />
+        ))}
+      </div>
+    );
+  }
+
+  if (!clusters) {
+    return (
+      <div className="flex items-center justify-center h-20 rounded-xl border border-dashed border-gray-700">
+        <p className="text-xs text-gray-600">暂无分群数据</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-2">
+      {Object.entries(clusters).map(([key, cluster]: [string, any]) => {
+        const meta = CLUSTER_META[key] || { color: 'gray', label: key, desc: '' };
+        const cls = colorClasses[meta.color] || colorClasses.gray;
+        const pct = totalUsers > 0 ? Math.round((cluster.count / totalUsers) * 100) : 0;
+        return (
+          <div key={key} className={`border rounded-xl p-3 ${cls}`}>
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-xs font-medium">{meta.label}</p>
+                <p className="text-[10px] opacity-60">{meta.desc}</p>
+              </div>
+              <div className="text-right">
+                <p className="text-sm font-bold">{cluster.count}</p>
+                <p className="text-[10px] opacity-60">{pct}%</p>
+              </div>
+            </div>
+            <div className="mt-2 h-1 bg-black/20 rounded-full overflow-hidden">
+              <div className="h-full rounded-full" style={{ width: `${pct}%`, opacity: 0.5 }} />
+            </div>
+          </div>
+        );
+      })}
     </div>
   );
 }
