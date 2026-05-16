@@ -52,9 +52,9 @@ export async function GET(request: NextRequest) {
     const sql = getSql();
 
     const [totalUsersRows, activeUsersRows, paidUsersRows, currentRows, prevRows, allTimeRows] = await Promise.all([
-      sql`SELECT id FROM users WHERE status != 'DELETED'`,
-      sql`SELECT id FROM users WHERE status = 'ACTIVE'`,
-      sql`SELECT id FROM users WHERE status = 'ACTIVE' AND plan != 'FREE' AND plan IS NOT NULL`,
+      sql`SELECT COUNT(*)::int as cnt FROM users WHERE status != 'DELETED'`,
+      sql`SELECT COUNT(*)::int as cnt FROM users WHERE status = 'ACTIVE'`,
+      sql`SELECT COUNT(*)::int as cnt FROM users WHERE status = 'ACTIVE' AND plan != 'FREE' AND plan IS NOT NULL`,
       sql`
         SELECT
           (SELECT COUNT(*) FROM users WHERE "createdAt" >= ${periodStart}) as new_users,
@@ -83,9 +83,9 @@ export async function GET(request: NextRequest) {
       `,
     ]);
 
-    const totalUsers = totalUsersRows.length;
-    const activeUsers = activeUsersRows.length;
-    const paidUsers = paidUsersRows.length;
+    const totalUsers = parseInt(String(totalUsersRows[0]?.cnt ?? '0'), 10);
+    const activeUsers = parseInt(String(activeUsersRows[0]?.cnt ?? '0'), 10);
+    const paidUsers = parseInt(String(paidUsersRows[0]?.cnt ?? '0'), 10);
     const cur = currentRows[0];
     const prev = prevRows[0];
     const allTime = allTimeRows[0];
