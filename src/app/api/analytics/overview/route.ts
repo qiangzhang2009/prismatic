@@ -40,13 +40,22 @@ export async function GET(request: NextRequest) {
     const searchParams = request.nextUrl.searchParams;
     const days = parseInt(searchParams.get('days') || '7', 10);
 
+    // days=0 means "all time" — use a very old date to include all records
+    const ALL_TIME_START = new Date('2020-01-01T00:00:00Z');
+
     const today = new Date();
     today.setUTCHours(0, 0, 0, 0);
-    const periodStart = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
+    // When days=0 (all time), set periodStart to ALL_TIME_START to include everything
+    const periodStart = days === 0
+      ? ALL_TIME_START
+      : new Date(Date.now() - days * 24 * 60 * 60 * 1000);
     periodStart.setUTCHours(0, 0, 0, 0);
     // Previous period: [periodStart - days, periodStart)
+    // For all-time (days=0), previous period = the same range (no meaningful trend)
     const prevPeriodEnd = new Date(periodStart);
-    const prevPeriodStart = new Date(prevPeriodEnd.getTime() - days * 24 * 60 * 60 * 1000);
+    const prevPeriodStart = days === 0
+      ? new Date('2019-01-01T00:00:00Z')  // equivalent "previous" for all-time
+      : new Date(prevPeriodEnd.getTime() - days * 24 * 60 * 60 * 1000);
 
     const sql = getSql();
 
@@ -131,7 +140,7 @@ export async function GET(request: NextRequest) {
       totalMessagesAllTime,
       totalConversationsAllTime,
       totalTokensAllTime: Number(allTime?.alltime_tokens ?? 0),
-      period: { days },
+      period: { days: days === 0 ? 'all' : days },
       // Trends vs previous period (correctly calculated server-side)
       // - totalUsers: new users this period vs new users previous period
       // - paidUsers: compare paid users growth (prev period paid users vs 2 periods ago)

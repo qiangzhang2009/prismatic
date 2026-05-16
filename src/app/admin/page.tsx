@@ -915,7 +915,7 @@ function DebateSection() {
  */
 
 function DashboardSection() {
-  const [days, setDays] = useState(7);
+  const [days, setDays] = useState(0);  // 0 = 全量累计
   const [now, setNow] = useState<string | null>(null);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => { setNow(new Date().toLocaleTimeString('zh-CN')); }, []);
@@ -1000,7 +1000,7 @@ function DashboardSection() {
         <div>
           <h2 className="text-xl font-bold text-white">数据驾驶舱</h2>
           <p className="text-gray-400 text-sm mt-0.5">
-            {days === 7 ? '近 7 天' : days === 14 ? '近 14 天' : days === 30 ? '近 30 天' : '近 90 天'} · 实时数据 · {now ? <span suppressHydrationWarning>最后更新: {now}</span> : '加载中...'}
+            {days === 0 ? '全量累计' : days === 7 ? '近 7 天' : days === 14 ? '近 14 天' : days === 30 ? '近 30 天' : '近 90 天'} · 实时数据 · {now ? <span suppressHydrationWarning>最后更新: {now}</span> : '加载中...'}
           </p>
         </div>
         <div className="flex items-center gap-3">
@@ -1021,55 +1021,61 @@ function DashboardSection() {
 
       {/* ── KPI 行 1: 核心资产 ── */}
       <div>
-        <SectionLabel label="核心资产" sub="全量累计数据 · 对比上期变化" />
+        <SectionLabel label="核心资产" sub={days === 0 ? '全量累计数据' : '当期数据 · 对比上期变化'} />
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
           <KPICard
             label="总用户"
             value={(overview?.totalUsers ?? 0).toLocaleString()}
-            sub={`全量累计 · 近${overview?.period?.days ?? 7}天新增 +${overview?.newUsers ?? 0}`}
+            sub={overview?.newUsers != null && overview?.newUsers > 0
+              ? `近${days === 0 ? '历史' : (overview?.period?.days ?? 7) + '天'}新增 +${overview.newUsers}`
+              : '全量累计'}
             icon={Users}
             accent="purple"
-            trend={overview?.trends?.totalUsers !== undefined ? { value: Math.abs(overview.trends.totalUsers ?? 0), positive: (overview.trends.totalUsers ?? 0) >= 0 } : undefined}
+            trend={overview?.trends?.totalUsers !== undefined && days !== 0 ? { value: Math.abs(overview.trends.totalUsers ?? 0), positive: (overview.trends.totalUsers ?? 0) >= 0 } : undefined}
           />
           <KPICard
             label="月活 (MAU)"
             value={(overview?.mau ?? 0).toLocaleString()}
-            sub={`DAU/MAU ${Number(overview?.dauMauRatio ?? 0).toFixed(1)}% · 全量累计`}
+            sub={`DAU/MAU ${Number(overview?.dauMauRatio ?? 0).toFixed(1)}%`}
             icon={Activity}
             accent="cyan"
-            trend={overview?.trends?.mau !== undefined ? { value: Math.abs(overview.trends.mau ?? 0), positive: (overview.trends.mau ?? 0) >= 0 } : undefined}
+            trend={overview?.trends?.mau !== undefined && days !== 0 ? { value: Math.abs(overview.trends.mau ?? 0), positive: (overview.trends.mau ?? 0) >= 0 } : undefined}
           />
           <KPICard
             label="日活 (DAU)"
             value={(overview?.dau ?? 0).toLocaleString()}
-            sub={`活跃率 ${Number(overview?.activeRate ?? 0).toFixed(1)}% · 当日数据`}
+            sub={`活跃率 ${Number(overview?.activeRate ?? 0).toFixed(1)}%`}
             icon={TrendingUp}
             accent="green"
-            trend={overview?.trends?.dau !== undefined ? { value: Math.abs(overview.trends.dau ?? 0), positive: (overview.trends.dau ?? 0) >= 0 } : undefined}
+            trend={overview?.trends?.dau !== undefined && days !== 0 ? { value: Math.abs(overview.trends.dau ?? 0), positive: (overview.trends.dau ?? 0) >= 0 } : undefined}
           />
           <KPICard
             label="总消息数"
             value={(overview?.totalMessagesAllTime ?? overview?.totalMessages ?? 0).toLocaleString()}
-            sub={`近${overview?.period?.days ?? 7}天 +${(overview?.totalMessages ?? 0).toLocaleString()} · 全量累计`}
+            sub={days === 0
+              ? `全量累计 · ${(overview?.totalMessagesAllTime ?? overview?.totalMessages ?? 0).toLocaleString()} 条`
+              : `当期 ${(overview?.totalMessages ?? 0).toLocaleString()} 条 · 全量 ${(overview?.totalMessagesAllTime ?? 0).toLocaleString()} 条`}
             icon={MessageSquare}
             accent="amber"
-            trend={overview?.trends?.totalMessages !== undefined ? { value: Math.abs(overview.trends.totalMessages ?? 0), positive: (overview.trends.totalMessages ?? 0) >= 0 } : undefined}
+            trend={overview?.trends?.totalMessages !== undefined && days !== 0 ? { value: Math.abs(overview.trends.totalMessages ?? 0), positive: (overview.trends.totalMessages ?? 0) >= 0 } : undefined}
           />
           <KPICard
             label="总对话数"
             value={(overview?.totalConversationsAllTime ?? overview?.totalConversations ?? 0).toLocaleString()}
-            sub={`近${overview?.period?.days ?? 7}天 +${(overview?.totalConversations ?? 0).toLocaleString()} · 全量累计`}
+            sub={days === 0
+              ? `全量累计 · ${(overview?.totalConversationsAllTime ?? overview?.totalConversations ?? 0).toLocaleString()} 次`
+              : `当期 ${(overview?.totalConversations ?? 0).toLocaleString()} 次 · 全量 ${(overview?.totalConversationsAllTime ?? 0).toLocaleString()} 次`}
             icon={GitFork}
             accent="pink"
-            trend={overview?.trends?.totalConversations !== undefined ? { value: Math.abs(overview.trends.totalConversations ?? 0), positive: (overview.trends.totalConversations ?? 0) >= 0 } : undefined}
+            trend={overview?.trends?.totalConversations !== undefined && days !== 0 ? { value: Math.abs(overview.trends.totalConversations ?? 0), positive: (overview.trends.totalConversations ?? 0) >= 0 } : undefined}
           />
           <KPICard
             label="付费用户"
             value={(overview?.paidUsers ?? 0).toLocaleString()}
-            sub={`占总 ${overview?.totalUsers ? Number((overview.paidUsers / overview.totalUsers) * 100).toFixed(1) : 0}% · 全量累计`}
+            sub={`占总 ${overview?.totalUsers ? Number((overview.paidUsers / overview.totalUsers) * 100).toFixed(1) : 0}%`}
             icon={Crown}
             accent="indigo"
-            trend={overview?.trends?.paidUsers !== undefined ? { value: Math.abs(overview.trends.paidUsers ?? 0), positive: (overview.trends.paidUsers ?? 0) >= 0 } : undefined}
+            trend={overview?.trends?.paidUsers !== undefined && days !== 0 ? { value: Math.abs(overview.trends.paidUsers ?? 0), positive: (overview.trends.paidUsers ?? 0) >= 0 } : undefined}
           />
         </div>
       </div>
