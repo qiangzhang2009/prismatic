@@ -32,16 +32,17 @@ export async function GET(req: NextRequest) {
     const startDate = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
     const pool = getPool();
 
-    // FIX: 过滤字段改为 messages.createdAt 而非 conversations.updatedAt
-    // 因为 conversations.updatedAt 只在对话有新消息时更新，
-    // 导致近N天没有新消息的对话被遗漏，造成分群数据不完整甚至为空。
+    // FIX: 用 JOIN + 聚合代替子查询，避免 PostgreSQL 报错：
+    // "subquery uses ungrouped column c.id from outer query"
+    // 因为原 SQL 用 GROUP BY userId，但子查询引用了 c.id（同一 user 有多条 conversation）
     const groupResult = await pool.query(`
-      SELECT c."userId",
-             COUNT(DISTINCT c.id) as "convCount",
-             COALESCE((SELECT COUNT(*) FROM messages m WHERE m."conversationId" = c.id AND m."createdAt" >= $1), 0) as "msgCount",
-             COALESCE((SELECT SUM(m."apiCost") FROM messages m WHERE m."conversationId" = c.id AND m."createdAt" >= $1), 0) as "costSum"
+      SELECT
+        c."userId",
+        COUNT(DISTINCT c.id) as "convCount",
+        COUNT(m.id) as "msgCount",
+        COALESCE(SUM(m."apiCost"), 0) as "costSum"
       FROM conversations c
-      WHERE EXISTS (SELECT 1 FROM messages m WHERE m."conversationId" = c.id AND m."createdAt" >= $1)
+      INNER JOIN messages m ON m."conversationId" = c.id AND m."createdAt" >= $1
       GROUP BY c."userId"
       ORDER BY "convCount" DESC
       LIMIT 500

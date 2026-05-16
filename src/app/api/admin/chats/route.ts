@@ -107,8 +107,16 @@ export async function GET(req: NextRequest) {
             'tokensOutput', m."tokensOutput", 'apiCost', m."apiCost",
             'modelUsed', m."modelUsed", 'createdAt', m."createdAt",
             'metadata', m.metadata
-          ) ORDER BY m."createdAt" DESC) as data
-        FROM messages m WHERE m."conversationId" = c.id AND m.content != '[message-counted]'
+          ) ORDER BY m."createdAt" DESC, m.id DESC) as data
+        FROM (
+          -- Deduplicate: keep first occurrence by (content, role, createdAt), ordered by id
+          SELECT DISTINCT ON (m.content, m.role, m."createdAt")
+            m.id, m.role, m.content, m."personaId", m."tokensInput",
+            m."tokensOutput", m."apiCost", m."modelUsed", m."createdAt", m.metadata
+          FROM messages m
+          WHERE m."conversationId" = c.id AND m.content != '[message-counted]'
+          ORDER BY m.content, m.role, m."createdAt", m.id
+        ) deduped
       ) msgs ON true
       ${where}
       ORDER BY c."updatedAt" DESC
