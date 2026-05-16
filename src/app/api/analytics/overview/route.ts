@@ -57,7 +57,9 @@ export async function GET(request: NextRequest) {
       ? new Date('2019-01-01T00:00:00Z')  // equivalent "previous" for all-time
       : new Date(prevPeriodEnd.getTime() - days * 24 * 60 * 60 * 1000);
 
+    console.error('[Analytics/Overview] periodStart:', periodStart.toISOString(), 'prevPeriodStart:', prevPeriodStart?.toISOString(), 'prevPeriodEnd:', prevPeriodEnd.toISOString(), 'isAllTime:', isAllTime, 'days:', days);
     const sql = getSql();
+    console.error('[Analytics/Overview] SQL constructed, executing queries...');
 
     const [totalUsersRows, activeUsersRows, paidUsersRows, currentRows, prevRows, allTimeRows] = await Promise.all([
       sql`SELECT id FROM users WHERE status != 'DELETED'`,
@@ -91,6 +93,7 @@ export async function GET(request: NextRequest) {
         FROM conversations
       `,
     ]);
+    console.error('[Analytics/Overview] all queries done, totalUsersRows:', totalUsersRows.length, 'allTimeRows:', allTimeRows?.length);
 
     const totalUsers = totalUsersRows.length;
     const activeUsers = activeUsersRows.length;
