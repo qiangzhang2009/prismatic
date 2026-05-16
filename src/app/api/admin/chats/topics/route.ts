@@ -85,19 +85,19 @@ export async function GET(req: NextRequest) {
           Authorization: `Bearer ${deepseekKey}`,
         },
         body: JSON.stringify({
-          model: 'deepseek-v4-flash',
+          model: 'deepseek-chat',
           messages: [
             {
               role: 'system',
-              content: `分析以下对话摘要列表，将它们归类为 5-10 个话题类别。输出 JSON 数组：[{ "topic": "话题名", "count": 数量, "description": "描述", "examples": ["示例1", "示例2"] }]，只输出 JSON，不要其他文字。`,
+              content: `你是一个对话话题分析助手。分析以下对话摘要列表，将它们归类为 5-8 个话题类别。只输出一个 JSON 数组，不要任何其他文字：\n[{"topic":"话题名","count":数字,"description":"一句话描述","examples":["示例1","示例2"]}]`,
             },
             {
               role: 'user',
-              content: topicSamples.map((s: any) => `[${s.id}]: ${s.preview}`).join('\n\n'),
+              content: topicSamples.map((s: any) => `${s.id}: ${s.preview}`).join('\n'),
             },
           ],
-          temperature: 0.3,
-          max_tokens: 800,
+          temperature: 0.2,
+          max_tokens: 1200,
         }),
       });
 
@@ -106,22 +106,32 @@ export async function GET(req: NextRequest) {
       }
 
       const data = await response.json();
-      const content = data.choices?.[0]?.message?.content || '';
-      console.log(`[Topics] LLM raw content length: ${content.length}, preview: ${content.slice(0, 100)}`);
+      const rawContent = data.choices?.[0]?.message?.content || data.choices?.[0]?.delta?.content || '';
+      console.log(`[Topics] LLM raw: length=${rawContent.length}, preview=${rawContent.slice(0, 200).replace(/\n/g,' ')}`);
 
       let topics: any[] = [];
-      try {
-        const match = content.match(/\[[\s\S]*\]/);
-        if (match) {
-          topics = JSON.parse(match[0]);
-        } else {
-          console.warn(`[Topics] No JSON array found in LLM response`);
+      // 可靠的 JSON 提取：从第一个 [ 匹配到最后一个 ]
+      function extractJsonArray(text: string): string | null {
+        const first = text.indexOf('[');
+        const last = text.lastIndexOf(']');
+        if (first === -1 || last === -1 || first > last) return null;
+        return text.slice(first, last + 1);
+      }
+      const jsonStr = extractJsonArray(rawContent);
+      if (jsonStr) {
+        try {
+          const parsed = JSON.parse(jsonStr);
+          if (Array.isArray(parsed)) {
+            topics = parsed;
+            console.log(`[Topics] JSON parse OK, count=${topics.length}`);
+          }
+        } catch (e) {
+          console.error(`[Topics] JSON parse failed: ${e}`);
         }
-      } catch (e) {
-        console.error(`[Topics] JSON parse error:`, e);
+      } else {
+        console.warn(`[Topics] No JSON found, raw: ${rawContent.slice(0, 300)}`);
       }
 
-      console.log(`[Topics] Parsed topics count: ${topics.length}`);
       return NextResponse.json({ topics, totalConversations, sampledFrom: Math.min(500, totalConversations), period: { days } });
     } catch (err) {
       console.error('[Admin/Chats/Topics] LLM error:', err);
