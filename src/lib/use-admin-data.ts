@@ -58,9 +58,10 @@ export interface PaginatedResponse<T> {
 export interface SystemOverview {
   totalUsers: number;
   activeUsers: number;
-  newUsers: number;
+  newUsers: number | null;  // null when all-time (no meaningful "new" count)
   totalMessages: number;
   totalConversations: number;
+  totalTokens: number;
   totalApiCost: number;
   totalApiCostAllTime: number;    // 全量累计 API 成本
   dau: number;
@@ -70,27 +71,28 @@ export interface SystemOverview {
   dauMauRatio: number;
   totalMessagesWeek: number;
   // 全量累计指标（2026-05 新增）
-  totalMessagesAllTime?: number;
-  totalConversationsAllTime?: number;
-  totalTokensAllTime?: number;
-  period?: { days: number };
-  // Dynamic trends vs previous period
+  totalMessagesAllTime: number;
+  totalConversationsAllTime: number;
+  totalTokensAllTime: number;
+  activeUsersAllTime?: number;
+  period?: { days: number | 'all' };
+  // Dynamic trends vs previous period (null when all-time — no meaningful comparison)
   trends?: {
-    totalUsers: number | null;   // 新用户数趋势（当期 vs 上期）
+    totalUsers: number | null;
     mau: number | null;
     dau: number | null;
     totalMessages: number | null;
     totalConversations: number | null;
     paidUsers: number | null;
     totalApiCost: number | null;
-  };
+  } | null;  // null when all-time
   previousPeriod?: {
     totalMessages: number;
     totalConversations: number;
     mau: number;
     totalApiCost: number;
     totalTokens: number;
-  };
+  } | null;  // null when all-time
 }
 
 export interface AuditLog {

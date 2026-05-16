@@ -99,13 +99,28 @@ export async function GET(request: NextRequest) {
     const prev = prevRows[0];
     const allTime = allTimeRows[0];
 
-    const newUsers = parseInt(String(cur?.new_users ?? '0'), 10);
-    const totalMessages = parseInt(String(cur?.period_messages ?? '0'), 10);
-    const totalConversations = parseInt(String(cur?.period_conversations ?? '0'), 10);
-    const dau = parseInt(String(cur?.dau ?? '0'), 10);
-    const mau = parseInt(String(cur?.mau ?? '0'), 10);
-    const totalApiCost = Number(cur?.period_cost ?? 0);
-    const totalTokens = Number(cur?.period_tokens ?? 0);
+    // For all-time (days=0), return pure all-time cumulative metrics
+    // For period views (days>0), return period-specific metrics
+    const isAllTime = days === 0;
+
+    const totalMessages = isAllTime
+      ? totalMessagesAllTime
+      : parseInt(String(cur?.period_messages ?? '0'), 10);
+    const totalConversations = isAllTime
+      ? totalConversationsAllTime
+      : parseInt(String(cur?.period_conversations ?? '0'), 10);
+    const totalApiCost = isAllTime
+      ? totalApiCostAllTime
+      : Number(cur?.period_cost ?? 0);
+    const totalTokens = isAllTime
+      ? Number(allTime?.alltime_tokens ?? 0)
+      : Number(cur?.period_tokens ?? 0);
+    const mau = isAllTime
+      ? totalUsers  // all-time MAU = all users
+      : parseInt(String(cur?.mau ?? '0'), 10);
+    const dau = isAllTime
+      ? activeUsers  // all-time DAU = all active users
+      : parseInt(String(cur?.dau ?? '0'), 10);
     const totalApiCostAllTime = Number(allTime?.alltime_cost ?? 0);
     // 新增全量累计指标
     const totalMessagesAllTime = parseInt(String(allTime?.alltime_messages ?? '0'), 10);
@@ -120,10 +135,21 @@ export async function GET(request: NextRequest) {
     const activeRate = totalUsers > 0 ? (mau / totalUsers) * 100 : 0;
     const dauMauRatio = mau > 0 ? (dau / mau) * 100 : 0;
 
+    // For all-time, trends are not meaningful — return null
+    const trends = isAllTime ? null : {
+      totalUsers: pctChange(totalUsers, totalUsers - (parseInt(String(cur?.new_users ?? '0'), 10))),
+      mau: pctChange(mau, prevMau),
+      dau: pctChange(dau, 0),
+      totalMessages: pctChange(totalMessages, prevMessages),
+      totalConversations: pctChange(totalConversations, prevConversations),
+      paidUsers: pctChange(paidUsers, 0),
+      totalApiCost: pctChange(totalApiCost, prevCost),
+    };
+
     return NextResponse.json({
       totalUsers,
       activeUsers,
-      newUsers,
+      newUsers: isAllTime ? null : parseInt(String(cur?.new_users ?? '0'), 10),
       totalMessages,
       totalConversations,
       totalTokens,
@@ -136,24 +162,16 @@ export async function GET(request: NextRequest) {
       activeRate: Math.round(activeRate * 10) / 10,
       dauMauRatio: Math.round(dauMauRatio * 10) / 10,
       totalMessagesWeek: totalMessages,
-      // 新增全量累计字段
+      // 全量累计字段（所有指标的全量版本）
       totalMessagesAllTime,
       totalConversationsAllTime,
       totalTokensAllTime: Number(allTime?.alltime_tokens ?? 0),
+      totalApiCostAllTime,
+      activeUsersAllTime: activeUsers,
       period: { days: days === 0 ? 'all' : days },
-      // Trends vs previous period (correctly calculated server-side)
-      // - totalUsers: new users this period vs new users previous period
-      // - paidUsers: compare paid users growth (prev period paid users vs 2 periods ago)
-      trends: {
-        totalUsers: pctChange(newUsers, prevMau > 0 ? Math.round(prevMau * 0.1) : 0),
-        mau: pctChange(mau, prevMau),
-        dau: pctChange(dau, 0),
-        totalMessages: pctChange(totalMessages, prevMessages),
-        totalConversations: pctChange(totalConversations, prevConversations),
-        paidUsers: pctChange(paidUsers, 0),
-        totalApiCost: pctChange(totalApiCost, prevCost),
-      },
-      previousPeriod: {
+      // Trends (null when all-time — no meaningful comparison)
+      trends,
+      previousPeriod: isAllTime ? null : {
         totalMessages: prevMessages,
         totalConversations: prevConversations,
         mau: prevMau,
