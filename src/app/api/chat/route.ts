@@ -134,11 +134,24 @@ export async function persistConversation(
         [actualConvId]
       );
       const preCount = parseInt(preInsertCount.rows[0]?.cnt ?? '0', 10);
+
+      // Pre-query existing message IDs so we can accurately count real inserts
+      // (PostgreSQL ON CONFLICT DO NOTHING returns rowCount=0 for conflicts, but we need
+      // to know which IDs were truly new vs. skipped — we use a Set for O(1) lookups)
+      const preIdsResult = await pool.query(
+        `SELECT id FROM messages WHERE "conversationId" = $1`,
+        [actualConvId]
+      );
+      const preInsertMsgIds = new Set(preIdsResult.rows.map((r: any) => r.id));
+      // Ensure the conversation record exists (upsert).
+      // messageCount: 0 for new conversations (will be updated to real count after insert).
+      // For existing conversations, keep their current messageCount — it will be corrected
+      // after the batch insert by the UPDATE below that sets it to realMsgCount.
       await client.query(`
         INSERT INTO conversations (id, "userId", title, type, mode, participants, archived, tags,
                                "messageCount", "totalTokens", "totalCost", "personaIds", "createdAt", "updatedAt")
         VALUES ($1, $2, NULL, $3, $4, $5::text[], false, '{}'::text[],
-                $6, $7, $8, $5::text[], NOW(), NOW())
+                0, $6, $7, $5::text[], NOW(), NOW())
         ON CONFLICT (id) DO UPDATE SET
           "userId" = conversations."userId",
           mode = EXCLUDED.mode,
@@ -147,8 +160,8 @@ export async function persistConversation(
           "totalTokens" = EXCLUDED."totalTokens",
           "totalCost" = EXCLUDED."totalCost",
           "updatedAt" = NOW()
-      `, [actualConvId, userId, type, mode, participantArray, preCount, totalTokensNum, totalCostNum]);
-      console.log(`[persistConversation] STEP_upsert_ok conversation=${actualConvId} preCount=${preCount} messages_param=${messages.length}`);
+      `, [actualConvId, userId, type, mode, participantArray, totalTokensNum, totalCostNum]);
+      console.log(`[persistConversation] STEP_upsert_ok conversation=${actualConvId} messages_param=${messages.length}`);
 
       // ── Insert messages in a single batch ──────────────────────────────────────
       // Collect all valid messages and insert them in ONE query to avoid the overhead
@@ -240,13 +253,16 @@ export async function persistConversation(
                                "personaId", "modelUsed", "tokensInput", "tokensOutput",
                                "apiCost", metadata, "createdAt")
           VALUES ${rows.join(', ')}
-          ON CONFLICT (id) DO UPDATE SET
-            content = EXCLUDED.content
+          ON CONFLICT (id) DO NOTHING
         `;
 
-        const result = await client.query(batchInsert, params);
-        totalInserted = result.rowCount ?? validMessages.length;
-        totalSkipped = 0;
+        await client.query(batchInsert, params);
+        // DO NOTHING: rowCount is 0 on conflict, so rowCount == validMessages.length means all-new.
+        // But the most reliable approach is to count actual new rows by checking which IDs were new.
+        // Since we already pre-compute existing IDs above (preInsertMsgIds), count how many of
+        // validMessages have IDs not in preInsertMsgIds — that's the real insertion count.
+        totalInserted = validMessages.filter(m => !preInsertMsgIds.has(m.id)).length;
+        totalSkipped = validMessages.length - totalInserted;
       }
 
       console.log(`[persistConversation] STEP_done conversation=${actualConvId} messages=${messages.length} inserted=${totalInserted} skipped=${totalSkipped}`);
