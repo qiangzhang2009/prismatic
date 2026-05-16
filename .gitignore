@@ -80,3 +80,10 @@ research/
 pointcloud-dialogue/
 .next
 personas.json
+__pycache__/
+*.pyc
+scripts/*.py
+scripts/*.ts
+scripts/*.mjs
+scripts/*.sql
+scripts/*.json
