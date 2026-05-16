@@ -87,3 +87,4 @@ scripts/*.ts
 scripts/*.mjs
 scripts/*.sql
 scripts/*.json
+scripts/*.js
