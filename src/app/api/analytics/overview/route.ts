@@ -154,7 +154,6 @@ export async function GET(request: NextRequest) {
     const message = error instanceof Error ? error.message : String(error);
     console.error('[Analytics/Overview]', message);
     return NextResponse.json({
-      _debug_error: message,
       totalUsers: 0, activeUsers: 0, newUsers: 0, totalMessages: 0,
       totalConversations: 0, totalTokens: 0, totalApiCost: 0, totalApiCostAllTime: 0, dau: 0, mau: 0,
       paidUsers: 0, weekMessages: 0, activeRate: 0, dauMauRatio: 0,
