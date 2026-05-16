@@ -11,12 +11,6 @@
  * - Period-filtered metrics (messages, cost, tokens, mau) use the 'days' window
  * - User counts (total, active, paid) are all-time, not filtered by period
  * - Trends compare current period vs. previous period of the same length
- *
- * 2026-05-16 修复：
- * - 修复 totalUsers 趋势计算（之前是用户总数 vs 用户数-新增数，错误！）
- * - 修复 paidUsers 趋势计算（之前是自己比自己，错误！）
- * - 新增 all-time 累计指标（totalMessagesAllTime, totalConversationsAllTime）
- * - 定价参数已在 chat/route.ts 中修正（0.00027 → 0.00030）
  */
 import { NextRequest, NextResponse } from 'next/server';
 import { neon } from '@neondatabase/serverless';
@@ -40,24 +34,21 @@ export async function GET(request: NextRequest) {
     const searchParams = request.nextUrl.searchParams;
     const days = parseInt(searchParams.get('days') || '7', 10);
 
-    // days=0 means "all time" — use a very old date to include all records
+    const isAllTime = days === 0;
     const ALL_TIME_START = new Date('2020-01-01T00:00:00Z');
-
     const today = new Date();
     today.setUTCHours(0, 0, 0, 0);
-    // When days=0 (all time), set periodStart to ALL_TIME_START to include everything
-    const periodStart = days === 0
+
+    const periodStart = isAllTime
       ? ALL_TIME_START
       : new Date(Date.now() - days * 24 * 60 * 60 * 1000);
     periodStart.setUTCHours(0, 0, 0, 0);
-    // Previous period: [periodStart - days, periodStart)
-    // For all-time (days=0), previous period = the same range (no meaningful trend)
+
     const prevPeriodEnd = new Date(periodStart);
-    const prevPeriodStart = days === 0
-      ? new Date('2019-01-01T00:00:00Z')  // equivalent "previous" for all-time
+    const prevPeriodStart = isAllTime
+      ? new Date('2019-01-01T00:00:00Z')
       : new Date(prevPeriodEnd.getTime() - days * 24 * 60 * 60 * 1000);
 
-    console.error('[A/O] start:', periodStart.toISOString(), 'prev:', prevPeriodStart?.toISOString(), 'end:', prevPeriodEnd.toISOString(), 'all:', isAllTime, 'd:', days);
     const sql = getSql();
 
     const [totalUsersRows, activeUsersRows, paidUsersRows, currentRows, prevRows, allTimeRows] = await Promise.all([
@@ -82,7 +73,6 @@ export async function GET(request: NextRequest) {
           (SELECT COALESCE(SUM("totalCost"), 0) FROM conversations WHERE "updatedAt" >= ${prevPeriodStart} AND "updatedAt" < ${prevPeriodEnd}) as prev_cost,
           (SELECT COALESCE(SUM("totalTokens"), 0) FROM conversations WHERE "updatedAt" >= ${prevPeriodStart} AND "updatedAt" < ${prevPeriodEnd}) as prev_tokens
       `,
-      // 全量累计数据（不计时间范围）
       sql`
         SELECT
           (SELECT COUNT(DISTINCT "conversationId") FROM messages WHERE content != '[message-counted]') as alltime_conversations,
@@ -92,7 +82,6 @@ export async function GET(request: NextRequest) {
         FROM conversations
       `,
     ]);
-    console.error('[Analytics/Overview] all queries done, totalUsersRows:', totalUsersRows.length, 'allTimeRows:', allTimeRows?.length);
 
     const totalUsers = totalUsersRows.length;
     const activeUsers = activeUsersRows.length;
@@ -101,32 +90,16 @@ export async function GET(request: NextRequest) {
     const prev = prevRows[0];
     const allTime = allTimeRows[0];
 
-    // For all-time (days=0), return pure all-time cumulative metrics
-    // For period views (days>0), return period-specific metrics
-    const isAllTime = days === 0;
-
-    const totalMessages = isAllTime
-      ? totalMessagesAllTime
-      : parseInt(String(cur?.period_messages ?? '0'), 10);
-    const totalConversations = isAllTime
-      ? totalConversationsAllTime
-      : parseInt(String(cur?.period_conversations ?? '0'), 10);
-    const totalApiCost = isAllTime
-      ? totalApiCostAllTime
-      : Number(cur?.period_cost ?? 0);
-    const totalTokens = isAllTime
-      ? Number(allTime?.alltime_tokens ?? 0)
-      : Number(cur?.period_tokens ?? 0);
-    const mau = isAllTime
-      ? totalUsers  // all-time MAU = all users
-      : parseInt(String(cur?.mau ?? '0'), 10);
-    const dau = isAllTime
-      ? activeUsers  // all-time DAU = all active users
-      : parseInt(String(cur?.dau ?? '0'), 10);
-    const totalApiCostAllTime = Number(allTime?.alltime_cost ?? 0);
-    // 新增全量累计指标
     const totalMessagesAllTime = parseInt(String(allTime?.alltime_messages ?? '0'), 10);
     const totalConversationsAllTime = parseInt(String(allTime?.alltime_conversations ?? '0'), 10);
+    const totalApiCostAllTime = Number(allTime?.alltime_cost ?? 0);
+
+    const totalMessages = isAllTime ? totalMessagesAllTime : parseInt(String(cur?.period_messages ?? '0'), 10);
+    const totalConversations = isAllTime ? totalConversationsAllTime : parseInt(String(cur?.period_conversations ?? '0'), 10);
+    const totalApiCost = isAllTime ? totalApiCostAllTime : Number(cur?.period_cost ?? 0);
+    const totalTokens = isAllTime ? Number(allTime?.alltime_tokens ?? 0) : Number(cur?.period_tokens ?? 0);
+    const mau = isAllTime ? totalUsers : parseInt(String(cur?.mau ?? '0'), 10);
+    const dau = isAllTime ? activeUsers : parseInt(String(cur?.dau ?? '0'), 10);
 
     const prevMessages = parseInt(String(prev?.prev_messages ?? '0'), 10);
     const prevConversations = parseInt(String(prev?.prev_conversations ?? '0'), 10);
@@ -137,7 +110,6 @@ export async function GET(request: NextRequest) {
     const activeRate = totalUsers > 0 ? (mau / totalUsers) * 100 : 0;
     const dauMauRatio = mau > 0 ? (dau / mau) * 100 : 0;
 
-    // For all-time, trends are not meaningful — return null
     const trends = isAllTime ? null : {
       totalUsers: pctChange(totalUsers, totalUsers - (parseInt(String(cur?.new_users ?? '0'), 10))),
       mau: pctChange(mau, prevMau),
@@ -156,7 +128,7 @@ export async function GET(request: NextRequest) {
       totalConversations,
       totalTokens,
       totalApiCost,
-      totalApiCostAllTime,   // 全量累计 API 成本（用于显示实际账单总额）
+      totalApiCostAllTime,
       dau,
       mau,
       paidUsers,
@@ -164,14 +136,11 @@ export async function GET(request: NextRequest) {
       activeRate: Math.round(activeRate * 10) / 10,
       dauMauRatio: Math.round(dauMauRatio * 10) / 10,
       totalMessagesWeek: totalMessages,
-      // 全量累计字段（所有指标的全量版本）
       totalMessagesAllTime,
       totalConversationsAllTime,
       totalTokensAllTime: Number(allTime?.alltime_tokens ?? 0),
-      totalApiCostAllTime,
       activeUsersAllTime: activeUsers,
       period: { days: days === 0 ? 'all' : days },
-      // Trends (null when all-time — no meaningful comparison)
       trends,
       previousPeriod: isAllTime ? null : {
         totalMessages: prevMessages,
@@ -186,16 +155,14 @@ export async function GET(request: NextRequest) {
     console.error('[Analytics/Overview]', message);
     return NextResponse.json({
       _debug_error: message,
-      _debug_days: days,
-      _debug_stack: error instanceof Error ? error.stack?.slice(0, 500) : null,
       totalUsers: 0, activeUsers: 0, newUsers: 0, totalMessages: 0,
       totalConversations: 0, totalTokens: 0, totalApiCost: 0, totalApiCostAllTime: 0, dau: 0, mau: 0,
       paidUsers: 0, weekMessages: 0, activeRate: 0, dauMauRatio: 0,
       totalMessagesWeek: 0,
       totalMessagesAllTime: 0, totalConversationsAllTime: 0, totalTokensAllTime: 0,
       period: { days: 7 },
-      trends: { totalUsers: null, mau: null, dau: null, totalMessages: null, totalConversations: null, paidUsers: null, totalApiCost: null },
-      previousPeriod: { totalMessages: 0, totalConversations: 0, mau: 0, totalApiCost: 0, totalTokens: 0 },
+      trends: null,
+      previousPeriod: null,
     });
   }
 }
