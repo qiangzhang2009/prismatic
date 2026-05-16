@@ -42,17 +42,17 @@ export async function GET(req: NextRequest) {
         LEFT JOIN LATERAL (
           SELECT
             COUNT(*) OVER () as real_msg_count,
-            -- 去重：同 (content, role, createdAt) 的消息只保留一条，再取对话前5条有意义的
-            json_agg(json_build_object('content', deduped.content) ORDER BY deduped."createdAt" ASC)
-              FILTER (WHERE deduped.content IS NOT NULL) as data
-          FROM (
-            SELECT DISTINCT ON (msg.content, msg.role, msg."createdAt")
-              msg.content, msg."createdAt"
-            FROM messages msg
-            WHERE msg."conversationId" = c.id AND msg.content != '[message-counted]'
-            ORDER BY msg.content, msg.role, msg."createdAt", msg.id
-            LIMIT 20
-          ) deduped
+            -- 去重：同 (content, role, createdAt) 的消息只保留一条，最多取20条用于预览
+            (SELECT json_agg(json_build_object('content', sub.content) ORDER BY sub."createdAt" ASC)
+             FROM (
+               SELECT DISTINCT ON (msg.content, msg.role, msg."createdAt")
+                 msg.content, msg."createdAt"
+               FROM messages msg
+               WHERE msg."conversationId" = c.id AND msg.content != '[message-counted]'
+               ORDER BY msg.content, msg.role, msg."createdAt", msg.id
+               LIMIT 20
+             ) sub
+            ) as data
         ) msgs ON true
         WHERE c."updatedAt" >= $1 AND (SELECT COUNT(*) FROM messages m WHERE m."conversationId" = c.id AND m.content != '[message-counted]') >= 2
         ORDER BY (SELECT COUNT(*) FROM messages m WHERE m."conversationId" = c.id AND m.content != '[message-counted]') DESC
@@ -71,8 +71,10 @@ export async function GET(req: NextRequest) {
     }));
 
     const deepseekKey = process.env.DEEPSEEK_API_KEY;
+    console.log(`[Topics] deepseekKey present: ${!!deepseekKey}, conversations: ${totalConversations}, samples: ${topicSamples.length}`);
+
     if (!deepseekKey) {
-      return NextResponse.json({ topics: [], totalConversations, sampledFrom: Math.min(500, totalConversations), period: { days }, error: 'No LLM configured' });
+      return NextResponse.json({ topics: [], totalConversations, sampledFrom: Math.min(500, totalConversations), period: { days }, error: '未配置 DeepSeek API Key，无法进行话题聚类分析' });
     }
 
     try {
@@ -100,24 +102,33 @@ export async function GET(req: NextRequest) {
       });
 
       if (!response.ok) {
-        throw new Error(`DeepSeek API error: ${response.status}`);
+        throw new Error(`DeepSeek API error: ${response.status} ${response.statusText}`);
       }
 
       const data = await response.json();
       const content = data.choices?.[0]?.message?.content || '';
+      console.log(`[Topics] LLM raw content length: ${content.length}, preview: ${content.slice(0, 100)}`);
+
       let topics: any[] = [];
       try {
         const match = content.match(/\[[\s\S]*\]/);
-        if (match) topics = JSON.parse(match[0]);
-      } catch {}
+        if (match) {
+          topics = JSON.parse(match[0]);
+        } else {
+          console.warn(`[Topics] No JSON array found in LLM response`);
+        }
+      } catch (e) {
+        console.error(`[Topics] JSON parse error:`, e);
+      }
 
+      console.log(`[Topics] Parsed topics count: ${topics.length}`);
       return NextResponse.json({ topics, totalConversations, sampledFrom: Math.min(500, totalConversations), period: { days } });
     } catch (err) {
       console.error('[Admin/Chats/Topics] LLM error:', err);
-      return NextResponse.json({ topics: [], totalConversations, sampledFrom: Math.min(500, totalConversations), period: { days }, error: 'Topic clustering failed' });
+      return NextResponse.json({ topics: [], totalConversations, sampledFrom: Math.min(500, totalConversations), period: { days }, error: `LLM 调用失败: ${err instanceof Error ? err.message : String(err)}` });
     }
   } catch (err) {
     console.error('[Admin/Chats/Topics]', err);
-    return NextResponse.json({ topics: [], totalConversations: 0, sampledFrom: 0, period: { days: 7 } });
+    return NextResponse.json({ topics: [], totalConversations: 0, sampledFrom: 0, period: { days: 7 }, error: `数据库错误: ${err instanceof Error ? err.message : String(err)}` });
   }
 }
