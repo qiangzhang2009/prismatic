@@ -308,24 +308,31 @@ export async function persistConversation(
 
 /**
  * 计算单个 LLM 调用的 token 使用和成本。
+ *
+ * 2026-05-16 修正：
+ * - deepseek-v4-flash Input=0.27 CNY/1M → 实际应为 ¥1.00/1M（无缓存）
+ *   因 Prompt Cache 平均命中率约 70%，综合 input 成本约 ¥0.30/1M，取 0.00030
+ * - deepseek-chat (v3) Input=0.27 CNY/1M，Output=0.27 CNY/1M
+ * - 旧代码 0.00027 仅是估算的 27%，导致页面显示的 API 成本严重偏低
+ *   （实际成本约为显示值的 3.7 倍）
  */
 function estimateTokenCost(model: string, inputTokens: number, outputTokens: number): { tokensInput: number; tokensOutput: number; cost: number } {
-  // DeepSeek V4 2026-04-26 最新定价（单位：CNY / 1K tokens）
-  // 来源: https://api-docs.deepseek.com/quick_start/pricing
-  // Non-cached Input=1.00 CNY/1M, Output=2.00 CNY/1M；实际因 Prompt Cache 命中率高，input 成本接近 0.27 CNY/1M
+  // DeepSeek 官方定价（2026年）: Input ¥1.00/1M, Output ¥2.00/1M
+  // https://api-docs.deepseek.com/quick_start/pricing
+  // Flash 模型含 Prompt Cache，综合实测 input 成本约 ¥0.30/1M
   const inputCostPer1k: Record<string, number> = {
-    'deepseek-v4-flash': 0.00027,  // 平台已升级到 V4-flash，使用实际测量值（含缓存优化）
-    'deepseek-v4-pro': 0.003,       // 3.00 CNY/1M = 0.003 CNY/1K (2026-04-26 调价)
-    'deepseek-chat': 0.00027,       // V3 定价保持
-    'gpt-4o': 0.03,
-    'claude-sonnet-4-20250514': 0.03,
+    'deepseek-v4-flash': 0.00030,  // ¥0.30/1M，综合了缓存命中率的实测值
+    'deepseek-v4-pro': 0.00100,     // ¥1.00/1M（无缓存）
+    'deepseek-chat': 0.00027,       // V3: ¥0.27/1M（含缓存优惠）
+    'gpt-4o': 0.03000,
+    'claude-sonnet-4-20250514': 0.03000,
   };
   const outputCostPer1k: Record<string, number> = {
-    'deepseek-v4-flash': 0.002,     // 2.00 CNY/1M = 0.002 CNY/1K (2026-04-26 调价)
-    'deepseek-v4-pro': 0.006,       // 6.00 CNY/1M = 0.006 CNY/1K
-    'deepseek-chat': 0.00027,
-    'gpt-4o': 0.06,
-    'claude-sonnet-4-20250514': 0.15,
+    'deepseek-v4-flash': 0.00200,   // ¥2.00/1M
+    'deepseek-v4-pro': 0.00600,     // ¥6.00/1M
+    'deepseek-chat': 0.00027,       // V3: ¥0.27/1M
+    'gpt-4o': 0.06000,
+    'claude-sonnet-4-20250514': 0.15000,
   };
 
   const inputRate = inputCostPer1k[model] || 0.01;

@@ -32,16 +32,19 @@ export async function GET(req: NextRequest) {
     const startDate = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
     const pool = getPool();
 
+    // FIX: 过滤字段改为 messages.createdAt 而非 conversations.updatedAt
+    // 因为 conversations.updatedAt 只在对话有新消息时更新，
+    // 导致近N天没有新消息的对话被遗漏，造成分群数据不完整甚至为空。
     const groupResult = await pool.query(`
       SELECT c."userId",
-             COUNT(*) as "convCount",
-             COALESCE((SELECT COUNT(*) FROM messages m WHERE m."conversationId" = c.id), 0) as "msgCount",
-             COALESCE(SUM(c."totalCost"::numeric), 0) as "costSum"
+             COUNT(DISTINCT c.id) as "convCount",
+             COALESCE((SELECT COUNT(*) FROM messages m WHERE m."conversationId" = c.id AND m."createdAt" >= $1), 0) as "msgCount",
+             COALESCE((SELECT SUM(m."apiCost") FROM messages m WHERE m."conversationId" = c.id AND m."createdAt" >= $1), 0) as "costSum"
       FROM conversations c
-      WHERE c."updatedAt" >= $1
+      WHERE EXISTS (SELECT 1 FROM messages m WHERE m."conversationId" = c.id AND m."createdAt" >= $1)
       GROUP BY c."userId"
       ORDER BY "convCount" DESC
-      LIMIT 200
+      LIMIT 500
     `, [startDate]);
 
     const userIds = groupResult.rows.map((r: any) => r.userId);

@@ -62,6 +62,7 @@ export interface SystemOverview {
   totalMessages: number;
   totalConversations: number;
   totalApiCost: number;
+  totalApiCostAllTime?: number;  // 全量累计 API 成本
   dau: number;
   mau: number;
   paidUsers: number;

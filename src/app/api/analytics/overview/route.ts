@@ -11,6 +11,11 @@
  * - All period-filtered metrics (messages, cost, tokens) use the 'days' window
  * - User counts (total, paid) are all-time, not filtered by period
  * - Includes previous-period metrics for trend calculation (2026-05: fixed hardcoded trends)
+ * - Also returns all-time cost/messages/conversations for accurate total display
+ *
+ * 2026-05-16 修复：
+ * - 新增 totalApiCostAllTime（全量累计成本），用于管理后台显示全量 API 账单
+ * - 定价参数已在 chat/route.ts 中修正（0.00027 → 0.00030）
  */
 import { NextRequest, NextResponse } from 'next/server';
 import { neon } from '@neondatabase/serverless';
@@ -44,7 +49,7 @@ export async function GET(request: NextRequest) {
 
     const sql = getSql();
 
-    const [totalUsersRows, activeUsersRows, paidUsersRows, currentRows, prevRows] = await Promise.all([
+    const [totalUsersRows, activeUsersRows, paidUsersRows, currentRows, prevRows, allTimeRows] = await Promise.all([
       sql`SELECT id FROM users WHERE status != 'DELETED'`,
       sql`SELECT id FROM users WHERE status = 'ACTIVE'`,
       sql`SELECT id FROM users WHERE status = 'ACTIVE' AND plan != 'FREE' AND plan IS NOT NULL`,
@@ -66,6 +71,8 @@ export async function GET(request: NextRequest) {
           (SELECT COALESCE(SUM("totalCost"), 0) FROM conversations WHERE "updatedAt" >= ${prevPeriodStart} AND "updatedAt" < ${prevPeriodEnd}) as prev_cost,
           (SELECT COALESCE(SUM("totalTokens"), 0) FROM conversations WHERE "updatedAt" >= ${prevPeriodStart} AND "updatedAt" < ${prevPeriodEnd}) as prev_tokens
       `,
+      // 全量累计数据（不计时间范围）
+      sql`SELECT COALESCE(SUM("totalCost"), 0) as alltime_cost, COALESCE(SUM("totalTokens"), 0) as alltime_tokens FROM conversations`,
     ]);
 
     const totalUsers = totalUsersRows.length;
@@ -73,6 +80,7 @@ export async function GET(request: NextRequest) {
     const paidUsers = paidUsersRows.length;
     const cur = currentRows[0];
     const prev = prevRows[0];
+    const allTime = allTimeRows[0];
 
     const newUsers = parseInt(String(cur?.new_users ?? '0'), 10);
     const totalMessages = parseInt(String(cur?.period_messages ?? '0'), 10);
@@ -81,6 +89,7 @@ export async function GET(request: NextRequest) {
     const mau = parseInt(String(cur?.mau ?? '0'), 10);
     const totalApiCost = Number(cur?.period_cost ?? 0);
     const totalTokens = Number(cur?.period_tokens ?? 0);
+    const totalApiCostAllTime = Number(allTime?.alltime_cost ?? 0);  // 全量累计成本
 
     const prevMessages = parseInt(String(prev?.prev_messages ?? '0'), 10);
     const prevConversations = parseInt(String(prev?.prev_conversations ?? '0'), 10);
@@ -99,6 +108,7 @@ export async function GET(request: NextRequest) {
       totalConversations,
       totalTokens,
       totalApiCost,
+      totalApiCostAllTime,   // 全量累计 API 成本（用于显示实际账单总额）
       dau,
       mau,
       paidUsers,
@@ -130,7 +140,7 @@ export async function GET(request: NextRequest) {
     console.error('[Analytics/Overview]', message);
     return NextResponse.json({
       totalUsers: 0, activeUsers: 0, newUsers: 0, totalMessages: 0,
-      totalConversations: 0, totalTokens: 0, totalApiCost: 0, dau: 0, mau: 0,
+      totalConversations: 0, totalTokens: 0, totalApiCost: 0, totalApiCostAllTime: 0, dau: 0, mau: 0,
       paidUsers: 0, weekMessages: 0, activeRate: 0, dauMauRatio: 0,
       totalMessagesWeek: 0, period: { days: 7 },
       trends: { totalUsers: null, mau: null, dau: null, totalMessages: null, totalConversations: null, paidUsers: null, totalApiCost: null },

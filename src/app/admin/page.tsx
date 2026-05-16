@@ -1178,12 +1178,12 @@ function DashboardSection() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {/* 存储容量 */}
           <StorageCard capacity={capacity} />
-          {/* API 成本 */}
+          {/* API 成本：当期 + 全量累计 */}
           <div className="bg-gray-900/80 border border-gray-800 rounded-2xl p-5">
             <div className="flex items-center justify-between mb-4">
               <div>
                 <p className="text-sm text-gray-300 font-medium">API 成本</p>
-                <p className="text-[10px] text-gray-500">近 {days} 天</p>
+                <p className="text-[10px] text-gray-500">近 {days} 天 / 全量累计</p>
               </div>
               <div className="w-10 h-10 rounded-xl bg-amber-500/10 flex items-center justify-center">
                 <DollarSign className="w-5 h-5 text-amber-400" />
@@ -1192,6 +1192,12 @@ function DashboardSection() {
             <p className="text-3xl font-bold text-amber-400">
               ¥{Number(overview?.totalApiCost ?? 0).toFixed(4)}
             </p>
+            {/* 全量累计成本（2026-05-16 新增） */}
+            {overview?.totalApiCostAllTime !== undefined && overview?.totalApiCostAllTime > 0 && (
+              <p className="text-xs text-gray-500 mt-1">
+                累计 <span className="text-amber-300 font-semibold">¥{Number(overview.totalApiCostAllTime).toFixed(2)}</span>
+              </p>
+            )}
             <div className="mt-3 flex items-center gap-1.5 text-xs">
               {(overview?.trends?.totalApiCost !== undefined && overview?.trends?.totalApiCost !== null) ? (
                 <>
