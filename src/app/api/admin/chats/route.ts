@@ -102,20 +102,20 @@ export async function GET(req: NextRequest) {
         SELECT
           COUNT(*) OVER () as real_message_count,
           json_agg(json_build_object(
-            'id', m.id, 'role', m.role, 'content', m.content,
-            'personaId', m."personaId", 'tokensInput', m."tokensInput",
-            'tokensOutput', m."tokensOutput", 'apiCost', m."apiCost",
-            'modelUsed', m."modelUsed", 'createdAt', m."createdAt",
-            'metadata', m.metadata
-          ) ORDER BY m."createdAt" DESC, m.id DESC) as data
+            'id', deduped.id, 'role', deduped.role, 'content', deduped.content,
+            'personaId', deduped."personaId", 'tokensInput', deduped."tokensInput",
+            'tokensOutput', deduped."tokensOutput", 'apiCost', deduped."apiCost",
+            'modelUsed', deduped."modelUsed", 'createdAt', deduped."createdAt",
+            'metadata', deduped.metadata
+          ) ORDER BY deduped."createdAt" DESC, deduped.id DESC) as data
         FROM (
           -- Deduplicate: keep first occurrence by (content, role, createdAt), ordered by id
-          SELECT DISTINCT ON (m.content, m.role, m."createdAt")
-            m.id, m.role, m.content, m."personaId", m."tokensInput",
-            m."tokensOutput", m."apiCost", m."modelUsed", m."createdAt", m.metadata
-          FROM messages m
-          WHERE m."conversationId" = c.id AND m.content != '[message-counted]'
-          ORDER BY m.content, m.role, m."createdAt", m.id
+          SELECT DISTINCT ON (msg.content, msg.role, msg."createdAt")
+            msg.id, msg.role, msg.content, msg."personaId", msg."tokensInput",
+            msg."tokensOutput", msg."apiCost", msg."modelUsed", msg."createdAt", msg.metadata
+          FROM messages msg
+          WHERE msg."conversationId" = c.id AND msg.content != '[message-counted]'
+          ORDER BY msg.content, msg.role, msg."createdAt", msg.id
         ) deduped
       ) msgs ON true
       ${where}
