@@ -32,9 +32,8 @@ export async function GET(req: NextRequest) {
     const startDate = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
     const pool = getPool();
 
-    // FIX: 用 JOIN + 聚合代替子查询，避免 PostgreSQL 报错：
-    // "subquery uses ungrouped column c.id from outer query"
-    // 因为原 SQL 用 GROUP BY userId，但子查询引用了 c.id（同一 user 有多条 conversation）
+    // 用 LEFT JOIN + 对话更新时间过滤，确保所有在时间窗口内有对话的用户都被计入，
+    // 包括那些近期对话但没有新消息的用户（避免 INNER JOIN 漏掉他们）
     const groupResult = await pool.query(`
       SELECT
         c."userId",
@@ -42,8 +41,10 @@ export async function GET(req: NextRequest) {
         COUNT(m.id) as "msgCount",
         COALESCE(SUM(m."apiCost"), 0) as "costSum"
       FROM conversations c
-      INNER JOIN messages m ON m."conversationId" = c.id AND m."createdAt" >= $1
+      LEFT JOIN messages m ON m."conversationId" = c.id AND m."createdAt" >= $1
+      WHERE c."updatedAt" >= $1
       GROUP BY c."userId"
+      HAVING COUNT(DISTINCT c.id) >= 1
       ORDER BY "convCount" DESC
       LIMIT 500
     `, [startDate]);
