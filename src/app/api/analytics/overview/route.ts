@@ -36,9 +36,9 @@ export async function GET(request: NextRequest) {
 
     const isAllTime = days === 0;
     const ALL_TIME_START = new Date('2020-01-01T00:00:00Z');
-    // DAU: 从今日凌晨 UTC 到此刻的活跃用户（需要完整的 "今天" 而不只是 UTC 午夜那一刻）
-    const todayStart = new Date(Date.now());
-    todayStart.setUTCHours(0, 0, 0, 0);
+    // DAU: 过去24小时内发过消息的去重用户数
+    // 使用动态窗口避免 UTC/CST 时区差异问题（适合全球化产品）
+    const dauWindowStart = new Date(Date.now() - 24 * 60 * 60 * 1000);
 
     const periodStart = isAllTime
       ? ALL_TIME_START
@@ -61,7 +61,7 @@ export async function GET(request: NextRequest) {
           (SELECT COUNT(*) FROM users WHERE "createdAt" >= ${periodStart}) as new_users,
           (SELECT COUNT(*) FROM messages WHERE "createdAt" >= ${periodStart} AND content != '[message-counted]') as period_messages,
           (SELECT COUNT(DISTINCT "conversationId") FROM messages WHERE "createdAt" >= ${periodStart} AND content != '[message-counted]') as period_conversations,
-          (SELECT COUNT(DISTINCT "userId") FROM messages WHERE "createdAt" >= ${todayStart} AND content != '[message-counted]') as dau,
+          (SELECT COUNT(DISTINCT "userId") FROM messages WHERE "createdAt" >= ${dauWindowStart} AND content != '[message-counted]') as dau,
           (SELECT COUNT(DISTINCT "userId") FROM messages WHERE "createdAt" >= ${periodStart} AND content != '[message-counted]') as mau,
           (SELECT COALESCE(SUM("totalCost"), 0) FROM conversations WHERE "updatedAt" >= ${periodStart}) as period_cost,
           (SELECT COALESCE(SUM("totalTokens"), 0) FROM conversations WHERE "updatedAt" >= ${periodStart}) as period_tokens
