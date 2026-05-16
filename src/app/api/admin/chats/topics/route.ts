@@ -33,7 +33,7 @@ export async function GET(req: NextRequest) {
     const pool = getPool();
 
     const [countResult, convResult] = await Promise.all([
-      pool.query(`SELECT COUNT(*) as cnt FROM conversations WHERE "updatedAt" >= $1 AND (SELECT COUNT(*) FROM messages m WHERE m."conversationId" = conversations.id) >= 2`, [startDate]),
+      pool.query(`SELECT COUNT(*) as cnt FROM conversations WHERE "updatedAt" >= $1 AND (SELECT COUNT(*) FROM messages m WHERE m."conversationId" = conversations.id AND m.content != '[message-counted]') >= 2`, [startDate]),
       pool.query(`
         SELECT c.id, c.mode, c."createdAt",
                msgs.data as messages,
@@ -42,11 +42,20 @@ export async function GET(req: NextRequest) {
         LEFT JOIN LATERAL (
           SELECT
             COUNT(*) OVER () as real_msg_count,
-            json_agg(json_build_object('content', m.content) ORDER BY m."createdAt" ASC) as data
-          FROM messages m WHERE m."conversationId" = c.id
+            -- 去重：同 (content, role, createdAt) 的消息只保留一条，再取对话前5条有意义的
+            json_agg(json_build_object('content', deduped.content) ORDER BY deduped."createdAt" ASC)
+              FILTER (WHERE deduped.content IS NOT NULL) as data
+          FROM (
+            SELECT DISTINCT ON (msg.content, msg.role, msg."createdAt")
+              msg.content, msg."createdAt"
+            FROM messages msg
+            WHERE msg."conversationId" = c.id AND msg.content != '[message-counted]'
+            ORDER BY msg.content, msg.role, msg."createdAt", msg.id
+            LIMIT 20
+          ) deduped
         ) msgs ON true
-        WHERE c."updatedAt" >= $1 AND (SELECT COUNT(*) FROM messages m WHERE m."conversationId" = c.id) >= 2
-        ORDER BY (SELECT COUNT(*) FROM messages m WHERE m."conversationId" = c.id) DESC
+        WHERE c."updatedAt" >= $1 AND (SELECT COUNT(*) FROM messages m WHERE m."conversationId" = c.id AND m.content != '[message-counted]') >= 2
+        ORDER BY (SELECT COUNT(*) FROM messages m WHERE m."conversationId" = c.id AND m.content != '[message-counted]') DESC
         LIMIT 500
       `, [startDate]),
     ]);
@@ -55,9 +64,10 @@ export async function GET(req: NextRequest) {
 
     const totalConversations = parseInt(countResult.rows[0]?.cnt ?? '0', 10);
 
+    // 取第一条消息作为对话主题预览（去重后按时间排序的第一条，通常是用户提问）
     const topicSamples = convResult.rows.slice(0, 50).map((c: any) => ({
       id: c.id,
-      preview: ((c.messages || []).slice(0, 3)).map((m: any) => m.content).join('\n').slice(0, 200),
+      preview: ((c.messages || [])[0]?.content || '').slice(0, 200),
     }));
 
     const deepseekKey = process.env.DEEPSEEK_API_KEY;
