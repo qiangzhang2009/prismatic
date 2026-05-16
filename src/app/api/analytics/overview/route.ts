@@ -57,9 +57,8 @@ export async function GET(request: NextRequest) {
       ? new Date('2019-01-01T00:00:00Z')  // equivalent "previous" for all-time
       : new Date(prevPeriodEnd.getTime() - days * 24 * 60 * 60 * 1000);
 
-    console.error('[Analytics/Overview] periodStart:', periodStart.toISOString(), 'prevPeriodStart:', prevPeriodStart?.toISOString(), 'prevPeriodEnd:', prevPeriodEnd.toISOString(), 'isAllTime:', isAllTime, 'days:', days);
+    console.error('[A/O] start:', periodStart.toISOString(), 'prev:', prevPeriodStart?.toISOString(), 'end:', prevPeriodEnd.toISOString(), 'all:', isAllTime, 'd:', days);
     const sql = getSql();
-    console.error('[Analytics/Overview] SQL constructed, executing queries...');
 
     const [totalUsersRows, activeUsersRows, paidUsersRows, currentRows, prevRows, allTimeRows] = await Promise.all([
       sql`SELECT id FROM users WHERE status != 'DELETED'`,
@@ -186,6 +185,9 @@ export async function GET(request: NextRequest) {
     const message = error instanceof Error ? error.message : String(error);
     console.error('[Analytics/Overview]', message);
     return NextResponse.json({
+      _debug_error: message,
+      _debug_days: days,
+      _debug_stack: error instanceof Error ? error.stack?.slice(0, 500) : null,
       totalUsers: 0, activeUsers: 0, newUsers: 0, totalMessages: 0,
       totalConversations: 0, totalTokens: 0, totalApiCost: 0, totalApiCostAllTime: 0, dau: 0, mau: 0,
       paidUsers: 0, weekMessages: 0, activeRate: 0, dauMauRatio: 0,
