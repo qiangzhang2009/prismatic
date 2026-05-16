@@ -62,17 +62,21 @@ export interface SystemOverview {
   totalMessages: number;
   totalConversations: number;
   totalApiCost: number;
-  totalApiCostAllTime?: number;  // 全量累计 API 成本
+  totalApiCostAllTime: number;    // 全量累计 API 成本
   dau: number;
   mau: number;
   paidUsers: number;
   activeRate: number;
   dauMauRatio: number;
   totalMessagesWeek: number;
+  // 全量累计指标（2026-05 新增）
+  totalMessagesAllTime?: number;
+  totalConversationsAllTime?: number;
+  totalTokensAllTime?: number;
   period?: { days: number };
-  // Dynamic trends vs previous period (2026-05: fixed hardcoded trends)
+  // Dynamic trends vs previous period
   trends?: {
-    totalUsers: number | null;
+    totalUsers: number | null;   // 新用户数趋势（当期 vs 上期）
     mau: number | null;
     dau: number | null;
     totalMessages: number | null;

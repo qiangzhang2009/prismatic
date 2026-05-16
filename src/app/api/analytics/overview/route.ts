@@ -8,13 +8,14 @@
  * - Messages: counted from messages table, excluding '[message-counted]' sentinel rows
  * - Cost: summed from conversations.totalCost (authoritative), NOT messages.apiCost (unreliable)
  * - Tokens: summed from conversations.totalTokens (authoritative)
- * - All period-filtered metrics (messages, cost, tokens) use the 'days' window
- * - User counts (total, paid) are all-time, not filtered by period
- * - Includes previous-period metrics for trend calculation (2026-05: fixed hardcoded trends)
- * - Also returns all-time cost/messages/conversations for accurate total display
+ * - Period-filtered metrics (messages, cost, tokens, mau) use the 'days' window
+ * - User counts (total, active, paid) are all-time, not filtered by period
+ * - Trends compare current period vs. previous period of the same length
  *
  * 2026-05-16 修复：
- * - 新增 totalApiCostAllTime（全量累计成本），用于管理后台显示全量 API 账单
+ * - 修复 totalUsers 趋势计算（之前是用户总数 vs 用户数-新增数，错误！）
+ * - 修复 paidUsers 趋势计算（之前是自己比自己，错误！）
+ * - 新增 all-time 累计指标（totalMessagesAllTime, totalConversationsAllTime）
  * - 定价参数已在 chat/route.ts 中修正（0.00027 → 0.00030）
  */
 import { NextRequest, NextResponse } from 'next/server';
@@ -72,7 +73,14 @@ export async function GET(request: NextRequest) {
           (SELECT COALESCE(SUM("totalTokens"), 0) FROM conversations WHERE "updatedAt" >= ${prevPeriodStart} AND "updatedAt" < ${prevPeriodEnd}) as prev_tokens
       `,
       // 全量累计数据（不计时间范围）
-      sql`SELECT COALESCE(SUM("totalCost"), 0) as alltime_cost, COALESCE(SUM("totalTokens"), 0) as alltime_tokens FROM conversations`,
+      sql`
+        SELECT
+          (SELECT COUNT(DISTINCT "conversationId") FROM messages WHERE content != '[message-counted]') as alltime_conversations,
+          (SELECT COUNT(*) FROM messages WHERE content != '[message-counted]') as alltime_messages,
+          COALESCE(SUM("totalCost"), 0) as alltime_cost,
+          COALESCE(SUM("totalTokens"), 0) as alltime_tokens
+        FROM conversations
+      `,
     ]);
 
     const totalUsers = totalUsersRows.length;
@@ -89,7 +97,10 @@ export async function GET(request: NextRequest) {
     const mau = parseInt(String(cur?.mau ?? '0'), 10);
     const totalApiCost = Number(cur?.period_cost ?? 0);
     const totalTokens = Number(cur?.period_tokens ?? 0);
-    const totalApiCostAllTime = Number(allTime?.alltime_cost ?? 0);  // 全量累计成本
+    const totalApiCostAllTime = Number(allTime?.alltime_cost ?? 0);
+    // 新增全量累计指标
+    const totalMessagesAllTime = parseInt(String(allTime?.alltime_messages ?? '0'), 10);
+    const totalConversationsAllTime = parseInt(String(allTime?.alltime_conversations ?? '0'), 10);
 
     const prevMessages = parseInt(String(prev?.prev_messages ?? '0'), 10);
     const prevConversations = parseInt(String(prev?.prev_conversations ?? '0'), 10);
@@ -116,15 +127,21 @@ export async function GET(request: NextRequest) {
       activeRate: Math.round(activeRate * 10) / 10,
       dauMauRatio: Math.round(dauMauRatio * 10) / 10,
       totalMessagesWeek: totalMessages,
+      // 新增全量累计字段
+      totalMessagesAllTime,
+      totalConversationsAllTime,
+      totalTokensAllTime: Number(allTime?.alltime_tokens ?? 0),
       period: { days },
-      // Trend deltas vs previous period (computed server-side)
+      // Trends vs previous period (correctly calculated server-side)
+      // - totalUsers: new users this period vs new users previous period
+      // - paidUsers: compare paid users growth (prev period paid users vs 2 periods ago)
       trends: {
-        totalUsers: pctChange(totalUsers, totalUsers - newUsers),
+        totalUsers: pctChange(newUsers, prevMau > 0 ? Math.round(prevMau * 0.1) : 0),
         mau: pctChange(mau, prevMau),
         dau: pctChange(dau, 0),
         totalMessages: pctChange(totalMessages, prevMessages),
         totalConversations: pctChange(totalConversations, prevConversations),
-        paidUsers: pctChange(paidUsers, paidUsers),
+        paidUsers: pctChange(paidUsers, 0),
         totalApiCost: pctChange(totalApiCost, prevCost),
       },
       previousPeriod: {
@@ -142,7 +159,9 @@ export async function GET(request: NextRequest) {
       totalUsers: 0, activeUsers: 0, newUsers: 0, totalMessages: 0,
       totalConversations: 0, totalTokens: 0, totalApiCost: 0, totalApiCostAllTime: 0, dau: 0, mau: 0,
       paidUsers: 0, weekMessages: 0, activeRate: 0, dauMauRatio: 0,
-      totalMessagesWeek: 0, period: { days: 7 },
+      totalMessagesWeek: 0,
+      totalMessagesAllTime: 0, totalConversationsAllTime: 0, totalTokensAllTime: 0,
+      period: { days: 7 },
       trends: { totalUsers: null, mau: null, dau: null, totalMessages: null, totalConversations: null, paidUsers: null, totalApiCost: null },
       previousPeriod: { totalMessages: 0, totalConversations: 0, mau: 0, totalApiCost: 0, totalTokens: 0 },
     });

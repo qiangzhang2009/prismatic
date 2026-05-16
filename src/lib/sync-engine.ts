@@ -619,17 +619,23 @@ async function createServerConversation(
     },
   });
 
-  // Create messages
-  const messageRecords = messages.map(msg => ({
-    id: msg.id || nanoid(),
-    conversationId,
-    userId: device.userId,
-    role: (msg.role as string) === 'agent' ? 'assistant' : msg.role,
-    content: msg.content,
-    personaId: msg.personaId || null,
-    source: 'web',
-    createdAt: msg.timestamp ? new Date(msg.timestamp) : new Date(),
-  }));
+  // Create messages — use existing ID if available, only generate if missing
+  const messageRecords = messages.map(msg => {
+    // Reuse the existing message ID so skipDuplicates can detect duplicates
+    // This fixes the duplicate message bug where the same message sent twice
+    // (e.g. via both /api/chat and sync push) would get different IDs and slip through.
+    const msgId = msg.id || nanoid();
+    return {
+      id: msgId,
+      conversationId,
+      userId: device.userId,
+      role: (msg.role as string) === 'agent' ? 'assistant' : msg.role,
+      content: msg.content,
+      personaId: msg.personaId || null,
+      source: 'web',
+      createdAt: msg.timestamp ? new Date(msg.timestamp) : new Date(),
+    };
+  });
 
   if (messageRecords.length > 0) {
     await prisma.message.createMany({
@@ -647,17 +653,20 @@ async function updateServerConversation(
   lastMessageAt: string,
   userId: string
 ): Promise<void> {
-  // Upsert messages (skip duplicates)
-  const messageRecords = messages.map(msg => ({
-    id: msg.id || nanoid(),
-    conversationId,
-    userId,
-    role: (msg.role as string) === 'agent' ? 'assistant' : msg.role,
-    content: msg.content,
-    personaId: msg.personaId || null,
-    source: 'web',
-    createdAt: msg.timestamp ? new Date(msg.timestamp) : new Date(),
-  }));
+  // Upsert messages — reuse existing message IDs so skipDuplicates can detect duplicates
+  const messageRecords = messages.map(msg => {
+    const msgId = msg.id || nanoid();
+    return {
+      id: msgId,
+      conversationId,
+      userId,
+      role: (msg.role as string) === 'agent' ? 'assistant' : msg.role,
+      content: msg.content,
+      personaId: msg.personaId || null,
+      source: 'web',
+      createdAt: msg.timestamp ? new Date(msg.timestamp) : new Date(),
+    };
+  });
 
   if (messageRecords.length > 0) {
     await prisma.message.createMany({

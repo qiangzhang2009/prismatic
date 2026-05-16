@@ -1021,12 +1021,12 @@ function DashboardSection() {
 
       {/* ── KPI 行 1: 核心资产 ── */}
       <div>
-        <SectionLabel label="核心资产" sub="用户规模与活跃度" />
+        <SectionLabel label="核心资产" sub="全量累计数据 · 对比上期变化" />
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
           <KPICard
             label="总用户"
             value={(overview?.totalUsers ?? 0).toLocaleString()}
-            sub={`+${overview?.newUsers ?? 0} 新增`}
+            sub={`全量累计 · 近${overview?.period?.days ?? 7}天新增 +${overview?.newUsers ?? 0}`}
             icon={Users}
             accent="purple"
             trend={overview?.trends?.totalUsers !== undefined ? { value: Math.abs(overview.trends.totalUsers ?? 0), positive: (overview.trends.totalUsers ?? 0) >= 0 } : undefined}
@@ -1034,7 +1034,7 @@ function DashboardSection() {
           <KPICard
             label="月活 (MAU)"
             value={(overview?.mau ?? 0).toLocaleString()}
-            sub={`DAU/MAU ${Number(overview?.dauMauRatio ?? 0).toFixed(1)}%`}
+            sub={`DAU/MAU ${Number(overview?.dauMauRatio ?? 0).toFixed(1)}% · 全量累计`}
             icon={Activity}
             accent="cyan"
             trend={overview?.trends?.mau !== undefined ? { value: Math.abs(overview.trends.mau ?? 0), positive: (overview.trends.mau ?? 0) >= 0 } : undefined}
@@ -1042,23 +1042,23 @@ function DashboardSection() {
           <KPICard
             label="日活 (DAU)"
             value={(overview?.dau ?? 0).toLocaleString()}
-            sub={`活跃率 ${Number(overview?.activeRate ?? 0).toFixed(1)}%`}
+            sub={`活跃率 ${Number(overview?.activeRate ?? 0).toFixed(1)}% · 当日数据`}
             icon={TrendingUp}
             accent="green"
             trend={overview?.trends?.dau !== undefined ? { value: Math.abs(overview.trends.dau ?? 0), positive: (overview.trends.dau ?? 0) >= 0 } : undefined}
           />
           <KPICard
             label="总消息数"
-            value={(overview?.totalMessages ?? 0).toLocaleString()}
-            sub="条消息"
+            value={(overview?.totalMessagesAllTime ?? overview?.totalMessages ?? 0).toLocaleString()}
+            sub={`近${overview?.period?.days ?? 7}天 +${(overview?.totalMessages ?? 0).toLocaleString()} · 全量累计`}
             icon={MessageSquare}
             accent="amber"
             trend={overview?.trends?.totalMessages !== undefined ? { value: Math.abs(overview.trends.totalMessages ?? 0), positive: (overview.trends.totalMessages ?? 0) >= 0 } : undefined}
           />
           <KPICard
             label="总对话数"
-            value={(overview?.totalConversations ?? 0).toLocaleString()}
-            sub="次对话"
+            value={(overview?.totalConversationsAllTime ?? overview?.totalConversations ?? 0).toLocaleString()}
+            sub={`近${overview?.period?.days ?? 7}天 +${(overview?.totalConversations ?? 0).toLocaleString()} · 全量累计`}
             icon={GitFork}
             accent="pink"
             trend={overview?.trends?.totalConversations !== undefined ? { value: Math.abs(overview.trends.totalConversations ?? 0), positive: (overview.trends.totalConversations ?? 0) >= 0 } : undefined}
@@ -1066,7 +1066,7 @@ function DashboardSection() {
           <KPICard
             label="付费用户"
             value={(overview?.paidUsers ?? 0).toLocaleString()}
-            sub={`占总 ${overview?.totalUsers ? Number((overview.paidUsers / overview.totalUsers) * 100).toFixed(1) : 0}%`}
+            sub={`占总 ${overview?.totalUsers ? Number((overview.paidUsers / overview.totalUsers) * 100).toFixed(1) : 0}% · 全量累计`}
             icon={Crown}
             accent="indigo"
             trend={overview?.trends?.paidUsers !== undefined ? { value: Math.abs(overview.trends.paidUsers ?? 0), positive: (overview.trends.paidUsers ?? 0) >= 0 } : undefined}
