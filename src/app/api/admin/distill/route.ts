@@ -2,11 +2,15 @@
  * Prismatic — Admin Distillation API (v4)
  * Uses the Prismatic v4 distillation pipeline with DeepSeek LLM
  * Falls back to v3 orchestrator only when v4 fails
+ *
+ * SECURITY: All endpoints require valid JWT + ADMIN role.
+ * The API route is NOT covered by middleware (middleware only covers /app and /admin).
  */
 
 export const runtime = 'nodejs';
 
 import { NextRequest, NextResponse } from 'next/server';
+import { jwtVerify } from 'jose';
 import { nanoid } from 'nanoid';
 import { getPersonaById } from '@/lib/personas';
 import { prisma } from '@/lib/prisma';
@@ -14,6 +18,37 @@ import { Prisma } from '@prisma/client';
 // distillPersonaV4 loaded dynamically to prevent bundler from scanning corpus paths at build time
 import type { Persona, Domain } from '@/lib/types';
 import * as path from 'path';
+
+const AUTH_SECRET = process.env.AUTH_SECRET ?? 'prismatic-dev-secret-2024';
+
+async function verifyAdminAuth(req: NextRequest): Promise<{ authorized: boolean; userId?: string; error?: string }> {
+  const token = req.cookies.get('prismatic_token')?.value
+    || req.headers.get('authorization')?.replace('Bearer ', '');
+
+  if (!token) return { authorized: false, error: 'Authentication required' };
+
+  try {
+    const { payload } = await jwtVerify(token, new TextEncoder().encode(AUTH_SECRET));
+    const userId = (payload as any).userId;
+    if (!userId) return { authorized: false, error: 'Invalid token' };
+
+    // Check admin role from DB
+    const { neon } = await import('@neondatabase/serverless');
+    const connectionString = process.env.DATABASE_URL;
+    if (connectionString) {
+      const sql = neon(connectionString);
+      const rows = await sql`
+        SELECT role::text as role FROM users WHERE id = ${userId} AND status::text = 'ACTIVE' LIMIT 1
+      `;
+      if (rows.length > 0 && rows[0].role !== 'ADMIN') {
+        return { authorized: false, error: 'Admin access required' };
+      }
+    }
+    return { authorized: true, userId };
+  } catch {
+    return { authorized: false, error: 'Invalid or expired token' };
+  }
+}
 
 type SessionStatus = 'pending' | 'running' | 'completed' | 'failed' | 'cancelled';
 
@@ -217,6 +252,11 @@ async function runV4Distillation(
 // ─── GET /api/admin/distill ───────────────────────────────────────────────────
 
 export async function GET(req: NextRequest) {
+  const auth = await verifyAdminAuth(req);
+  if (!auth.authorized) {
+    return NextResponse.json({ error: auth.error }, { status: 401 });
+  }
+
   try {
     const { searchParams } = new URL(req.url);
     const statusFilter = searchParams.get('status') as SessionStatus | null;
@@ -285,6 +325,11 @@ export async function GET(req: NextRequest) {
 // ─── POST /api/admin/distill ─────────────────────────────────────────────────
 
 export async function POST(req: NextRequest) {
+  const auth = await verifyAdminAuth(req);
+  if (!auth.authorized) {
+    return NextResponse.json({ error: auth.error }, { status: 401 });
+  }
+
   try {
     const body = (await req.json()) as StartDistillRequest;
     const { personaName, personaId, options = {} } = body;
@@ -351,6 +396,11 @@ export async function POST(req: NextRequest) {
 // ─── DELETE /api/admin/distill ───────────────────────────────────────────────
 
 export async function DELETE(req: NextRequest) {
+  const auth = await verifyAdminAuth(req);
+  if (!auth.authorized) {
+    return NextResponse.json({ error: auth.error }, { status: 401 });
+  }
+
   try {
     const { searchParams } = new URL(req.url);
     const sessionId = searchParams.get('sessionId');

@@ -20,7 +20,67 @@ import {
   assessCorpusQuality,
 } from './expression-calibrator';
 
-// ─── Chinese-Specific Expression Analysis ─────────────────────────────────────────
+// ─── DeepSeek Prompt Cache System Prompt ──────────────────────────────────────────
+// Extended to 1024+ tokens for cache hit (0.02 CNY/1M vs 0.1 CNY normal).
+
+const CACHED_EXPRESSION_SYSTEM = `你是一位风格分析专家（Style Analysis Expert），专门从事人物表达DNA（Expression DNA）提炼。
+
+【你的核心任务】
+从人物的原始语料中，提取该人物的中文表达特征。即使原语料不是中文，也要基于原文推断该人物用中文表达时会展现的风格特征。
+
+【表达DNA的六大维度】
+1. **词汇指纹（Vocabulary）**：该人物最常用的中文特征词汇、短语、口头禅
+2. **句式风格（Sentence Style）**：该人物特有的句式习惯（提问、反问、列举等）
+3. **语调和确信度（Tone & Certainty）**：正式/口语化/激情/冷静/幽默/疗愈
+4. **修辞习惯（Rhetorical Habits）**：引证、比喻、类比等修辞模式
+5. **节奏感（Rhythm）**：长句论证缜密 vs 短句简洁有力
+6. **中文适应（Chinese Adaptation）**：从原文语言到中文的转换策略
+
+【词汇指纹提取标准】
+- 必须提取该人物实际使用的具体词汇，而非泛泛的形容词
+- 区分高频实词（如"无常""空性"）和功能词（如"我觉得""大概"）
+- 提取该人物特有的专业术语、行业黑话
+
+【句式风格提取标准】
+- 善于提问：频繁使用反问句引导思考
+- 善用感叹：使用感叹号和强调词表达情感
+- 善用引证：经常引用权威来源或经典
+- 列举条理：使用"第一、第二、第三"等结构
+- 条件思辨：善用"如果、假设、万一"等条件句
+
+【语调与确信度判断标准】
+- 语调（tone）：formal（严谨正式）、casual（轻松口语）、passionate（激情有力）、detached（冷静抽离）、humorous（幽默风趣）、therapeutic（温和疗愈）
+- 确信度（certaintyLevel）：high（表达确定果断）、medium（平衡客观）、low（保持适度不确定）
+
+【修辞习惯判断标准】
+- 检查引文来源：是否经常引用权威（典籍、名人、经典）
+- 检查重复模式：是否有重复出现的短语或句式结构
+- 检查修辞手法：是否善用比喻、类比、反讽等
+
+【节奏感判断标准】
+- 短句为主（<15字占比>40%）：节奏明快，冲击力强
+- 长句为主（平均>50字）：论证缜密，逻辑严密
+- 长短交错：节奏自然，娓娓道来
+
+【中文适应策略建议】
+- 如果原文是 casual 语调 → 中文保持"我觉得""大概"等口语化表达
+- 如果原文 high certainty → 中文用"一定""绝对"而非"大概""可能"
+- 如果原文善于提问 → 中文以问句开场引导用户思考
+- 如果原文善用短句 → 中文回复保持简短有力
+
+【输出格式（严格JSON，所有字段用中文）】
+{
+  "vocabulary": ["该人物最常用的10-15个中文特征词汇或短语（用中文，不是英文）"],
+  "sentenceStyle": ["3-5个该人物特有的中文句式习惯"],
+  "forbiddenWords": ["该人物绝对不会使用的3-5个词或表达（如"我觉得""大概"对于一个严谨的哲学家就不合适）"],
+  "tone": "formal|casual|passionate|detached|humorous|therapeutic",
+  "certaintyLevel": "high|medium|low",
+  "rhetoricalHabit": "1-2句话描述该人物的中文修辞特点",
+  "quotePatterns": ["该人物引用或典故使用的2-3个模式"],
+  "verbalMarkers": ["该人物的口头禅或惯用语2-3个"],
+  "speakingStyle": "2-3句话描述该人物的中文交流风格",
+  "chineseAdaptation": "在中文输出时保持该人物风格的3个具体建议"
+}`;
 
 const ZH_EXPRESSION_MARKERS = {
   formal: ['因此', '然而', '综上所述', '由此可见', '此外', '与此同时', '换言之', '概而言之', '即', '亦即'],
@@ -449,32 +509,19 @@ async function extractExpressionWithLLM(
   llm: any
 ): Promise<LLMExpressionResult> {
   const sample = corpusSample.slice(0, 8000);
-  const lang = corpusLang === 'zh' ? 'Chinese' : 'English';
 
-  const prompt = `你是一位风格分析专家。请从以下语料中提取这个人物的中文表达特征。
-即使原语料不是中文，也要提取该人物用中文表达时会展现的特征。
-
-请用中文返回（所有字段均使用中文）：
-{
-  "vocabulary": ["该人物最常用的10-15个中文特征词汇或短语（用中文，不是英文）"],
-  "sentenceStyle": ["3-5个该人物特有的中文句式习惯"],
-  "forbiddenWords": ["该人物绝对不会使用的3-5个词或表达"],
-  "tone": "formal|casual|passionate|detached|humorous|therapeutic",
-  "certaintyLevel": "high|medium|low",
-  "rhetoricalHabit": "1-2句话描述该人物的中文修辞特点",
-  "quotePatterns": ["该人物引用或典故使用的2-3个模式"],
-  "verbalMarkers": ["该人物的口头禅或惯用语2-3个"],
-  "speakingStyle": "2-3句话描述该人物的中文交流风格",
-  "chineseAdaptation": "在中文输出时保持该人物风格的3个具体建议"
-}
-
-=== CORPUS SAMPLE ===
+  const userPrompt = `=== CORPUS SAMPLE ===
 ${sample}
-=== END CORPUS ===`;
+=== END CORPUS ===
+
+请严格按上述 JSON Schema 输出，chineseAdaptation 字段请给出具体的3个可操作建议。`;
 
   const response = await llm.chat({
     model: 'deepseek-v4-flash',
-    messages: [{ role: 'user', content: prompt }],
+    messages: [
+      { role: 'system', content: CACHED_EXPRESSION_SYSTEM },
+      { role: 'user', content: userPrompt },
+    ],
     temperature: 0.2,
     maxTokens: 2000,
   });
