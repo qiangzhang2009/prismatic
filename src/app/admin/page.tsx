@@ -2,12 +2,11 @@
 
 /**
  * Prismatic — Admin Dashboard
- * 四个核心 Tab: 数据驾驶舱 / 用户管理 / 对话资产 / 蒸馏中心
+ * 四个核心 Tab: 数据驾驶舱 / 用户管理 / 对话资产 / TCM对话
  */
 
 import { Suspense, useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import {
   Users, Search, Crown, UserCheck, UserX, Filter,
@@ -18,7 +17,7 @@ import {
   TrendingDown, DollarSign, Bot, BarChart2, Brain,
   Database, BookOpen, Clock, ArrowUpRight, ArrowDownRight,
   Target, Layers, Sparkles, GitFork, PieChart, Edit3,
-  FlaskConical, UsersRound, Handshake,
+  UsersRound, Handshake,
   Cloud, CloudOff, Monitor, Smartphone, AlertTriangle, CheckCircle, XCircle, RefreshCw as SyncIcon, Wifi, WifiOff,
   MessageSquarePlus,
 } from 'lucide-react';
@@ -39,7 +38,7 @@ import type { User, UserFilter } from '@/lib/use-admin-data';
 
 // ─── Types ─────────────────────────────────────────────────────────────────────
 
-type Tab = 'dashboard' | 'users' | 'assets' | 'distill' | 'sync' | 'tcm' | 'partners' | 'debate';
+type Tab = 'dashboard' | 'users' | 'assets' | 'sync' | 'tcm' | 'partners' | 'debate';
 
 // ─── Helpers ────────────────────────────────────────────────────────────────────
 
@@ -77,7 +76,6 @@ function AdminDashboardPage() {
     { id: 'users' as Tab, label: '用户管理', icon: UserCog },
     { id: 'assets' as Tab, label: '对话资产', icon: BookOpen },
     { id: 'tcm' as Tab, label: '中医对话', icon: Bot },
-    { id: 'distill' as Tab, label: '蒸馏中心', icon: FlaskConical },
     { id: 'debate' as Tab, label: '守望者辩论', icon: MessageSquarePlus },
     { id: 'sync' as Tab, label: '同步管理', icon: UsersRound },
     { id: 'partners' as Tab, label: '合伙人', icon: Handshake },
@@ -119,7 +117,6 @@ function AdminDashboardPage() {
           {activeTab === 'users' && <TabPanel key="users"><UsersSection /></TabPanel>}
           {activeTab === 'assets' && <TabPanel key="assets"><AssetsSection /></TabPanel>}
           {activeTab === 'tcm' && <TabPanel key="tcm"><TCMSection /></TabPanel>}
-          {activeTab === 'distill' && <TabPanel key="distill"><DistillSection /></TabPanel>}
           {activeTab === 'sync' && <TabPanel key="sync"><SyncSection /></TabPanel>}
           {activeTab === 'partners' && (
             <TabPanel key="partners">
@@ -156,21 +153,6 @@ function TabPanel({ children }: { children: React.ReactNode }) {
       {children}
     </motion.div>
   );
-}
-
-// ─── Tab 4: 蒸馏中心 ──────────────────────────────────────────────────────────
-
-const DistillAdminPage = dynamic(() => import('@/app/admin/distill/page'), {
-  ssr: false,
-  loading: () => (
-    <div className="flex items-center justify-center py-20">
-      <Loader2 className="w-8 h-8 animate-spin text-purple-400" />
-    </div>
-  ),
-});
-
-function DistillSection() {
-  return <DistillAdminPage />;
 }
 
 // ─── Tab: 守望者辩论 ─────────────────────────────────────────────────────────

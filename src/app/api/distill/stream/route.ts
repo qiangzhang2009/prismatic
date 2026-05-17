@@ -1,16 +1,49 @@
 /**
  * Prismatic — Distillation SSE Progress Stream (v4)
  * Server-Sent Events endpoint using the v4 pipeline with DeepSeek LLM
+ *
+ * SECURITY: All endpoints require valid JWT + ADMIN role.
  */
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 import { NextRequest, NextResponse } from 'next/server';
+import { jwtVerify } from 'jose';
 import { getPersonaById } from '@/lib/personas';
 import { formatSSE } from '@/lib/distillation-events';
 import type { PipelineEvent } from '@/lib/distillation-events';
 import * as path from 'path';
+
+const AUTH_SECRET = process.env.AUTH_SECRET ?? 'prismatic-dev-secret-2024';
+
+async function verifyAdminAuth(req: NextRequest): Promise<{ authorized: boolean; userId?: string; error?: string }> {
+  const token = req.cookies.get('prismatic_token')?.value
+    || req.headers.get('authorization')?.replace('Bearer ', '');
+
+  if (!token) return { authorized: false, error: 'Authentication required' };
+
+  try {
+    const { payload } = await jwtVerify(token, new TextEncoder().encode(AUTH_SECRET));
+    const userId = (payload as unknown as { userId?: string }).userId;
+    if (!userId) return { authorized: false, error: 'Invalid token' };
+
+    const { neon } = await import('@neondatabase/serverless');
+    const connectionString = process.env.DATABASE_URL;
+    if (connectionString) {
+      const sql = neon(connectionString);
+      const rows = await sql`
+        SELECT role::text as role FROM users WHERE id = ${userId} AND status::text = 'ACTIVE' LIMIT 1
+      `;
+      if (rows.length > 0 && rows[0].role !== 'ADMIN') {
+        return { authorized: false, error: 'Admin access required' };
+      }
+    }
+    return { authorized: true, userId };
+  } catch {
+    return { authorized: false, error: 'Invalid or expired token' };
+  }
+}
 
 const CORPUS_ROOT = path.join(process.cwd(), 'corpus');
 
@@ -19,6 +52,11 @@ function resolveCorpusDir(personaId: string): string {
 }
 
 export async function GET(req: NextRequest) {
+  const auth = await verifyAdminAuth(req);
+  if (!auth.authorized) {
+    return NextResponse.json({ error: auth.error }, { status: 401 });
+  }
+
   const { searchParams } = new URL(req.url);
   const personaId = searchParams.get('personaId');
 
