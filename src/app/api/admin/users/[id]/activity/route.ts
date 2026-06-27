@@ -8,11 +8,12 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { authenticateAdminRequest } from '@/lib/user-management';
 
-export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     await authenticateAdminRequest(request);
 
-    const userId = params.id;
+    const { id } = await params;
+    const userId = id;
     if (!userId) {
       return NextResponse.json({ error: 'User ID required' }, { status: 400 });
     }

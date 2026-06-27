@@ -1,0 +1,2865 @@
+  ▲ Next.js 14.2.3
+  - Local:        http://127.0.0.1:3030
+  - Network:      http://127.0.0.1:3030
+
+ ✓ Starting...
+ ✓ Ready in 438ms
+  ▲ Next.js 14.2.3
+  - Local:        http://127.0.0.1:3030
+  - Network:      http://127.0.0.1:3030
+
+ ✓ Starting...
+ ✓ Ready in 2.2s
+  ▲ Next.js 14.2.3
+  - Local:        http://127.0.0.1:3030
+  - Network:      http://127.0.0.1:3030
+
+ ✓ Starting...
+ ✓ Ready in 23.4s
+  ▲ Next.js 14.2.3
+  - Local:        http://127.0.0.1:3030
+  - Network:      http://127.0.0.1:3030
+
+ ✓ Starting...
+ ✓ Ready in 25.4s
+Tracking API error: TypeError: fetch failed
+    at node:internal/deps/undici/undici:15482:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async p (/Users/john/蒸馏2/.next/server/app/api/tracking/route.js:1:670)
+    at async /Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:34666
+    at async eS.execute (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:25813)
+    at async eS.handle (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:35920)
+    at async doRender (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1377:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1599:28)
+    at async NextNodeServer.renderToResponseWithComponentsImpl (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1507:28)
+    at async NextNodeServer.renderPageComponent (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1924:24) {
+  [cause]: Error: read ECONNRESET
+      at TLSWrap.onStreamRead (node:internal/stream_base_commons:216:20) {
+    errno: -54,
+    code: 'ECONNRESET',
+    syscall: 'read'
+  }
+}
+Tracking API error: TypeError: fetch failed
+    at node:internal/deps/undici/undici:15482:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async p (/Users/john/蒸馏2/.next/server/app/api/tracking/route.js:1:670)
+    at async /Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:34666
+    at async eS.execute (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:25813)
+    at async eS.handle (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:35920)
+    at async doRender (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1377:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1599:28)
+    at async NextNodeServer.renderToResponseWithComponentsImpl (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1507:28)
+    at async NextNodeServer.renderPageComponent (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1924:24) {
+  [cause]: Error: read ECONNRESET
+      at TLSWrap.onStreamRead (node:internal/stream_base_commons:216:20) {
+    errno: -54,
+    code: 'ECONNRESET',
+    syscall: 'read'
+  }
+}
+Tracking API error: TypeError: fetch failed
+    at node:internal/deps/undici/undici:15482:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async p (/Users/john/蒸馏2/.next/server/app/api/tracking/route.js:1:670)
+    at async /Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:34666
+    at async eS.execute (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:25813)
+    at async eS.handle (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:35920)
+    at async doRender (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1377:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1599:28)
+    at async NextNodeServer.renderToResponseWithComponentsImpl (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1507:28)
+    at async NextNodeServer.renderPageComponent (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1924:24) {
+  [cause]: Error: read ECONNRESET
+      at TLSWrap.onStreamRead (node:internal/stream_base_commons:216:20) {
+    errno: -54,
+    code: 'ECONNRESET',
+    syscall: 'read'
+  }
+}
+Tracking API error: TypeError: fetch failed
+    at node:internal/deps/undici/undici:15482:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async p (/Users/john/蒸馏2/.next/server/app/api/tracking/route.js:1:670)
+    at async /Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:34666
+    at async eS.execute (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:25813)
+    at async eS.handle (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:35920)
+    at async doRender (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1377:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1599:28)
+    at async NextNodeServer.renderToResponseWithComponentsImpl (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1507:28)
+    at async NextNodeServer.renderPageComponent (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1924:24) {
+  [cause]: Error: read ECONNRESET
+      at TLSWrap.onStreamRead (node:internal/stream_base_commons:216:20) {
+    errno: -54,
+    code: 'ECONNRESET',
+    syscall: 'read'
+  }
+}
+[DebateArena] getDebateByDate failed: Error connecting to database: TypeError: fetch failed
+Failed to fetch comments: Error connecting to database: TypeError: fetch failed
+Tracking API error: TypeError: fetch failed
+    at node:internal/deps/undici/undici:15482:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async p (/Users/john/蒸馏2/.next/server/app/api/tracking/route.js:1:670)
+    at async /Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:34666
+    at async eS.execute (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:25813)
+    at async eS.handle (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:35920)
+    at async doRender (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1377:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1599:28)
+    at async NextNodeServer.renderToResponseWithComponentsImpl (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1507:28)
+    at async NextNodeServer.renderPageComponent (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1924:24) {
+  [cause]: Error: read ECONNRESET
+      at TLSWrap.onStreamRead (node:internal/stream_base_commons:216:20) {
+    errno: -54,
+    code: 'ECONNRESET',
+    syscall: 'read'
+  }
+}
+Tracking API error: TypeError: fetch failed
+    at node:internal/deps/undici/undici:15482:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async p (/Users/john/蒸馏2/.next/server/app/api/tracking/route.js:1:670)
+    at async /Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:34666
+    at async eS.execute (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:25813)
+    at async eS.handle (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:35920)
+    at async doRender (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1377:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1599:28)
+    at async NextNodeServer.renderToResponseWithComponentsImpl (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1507:28)
+    at async NextNodeServer.renderPageComponent (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1924:24) {
+  [cause]: Error: read ECONNRESET
+      at TLSWrap.onStreamRead (node:internal/stream_base_commons:216:20) {
+    errno: -54,
+    code: 'ECONNRESET',
+    syscall: 'read'
+  }
+}
+Tracking API error: TypeError: fetch failed
+    at node:internal/deps/undici/undici:15482:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async p (/Users/john/蒸馏2/.next/server/app/api/tracking/route.js:1:670)
+    at async /Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:34666
+    at async eS.execute (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:25813)
+    at async eS.handle (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:35920)
+    at async doRender (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1377:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1599:28)
+    at async NextNodeServer.renderToResponseWithComponentsImpl (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1507:28)
+    at async NextNodeServer.renderPageComponent (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1924:24) {
+  [cause]: Error: read ECONNRESET
+      at TLSWrap.onStreamRead (node:internal/stream_base_commons:216:20) {
+    errno: -54,
+    code: 'ECONNRESET',
+    syscall: 'read'
+  }
+}
+[DebateArena] getDebateByDate failed: Error connecting to database: TypeError: fetch failed
+Tracking API error: TypeError: fetch failed
+    at node:internal/deps/undici/undici:15482:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async p (/Users/john/蒸馏2/.next/server/app/api/tracking/route.js:1:670)
+    at async /Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:34666
+    at async eS.execute (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:25813)
+    at async eS.handle (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:35920)
+    at async doRender (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1377:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1599:28)
+    at async NextNodeServer.renderToResponseWithComponentsImpl (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1507:28)
+    at async NextNodeServer.renderPageComponent (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1924:24) {
+  [cause]: Error: read ECONNRESET
+      at TLSWrap.onStreamRead (node:internal/stream_base_commons:216:20) {
+    errno: -54,
+    code: 'ECONNRESET',
+    syscall: 'read'
+  }
+}
+[PersonaLibrary GET slug] ErrorEvent {
+  type: 'error',
+  defaultPrevented: false,
+  cancelable: false,
+  timeStamp: 51122359.707125
+}
+  ▲ Next.js 14.2.3
+  - Local:        http://127.0.0.1:3030
+  - Network:      http://127.0.0.1:3030
+
+ ✓ Starting...
+ ✓ Ready in 23.4s
+Tracking API error: TypeError: fetch failed
+    at node:internal/deps/undici/undici:15482:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async p (/Users/john/蒸馏2/.next/server/app/api/tracking/route.js:1:670)
+    at async /Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:34666
+    at async eS.execute (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:25813)
+    at async eS.handle (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:35920)
+    at async doRender (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1377:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1599:28)
+    at async NextNodeServer.renderToResponseWithComponentsImpl (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1507:28)
+    at async NextNodeServer.renderPageComponent (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1924:24) {
+  [cause]: Error: read ECONNRESET
+      at TLSWrap.onStreamRead (node:internal/stream_base_commons:216:20) {
+    errno: -54,
+    code: 'ECONNRESET',
+    syscall: 'read'
+  }
+}
+Tracking API error: TypeError: fetch failed
+    at node:internal/deps/undici/undici:15482:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async p (/Users/john/蒸馏2/.next/server/app/api/tracking/route.js:1:670)
+    at async /Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:34666
+    at async eS.execute (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:25813)
+    at async eS.handle (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:35920)
+    at async doRender (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1377:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1599:28)
+    at async NextNodeServer.renderToResponseWithComponentsImpl (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1507:28)
+    at async NextNodeServer.renderPageComponent (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1924:24) {
+  [cause]: Error: read ECONNRESET
+      at TLSWrap.onStreamRead (node:internal/stream_base_commons:216:20) {
+    errno: -54,
+    code: 'ECONNRESET',
+    syscall: 'read'
+  }
+}
+Failed to fetch comments: Error connecting to database: TypeError: fetch failed
+[DebateArena] getDebateByDate failed: Error connecting to database: TypeError: fetch failed
+[DebateArena] getDebateByDate failed: Error connecting to database: TypeError: fetch failed
+Tracking API error: TypeError: fetch failed
+    at node:internal/deps/undici/undici:15482:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async p (/Users/john/蒸馏2/.next/server/app/api/tracking/route.js:1:670)
+    at async /Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:34666
+    at async eS.execute (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:25813)
+    at async eS.handle (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:35920)
+    at async doRender (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1377:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1599:28)
+    at async NextNodeServer.renderToResponseWithComponentsImpl (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1507:28)
+    at async NextNodeServer.renderPageComponent (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1924:24) {
+  [cause]: Error: read ECONNRESET
+      at TLSWrap.onStreamRead (node:internal/stream_base_commons:216:20) {
+    errno: -54,
+    code: 'ECONNRESET',
+    syscall: 'read'
+  }
+}
+[PersonaLibrary GET slug] ErrorEvent {
+  type: 'error',
+  defaultPrevented: false,
+  cancelable: false,
+  timeStamp: 5901557.0935
+}
+[PersonaLibrary GET slug] ErrorEvent {
+  type: 'error',
+  defaultPrevented: false,
+  cancelable: false,
+  timeStamp: 26955040.693875
+}
+[DebateArena] getDebateByDate failed: Error connecting to database: TypeError: fetch failed
+Failed to fetch comments: Error connecting to database: TypeError: fetch failed
+Tracking API error: TypeError: fetch failed
+    at node:internal/deps/undici/undici:15482:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async p (/Users/john/蒸馏2/.next/server/app/api/tracking/route.js:1:670)
+    at async /Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:34666
+    at async eS.execute (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:25813)
+    at async eS.handle (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:35920)
+    at async doRender (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1377:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1599:28)
+    at async NextNodeServer.renderToResponseWithComponentsImpl (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1507:28)
+    at async NextNodeServer.renderPageComponent (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1924:24) {
+  [cause]: Error: read ECONNRESET
+      at TLSWrap.onStreamRead (node:internal/stream_base_commons:216:20) {
+    errno: -54,
+    code: 'ECONNRESET',
+    syscall: 'read'
+  }
+}
+Tracking API error: TypeError: fetch failed
+    at node:internal/deps/undici/undici:15482:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async p (/Users/john/蒸馏2/.next/server/app/api/tracking/route.js:1:670)
+    at async /Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:34666
+    at async eS.execute (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:25813)
+    at async eS.handle (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:35920)
+    at async doRender (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1377:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1599:28)
+    at async NextNodeServer.renderToResponseWithComponentsImpl (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1507:28)
+    at async NextNodeServer.renderPageComponent (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1924:24) {
+  [cause]: Error: read ECONNRESET
+      at TLSWrap.onStreamRead (node:internal/stream_base_commons:216:20) {
+    errno: -54,
+    code: 'ECONNRESET',
+    syscall: 'read'
+  }
+}
+[DebateArena] getDebateByDate failed: Error connecting to database: TypeError: fetch failed
+Failed to fetch comments: Error connecting to database: TypeError: fetch failed
+[DebateArena] getDebateByDate failed: Error connecting to database: TypeError: fetch failed
+[PersonaLibrary GET] ErrorEvent {
+  type: 'error',
+  defaultPrevented: false,
+  cancelable: false,
+  timeStamp: 72068798.246167
+}
+Failed to fetch comments: Error connecting to database: TypeError: fetch failed
+[DebateArena] getDebateByDate failed: Error connecting to database: TypeError: fetch failed
+[DebateArena] getDebateByDate failed: Error connecting to database: TypeError: fetch failed
+Tracking API error: TypeError: fetch failed
+    at node:internal/deps/undici/undici:15482:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async p (/Users/john/蒸馏2/.next/server/app/api/tracking/route.js:1:670)
+    at async /Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:34666
+    at async eS.execute (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:25813)
+    at async eS.handle (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:35920)
+    at async doRender (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1377:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1599:28)
+    at async NextNodeServer.renderToResponseWithComponentsImpl (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1507:28)
+    at async NextNodeServer.renderPageComponent (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1924:24) {
+  [cause]: Error: read ECONNRESET
+      at TLSWrap.onStreamRead (node:internal/stream_base_commons:216:20) {
+    errno: -54,
+    code: 'ECONNRESET',
+    syscall: 'read'
+  }
+}
+Tracking API error: TypeError: fetch failed
+    at node:internal/deps/undici/undici:15482:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async p (/Users/john/蒸馏2/.next/server/app/api/tracking/route.js:1:670)
+    at async /Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:34666
+    at async eS.execute (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:25813)
+    at async eS.handle (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:35920)
+    at async doRender (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1377:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1599:28)
+    at async NextNodeServer.renderToResponseWithComponentsImpl (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1507:28)
+    at async NextNodeServer.renderPageComponent (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1924:24) {
+  [cause]: Error: read ECONNRESET
+      at TLSWrap.onStreamRead (node:internal/stream_base_commons:216:20) {
+    errno: -54,
+    code: 'ECONNRESET',
+    syscall: 'read'
+  }
+}
+Tracking API error: TypeError: fetch failed
+    at node:internal/deps/undici/undici:15482:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async p (/Users/john/蒸馏2/.next/server/app/api/tracking/route.js:1:670)
+    at async /Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:34666
+    at async eS.execute (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:25813)
+    at async eS.handle (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:35920)
+    at async doRender (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1377:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1599:28)
+    at async NextNodeServer.renderToResponseWithComponentsImpl (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1507:28)
+    at async NextNodeServer.renderPageComponent (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1924:24) {
+  [cause]: Error: read ECONNRESET
+      at TLSWrap.onStreamRead (node:internal/stream_base_commons:216:20) {
+    errno: -54,
+    code: 'ECONNRESET',
+    syscall: 'read'
+  }
+}
+Tracking API error: TypeError: fetch failed
+    at node:internal/deps/undici/undici:15482:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async p (/Users/john/蒸馏2/.next/server/app/api/tracking/route.js:1:670)
+    at async /Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:34666
+    at async eS.execute (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:25813)
+    at async eS.handle (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:35920)
+    at async doRender (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1377:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1599:28)
+    at async NextNodeServer.renderToResponseWithComponentsImpl (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1507:28)
+    at async NextNodeServer.renderPageComponent (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1924:24) {
+  [cause]: Error: read ECONNRESET
+      at TLSWrap.onStreamRead (node:internal/stream_base_commons:216:20) {
+    errno: -54,
+    code: 'ECONNRESET',
+    syscall: 'read'
+  }
+}
+Failed to fetch comments: Error connecting to database: TypeError: fetch failed
+[DebateArena] getDebateByDate failed: Error connecting to database: TypeError: fetch failed
+[DebateArena] getDebateByDate failed: Error connecting to database: TypeError: fetch failed
+Tracking API error: TypeError: fetch failed
+    at node:internal/deps/undici/undici:15482:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async p (/Users/john/蒸馏2/.next/server/app/api/tracking/route.js:1:670)
+    at async /Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:34666
+    at async eS.execute (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:25813)
+    at async eS.handle (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:35920)
+    at async doRender (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1377:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1599:28)
+    at async NextNodeServer.renderToResponseWithComponentsImpl (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1507:28)
+    at async NextNodeServer.renderPageComponent (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1924:24) {
+  [cause]: Error: read ECONNRESET
+      at TLSWrap.onStreamRead (node:internal/stream_base_commons:216:20) {
+    errno: -54,
+    code: 'ECONNRESET',
+    syscall: 'read'
+  }
+}
+Tracking API error: TypeError: fetch failed
+    at node:internal/deps/undici/undici:15482:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async p (/Users/john/蒸馏2/.next/server/app/api/tracking/route.js:1:670)
+    at async /Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:34666
+    at async eS.execute (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:25813)
+    at async eS.handle (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:35920)
+    at async doRender (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1377:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1599:28)
+    at async NextNodeServer.renderToResponseWithComponentsImpl (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1507:28)
+    at async NextNodeServer.renderPageComponent (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1924:24) {
+  [cause]: Error: read ECONNRESET
+      at TLSWrap.onStreamRead (node:internal/stream_base_commons:216:20) {
+    errno: -54,
+    code: 'ECONNRESET',
+    syscall: 'read'
+  }
+}
+Tracking API error: TypeError: fetch failed
+    at node:internal/deps/undici/undici:15482:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async p (/Users/john/蒸馏2/.next/server/app/api/tracking/route.js:1:670)
+    at async /Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:34666
+    at async eS.execute (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:25813)
+    at async eS.handle (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:35920)
+    at async doRender (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1377:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1599:28)
+    at async NextNodeServer.renderToResponseWithComponentsImpl (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1507:28)
+    at async NextNodeServer.renderPageComponent (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1924:24) {
+  [cause]: Error: read ECONNRESET
+      at TLSWrap.onStreamRead (node:internal/stream_base_commons:216:20) {
+    errno: -54,
+    code: 'ECONNRESET',
+    syscall: 'read'
+  }
+}
+Tracking API error: TypeError: fetch failed
+    at node:internal/deps/undici/undici:15482:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async p (/Users/john/蒸馏2/.next/server/app/api/tracking/route.js:1:670)
+    at async /Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:34666
+    at async eS.execute (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:25813)
+    at async eS.handle (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:35920)
+    at async doRender (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1377:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1599:28)
+    at async NextNodeServer.renderToResponseWithComponentsImpl (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1507:28)
+    at async NextNodeServer.renderPageComponent (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1924:24) {
+  [cause]: Error: read ECONNRESET
+      at TLSWrap.onStreamRead (node:internal/stream_base_commons:216:20) {
+    errno: -54,
+    code: 'ECONNRESET',
+    syscall: 'read'
+  }
+}
+Tracking API error: TypeError: fetch failed
+    at node:internal/deps/undici/undici:15482:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async p (/Users/john/蒸馏2/.next/server/app/api/tracking/route.js:1:670)
+    at async /Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:34666
+    at async eS.execute (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:25813)
+    at async eS.handle (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:35920)
+    at async doRender (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1377:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1599:28)
+    at async NextNodeServer.renderToResponseWithComponentsImpl (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1507:28)
+    at async NextNodeServer.renderPageComponent (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1924:24) {
+  [cause]: Error: read ECONNRESET
+      at TLSWrap.onStreamRead (node:internal/stream_base_commons:216:20) {
+    errno: -54,
+    code: 'ECONNRESET',
+    syscall: 'read'
+  }
+}
+Tracking API error: TypeError: fetch failed
+    at node:internal/deps/undici/undici:15482:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async p (/Users/john/蒸馏2/.next/server/app/api/tracking/route.js:1:670)
+    at async /Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:34666
+    at async eS.execute (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:25813)
+    at async eS.handle (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:35920)
+    at async doRender (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1377:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1599:28)
+    at async NextNodeServer.renderToResponseWithComponentsImpl (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1507:28)
+    at async NextNodeServer.renderPageComponent (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1924:24) {
+  [cause]: Error: read ECONNRESET
+      at TLSWrap.onStreamRead (node:internal/stream_base_commons:216:20) {
+    errno: -54,
+    code: 'ECONNRESET',
+    syscall: 'read'
+  }
+}
+Tracking API error: TypeError: fetch failed
+    at node:internal/deps/undici/undici:15482:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async p (/Users/john/蒸馏2/.next/server/app/api/tracking/route.js:1:670)
+    at async /Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:34666
+    at async eS.execute (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:25813)
+    at async eS.handle (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:35920)
+    at async doRender (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1377:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1599:28)
+    at async NextNodeServer.renderToResponseWithComponentsImpl (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1507:28)
+    at async NextNodeServer.renderPageComponent (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1924:24) {
+  [cause]: Error: read ECONNRESET
+      at TLSWrap.onStreamRead (node:internal/stream_base_commons:216:20) {
+    errno: -54,
+    code: 'ECONNRESET',
+    syscall: 'read'
+  }
+}
+Tracking API error: TypeError: fetch failed
+    at node:internal/deps/undici/undici:15482:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async p (/Users/john/蒸馏2/.next/server/app/api/tracking/route.js:1:670)
+    at async /Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:34666
+    at async eS.execute (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:25813)
+    at async eS.handle (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:35920)
+    at async doRender (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1377:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1599:28)
+    at async NextNodeServer.renderToResponseWithComponentsImpl (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1507:28)
+    at async NextNodeServer.renderPageComponent (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1924:24) {
+  [cause]: Error: read ECONNRESET
+      at TLSWrap.onStreamRead (node:internal/stream_base_commons:216:20) {
+    errno: -54,
+    code: 'ECONNRESET',
+    syscall: 'read'
+  }
+}
+Tracking API error: TypeError: fetch failed
+    at node:internal/deps/undici/undici:15482:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async p (/Users/john/蒸馏2/.next/server/app/api/tracking/route.js:1:670)
+    at async /Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:34666
+    at async eS.execute (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:25813)
+    at async eS.handle (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:35920)
+    at async doRender (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1377:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1599:28)
+    at async NextNodeServer.renderToResponseWithComponentsImpl (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1507:28)
+    at async NextNodeServer.renderPageComponent (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1924:24) {
+  [cause]: Error: read ECONNRESET
+      at TLSWrap.onStreamRead (node:internal/stream_base_commons:216:20) {
+    errno: -54,
+    code: 'ECONNRESET',
+    syscall: 'read'
+  }
+}
+Tracking API error: TypeError: fetch failed
+    at node:internal/deps/undici/undici:15482:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async p (/Users/john/蒸馏2/.next/server/app/api/tracking/route.js:1:670)
+    at async /Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:34666
+    at async eS.execute (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:25813)
+    at async eS.handle (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:35920)
+    at async doRender (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1377:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1599:28)
+    at async NextNodeServer.renderToResponseWithComponentsImpl (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1507:28)
+    at async NextNodeServer.renderPageComponent (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1924:24) {
+  [cause]: Error: read ECONNRESET
+      at TLSWrap.onStreamRead (node:internal/stream_base_commons:216:20) {
+    errno: -54,
+    code: 'ECONNRESET',
+    syscall: 'read'
+  }
+}
+[PersonaLibrary GET] ErrorEvent {
+  type: 'error',
+  defaultPrevented: false,
+  cancelable: false,
+  timeStamp: 72357294.952834
+}
+[Library API] Error: ErrorEvent {
+  type: 'error',
+  defaultPrevented: false,
+  cancelable: false,
+  timeStamp: 72362432.383792
+}
+Tracking API error: TypeError: fetch failed
+    at node:internal/deps/undici/undici:15482:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async p (/Users/john/蒸馏2/.next/server/app/api/tracking/route.js:1:670)
+    at async /Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:34666
+    at async eS.execute (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:25813)
+    at async eS.handle (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:35920)
+    at async doRender (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1377:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1599:28)
+    at async NextNodeServer.renderToResponseWithComponentsImpl (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1507:28)
+    at async NextNodeServer.renderPageComponent (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1924:24) {
+  [cause]: Error: read ECONNRESET
+      at TLSWrap.onStreamRead (node:internal/stream_base_commons:216:20) {
+    errno: -54,
+    code: 'ECONNRESET',
+    syscall: 'read'
+  }
+}
+[DebateArena] getDebateByDate failed: Error connecting to database: TypeError: fetch failed
+Failed to fetch comments: Error connecting to database: TypeError: fetch failed
+[DebateArena] getDebateByDate failed: Error connecting to database: TypeError: fetch failed
+Tracking API error: TypeError: fetch failed
+    at node:internal/deps/undici/undici:15482:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async p (/Users/john/蒸馏2/.next/server/app/api/tracking/route.js:1:670)
+    at async /Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:34666
+    at async eS.execute (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:25813)
+    at async eS.handle (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:35920)
+    at async doRender (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1377:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1599:28)
+    at async NextNodeServer.renderToResponseWithComponentsImpl (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1507:28)
+    at async NextNodeServer.renderPageComponent (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1924:24) {
+  [cause]: Error: read ECONNRESET
+      at TLSWrap.onStreamRead (node:internal/stream_base_commons:216:20) {
+    errno: -54,
+    code: 'ECONNRESET',
+    syscall: 'read'
+  }
+}
+Tracking API error: TypeError: fetch failed
+    at node:internal/deps/undici/undici:15482:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async p (/Users/john/蒸馏2/.next/server/app/api/tracking/route.js:1:670)
+    at async /Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:34666
+    at async eS.execute (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:25813)
+    at async eS.handle (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:35920)
+    at async doRender (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1377:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1599:28)
+    at async NextNodeServer.renderToResponseWithComponentsImpl (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1507:28)
+    at async NextNodeServer.renderPageComponent (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1924:24) {
+  [cause]: Error: read ECONNRESET
+      at TLSWrap.onStreamRead (node:internal/stream_base_commons:216:20) {
+    errno: -54,
+    code: 'ECONNRESET',
+    syscall: 'read'
+  }
+}
+Tracking API error: TypeError: fetch failed
+    at node:internal/deps/undici/undici:15482:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async p (/Users/john/蒸馏2/.next/server/app/api/tracking/route.js:1:670)
+    at async /Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:34666
+    at async eS.execute (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:25813)
+    at async eS.handle (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:35920)
+    at async doRender (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1377:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1599:28)
+    at async NextNodeServer.renderToResponseWithComponentsImpl (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1507:28)
+    at async NextNodeServer.renderPageComponent (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1924:24) {
+  [cause]: Error: read ECONNRESET
+      at TLSWrap.onStreamRead (node:internal/stream_base_commons:216:20) {
+    errno: -54,
+    code: 'ECONNRESET',
+    syscall: 'read'
+  }
+}
+Tracking API error: TypeError: fetch failed
+    at node:internal/deps/undici/undici:15482:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async p (/Users/john/蒸馏2/.next/server/app/api/tracking/route.js:1:670)
+    at async /Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:34666
+    at async eS.execute (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:25813)
+    at async eS.handle (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:35920)
+    at async doRender (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1377:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1599:28)
+    at async NextNodeServer.renderToResponseWithComponentsImpl (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1507:28)
+    at async NextNodeServer.renderPageComponent (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1924:24) {
+  [cause]: Error: read ECONNRESET
+      at TLSWrap.onStreamRead (node:internal/stream_base_commons:216:20) {
+    errno: -54,
+    code: 'ECONNRESET',
+    syscall: 'read'
+  }
+}
+Failed to fetch comments: Error connecting to database: TypeError: fetch failed
+[DebateArena] getDebateByDate failed: Error connecting to database: TypeError: fetch failed
+[DebateArena] getDebateByDate failed: Error connecting to database: TypeError: fetch failed
+Tracking API error: TypeError: fetch failed
+    at node:internal/deps/undici/undici:15482:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async p (/Users/john/蒸馏2/.next/server/app/api/tracking/route.js:1:670)
+    at async /Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:34666
+    at async eS.execute (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:25813)
+    at async eS.handle (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:35920)
+    at async doRender (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1377:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1599:28)
+    at async NextNodeServer.renderToResponseWithComponentsImpl (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1507:28)
+    at async NextNodeServer.renderPageComponent (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1924:24) {
+  [cause]: Error: read ECONNRESET
+      at TLSWrap.onStreamRead (node:internal/stream_base_commons:216:20) {
+    errno: -54,
+    code: 'ECONNRESET',
+    syscall: 'read'
+  }
+}
+Tracking API error: TypeError: fetch failed
+    at node:internal/deps/undici/undici:15482:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async p (/Users/john/蒸馏2/.next/server/app/api/tracking/route.js:1:670)
+    at async /Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:34666
+    at async eS.execute (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:25813)
+    at async eS.handle (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:35920)
+    at async doRender (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1377:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1599:28)
+    at async NextNodeServer.renderToResponseWithComponentsImpl (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1507:28)
+    at async NextNodeServer.renderPageComponent (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1924:24) {
+  [cause]: Error: read ECONNRESET
+      at TLSWrap.onStreamRead (node:internal/stream_base_commons:216:20) {
+    errno: -54,
+    code: 'ECONNRESET',
+    syscall: 'read'
+  }
+}
+Tracking API error: TypeError: fetch failed
+    at node:internal/deps/undici/undici:15482:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async p (/Users/john/蒸馏2/.next/server/app/api/tracking/route.js:1:670)
+    at async /Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:34666
+    at async eS.execute (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:25813)
+    at async eS.handle (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:35920)
+    at async doRender (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1377:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1599:28)
+    at async NextNodeServer.renderToResponseWithComponentsImpl (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1507:28)
+    at async NextNodeServer.renderPageComponent (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1924:24) {
+  [cause]: Error: read ECONNRESET
+      at TLSWrap.onStreamRead (node:internal/stream_base_commons:216:20) {
+    errno: -54,
+    code: 'ECONNRESET',
+    syscall: 'read'
+  }
+}
+Tracking API error: TypeError: fetch failed
+    at node:internal/deps/undici/undici:15482:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async p (/Users/john/蒸馏2/.next/server/app/api/tracking/route.js:1:670)
+    at async /Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:34666
+    at async eS.execute (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:25813)
+    at async eS.handle (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:35920)
+    at async doRender (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1377:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1599:28)
+    at async NextNodeServer.renderToResponseWithComponentsImpl (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1507:28)
+    at async NextNodeServer.renderPageComponent (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1924:24) {
+  [cause]: Error: read ECONNRESET
+      at TLSWrap.onStreamRead (node:internal/stream_base_commons:216:20) {
+    errno: -54,
+    code: 'ECONNRESET',
+    syscall: 'read'
+  }
+}
+[PersonaLibrary GET] ErrorEvent {
+  type: 'error',
+  defaultPrevented: false,
+  cancelable: false,
+  timeStamp: 72720528.988375
+}
+Tracking API error: TypeError: fetch failed
+    at node:internal/deps/undici/undici:15482:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async p (/Users/john/蒸馏2/.next/server/app/api/tracking/route.js:1:670)
+    at async /Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:34666
+    at async eS.execute (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:25813)
+    at async eS.handle (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:35920)
+    at async doRender (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1377:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1599:28)
+    at async NextNodeServer.renderToResponseWithComponentsImpl (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1507:28)
+    at async NextNodeServer.renderPageComponent (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1924:24) {
+  [cause]: Error: read ECONNRESET
+      at TLSWrap.onStreamRead (node:internal/stream_base_commons:216:20) {
+    errno: -54,
+    code: 'ECONNRESET',
+    syscall: 'read'
+  }
+}
+Tracking API error: TypeError: fetch failed
+    at node:internal/deps/undici/undici:15482:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async p (/Users/john/蒸馏2/.next/server/app/api/tracking/route.js:1:670)
+    at async /Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:34666
+    at async eS.execute (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:25813)
+    at async eS.handle (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:35920)
+    at async doRender (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1377:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1599:28)
+    at async NextNodeServer.renderToResponseWithComponentsImpl (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1507:28)
+    at async NextNodeServer.renderPageComponent (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1924:24) {
+  [cause]: Error: read ECONNRESET
+      at TLSWrap.onStreamRead (node:internal/stream_base_commons:216:20) {
+    errno: -54,
+    code: 'ECONNRESET',
+    syscall: 'read'
+  }
+}
+Tracking API error: TypeError: fetch failed
+    at node:internal/deps/undici/undici:15482:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async p (/Users/john/蒸馏2/.next/server/app/api/tracking/route.js:1:670)
+    at async /Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:34666
+    at async eS.execute (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:25813)
+    at async eS.handle (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:35920)
+    at async doRender (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1377:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1599:28)
+    at async NextNodeServer.renderToResponseWithComponentsImpl (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1507:28)
+    at async NextNodeServer.renderPageComponent (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1924:24) {
+  [cause]: Error: read ECONNRESET
+      at TLSWrap.onStreamRead (node:internal/stream_base_commons:216:20) {
+    errno: -54,
+    code: 'ECONNRESET',
+    syscall: 'read'
+  }
+}
+Tracking API error: TypeError: fetch failed
+    at node:internal/deps/undici/undici:15482:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async p (/Users/john/蒸馏2/.next/server/app/api/tracking/route.js:1:670)
+    at async /Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:34666
+    at async eS.execute (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:25813)
+    at async eS.handle (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:35920)
+    at async doRender (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1377:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1599:28)
+    at async NextNodeServer.renderToResponseWithComponentsImpl (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1507:28)
+    at async NextNodeServer.renderPageComponent (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1924:24) {
+  [cause]: Error: read ECONNRESET
+      at TLSWrap.onStreamRead (node:internal/stream_base_commons:216:20) {
+    errno: -54,
+    code: 'ECONNRESET',
+    syscall: 'read'
+  }
+}
+[PersonaLibrary GET] ErrorEvent {
+  type: 'error',
+  defaultPrevented: false,
+  cancelable: false,
+  timeStamp: 72758106.854417
+}
+Failed to fetch comments: Error connecting to database: TypeError: fetch failed
+[DebateArena] getDebateByDate failed: Error connecting to database: TypeError: fetch failed
+[DebateArena] getDebateByDate failed: Error connecting to database: TypeError: fetch failed
+[DebateArena] getDebateByDate failed: Error connecting to database: TypeError: fetch failed
+Failed to fetch comments: Error connecting to database: TypeError: fetch failed
+[DebateArena] getDebateByDate failed: Error connecting to database: TypeError: fetch failed
+[PersonaLibrary GET] ErrorEvent {
+  type: 'error',
+  defaultPrevented: false,
+  cancelable: false,
+  timeStamp: 72858834.733792
+}
+[DebateArena] getDebateByDate failed: Error connecting to database: TypeError: fetch failed
+Failed to fetch comments: Error connecting to database: TypeError: fetch failed
+[DebateArena] getDebateByDate failed: Error connecting to database: TypeError: fetch failed
+[PersonaLibrary GET] ErrorEvent {
+  type: 'error',
+  defaultPrevented: false,
+  cancelable: false,
+  timeStamp: 72876411.021584
+}
+[Library API] Error: ErrorEvent {
+  type: 'error',
+  defaultPrevented: false,
+  cancelable: false,
+  timeStamp: 72880568.11125
+}
+Failed to fetch comments: Error connecting to database: TypeError: fetch failed
+[DebateArena] getDebateByDate failed: Error connecting to database: TypeError: fetch failed
+[DebateArena] getDebateByDate failed: Error connecting to database: TypeError: fetch failed
+Tracking API error: TypeError: fetch failed
+    at node:internal/deps/undici/undici:15482:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async p (/Users/john/蒸馏2/.next/server/app/api/tracking/route.js:1:670)
+    at async /Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:34666
+    at async eS.execute (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:25813)
+    at async eS.handle (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:35920)
+    at async doRender (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1377:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1599:28)
+    at async NextNodeServer.renderToResponseWithComponentsImpl (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1507:28)
+    at async NextNodeServer.renderPageComponent (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1924:24) {
+  [cause]: Error: read ECONNRESET
+      at TLSWrap.onStreamRead (node:internal/stream_base_commons:216:20) {
+    errno: -54,
+    code: 'ECONNRESET',
+    syscall: 'read'
+  }
+}
+Tracking API error: TypeError: fetch failed
+    at node:internal/deps/undici/undici:15482:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async p (/Users/john/蒸馏2/.next/server/app/api/tracking/route.js:1:670)
+    at async /Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:34666
+    at async eS.execute (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:25813)
+    at async eS.handle (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:35920)
+    at async doRender (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1377:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1599:28)
+    at async NextNodeServer.renderToResponseWithComponentsImpl (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1507:28)
+    at async NextNodeServer.renderPageComponent (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1924:24) {
+  [cause]: Error: read ECONNRESET
+      at TLSWrap.onStreamRead (node:internal/stream_base_commons:216:20) {
+    errno: -54,
+    code: 'ECONNRESET',
+    syscall: 'read'
+  }
+}
+[DebateArena] getDebateByDate failed: Error connecting to database: TypeError: fetch failed
+Tracking API error: TypeError: fetch failed
+    at node:internal/deps/undici/undici:15482:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async p (/Users/john/蒸馏2/.next/server/app/api/tracking/route.js:1:670)
+    at async /Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:34666
+    at async eS.execute (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:25813)
+    at async eS.handle (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:35920)
+    at async doRender (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1377:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1599:28)
+    at async NextNodeServer.renderToResponseWithComponentsImpl (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1507:28)
+    at async NextNodeServer.renderPageComponent (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1924:24) {
+  [cause]: Error: read ECONNRESET
+      at TLSWrap.onStreamRead (node:internal/stream_base_commons:216:20) {
+    errno: -54,
+    code: 'ECONNRESET',
+    syscall: 'read'
+  }
+}
+Tracking API error: TypeError: fetch failed
+    at node:internal/deps/undici/undici:15482:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async p (/Users/john/蒸馏2/.next/server/app/api/tracking/route.js:1:670)
+    at async /Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:34666
+    at async eS.execute (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:25813)
+    at async eS.handle (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:35920)
+    at async doRender (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1377:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1599:28)
+    at async NextNodeServer.renderToResponseWithComponentsImpl (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1507:28)
+    at async NextNodeServer.renderPageComponent (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1924:24) {
+  [cause]: Error: read ECONNRESET
+      at TLSWrap.onStreamRead (node:internal/stream_base_commons:216:20) {
+    errno: -54,
+    code: 'ECONNRESET',
+    syscall: 'read'
+  }
+}
+Tracking API error: TypeError: fetch failed
+    at node:internal/deps/undici/undici:15482:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async p (/Users/john/蒸馏2/.next/server/app/api/tracking/route.js:1:670)
+    at async /Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:34666
+    at async eS.execute (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:25813)
+    at async eS.handle (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:35920)
+    at async doRender (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1377:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1599:28)
+    at async NextNodeServer.renderToResponseWithComponentsImpl (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1507:28)
+    at async NextNodeServer.renderPageComponent (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1924:24) {
+  [cause]: Error: read ECONNRESET
+      at TLSWrap.onStreamRead (node:internal/stream_base_commons:216:20) {
+    errno: -54,
+    code: 'ECONNRESET',
+    syscall: 'read'
+  }
+}
+Tracking API error: TypeError: fetch failed
+    at node:internal/deps/undici/undici:15482:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async p (/Users/john/蒸馏2/.next/server/app/api/tracking/route.js:1:670)
+    at async /Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:34666
+    at async eS.execute (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:25813)
+    at async eS.handle (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:35920)
+    at async doRender (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1377:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1599:28)
+    at async NextNodeServer.renderToResponseWithComponentsImpl (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1507:28)
+    at async NextNodeServer.renderPageComponent (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1924:24) {
+  [cause]: Error: read ECONNRESET
+      at TLSWrap.onStreamRead (node:internal/stream_base_commons:216:20) {
+    errno: -54,
+    code: 'ECONNRESET',
+    syscall: 'read'
+  }
+}
+Tracking API error: TypeError: fetch failed
+    at node:internal/deps/undici/undici:15482:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async p (/Users/john/蒸馏2/.next/server/app/api/tracking/route.js:1:670)
+    at async /Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:34666
+    at async eS.execute (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:25813)
+    at async eS.handle (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:35920)
+    at async doRender (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1377:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1599:28)
+    at async NextNodeServer.renderToResponseWithComponentsImpl (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1507:28)
+    at async NextNodeServer.renderPageComponent (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1924:24) {
+  [cause]: Error: read ECONNRESET
+      at TLSWrap.onStreamRead (node:internal/stream_base_commons:216:20) {
+    errno: -54,
+    code: 'ECONNRESET',
+    syscall: 'read'
+  }
+}
+Tracking API error: TypeError: fetch failed
+    at node:internal/deps/undici/undici:15482:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async p (/Users/john/蒸馏2/.next/server/app/api/tracking/route.js:1:670)
+    at async /Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:34666
+    at async eS.execute (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:25813)
+    at async eS.handle (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:35920)
+    at async doRender (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1377:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1599:28)
+    at async NextNodeServer.renderToResponseWithComponentsImpl (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1507:28)
+    at async NextNodeServer.renderPageComponent (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1924:24) {
+  [cause]: Error: read ECONNRESET
+      at TLSWrap.onStreamRead (node:internal/stream_base_commons:216:20) {
+    errno: -54,
+    code: 'ECONNRESET',
+    syscall: 'read'
+  }
+}
+Tracking API error: TypeError: fetch failed
+    at node:internal/deps/undici/undici:15482:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async p (/Users/john/蒸馏2/.next/server/app/api/tracking/route.js:1:670)
+    at async /Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:34666
+    at async eS.execute (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:25813)
+    at async eS.handle (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:35920)
+    at async doRender (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1377:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1599:28)
+    at async NextNodeServer.renderToResponseWithComponentsImpl (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1507:28)
+    at async NextNodeServer.renderPageComponent (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1924:24) {
+  [cause]: Error: read ECONNRESET
+      at TLSWrap.onStreamRead (node:internal/stream_base_commons:216:20) {
+    errno: -54,
+    code: 'ECONNRESET',
+    syscall: 'read'
+  }
+}
+Tracking API error: TypeError: fetch failed
+    at node:internal/deps/undici/undici:15482:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async p (/Users/john/蒸馏2/.next/server/app/api/tracking/route.js:1:670)
+    at async /Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:34666
+    at async eS.execute (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:25813)
+    at async eS.handle (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:35920)
+    at async doRender (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1377:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1599:28)
+    at async NextNodeServer.renderToResponseWithComponentsImpl (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1507:28)
+    at async NextNodeServer.renderPageComponent (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1924:24) {
+  [cause]: Error: read ECONNRESET
+      at TLSWrap.onStreamRead (node:internal/stream_base_commons:216:20) {
+    errno: -54,
+    code: 'ECONNRESET',
+    syscall: 'read'
+  }
+}
+Tracking API error: TypeError: fetch failed
+    at node:internal/deps/undici/undici:15482:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async p (/Users/john/蒸馏2/.next/server/app/api/tracking/route.js:1:670)
+    at async /Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:34666
+    at async eS.execute (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:25813)
+    at async eS.handle (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:35920)
+    at async doRender (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1377:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1599:28)
+    at async NextNodeServer.renderToResponseWithComponentsImpl (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1507:28)
+    at async NextNodeServer.renderPageComponent (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1924:24) {
+  [cause]: Error: read ECONNRESET
+      at TLSWrap.onStreamRead (node:internal/stream_base_commons:216:20) {
+    errno: -54,
+    code: 'ECONNRESET',
+    syscall: 'read'
+  }
+}
+[DebateArena] getDebateByDate failed: Error connecting to database: TypeError: fetch failed
+Failed to fetch comments: Error connecting to database: TypeError: fetch failed
+[DebateArena] getDebateByDate failed: Error connecting to database: TypeError: fetch failed
+Tracking API error: TypeError: fetch failed
+    at node:internal/deps/undici/undici:15482:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async p (/Users/john/蒸馏2/.next/server/app/api/tracking/route.js:1:670)
+    at async /Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:34666
+    at async eS.execute (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:25813)
+    at async eS.handle (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:35920)
+    at async doRender (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1377:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1599:28)
+    at async NextNodeServer.renderToResponseWithComponentsImpl (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1507:28)
+    at async NextNodeServer.renderPageComponent (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1924:24) {
+  [cause]: Error: read ECONNRESET
+      at TLSWrap.onStreamRead (node:internal/stream_base_commons:216:20) {
+    errno: -54,
+    code: 'ECONNRESET',
+    syscall: 'read'
+  }
+}
+[PersonaLibrary GET] ErrorEvent {
+  type: 'error',
+  defaultPrevented: false,
+  cancelable: false,
+  timeStamp: 73092119.488709
+}
+Tracking API error: TypeError: fetch failed
+    at node:internal/deps/undici/undici:15482:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async p (/Users/john/蒸馏2/.next/server/app/api/tracking/route.js:1:670)
+    at async /Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:34666
+    at async eS.execute (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:25813)
+    at async eS.handle (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:35920)
+    at async doRender (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1377:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1599:28)
+    at async NextNodeServer.renderToResponseWithComponentsImpl (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1507:28)
+    at async NextNodeServer.renderPageComponent (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1924:24) {
+  [cause]: Error: read ECONNRESET
+      at TLSWrap.onStreamRead (node:internal/stream_base_commons:216:20) {
+    errno: -54,
+    code: 'ECONNRESET',
+    syscall: 'read'
+  }
+}
+Tracking API error: TypeError: fetch failed
+    at node:internal/deps/undici/undici:15482:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async p (/Users/john/蒸馏2/.next/server/app/api/tracking/route.js:1:670)
+    at async /Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:34666
+    at async eS.execute (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:25813)
+    at async eS.handle (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:35920)
+    at async doRender (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1377:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1599:28)
+    at async NextNodeServer.renderToResponseWithComponentsImpl (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1507:28)
+    at async NextNodeServer.renderPageComponent (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1924:24) {
+  [cause]: Error: read ECONNRESET
+      at TLSWrap.onStreamRead (node:internal/stream_base_commons:216:20) {
+    errno: -54,
+    code: 'ECONNRESET',
+    syscall: 'read'
+  }
+}
+Tracking API error: TypeError: fetch failed
+    at node:internal/deps/undici/undici:15482:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async p (/Users/john/蒸馏2/.next/server/app/api/tracking/route.js:1:670)
+    at async /Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:34666
+    at async eS.execute (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:25813)
+    at async eS.handle (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:35920)
+    at async doRender (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1377:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1599:28)
+    at async NextNodeServer.renderToResponseWithComponentsImpl (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1507:28)
+    at async NextNodeServer.renderPageComponent (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1924:24) {
+  [cause]: Error: read ECONNRESET
+      at TLSWrap.onStreamRead (node:internal/stream_base_commons:216:20) {
+    errno: -54,
+    code: 'ECONNRESET',
+    syscall: 'read'
+  }
+}
+Tracking API error: TypeError: fetch failed
+    at node:internal/deps/undici/undici:15482:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async p (/Users/john/蒸馏2/.next/server/app/api/tracking/route.js:1:670)
+    at async /Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:34666
+    at async eS.execute (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:25813)
+    at async eS.handle (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:35920)
+    at async doRender (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1377:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1599:28)
+    at async NextNodeServer.renderToResponseWithComponentsImpl (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1507:28)
+    at async NextNodeServer.renderPageComponent (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1924:24) {
+  [cause]: Error: read ECONNRESET
+      at TLSWrap.onStreamRead (node:internal/stream_base_commons:216:20) {
+    errno: -54,
+    code: 'ECONNRESET',
+    syscall: 'read'
+  }
+}
+[DebateArena] getDebateByDate failed: Error connecting to database: TypeError: fetch failed
+Failed to fetch comments: Error connecting to database: TypeError: fetch failed
+[DebateArena] getDebateByDate failed: Error connecting to database: TypeError: fetch failed
+Tracking API error: TypeError: fetch failed
+    at node:internal/deps/undici/undici:15482:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async p (/Users/john/蒸馏2/.next/server/app/api/tracking/route.js:1:670)
+    at async /Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:34666
+    at async eS.execute (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:25813)
+    at async eS.handle (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:35920)
+    at async doRender (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1377:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1599:28)
+    at async NextNodeServer.renderToResponseWithComponentsImpl (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1507:28)
+    at async NextNodeServer.renderPageComponent (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1924:24) {
+  [cause]: Error: read ECONNRESET
+      at TLSWrap.onStreamRead (node:internal/stream_base_commons:216:20) {
+    errno: -54,
+    code: 'ECONNRESET',
+    syscall: 'read'
+  }
+}
+Tracking API error: TypeError: fetch failed
+    at node:internal/deps/undici/undici:15482:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async p (/Users/john/蒸馏2/.next/server/app/api/tracking/route.js:1:670)
+    at async /Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:34666
+    at async eS.execute (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:25813)
+    at async eS.handle (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:35920)
+    at async doRender (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1377:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1599:28)
+    at async NextNodeServer.renderToResponseWithComponentsImpl (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1507:28)
+    at async NextNodeServer.renderPageComponent (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1924:24) {
+  [cause]: Error: read ECONNRESET
+      at TLSWrap.onStreamRead (node:internal/stream_base_commons:216:20) {
+    errno: -54,
+    code: 'ECONNRESET',
+    syscall: 'read'
+  }
+}
+Tracking API error: TypeError: fetch failed
+    at node:internal/deps/undici/undici:15482:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async p (/Users/john/蒸馏2/.next/server/app/api/tracking/route.js:1:670)
+    at async /Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:34666
+    at async eS.execute (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:25813)
+    at async eS.handle (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:35920)
+    at async doRender (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1377:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1599:28)
+    at async NextNodeServer.renderToResponseWithComponentsImpl (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1507:28)
+    at async NextNodeServer.renderPageComponent (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1924:24) {
+  [cause]: Error: read ECONNRESET
+      at TLSWrap.onStreamRead (node:internal/stream_base_commons:216:20) {
+    errno: -54,
+    code: 'ECONNRESET',
+    syscall: 'read'
+  }
+}
+Tracking API error: TypeError: fetch failed
+    at node:internal/deps/undici/undici:15482:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async p (/Users/john/蒸馏2/.next/server/app/api/tracking/route.js:1:670)
+    at async /Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:34666
+    at async eS.execute (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:25813)
+    at async eS.handle (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:35920)
+    at async doRender (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1377:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1599:28)
+    at async NextNodeServer.renderToResponseWithComponentsImpl (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1507:28)
+    at async NextNodeServer.renderPageComponent (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1924:24) {
+  [cause]: Error: read ECONNRESET
+      at TLSWrap.onStreamRead (node:internal/stream_base_commons:216:20) {
+    errno: -54,
+    code: 'ECONNRESET',
+    syscall: 'read'
+  }
+}
+[DebateArena] getDebateByDate failed: Error connecting to database: TypeError: fetch failed
+Failed to fetch comments: Error connecting to database: TypeError: fetch failed
+[DebateArena] getDebateByDate failed: Error connecting to database: TypeError: fetch failed
+Tracking API error: TypeError: fetch failed
+    at node:internal/deps/undici/undici:15482:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async p (/Users/john/蒸馏2/.next/server/app/api/tracking/route.js:1:670)
+    at async /Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:34666
+    at async eS.execute (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:25813)
+    at async eS.handle (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:35920)
+    at async doRender (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1377:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1599:28)
+    at async NextNodeServer.renderToResponseWithComponentsImpl (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1507:28)
+    at async NextNodeServer.renderPageComponent (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1924:24) {
+  [cause]: Error: read ECONNRESET
+      at TLSWrap.onStreamRead (node:internal/stream_base_commons:216:20) {
+    errno: -54,
+    code: 'ECONNRESET',
+    syscall: 'read'
+  }
+}
+Tracking API error: TypeError: fetch failed
+    at node:internal/deps/undici/undici:15482:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async p (/Users/john/蒸馏2/.next/server/app/api/tracking/route.js:1:670)
+    at async /Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:34666
+    at async eS.execute (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:25813)
+    at async eS.handle (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:35920)
+    at async doRender (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1377:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1599:28)
+    at async NextNodeServer.renderToResponseWithComponentsImpl (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1507:28)
+    at async NextNodeServer.renderPageComponent (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1924:24) {
+  [cause]: Error: read ECONNRESET
+      at TLSWrap.onStreamRead (node:internal/stream_base_commons:216:20) {
+    errno: -54,
+    code: 'ECONNRESET',
+    syscall: 'read'
+  }
+}
+[DebateArena] getDebateByDate failed: Error connecting to database: TypeError: fetch failed
+[DebateArena] getDebateByDate failed: Error connecting to database: TypeError: fetch failed
+[DebateArena] getDebateByDate failed: Error connecting to database: TypeError: fetch failed
+[DebateArena] getDebateByDate failed: Error connecting to database: TypeError: fetch failed
+Tracking API error: TypeError: fetch failed
+    at node:internal/deps/undici/undici:15482:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async p (/Users/john/蒸馏2/.next/server/app/api/tracking/route.js:1:670)
+    at async /Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:34666
+    at async eS.execute (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:25813)
+    at async eS.handle (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:35920)
+    at async doRender (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1377:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1599:28)
+    at async NextNodeServer.renderToResponseWithComponentsImpl (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1507:28)
+    at async NextNodeServer.renderPageComponent (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1924:24) {
+  [cause]: Error: read ECONNRESET
+      at TLSWrap.onStreamRead (node:internal/stream_base_commons:216:20) {
+    errno: -54,
+    code: 'ECONNRESET',
+    syscall: 'read'
+  }
+}
+Tracking API error: TypeError: fetch failed
+    at node:internal/deps/undici/undici:15482:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async p (/Users/john/蒸馏2/.next/server/app/api/tracking/route.js:1:670)
+    at async /Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:34666
+    at async eS.execute (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:25813)
+    at async eS.handle (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:35920)
+    at async doRender (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1377:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1599:28)
+    at async NextNodeServer.renderToResponseWithComponentsImpl (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1507:28)
+    at async NextNodeServer.renderPageComponent (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1924:24) {
+  [cause]: Error: read ECONNRESET
+      at TLSWrap.onStreamRead (node:internal/stream_base_commons:216:20) {
+    errno: -54,
+    code: 'ECONNRESET',
+    syscall: 'read'
+  }
+}
+[PersonaLibrary GET] ErrorEvent {
+  type: 'error',
+  defaultPrevented: false,
+  cancelable: false,
+  timeStamp: 98067805.223792
+}
+Tracking API error: TypeError: fetch failed
+    at node:internal/deps/undici/undici:15482:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async p (/Users/john/蒸馏2/.next/server/app/api/tracking/route.js:1:670)
+    at async /Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:34666
+    at async eS.execute (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:25813)
+    at async eS.handle (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:35920)
+    at async doRender (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1377:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1599:28)
+    at async NextNodeServer.renderToResponseWithComponentsImpl (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1507:28)
+    at async NextNodeServer.renderPageComponent (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1924:24) {
+  [cause]: Error: read ECONNRESET
+      at TLSWrap.onStreamRead (node:internal/stream_base_commons:216:20) {
+    errno: -54,
+    code: 'ECONNRESET',
+    syscall: 'read'
+  }
+}
+Tracking API error: TypeError: fetch failed
+    at node:internal/deps/undici/undici:15482:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async p (/Users/john/蒸馏2/.next/server/app/api/tracking/route.js:1:670)
+    at async /Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:34666
+    at async eS.execute (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:25813)
+    at async eS.handle (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:35920)
+    at async doRender (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1377:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1599:28)
+    at async NextNodeServer.renderToResponseWithComponentsImpl (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1507:28)
+    at async NextNodeServer.renderPageComponent (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1924:24) {
+  [cause]: Error: read ECONNRESET
+      at TLSWrap.onStreamRead (node:internal/stream_base_commons:216:20) {
+    errno: -54,
+    code: 'ECONNRESET',
+    syscall: 'read'
+  }
+}
+Tracking API error: TypeError: fetch failed
+    at node:internal/deps/undici/undici:15482:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async p (/Users/john/蒸馏2/.next/server/app/api/tracking/route.js:1:670)
+    at async /Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:34666
+    at async eS.execute (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:25813)
+    at async eS.handle (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:35920)
+    at async doRender (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1377:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1599:28)
+    at async NextNodeServer.renderToResponseWithComponentsImpl (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1507:28)
+    at async NextNodeServer.renderPageComponent (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1924:24) {
+  [cause]: Error: read ECONNRESET
+      at TLSWrap.onStreamRead (node:internal/stream_base_commons:216:20) {
+    errno: -54,
+    code: 'ECONNRESET',
+    syscall: 'read'
+  }
+}
+[DebateArena] getDebateByDate failed: Error connecting to database: TypeError: fetch failed
+Failed to fetch comments: Error connecting to database: TypeError: fetch failed
+[DebateArena] getDebateByDate failed: Error connecting to database: TypeError: fetch failed
+[DebateArena] getDebateByDate failed: Error connecting to database: TypeError: fetch failed
+[PersonaLibrary GET] ErrorEvent {
+  type: 'error',
+  defaultPrevented: false,
+  cancelable: false,
+  timeStamp: 98536555.954
+}
+Tracking API error: TypeError: fetch failed
+    at node:internal/deps/undici/undici:15482:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async p (/Users/john/蒸馏2/.next/server/app/api/tracking/route.js:1:670)
+    at async /Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:34666
+    at async eS.execute (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:25813)
+    at async eS.handle (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:35920)
+    at async doRender (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1377:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1599:28)
+    at async NextNodeServer.renderToResponseWithComponentsImpl (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1507:28)
+    at async NextNodeServer.renderPageComponent (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1924:24) {
+  [cause]: Error: read ECONNRESET
+      at TLSWrap.onStreamRead (node:internal/stream_base_commons:216:20) {
+    errno: -54,
+    code: 'ECONNRESET',
+    syscall: 'read'
+  }
+}
+Tracking API error: TypeError: fetch failed
+    at node:internal/deps/undici/undici:15482:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async p (/Users/john/蒸馏2/.next/server/app/api/tracking/route.js:1:670)
+    at async /Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:34666
+    at async eS.execute (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:25813)
+    at async eS.handle (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:35920)
+    at async doRender (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1377:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1599:28)
+    at async NextNodeServer.renderToResponseWithComponentsImpl (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1507:28)
+    at async NextNodeServer.renderPageComponent (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1924:24) {
+  [cause]: Error: read ECONNRESET
+      at TLSWrap.onStreamRead (node:internal/stream_base_commons:216:20) {
+    errno: -54,
+    code: 'ECONNRESET',
+    syscall: 'read'
+  }
+}
+Tracking API error: TypeError: fetch failed
+    at node:internal/deps/undici/undici:15482:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async p (/Users/john/蒸馏2/.next/server/app/api/tracking/route.js:1:670)
+    at async /Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:34666
+    at async eS.execute (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:25813)
+    at async eS.handle (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:35920)
+    at async doRender (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1377:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1599:28)
+    at async NextNodeServer.renderToResponseWithComponentsImpl (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1507:28)
+    at async NextNodeServer.renderPageComponent (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1924:24) {
+  [cause]: Error: read ECONNRESET
+      at TLSWrap.onStreamRead (node:internal/stream_base_commons:216:20) {
+    errno: -54,
+    code: 'ECONNRESET',
+    syscall: 'read'
+  }
+}
+Tracking API error: TypeError: fetch failed
+    at node:internal/deps/undici/undici:15482:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async p (/Users/john/蒸馏2/.next/server/app/api/tracking/route.js:1:670)
+    at async /Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:34666
+    at async eS.execute (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:25813)
+    at async eS.handle (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:35920)
+    at async doRender (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1377:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1599:28)
+    at async NextNodeServer.renderToResponseWithComponentsImpl (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1507:28)
+    at async NextNodeServer.renderPageComponent (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1924:24) {
+  [cause]: Error: read ECONNRESET
+      at TLSWrap.onStreamRead (node:internal/stream_base_commons:216:20) {
+    errno: -54,
+    code: 'ECONNRESET',
+    syscall: 'read'
+  }
+}
+Tracking API error: TypeError: fetch failed
+    at node:internal/deps/undici/undici:15482:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async p (/Users/john/蒸馏2/.next/server/app/api/tracking/route.js:1:670)
+    at async /Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:34666
+    at async eS.execute (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:25813)
+    at async eS.handle (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:35920)
+    at async doRender (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1377:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1599:28)
+    at async NextNodeServer.renderToResponseWithComponentsImpl (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1507:28)
+    at async NextNodeServer.renderPageComponent (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1924:24) {
+  [cause]: Error: read ECONNRESET
+      at TLSWrap.onStreamRead (node:internal/stream_base_commons:216:20) {
+    errno: -54,
+    code: 'ECONNRESET',
+    syscall: 'read'
+  }
+}
+Tracking API error: TypeError: fetch failed
+    at node:internal/deps/undici/undici:15482:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async p (/Users/john/蒸馏2/.next/server/app/api/tracking/route.js:1:670)
+    at async /Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:34666
+    at async eS.execute (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:25813)
+    at async eS.handle (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:35920)
+    at async doRender (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1377:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1599:28)
+    at async NextNodeServer.renderToResponseWithComponentsImpl (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1507:28)
+    at async NextNodeServer.renderPageComponent (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1924:24) {
+  [cause]: Error: read ECONNRESET
+      at TLSWrap.onStreamRead (node:internal/stream_base_commons:216:20) {
+    errno: -54,
+    code: 'ECONNRESET',
+    syscall: 'read'
+  }
+}
+Tracking API error: TypeError: fetch failed
+    at node:internal/deps/undici/undici:15482:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async p (/Users/john/蒸馏2/.next/server/app/api/tracking/route.js:1:670)
+    at async /Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:34666
+    at async eS.execute (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:25813)
+    at async eS.handle (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:35920)
+    at async doRender (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1377:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1599:28)
+    at async NextNodeServer.renderToResponseWithComponentsImpl (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1507:28)
+    at async NextNodeServer.renderPageComponent (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1924:24) {
+  [cause]: Error: read ECONNRESET
+      at TLSWrap.onStreamRead (node:internal/stream_base_commons:216:20) {
+    errno: -54,
+    code: 'ECONNRESET',
+    syscall: 'read'
+  }
+}
+Tracking API error: TypeError: fetch failed
+    at node:internal/deps/undici/undici:15482:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async p (/Users/john/蒸馏2/.next/server/app/api/tracking/route.js:1:670)
+    at async /Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:34666
+    at async eS.execute (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:25813)
+    at async eS.handle (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:35920)
+    at async doRender (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1377:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1599:28)
+    at async NextNodeServer.renderToResponseWithComponentsImpl (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1507:28)
+    at async NextNodeServer.renderPageComponent (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1924:24) {
+  [cause]: Error: read ECONNRESET
+      at TLSWrap.onStreamRead (node:internal/stream_base_commons:216:20) {
+    errno: -54,
+    code: 'ECONNRESET',
+    syscall: 'read'
+  }
+}
+[PersonaLibrary GET] ErrorEvent {
+  type: 'error',
+  defaultPrevented: false,
+  cancelable: false,
+  timeStamp: 110793778.598
+}
+Tracking API error: TypeError: fetch failed
+    at node:internal/deps/undici/undici:15482:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async p (/Users/john/蒸馏2/.next/server/app/api/tracking/route.js:1:670)
+    at async /Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:34666
+    at async eS.execute (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:25813)
+    at async eS.handle (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:35920)
+    at async doRender (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1377:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1599:28)
+    at async NextNodeServer.renderToResponseWithComponentsImpl (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1507:28)
+    at async NextNodeServer.renderPageComponent (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1924:24) {
+  [cause]: ConnectTimeoutError: Connect Timeout Error (attempted addresses: 216.198.79.195:443, timeout: 10000ms)
+      at onConnectTimeout (node:internal/deps/undici/undici:1549:23)
+      at Immediate._onImmediate (node:internal/deps/undici/undici:1530:11)
+      at process.processImmediate (node:internal/timers:505:21) {
+    code: 'UND_ERR_CONNECT_TIMEOUT'
+  }
+}
+Tracking API error: TypeError: fetch failed
+    at node:internal/deps/undici/undici:15482:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async p (/Users/john/蒸馏2/.next/server/app/api/tracking/route.js:1:670)
+    at async /Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:34666
+    at async eS.execute (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:25813)
+    at async eS.handle (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:35920)
+    at async doRender (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1377:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1599:28)
+    at async NextNodeServer.renderToResponseWithComponentsImpl (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1507:28)
+    at async NextNodeServer.renderPageComponent (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1924:24) {
+  [cause]: Error: read ECONNRESET
+      at TLSWrap.onStreamRead (node:internal/stream_base_commons:216:20) {
+    errno: -54,
+    code: 'ECONNRESET',
+    syscall: 'read'
+  }
+}
+Tracking API error: TypeError: fetch failed
+    at node:internal/deps/undici/undici:15482:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async p (/Users/john/蒸馏2/.next/server/app/api/tracking/route.js:1:670)
+    at async /Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:34666
+    at async eS.execute (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:25813)
+    at async eS.handle (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:35920)
+    at async doRender (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1377:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1599:28)
+    at async NextNodeServer.renderToResponseWithComponentsImpl (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1507:28)
+    at async NextNodeServer.renderPageComponent (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1924:24) {
+  [cause]: Error: read ECONNRESET
+      at TLSWrap.onStreamRead (node:internal/stream_base_commons:216:20) {
+    errno: -54,
+    code: 'ECONNRESET',
+    syscall: 'read'
+  }
+}
+Tracking API error: TypeError: fetch failed
+    at node:internal/deps/undici/undici:15482:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async p (/Users/john/蒸馏2/.next/server/app/api/tracking/route.js:1:670)
+    at async /Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:34666
+    at async eS.execute (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:25813)
+    at async eS.handle (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:35920)
+    at async doRender (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1377:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1599:28)
+    at async NextNodeServer.renderToResponseWithComponentsImpl (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1507:28)
+    at async NextNodeServer.renderPageComponent (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1924:24) {
+  [cause]: Error: read ECONNRESET
+      at TLSWrap.onStreamRead (node:internal/stream_base_commons:216:20) {
+    errno: -54,
+    code: 'ECONNRESET',
+    syscall: 'read'
+  }
+}
+Tracking API error: TypeError: fetch failed
+    at node:internal/deps/undici/undici:15482:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async p (/Users/john/蒸馏2/.next/server/app/api/tracking/route.js:1:670)
+    at async /Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:34666
+    at async eS.execute (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:25813)
+    at async eS.handle (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:35920)
+    at async doRender (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1377:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1599:28)
+    at async NextNodeServer.renderToResponseWithComponentsImpl (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1507:28)
+    at async NextNodeServer.renderPageComponent (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1924:24) {
+  [cause]: Error: read ECONNRESET
+      at TLSWrap.onStreamRead (node:internal/stream_base_commons:216:20) {
+    errno: -54,
+    code: 'ECONNRESET',
+    syscall: 'read'
+  }
+}
+[DebateArena] getDebateByDate failed: Error connecting to database: TypeError: fetch failed
+Failed to fetch comments: Error connecting to database: TypeError: fetch failed
+[DebateArena] getDebateByDate failed: Error connecting to database: TypeError: fetch failed
+Tracking API error: TypeError: fetch failed
+    at node:internal/deps/undici/undici:15482:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async p (/Users/john/蒸馏2/.next/server/app/api/tracking/route.js:1:670)
+    at async /Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:34666
+    at async eS.execute (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:25813)
+    at async eS.handle (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:35920)
+    at async doRender (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1377:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1599:28)
+    at async NextNodeServer.renderToResponseWithComponentsImpl (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1507:28)
+    at async NextNodeServer.renderPageComponent (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1924:24) {
+  [cause]: Error: read ECONNRESET
+      at TLSWrap.onStreamRead (node:internal/stream_base_commons:216:20) {
+    errno: -54,
+    code: 'ECONNRESET',
+    syscall: 'read'
+  }
+}
+[DebateArena] getDebateByDate failed: Error connecting to database: TypeError: fetch failed
+Tracking API error: TypeError: fetch failed
+    at node:internal/deps/undici/undici:15482:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async p (/Users/john/蒸馏2/.next/server/app/api/tracking/route.js:1:670)
+    at async /Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:34666
+    at async eS.execute (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:25813)
+    at async eS.handle (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:35920)
+    at async doRender (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1377:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1599:28)
+    at async NextNodeServer.renderToResponseWithComponentsImpl (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1507:28)
+    at async NextNodeServer.renderPageComponent (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1924:24) {
+  [cause]: Error: read ECONNRESET
+      at TLSWrap.onStreamRead (node:internal/stream_base_commons:216:20) {
+    errno: -54,
+    code: 'ECONNRESET',
+    syscall: 'read'
+  }
+}
+TypeError: fetch failed
+    at node:internal/deps/undici/undici:15482:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5) {
+  [cause]: ConnectTimeoutError: Connect Timeout Error (attempted addresses: 172.67.203.7:443, 2606:4700:3037::6815:5d19:443, 104.21.93.25:443, timeout: 10000ms)
+      at onConnectTimeout (node:internal/deps/undici/undici:1549:23)
+      at Immediate._onImmediate (node:internal/deps/undici/undici:1530:11)
+      at process.processImmediate (node:internal/timers:505:21) {
+    code: 'UND_ERR_CONNECT_TIMEOUT'
+  }
+}
+Tracking API error: TypeError: fetch failed
+    at node:internal/deps/undici/undici:15482:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async p (/Users/john/蒸馏2/.next/server/app/api/tracking/route.js:1:670)
+    at async /Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:34666
+    at async eS.execute (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:25813)
+    at async eS.handle (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:35920)
+    at async doRender (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1377:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1599:28)
+    at async NextNodeServer.renderToResponseWithComponentsImpl (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1507:28)
+    at async NextNodeServer.renderPageComponent (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1924:24) {
+  [cause]: Error: read ECONNRESET
+      at TLSWrap.onStreamRead (node:internal/stream_base_commons:216:20) {
+    errno: -54,
+    code: 'ECONNRESET',
+    syscall: 'read'
+  }
+}
+Tracking API error: TypeError: fetch failed
+    at node:internal/deps/undici/undici:15482:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async p (/Users/john/蒸馏2/.next/server/app/api/tracking/route.js:1:670)
+    at async /Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:34666
+    at async eS.execute (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:25813)
+    at async eS.handle (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:35920)
+    at async doRender (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1377:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1599:28)
+    at async NextNodeServer.renderToResponseWithComponentsImpl (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1507:28)
+    at async NextNodeServer.renderPageComponent (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1924:24) {
+  [cause]: Error: read ECONNRESET
+      at TLSWrap.onStreamRead (node:internal/stream_base_commons:216:20) {
+    errno: -54,
+    code: 'ECONNRESET',
+    syscall: 'read'
+  }
+}
+Tracking API error: TypeError: fetch failed
+    at node:internal/deps/undici/undici:15482:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async p (/Users/john/蒸馏2/.next/server/app/api/tracking/route.js:1:670)
+    at async /Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:34666
+    at async eS.execute (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:25813)
+    at async eS.handle (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:35920)
+    at async doRender (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1377:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1599:28)
+    at async NextNodeServer.renderToResponseWithComponentsImpl (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1507:28)
+    at async NextNodeServer.renderPageComponent (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1924:24) {
+  [cause]: Error: read ECONNRESET
+      at TLSWrap.onStreamRead (node:internal/stream_base_commons:216:20) {
+    errno: -54,
+    code: 'ECONNRESET',
+    syscall: 'read'
+  }
+}
+Error: Unexpected end of form
+    at e.exports._final (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-page.runtime.prod.js:2:457)
+    at prefinish (node:internal/streams/writable:914:14)
+    at finishMaybe (node:internal/streams/writable:928:5)
+    at Writable.end (node:internal/streams/writable:843:5)
+    at IncomingMessage.onend (node:internal/streams/readable:946:10)
+    at Object.onceWrapper (node:events:621:28)
+    at IncomingMessage.emit (node:events:519:35)
+    at endReadableNT (node:internal/streams/readable:1701:12)
+    at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+  digest: '2199007712'
+}
+[PersonaLibrary GET slug] ErrorEvent {
+  type: 'error',
+  defaultPrevented: false,
+  cancelable: false,
+  timeStamp: 135939074.156084
+}
+Failed to fetch comments: Error connecting to database: TypeError: fetch failed
+Tracking API error: TypeError: fetch failed
+    at node:internal/deps/undici/undici:15482:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async p (/Users/john/蒸馏2/.next/server/app/api/tracking/route.js:1:670)
+    at async /Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:34666
+    at async eS.execute (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:25813)
+    at async eS.handle (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:35920)
+    at async doRender (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1377:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1599:28)
+    at async NextNodeServer.renderToResponseWithComponentsImpl (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1507:28)
+    at async NextNodeServer.renderPageComponent (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1924:24) {
+  [cause]: Error: read ECONNRESET
+      at TLSWrap.onStreamRead (node:internal/stream_base_commons:216:20) {
+    errno: -54,
+    code: 'ECONNRESET',
+    syscall: 'read'
+  }
+}
+Tracking API error: TypeError: fetch failed
+    at node:internal/deps/undici/undici:15482:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async p (/Users/john/蒸馏2/.next/server/app/api/tracking/route.js:1:670)
+    at async /Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:34666
+    at async eS.execute (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:25813)
+    at async eS.handle (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:35920)
+    at async doRender (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1377:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1599:28)
+    at async NextNodeServer.renderToResponseWithComponentsImpl (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1507:28)
+    at async NextNodeServer.renderPageComponent (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1924:24) {
+  [cause]: Error: read ECONNRESET
+      at TLSWrap.onStreamRead (node:internal/stream_base_commons:216:20) {
+    errno: -54,
+    code: 'ECONNRESET',
+    syscall: 'read'
+  }
+}
+Tracking API error: TypeError: fetch failed
+    at node:internal/deps/undici/undici:15482:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async p (/Users/john/蒸馏2/.next/server/app/api/tracking/route.js:1:670)
+    at async /Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:34666
+    at async eS.execute (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:25813)
+    at async eS.handle (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:35920)
+    at async doRender (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1377:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1599:28)
+    at async NextNodeServer.renderToResponseWithComponentsImpl (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1507:28)
+    at async NextNodeServer.renderPageComponent (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1924:24) {
+  [cause]: Error: read ECONNRESET
+      at TLSWrap.onStreamRead (node:internal/stream_base_commons:216:20) {
+    errno: -54,
+    code: 'ECONNRESET',
+    syscall: 'read'
+  }
+}
+Tracking API error: TypeError: fetch failed
+    at node:internal/deps/undici/undici:15482:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async p (/Users/john/蒸馏2/.next/server/app/api/tracking/route.js:1:670)
+    at async /Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:34666
+    at async eS.execute (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:25813)
+    at async eS.handle (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:35920)
+    at async doRender (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1377:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1599:28)
+    at async NextNodeServer.renderToResponseWithComponentsImpl (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1507:28)
+    at async NextNodeServer.renderPageComponent (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1924:24) {
+  [cause]: Error: read ECONNRESET
+      at TLSWrap.onStreamRead (node:internal/stream_base_commons:216:20) {
+    errno: -54,
+    code: 'ECONNRESET',
+    syscall: 'read'
+  }
+}
+Tracking API error: TypeError: fetch failed
+    at node:internal/deps/undici/undici:15482:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async p (/Users/john/蒸馏2/.next/server/app/api/tracking/route.js:1:670)
+    at async /Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:34666
+    at async eS.execute (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:25813)
+    at async eS.handle (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:35920)
+    at async doRender (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1377:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1599:28)
+    at async NextNodeServer.renderToResponseWithComponentsImpl (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1507:28)
+    at async NextNodeServer.renderPageComponent (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1924:24) {
+  [cause]: Error: read ECONNRESET
+      at TLSWrap.onStreamRead (node:internal/stream_base_commons:216:20) {
+    errno: -54,
+    code: 'ECONNRESET',
+    syscall: 'read'
+  }
+}
+Tracking API error: TypeError: fetch failed
+    at node:internal/deps/undici/undici:15482:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async p (/Users/john/蒸馏2/.next/server/app/api/tracking/route.js:1:670)
+    at async /Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:34666
+    at async eS.execute (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:25813)
+    at async eS.handle (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:35920)
+    at async doRender (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1377:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1599:28)
+    at async NextNodeServer.renderToResponseWithComponentsImpl (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1507:28)
+    at async NextNodeServer.renderPageComponent (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1924:24) {
+  [cause]: Error: read ECONNRESET
+      at TLSWrap.onStreamRead (node:internal/stream_base_commons:216:20) {
+    errno: -54,
+    code: 'ECONNRESET',
+    syscall: 'read'
+  }
+}
+[DebateArena] getDebateByDate failed: Error connecting to database: TypeError: fetch failed
+Failed to fetch comments: Error connecting to database: TypeError: fetch failed
+[DebateArena] getDebateByDate failed: Error connecting to database: TypeError: fetch failed
+[DebateArena] getDebateByDate failed: Error connecting to database: TypeError: fetch failed
+Failed to fetch comments: Error connecting to database: TypeError: fetch failed
+[DebateArena] getDebateByDate failed: Error connecting to database: TypeError: fetch failed
+[PersonaLibrary GET] ErrorEvent {
+  type: 'error',
+  defaultPrevented: false,
+  cancelable: false,
+  timeStamp: 164102206.236292
+}
+[DebateArena] getDebateByDate failed: Error connecting to database: TypeError: fetch failed
+Failed to fetch comments: Error connecting to database: TypeError: fetch failed
+[DebateArena] getDebateByDate failed: Error connecting to database: TypeError: fetch failed
+Tracking API error: TypeError: fetch failed
+    at node:internal/deps/undici/undici:15482:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async p (/Users/john/蒸馏2/.next/server/app/api/tracking/route.js:1:670)
+    at async /Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:34666
+    at async eS.execute (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:25813)
+    at async eS.handle (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:35920)
+    at async doRender (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1377:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1599:28)
+    at async NextNodeServer.renderToResponseWithComponentsImpl (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1507:28)
+    at async NextNodeServer.renderPageComponent (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1924:24) {
+  [cause]: Error: read ECONNRESET
+      at TLSWrap.onStreamRead (node:internal/stream_base_commons:216:20) {
+    errno: -54,
+    code: 'ECONNRESET',
+    syscall: 'read'
+  }
+}
+Tracking API error: TypeError: fetch failed
+    at node:internal/deps/undici/undici:15482:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async p (/Users/john/蒸馏2/.next/server/app/api/tracking/route.js:1:670)
+    at async /Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:34666
+    at async eS.execute (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:25813)
+    at async eS.handle (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:35920)
+    at async doRender (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1377:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1599:28)
+    at async NextNodeServer.renderToResponseWithComponentsImpl (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1507:28)
+    at async NextNodeServer.renderPageComponent (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1924:24) {
+  [cause]: Error: read ECONNRESET
+      at TLSWrap.onStreamRead (node:internal/stream_base_commons:216:20) {
+    errno: -54,
+    code: 'ECONNRESET',
+    syscall: 'read'
+  }
+}
+[DebateArena] getDebateByDate failed: Error connecting to database: TypeError: fetch failed
+Failed to fetch comments: Error connecting to database: TypeError: fetch failed
+Tracking API error: TypeError: fetch failed
+    at node:internal/deps/undici/undici:15482:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async p (/Users/john/蒸馏2/.next/server/app/api/tracking/route.js:1:670)
+    at async /Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:34666
+    at async eS.execute (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:25813)
+    at async eS.handle (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:35920)
+    at async doRender (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1377:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1599:28)
+    at async NextNodeServer.renderToResponseWithComponentsImpl (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1507:28)
+    at async NextNodeServer.renderPageComponent (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1924:24) {
+  [cause]: Error: read ECONNRESET
+      at TLSWrap.onStreamRead (node:internal/stream_base_commons:216:20) {
+    errno: -54,
+    code: 'ECONNRESET',
+    syscall: 'read'
+  }
+}
+[DebateArena] getDebateByDate failed: Error connecting to database: TypeError: fetch failed
+Tracking API error: TypeError: fetch failed
+    at node:internal/deps/undici/undici:15482:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async p (/Users/john/蒸馏2/.next/server/app/api/tracking/route.js:1:670)
+    at async /Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:34666
+    at async eS.execute (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:25813)
+    at async eS.handle (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:35920)
+    at async doRender (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1377:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1599:28)
+    at async NextNodeServer.renderToResponseWithComponentsImpl (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1507:28)
+    at async NextNodeServer.renderPageComponent (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1924:24) {
+  [cause]: Error: read ECONNRESET
+      at TLSWrap.onStreamRead (node:internal/stream_base_commons:216:20) {
+    errno: -54,
+    code: 'ECONNRESET',
+    syscall: 'read'
+  }
+}
+[DebateArena] getDebateByDate failed: Error connecting to database: TypeError: fetch failed
+Failed to fetch comments: Error connecting to database: TypeError: fetch failed
+Tracking API error: TypeError: fetch failed
+    at node:internal/deps/undici/undici:15482:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async p (/Users/john/蒸馏2/.next/server/app/api/tracking/route.js:1:670)
+    at async /Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:34666
+    at async eS.execute (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:25813)
+    at async eS.handle (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:35920)
+    at async doRender (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1377:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1599:28)
+    at async NextNodeServer.renderToResponseWithComponentsImpl (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1507:28)
+    at async NextNodeServer.renderPageComponent (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1924:24) {
+  [cause]: Error: read ECONNRESET
+      at TLSWrap.onStreamRead (node:internal/stream_base_commons:216:20) {
+    errno: -54,
+    code: 'ECONNRESET',
+    syscall: 'read'
+  }
+}
+[DebateArena] getDebateByDate failed: Error connecting to database: TypeError: fetch failed
+Tracking API error: TypeError: fetch failed
+    at node:internal/deps/undici/undici:15482:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async p (/Users/john/蒸馏2/.next/server/app/api/tracking/route.js:1:670)
+    at async /Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:34666
+    at async eS.execute (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:25813)
+    at async eS.handle (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:35920)
+    at async doRender (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1377:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1599:28)
+    at async NextNodeServer.renderToResponseWithComponentsImpl (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1507:28)
+    at async NextNodeServer.renderPageComponent (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1924:24) {
+  [cause]: Error: read ECONNRESET
+      at TLSWrap.onStreamRead (node:internal/stream_base_commons:216:20) {
+    errno: -54,
+    code: 'ECONNRESET',
+    syscall: 'read'
+  }
+}
+Tracking API error: TypeError: fetch failed
+    at node:internal/deps/undici/undici:15482:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async p (/Users/john/蒸馏2/.next/server/app/api/tracking/route.js:1:670)
+    at async /Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:34666
+    at async eS.execute (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:25813)
+    at async eS.handle (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:35920)
+    at async doRender (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1377:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1599:28)
+    at async NextNodeServer.renderToResponseWithComponentsImpl (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1507:28)
+    at async NextNodeServer.renderPageComponent (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1924:24) {
+  [cause]: Error: read ECONNRESET
+      at TLSWrap.onStreamRead (node:internal/stream_base_commons:216:20) {
+    errno: -54,
+    code: 'ECONNRESET',
+    syscall: 'read'
+  }
+}
+Tracking API error: TypeError: fetch failed
+    at node:internal/deps/undici/undici:15482:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async p (/Users/john/蒸馏2/.next/server/app/api/tracking/route.js:1:670)
+    at async /Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:34666
+    at async eS.execute (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:25813)
+    at async eS.handle (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:35920)
+    at async doRender (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1377:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1599:28)
+    at async NextNodeServer.renderToResponseWithComponentsImpl (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1507:28)
+    at async NextNodeServer.renderPageComponent (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1924:24) {
+  [cause]: Error: read ECONNRESET
+      at TLSWrap.onStreamRead (node:internal/stream_base_commons:216:20) {
+    errno: -54,
+    code: 'ECONNRESET',
+    syscall: 'read'
+  }
+}
+Tracking API error: TypeError: fetch failed
+    at node:internal/deps/undici/undici:15482:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async p (/Users/john/蒸馏2/.next/server/app/api/tracking/route.js:1:670)
+    at async /Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:34666
+    at async eS.execute (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:25813)
+    at async eS.handle (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:35920)
+    at async doRender (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1377:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1599:28)
+    at async NextNodeServer.renderToResponseWithComponentsImpl (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1507:28)
+    at async NextNodeServer.renderPageComponent (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1924:24) {
+  [cause]: Error: read ECONNRESET
+      at TLSWrap.onStreamRead (node:internal/stream_base_commons:216:20) {
+    errno: -54,
+    code: 'ECONNRESET',
+    syscall: 'read'
+  }
+}
+Tracking API error: TypeError: fetch failed
+    at node:internal/deps/undici/undici:15482:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async p (/Users/john/蒸馏2/.next/server/app/api/tracking/route.js:1:670)
+    at async /Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:34666
+    at async eS.execute (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:25813)
+    at async eS.handle (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:35920)
+    at async doRender (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1377:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1599:28)
+    at async NextNodeServer.renderToResponseWithComponentsImpl (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1507:28)
+    at async NextNodeServer.renderPageComponent (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1924:24) {
+  [cause]: Error: read ECONNRESET
+      at TLSWrap.onStreamRead (node:internal/stream_base_commons:216:20) {
+    errno: -54,
+    code: 'ECONNRESET',
+    syscall: 'read'
+  }
+}
+[DebateArena] getDebateByDate failed: Error connecting to database: TypeError: fetch failed
+Tracking API error: TypeError: fetch failed
+    at node:internal/deps/undici/undici:15482:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async p (/Users/john/蒸馏2/.next/server/app/api/tracking/route.js:1:670)
+    at async /Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:34666
+    at async eS.execute (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:25813)
+    at async eS.handle (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:35920)
+    at async doRender (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1377:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1599:28)
+    at async NextNodeServer.renderToResponseWithComponentsImpl (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1507:28)
+    at async NextNodeServer.renderPageComponent (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1924:24) {
+  [cause]: Error: read ECONNRESET
+      at TLSWrap.onStreamRead (node:internal/stream_base_commons:216:20) {
+    errno: -54,
+    code: 'ECONNRESET',
+    syscall: 'read'
+  }
+}
+Tracking API error: TypeError: fetch failed
+    at node:internal/deps/undici/undici:15482:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async p (/Users/john/蒸馏2/.next/server/app/api/tracking/route.js:1:670)
+    at async /Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:34666
+    at async eS.execute (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:25813)
+    at async eS.handle (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:35920)
+    at async doRender (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1377:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1599:28)
+    at async NextNodeServer.renderToResponseWithComponentsImpl (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1507:28)
+    at async NextNodeServer.renderPageComponent (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1924:24) {
+  [cause]: Error: read ECONNRESET
+      at TLSWrap.onStreamRead (node:internal/stream_base_commons:216:20) {
+    errno: -54,
+    code: 'ECONNRESET',
+    syscall: 'read'
+  }
+}
+Error: Unexpected end of form
+    at e.exports._final (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-page.runtime.prod.js:2:457)
+    at prefinish (node:internal/streams/writable:914:14)
+    at finishMaybe (node:internal/streams/writable:928:5)
+    at Writable.end (node:internal/streams/writable:843:5)
+    at IncomingMessage.onend (node:internal/streams/readable:946:10)
+    at Object.onceWrapper (node:events:621:28)
+    at IncomingMessage.emit (node:events:519:35)
+    at endReadableNT (node:internal/streams/readable:1701:12)
+    at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+  digest: '2199007712'
+}
+Error: Failed to find Server Action "4bcb9d04". This request might be from an older or newer deployment. Original error: Cannot read properties of undefined (reading 'workers')
+    at rR (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-page.runtime.prod.js:16:1686)
+    at /Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-page.runtime.prod.js:16:303
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async rP (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-page.runtime.prod.js:15:7978)
+    at async r5 (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-page.runtime.prod.js:18:1139)
+    at async doRender (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1438:30)
+    at async cacheEntry.responseCache.get.routeKind (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1599:28)
+    at async NextNodeServer.renderToResponseWithComponentsImpl (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1507:28)
+    at async NextNodeServer.renderPageComponent (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1924:24)
+    at async NextNodeServer.renderToResponseImpl (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1962:32)
+Error: Failed to find Server Action "816c21ba". This request might be from an older or newer deployment. Original error: Cannot read properties of undefined (reading 'workers')
+    at rR (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-page.runtime.prod.js:16:1686)
+    at /Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-page.runtime.prod.js:16:303
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async rP (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-page.runtime.prod.js:15:7978)
+    at async r5 (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-page.runtime.prod.js:18:1139)
+    at async doRender (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1438:30)
+    at async cacheEntry.responseCache.get.routeKind (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1599:28)
+    at async NextNodeServer.renderToResponseWithComponentsImpl (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1507:28)
+    at async NextNodeServer.renderPageComponent (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1924:24)
+    at async NextNodeServer.renderToResponseImpl (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1962:32)
+Tracking API error: TypeError: fetch failed
+    at node:internal/deps/undici/undici:15482:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async p (/Users/john/蒸馏2/.next/server/app/api/tracking/route.js:1:670)
+    at async /Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:34666
+    at async eS.execute (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:25813)
+    at async eS.handle (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:35920)
+    at async doRender (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1377:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1599:28)
+    at async NextNodeServer.renderToResponseWithComponentsImpl (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1507:28)
+    at async NextNodeServer.renderPageComponent (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1924:24) {
+  [cause]: Error: read ECONNRESET
+      at TLSWrap.onStreamRead (node:internal/stream_base_commons:216:20) {
+    errno: -54,
+    code: 'ECONNRESET',
+    syscall: 'read'
+  }
+}
+Tracking API error: TypeError: fetch failed
+    at node:internal/deps/undici/undici:15482:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async p (/Users/john/蒸馏2/.next/server/app/api/tracking/route.js:1:670)
+    at async /Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:34666
+    at async eS.execute (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:25813)
+    at async eS.handle (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:35920)
+    at async doRender (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1377:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1599:28)
+    at async NextNodeServer.renderToResponseWithComponentsImpl (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1507:28)
+    at async NextNodeServer.renderPageComponent (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1924:24) {
+  [cause]: Error: read ECONNRESET
+      at TLSWrap.onStreamRead (node:internal/stream_base_commons:216:20) {
+    errno: -54,
+    code: 'ECONNRESET',
+    syscall: 'read'
+  }
+}
+Tracking API error: TypeError: fetch failed
+    at node:internal/deps/undici/undici:15482:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async p (/Users/john/蒸馏2/.next/server/app/api/tracking/route.js:1:670)
+    at async /Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:34666
+    at async eS.execute (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:25813)
+    at async eS.handle (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:35920)
+    at async doRender (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1377:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1599:28)
+    at async NextNodeServer.renderToResponseWithComponentsImpl (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1507:28)
+    at async NextNodeServer.renderPageComponent (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1924:24) {
+  [cause]: Error: read ECONNRESET
+      at TLSWrap.onStreamRead (node:internal/stream_base_commons:216:20) {
+    errno: -54,
+    code: 'ECONNRESET',
+    syscall: 'read'
+  }
+}
+Tracking API error: TypeError: fetch failed
+    at node:internal/deps/undici/undici:15482:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async p (/Users/john/蒸馏2/.next/server/app/api/tracking/route.js:1:670)
+    at async /Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:34666
+    at async eS.execute (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:25813)
+    at async eS.handle (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:35920)
+    at async doRender (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1377:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1599:28)
+    at async NextNodeServer.renderToResponseWithComponentsImpl (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1507:28)
+    at async NextNodeServer.renderPageComponent (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1924:24) {
+  [cause]: Error: read ECONNRESET
+      at TLSWrap.onStreamRead (node:internal/stream_base_commons:216:20) {
+    errno: -54,
+    code: 'ECONNRESET',
+    syscall: 'read'
+  }
+}
+Tracking API error: TypeError: fetch failed
+    at node:internal/deps/undici/undici:15482:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async p (/Users/john/蒸馏2/.next/server/app/api/tracking/route.js:1:670)
+    at async /Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:34666
+    at async eS.execute (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:25813)
+    at async eS.handle (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:35920)
+    at async doRender (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1377:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1599:28)
+    at async NextNodeServer.renderToResponseWithComponentsImpl (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1507:28)
+    at async NextNodeServer.renderPageComponent (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1924:24) {
+  [cause]: Error: read ECONNRESET
+      at TLSWrap.onStreamRead (node:internal/stream_base_commons:216:20) {
+    errno: -54,
+    code: 'ECONNRESET',
+    syscall: 'read'
+  }
+}
+Failed to fetch comments: Error connecting to database: TypeError: fetch failed
+[DebateArena] getDebateByDate failed: Error connecting to database: TypeError: fetch failed
+[DebateArena] getDebateByDate failed: Error connecting to database: TypeError: fetch failed
+Tracking API error: TypeError: fetch failed
+    at node:internal/deps/undici/undici:15482:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async p (/Users/john/蒸馏2/.next/server/app/api/tracking/route.js:1:670)
+    at async /Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:34666
+    at async eS.execute (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:25813)
+    at async eS.handle (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:35920)
+    at async doRender (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1377:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1599:28)
+    at async NextNodeServer.renderToResponseWithComponentsImpl (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1507:28)
+    at async NextNodeServer.renderPageComponent (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1924:24) {
+  [cause]: Error: read ECONNRESET
+      at TLSWrap.onStreamRead (node:internal/stream_base_commons:216:20) {
+    errno: -54,
+    code: 'ECONNRESET',
+    syscall: 'read'
+  }
+}
+[DebateArena] getDebateByDate failed: Error connecting to database: TypeError: fetch failed
+Tracking API error: TypeError: fetch failed
+    at node:internal/deps/undici/undici:15482:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async p (/Users/john/蒸馏2/.next/server/app/api/tracking/route.js:1:670)
+    at async /Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:34666
+    at async eS.execute (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:25813)
+    at async eS.handle (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:35920)
+    at async doRender (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1377:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1599:28)
+    at async NextNodeServer.renderToResponseWithComponentsImpl (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1507:28)
+    at async NextNodeServer.renderPageComponent (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1924:24) {
+  [cause]: Error: read ECONNRESET
+      at TLSWrap.onStreamRead (node:internal/stream_base_commons:216:20) {
+    errno: -54,
+    code: 'ECONNRESET',
+    syscall: 'read'
+  }
+}
+Failed to fetch comments: Error connecting to database: TypeError: fetch failed
+[DebateArena] getDebateByDate failed: Error connecting to database: TypeError: fetch failed
+Tracking API error: TypeError: fetch failed
+    at node:internal/deps/undici/undici:15482:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async p (/Users/john/蒸馏2/.next/server/app/api/tracking/route.js:1:670)
+    at async /Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:34666
+    at async eS.execute (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:25813)
+    at async eS.handle (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:35920)
+    at async doRender (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1377:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1599:28)
+    at async NextNodeServer.renderToResponseWithComponentsImpl (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1507:28)
+    at async NextNodeServer.renderPageComponent (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1924:24) {
+  [cause]: Error: read ECONNRESET
+      at TLSWrap.onStreamRead (node:internal/stream_base_commons:216:20) {
+    errno: -54,
+    code: 'ECONNRESET',
+    syscall: 'read'
+  }
+}
+Tracking API error: TypeError: fetch failed
+    at node:internal/deps/undici/undici:15482:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async p (/Users/john/蒸馏2/.next/server/app/api/tracking/route.js:1:670)
+    at async /Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:34666
+    at async eS.execute (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:25813)
+    at async eS.handle (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:35920)
+    at async doRender (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1377:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1599:28)
+    at async NextNodeServer.renderToResponseWithComponentsImpl (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1507:28)
+    at async NextNodeServer.renderPageComponent (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1924:24) {
+  [cause]: Error: read ECONNRESET
+      at TLSWrap.onStreamRead (node:internal/stream_base_commons:216:20) {
+    errno: -54,
+    code: 'ECONNRESET',
+    syscall: 'read'
+  }
+}
+Tracking API error: TypeError: fetch failed
+    at node:internal/deps/undici/undici:15482:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async p (/Users/john/蒸馏2/.next/server/app/api/tracking/route.js:1:670)
+    at async /Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:34666
+    at async eS.execute (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:25813)
+    at async eS.handle (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:35920)
+    at async doRender (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1377:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1599:28)
+    at async NextNodeServer.renderToResponseWithComponentsImpl (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1507:28)
+    at async NextNodeServer.renderPageComponent (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1924:24) {
+  [cause]: Error: read ECONNRESET
+      at TLSWrap.onStreamRead (node:internal/stream_base_commons:216:20) {
+    errno: -54,
+    code: 'ECONNRESET',
+    syscall: 'read'
+  }
+}
+Tracking API error: TypeError: fetch failed
+    at node:internal/deps/undici/undici:15482:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async p (/Users/john/蒸馏2/.next/server/app/api/tracking/route.js:1:670)
+    at async /Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:34666
+    at async eS.execute (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:25813)
+    at async eS.handle (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:35920)
+    at async doRender (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1377:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1599:28)
+    at async NextNodeServer.renderToResponseWithComponentsImpl (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1507:28)
+    at async NextNodeServer.renderPageComponent (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1924:24) {
+  [cause]: Error: read ECONNRESET
+      at TLSWrap.onStreamRead (node:internal/stream_base_commons:216:20) {
+    errno: -54,
+    code: 'ECONNRESET',
+    syscall: 'read'
+  }
+}
+Tracking API error: TypeError: fetch failed
+    at node:internal/deps/undici/undici:15482:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async p (/Users/john/蒸馏2/.next/server/app/api/tracking/route.js:1:670)
+    at async /Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:34666
+    at async eS.execute (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:25813)
+    at async eS.handle (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:35920)
+    at async doRender (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1377:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1599:28)
+    at async NextNodeServer.renderToResponseWithComponentsImpl (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1507:28)
+    at async NextNodeServer.renderPageComponent (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1924:24) {
+  [cause]: Error: read ECONNRESET
+      at TLSWrap.onStreamRead (node:internal/stream_base_commons:216:20) {
+    errno: -54,
+    code: 'ECONNRESET',
+    syscall: 'read'
+  }
+}
+Tracking API error: TypeError: fetch failed
+    at node:internal/deps/undici/undici:15482:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async p (/Users/john/蒸馏2/.next/server/app/api/tracking/route.js:1:670)
+    at async /Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:34666
+    at async eS.execute (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:25813)
+    at async eS.handle (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:35920)
+    at async doRender (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1377:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1599:28)
+    at async NextNodeServer.renderToResponseWithComponentsImpl (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1507:28)
+    at async NextNodeServer.renderPageComponent (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1924:24) {
+  [cause]: Error: read ECONNRESET
+      at TLSWrap.onStreamRead (node:internal/stream_base_commons:216:20) {
+    errno: -54,
+    code: 'ECONNRESET',
+    syscall: 'read'
+  }
+}
+Tracking API error: TypeError: fetch failed
+    at node:internal/deps/undici/undici:15482:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async p (/Users/john/蒸馏2/.next/server/app/api/tracking/route.js:1:670)
+    at async /Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:34666
+    at async eS.execute (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:25813)
+    at async eS.handle (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:35920)
+    at async doRender (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1377:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1599:28)
+    at async NextNodeServer.renderToResponseWithComponentsImpl (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1507:28)
+    at async NextNodeServer.renderPageComponent (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1924:24) {
+  [cause]: Error: read ECONNRESET
+      at TLSWrap.onStreamRead (node:internal/stream_base_commons:216:20) {
+    errno: -54,
+    code: 'ECONNRESET',
+    syscall: 'read'
+  }
+}
+Tracking API error: TypeError: fetch failed
+    at node:internal/deps/undici/undici:15482:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async p (/Users/john/蒸馏2/.next/server/app/api/tracking/route.js:1:670)
+    at async /Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:34666
+    at async eS.execute (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:25813)
+    at async eS.handle (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:35920)
+    at async doRender (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1377:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1599:28)
+    at async NextNodeServer.renderToResponseWithComponentsImpl (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1507:28)
+    at async NextNodeServer.renderPageComponent (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1924:24) {
+  [cause]: Error: read ECONNRESET
+      at TLSWrap.onStreamRead (node:internal/stream_base_commons:216:20) {
+    errno: -54,
+    code: 'ECONNRESET',
+    syscall: 'read'
+  }
+}
+Tracking API error: TypeError: fetch failed
+    at node:internal/deps/undici/undici:15482:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async p (/Users/john/蒸馏2/.next/server/app/api/tracking/route.js:1:670)
+    at async /Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:34666
+    at async eS.execute (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:25813)
+    at async eS.handle (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:35920)
+    at async doRender (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1377:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1599:28)
+    at async NextNodeServer.renderToResponseWithComponentsImpl (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1507:28)
+    at async NextNodeServer.renderPageComponent (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1924:24) {
+  [cause]: Error: read ECONNRESET
+      at TLSWrap.onStreamRead (node:internal/stream_base_commons:216:20) {
+    errno: -54,
+    code: 'ECONNRESET',
+    syscall: 'read'
+  }
+}
+Tracking API error: TypeError: fetch failed
+    at node:internal/deps/undici/undici:15482:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async p (/Users/john/蒸馏2/.next/server/app/api/tracking/route.js:1:670)
+    at async /Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:34666
+    at async eS.execute (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:25813)
+    at async eS.handle (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:35920)
+    at async doRender (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1377:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1599:28)
+    at async NextNodeServer.renderToResponseWithComponentsImpl (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1507:28)
+    at async NextNodeServer.renderPageComponent (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1924:24) {
+  [cause]: Error: read ECONNRESET
+      at TLSWrap.onStreamRead (node:internal/stream_base_commons:216:20) {
+    errno: -54,
+    code: 'ECONNRESET',
+    syscall: 'read'
+  }
+}
+Tracking API error: TypeError: fetch failed
+    at node:internal/deps/undici/undici:15482:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async p (/Users/john/蒸馏2/.next/server/app/api/tracking/route.js:1:670)
+    at async /Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:34666
+    at async eS.execute (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:25813)
+    at async eS.handle (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:35920)
+    at async doRender (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1377:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1599:28)
+    at async NextNodeServer.renderToResponseWithComponentsImpl (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1507:28)
+    at async NextNodeServer.renderPageComponent (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1924:24) {
+  [cause]: Error: read ECONNRESET
+      at TLSWrap.onStreamRead (node:internal/stream_base_commons:216:20) {
+    errno: -54,
+    code: 'ECONNRESET',
+    syscall: 'read'
+  }
+}
+Failed to fetch comments: Error connecting to database: TypeError: fetch failed
+[DebateArena] getDebateByDate failed: Error connecting to database: TypeError: fetch failed
+[DebateArena] getDebateByDate failed: Error connecting to database: TypeError: fetch failed
+Tracking API error: TypeError: fetch failed
+    at node:internal/deps/undici/undici:15482:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async p (/Users/john/蒸馏2/.next/server/app/api/tracking/route.js:1:670)
+    at async /Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:34666
+    at async eS.execute (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:25813)
+    at async eS.handle (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:35920)
+    at async doRender (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1377:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1599:28)
+    at async NextNodeServer.renderToResponseWithComponentsImpl (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1507:28)
+    at async NextNodeServer.renderPageComponent (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1924:24) {
+  [cause]: Error: read ECONNRESET
+      at TLSWrap.onStreamRead (node:internal/stream_base_commons:216:20) {
+    errno: -54,
+    code: 'ECONNRESET',
+    syscall: 'read'
+  }
+}
+Tracking API error: TypeError: fetch failed
+    at node:internal/deps/undici/undici:15482:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async p (/Users/john/蒸馏2/.next/server/app/api/tracking/route.js:1:670)
+    at async /Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:34666
+    at async eS.execute (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:25813)
+    at async eS.handle (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:35920)
+    at async doRender (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1377:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1599:28)
+    at async NextNodeServer.renderToResponseWithComponentsImpl (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1507:28)
+    at async NextNodeServer.renderPageComponent (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1924:24) {
+  [cause]: Error: read ECONNRESET
+      at TLSWrap.onStreamRead (node:internal/stream_base_commons:216:20) {
+    errno: -54,
+    code: 'ECONNRESET',
+    syscall: 'read'
+  }
+}
+Tracking API error: TypeError: fetch failed
+    at node:internal/deps/undici/undici:15482:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async p (/Users/john/蒸馏2/.next/server/app/api/tracking/route.js:1:670)
+    at async /Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:34666
+    at async eS.execute (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:25813)
+    at async eS.handle (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:35920)
+    at async doRender (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1377:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1599:28)
+    at async NextNodeServer.renderToResponseWithComponentsImpl (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1507:28)
+    at async NextNodeServer.renderPageComponent (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1924:24) {
+  [cause]: Error: read ECONNRESET
+      at TLSWrap.onStreamRead (node:internal/stream_base_commons:216:20) {
+    errno: -54,
+    code: 'ECONNRESET',
+    syscall: 'read'
+  }
+}
+Tracking API error: TypeError: fetch failed
+    at node:internal/deps/undici/undici:15482:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async p (/Users/john/蒸馏2/.next/server/app/api/tracking/route.js:1:670)
+    at async /Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:34666
+    at async eS.execute (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:25813)
+    at async eS.handle (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:35920)
+    at async doRender (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1377:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1599:28)
+    at async NextNodeServer.renderToResponseWithComponentsImpl (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1507:28)
+    at async NextNodeServer.renderPageComponent (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1924:24) {
+  [cause]: Error: read ECONNRESET
+      at TLSWrap.onStreamRead (node:internal/stream_base_commons:216:20) {
+    errno: -54,
+    code: 'ECONNRESET',
+    syscall: 'read'
+  }
+}
+Failed to fetch comments: Error connecting to database: TypeError: fetch failed
+[DebateArena] getDebateByDate failed: Error connecting to database: TypeError: fetch failed
+Tracking API error: TypeError: fetch failed
+    at node:internal/deps/undici/undici:15482:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async p (/Users/john/蒸馏2/.next/server/app/api/tracking/route.js:1:670)
+    at async /Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:34666
+    at async eS.execute (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:25813)
+    at async eS.handle (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:35920)
+    at async doRender (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1377:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1599:28)
+    at async NextNodeServer.renderToResponseWithComponentsImpl (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1507:28)
+    at async NextNodeServer.renderPageComponent (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1924:24) {
+  [cause]: Error: read ECONNRESET
+      at TLSWrap.onStreamRead (node:internal/stream_base_commons:216:20) {
+    errno: -54,
+    code: 'ECONNRESET',
+    syscall: 'read'
+  }
+}
+Tracking API error: TypeError: fetch failed
+    at node:internal/deps/undici/undici:15482:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async p (/Users/john/蒸馏2/.next/server/app/api/tracking/route.js:1:670)
+    at async /Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:34666
+    at async eS.execute (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:25813)
+    at async eS.handle (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:35920)
+    at async doRender (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1377:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1599:28)
+    at async NextNodeServer.renderToResponseWithComponentsImpl (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1507:28)
+    at async NextNodeServer.renderPageComponent (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1924:24) {
+  [cause]: Error: read ECONNRESET
+      at TLSWrap.onStreamRead (node:internal/stream_base_commons:216:20) {
+    errno: -54,
+    code: 'ECONNRESET',
+    syscall: 'read'
+  }
+}
+[DebateArena] getDebateByDate failed: Error connecting to database: TypeError: fetch failed
+Tracking API error: TypeError: fetch failed
+    at node:internal/deps/undici/undici:15482:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async p (/Users/john/蒸馏2/.next/server/app/api/tracking/route.js:1:670)
+    at async /Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:34666
+    at async eS.execute (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:25813)
+    at async eS.handle (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:35920)
+    at async doRender (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1377:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1599:28)
+    at async NextNodeServer.renderToResponseWithComponentsImpl (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1507:28)
+    at async NextNodeServer.renderPageComponent (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1924:24) {
+  [cause]: Error: read ECONNRESET
+      at TLSWrap.onStreamRead (node:internal/stream_base_commons:216:20) {
+    errno: -54,
+    code: 'ECONNRESET',
+    syscall: 'read'
+  }
+}
+Tracking API error: TypeError: fetch failed
+    at node:internal/deps/undici/undici:15482:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async p (/Users/john/蒸馏2/.next/server/app/api/tracking/route.js:1:670)
+    at async /Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:34666
+    at async eS.execute (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:25813)
+    at async eS.handle (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:35920)
+    at async doRender (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1377:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1599:28)
+    at async NextNodeServer.renderToResponseWithComponentsImpl (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1507:28)
+    at async NextNodeServer.renderPageComponent (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1924:24) {
+  [cause]: Error: read ECONNRESET
+      at TLSWrap.onStreamRead (node:internal/stream_base_commons:216:20) {
+    errno: -54,
+    code: 'ECONNRESET',
+    syscall: 'read'
+  }
+}
+[DebateArena] getDebateByDate failed: Error connecting to database: TypeError: fetch failed
+[DebateArena] getDebateByDate failed: Error connecting to database: TypeError: fetch failed
+Failed to fetch comments: Error connecting to database: TypeError: fetch failed
+[DebateArena] getDebateByDate failed: Error connecting to database: TypeError: fetch failed
+[DebateArena] getDebateByDate failed: Error connecting to database: TypeError: fetch failed
+Failed to fetch comments: Error connecting to database: TypeError: fetch failed
+Failed to fetch comments: Error connecting to database: TypeError: fetch failed
+Tracking API error: TypeError: fetch failed
+    at node:internal/deps/undici/undici:15482:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async p (/Users/john/蒸馏2/.next/server/app/api/tracking/route.js:1:670)
+    at async /Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:34666
+    at async eS.execute (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:25813)
+    at async eS.handle (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:35920)
+    at async doRender (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1377:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1599:28)
+    at async NextNodeServer.renderToResponseWithComponentsImpl (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1507:28)
+    at async NextNodeServer.renderPageComponent (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1924:24) {
+  [cause]: Error: read ECONNRESET
+      at TLSWrap.onStreamRead (node:internal/stream_base_commons:216:20) {
+    errno: -54,
+    code: 'ECONNRESET',
+    syscall: 'read'
+  }
+}
+[DebateArena] getDebateByDate failed: Error connecting to database: TypeError: fetch failed
+[DebateArena] getDebateByDate failed: Error connecting to database: TypeError: fetch failed
+Tracking API error: TypeError: fetch failed
+    at node:internal/deps/undici/undici:15482:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async p (/Users/john/蒸馏2/.next/server/app/api/tracking/route.js:1:670)
+    at async /Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:34666
+    at async eS.execute (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:25813)
+    at async eS.handle (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:35920)
+    at async doRender (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1377:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1599:28)
+    at async NextNodeServer.renderToResponseWithComponentsImpl (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1507:28)
+    at async NextNodeServer.renderPageComponent (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1924:24) {
+  [cause]: Error: read ECONNRESET
+      at TLSWrap.onStreamRead (node:internal/stream_base_commons:216:20) {
+    errno: -54,
+    code: 'ECONNRESET',
+    syscall: 'read'
+  }
+}
+Tracking API error: TypeError: fetch failed
+    at node:internal/deps/undici/undici:15482:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async p (/Users/john/蒸馏2/.next/server/app/api/tracking/route.js:1:670)
+    at async /Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:34666
+    at async eS.execute (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:25813)
+    at async eS.handle (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:35920)
+    at async doRender (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1377:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1599:28)
+    at async NextNodeServer.renderToResponseWithComponentsImpl (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1507:28)
+    at async NextNodeServer.renderPageComponent (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1924:24) {
+  [cause]: Error: read ECONNRESET
+      at TLSWrap.onStreamRead (node:internal/stream_base_commons:216:20) {
+    errno: -54,
+    code: 'ECONNRESET',
+    syscall: 'read'
+  }
+}
+Tracking API error: TypeError: fetch failed
+    at node:internal/deps/undici/undici:15482:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async p (/Users/john/蒸馏2/.next/server/app/api/tracking/route.js:1:670)
+    at async /Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:34666
+    at async eS.execute (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:25813)
+    at async eS.handle (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:35920)
+    at async doRender (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1377:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1599:28)
+    at async NextNodeServer.renderToResponseWithComponentsImpl (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1507:28)
+    at async NextNodeServer.renderPageComponent (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1924:24) {
+  [cause]: Error: read ECONNRESET
+      at TLSWrap.onStreamRead (node:internal/stream_base_commons:216:20) {
+    errno: -54,
+    code: 'ECONNRESET',
+    syscall: 'read'
+  }
+}
+Tracking API error: TypeError: fetch failed
+    at node:internal/deps/undici/undici:15482:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async p (/Users/john/蒸馏2/.next/server/app/api/tracking/route.js:1:670)
+    at async /Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:34666
+    at async eS.execute (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:25813)
+    at async eS.handle (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:35920)
+    at async doRender (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1377:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1599:28)
+    at async NextNodeServer.renderToResponseWithComponentsImpl (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1507:28)
+    at async NextNodeServer.renderPageComponent (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1924:24) {
+  [cause]: Error: read ECONNRESET
+      at TLSWrap.onStreamRead (node:internal/stream_base_commons:216:20) {
+    errno: -54,
+    code: 'ECONNRESET',
+    syscall: 'read'
+  }
+}
+Tracking API error: TypeError: fetch failed
+    at node:internal/deps/undici/undici:15482:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async p (/Users/john/蒸馏2/.next/server/app/api/tracking/route.js:1:670)
+    at async /Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:34666
+    at async eS.execute (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:25813)
+    at async eS.handle (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:35920)
+    at async doRender (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1377:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1599:28)
+    at async NextNodeServer.renderToResponseWithComponentsImpl (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1507:28)
+    at async NextNodeServer.renderPageComponent (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1924:24) {
+  [cause]: Error: read ECONNRESET
+      at TLSWrap.onStreamRead (node:internal/stream_base_commons:216:20) {
+    errno: -54,
+    code: 'ECONNRESET',
+    syscall: 'read'
+  }
+}
+Error: Failed to find Server Action "x". This request might be from an older or newer deployment. Original error: Cannot read properties of undefined (reading 'workers')
+    at rR (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-page.runtime.prod.js:16:1686)
+    at /Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-page.runtime.prod.js:15:8778
+    at AsyncLocalStorage.run (node:internal/async_local_storage/async_context_frame:63:14)
+    at rP (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-page.runtime.prod.js:15:7986)
+    at r5 (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-page.runtime.prod.js:18:1145)
+    at /Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-page.runtime.prod.js:19:726
+    at AsyncLocalStorage.run (node:internal/async_local_storage/async_context_frame:63:14)
+    at Object.wrap (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-page.runtime.prod.js:13:16657)
+    at /Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-page.runtime.prod.js:19:616
+    at AsyncLocalStorage.run (node:internal/async_local_storage/async_context_frame:63:14)
+Tracking API error: TypeError: fetch failed
+    at node:internal/deps/undici/undici:15482:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async p (/Users/john/蒸馏2/.next/server/app/api/tracking/route.js:1:670)
+    at async /Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:34666
+    at async eS.execute (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:25813)
+    at async eS.handle (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:35920)
+    at async doRender (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1377:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1599:28)
+    at async NextNodeServer.renderToResponseWithComponentsImpl (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1507:28)
+    at async NextNodeServer.renderPageComponent (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1924:24) {
+  [cause]: Error: read ECONNRESET
+      at TLSWrap.onStreamRead (node:internal/stream_base_commons:216:20) {
+    errno: -54,
+    code: 'ECONNRESET',
+    syscall: 'read'
+  }
+}
+Failed to fetch comments: Error connecting to database: TypeError: fetch failed
+[DebateArena] getDebateByDate failed: Error connecting to database: TypeError: fetch failed
+[DebateArena] getDebateByDate failed: Error connecting to database: TypeError: fetch failed
+Tracking API error: TypeError: fetch failed
+    at node:internal/deps/undici/undici:15482:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async p (/Users/john/蒸馏2/.next/server/app/api/tracking/route.js:1:670)
+    at async /Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:34666
+    at async eS.execute (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:25813)
+    at async eS.handle (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:35920)
+    at async doRender (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1377:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1599:28)
+    at async NextNodeServer.renderToResponseWithComponentsImpl (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1507:28)
+    at async NextNodeServer.renderPageComponent (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1924:24) {
+  [cause]: Error: read ECONNRESET
+      at TLSWrap.onStreamRead (node:internal/stream_base_commons:216:20) {
+    errno: -54,
+    code: 'ECONNRESET',
+    syscall: 'read'
+  }
+}
+Tracking API error: TypeError: fetch failed
+    at node:internal/deps/undici/undici:15482:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async p (/Users/john/蒸馏2/.next/server/app/api/tracking/route.js:1:670)
+    at async /Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:34666
+    at async eS.execute (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:25813)
+    at async eS.handle (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:35920)
+    at async doRender (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1377:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1599:28)
+    at async NextNodeServer.renderToResponseWithComponentsImpl (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1507:28)
+    at async NextNodeServer.renderPageComponent (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1924:24) {
+  [cause]: Error: read ECONNRESET
+      at TLSWrap.onStreamRead (node:internal/stream_base_commons:216:20) {
+    errno: -54,
+    code: 'ECONNRESET',
+    syscall: 'read'
+  }
+}
+[PersonaLibrary GET] ErrorEvent {
+  type: 'error',
+  defaultPrevented: false,
+  cancelable: false,
+  timeStamp: 311894672.894375
+}
+Tracking API error: TypeError: fetch failed
+    at node:internal/deps/undici/undici:15482:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async p (/Users/john/蒸馏2/.next/server/app/api/tracking/route.js:1:670)
+    at async /Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:34666
+    at async eS.execute (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:25813)
+    at async eS.handle (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:35920)
+    at async doRender (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1377:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1599:28)
+    at async NextNodeServer.renderToResponseWithComponentsImpl (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1507:28)
+    at async NextNodeServer.renderPageComponent (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1924:24) {
+  [cause]: Error: read ECONNRESET
+      at TLSWrap.onStreamRead (node:internal/stream_base_commons:216:20) {
+    errno: -54,
+    code: 'ECONNRESET',
+    syscall: 'read'
+  }
+}
+[PersonaLibrary GET] ErrorEvent {
+  type: 'error',
+  defaultPrevented: false,
+  cancelable: false,
+  timeStamp: 311901879.88925
+}
+Tracking API error: TypeError: fetch failed
+    at node:internal/deps/undici/undici:15482:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async p (/Users/john/蒸馏2/.next/server/app/api/tracking/route.js:1:670)
+    at async /Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:34666
+    at async eS.execute (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:25813)
+    at async eS.handle (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:35920)
+    at async doRender (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1377:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1599:28)
+    at async NextNodeServer.renderToResponseWithComponentsImpl (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1507:28)
+    at async NextNodeServer.renderPageComponent (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1924:24) {
+  [cause]: Error: read ECONNRESET
+      at TLSWrap.onStreamRead (node:internal/stream_base_commons:216:20) {
+    errno: -54,
+    code: 'ECONNRESET',
+    syscall: 'read'
+  }
+}
+Tracking API error: TypeError: fetch failed
+    at node:internal/deps/undici/undici:15482:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async p (/Users/john/蒸馏2/.next/server/app/api/tracking/route.js:1:670)
+    at async /Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:34666
+    at async eS.execute (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:25813)
+    at async eS.handle (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:35920)
+    at async doRender (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1377:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1599:28)
+    at async NextNodeServer.renderToResponseWithComponentsImpl (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1507:28)
+    at async NextNodeServer.renderPageComponent (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1924:24) {
+  [cause]: Error: read ECONNRESET
+      at TLSWrap.onStreamRead (node:internal/stream_base_commons:216:20) {
+    errno: -54,
+    code: 'ECONNRESET',
+    syscall: 'read'
+  }
+}
+Tracking API error: TypeError: fetch failed
+    at node:internal/deps/undici/undici:15482:13
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async p (/Users/john/蒸馏2/.next/server/app/api/tracking/route.js:1:670)
+    at async /Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:34666
+    at async eS.execute (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:25813)
+    at async eS.handle (/Users/john/蒸馏2/node_modules/next/dist/compiled/next-server/app-route.runtime.prod.js:6:35920)
+    at async doRender (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1377:42)
+    at async cacheEntry.responseCache.get.routeKind (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1599:28)
+    at async NextNodeServer.renderToResponseWithComponentsImpl (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1507:28)
+    at async NextNodeServer.renderPageComponent (/Users/john/蒸馏2/node_modules/next/dist/server/base-server.js:1924:24) {
+  [cause]: Error: read ECONNRESET
+      at TLSWrap.onStreamRead (node:internal/stream_base_commons:216:20) {
+    errno: -54,
+    code: 'ECONNRESET',
+    syscall: 'read'
+  }
+}

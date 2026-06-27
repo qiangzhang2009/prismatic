@@ -19,33 +19,11 @@ import { NextRequest, NextResponse } from 'next/server';
 import { Pool } from '@neondatabase/serverless';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
+import { TIER_CONFIG, type TierId } from '@/lib/tier-config';
 
 export const runtime = 'nodejs';
 
-// ─── Tier Config ─────────────────────────────────────────────────────────────────
-
-export const TIER_CONFIG = {
-  FREE: {
-    label: '免费体验', labelEn: 'Free',
-    color: '#22c55e', bgColor: 'rgba(34, 197, 94, 0.12)',
-    borderColor: 'rgba(34, 197, 94, 0.25)',
-    icon: '🌿', description: '可体验基础对话', price: '¥0',
-  },
-  MONTHLY: {
-    label: '月度订阅', labelEn: 'Monthly',
-    color: '#a855f7', bgColor: 'rgba(168, 85, 247, 0.12)',
-    borderColor: 'rgba(168, 85, 247, 0.3)',
-    icon: '📜', description: '解锁全部思维模型', price: '¥39/月',
-  },
-  LIFETIME: {
-    label: '终身珍藏', labelEn: 'Lifetime',
-    color: '#f59e0b', bgColor: 'rgba(245, 158, 11, 0.12)',
-    borderColor: 'rgba(245, 158, 11, 0.35)',
-    icon: '🏛️', description: '古籍原文深度对话', price: '¥299 终身',
-  },
-} as const;
-
-export type TierKey = keyof typeof TIER_CONFIG;
+type TierKey = TierId;
 
 function tierFromGrade(grade: string, score: number): TierKey {
   if (grade === 'A' || score >= 85) return 'LIFETIME';
@@ -53,7 +31,7 @@ function tierFromGrade(grade: string, score: number): TierKey {
   return 'FREE';
 }
 
-const TIER_RANK: Record<TierKey, number> = { FREE: 0, MONTHLY: 1, LIFETIME: 2 };
+const TIER_RANK: Record<TierKey, number> = { FREE: 0, MONTHLY: 1, YEARLY: 2, LIFETIME: 3 };
 
 // ─── GET Handler ────────────────────────────────────────────────────────────────
 

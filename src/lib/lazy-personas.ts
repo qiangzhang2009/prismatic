@@ -3,14 +3,14 @@
  * Dynamic import for full persona data to optimize initial bundle size.
  * 
  * Usage:
- *   import { getFullPersona, getPersonaPersona } from '@/lib/lazy-personas';
+ *   import { getFullPersona, getFullPersonas } from '@/lib/lazy-personas';
  *   const persona = await getFullPersona('steve-jobs');
  */
 
 import type { Persona } from './types';
 
 // Re-export the lightweight index for backward compatibility
-export { PERSONA_INDEX, PERSONA_INDEX_MAP, type PersonaIndexEntry } from './persona-index';
+export { PERSONA_INDEX, type PersonaIndexEntry } from './persona-index';
 
 // ─── Lazy Loading Implementation ──────────────────────────────────────────────
 
