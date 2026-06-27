@@ -328,8 +328,8 @@ function PersonaSelector({ value, onChange, exclude }: {
 function ComparePageInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const initialLeft = searchParams.get('persona') || '';
-  const initialRight = searchParams.get('compare') || '';
+  const initialLeft = searchParams?.get('persona') || '';
+  const initialRight = searchParams?.get('compare') || '';
 
   const [leftSlug, setLeftSlug] = useState(initialLeft);
   const [rightSlug, setRightSlug] = useState(initialRight);

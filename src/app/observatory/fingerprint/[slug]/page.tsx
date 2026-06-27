@@ -187,7 +187,7 @@ function QuotePatternRow({ quotes }: { quotes: string[] }) {
 export default function FingerprintPage() {
   const router = useRouter();
   const params = useParams();
-  const slug = params.slug as string;
+  const slug = params?.slug as string;
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   const [persona, setPersona] = useState<ReturnType<typeof getPersonaBySlug>>(undefined);

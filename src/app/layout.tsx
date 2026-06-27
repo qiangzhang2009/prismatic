@@ -5,14 +5,51 @@ import { Providers } from '@/components/providers';
 import { NavBar } from '@/components/nav-bar';
 
 export const metadata: Metadata = {
-  title: 'Prismatic · 棱镜之光',
-  description: '汇聚人类最卓越思维的多智能体协作平台，让乔布斯、马斯克、芒格、费曼同时为你思考。',
-  keywords: ['AI', '多智能体', '认知蒸馏', '心智模型', '思维伙伴', '协作'],
+  metadataBase: new URL('https://prismatic.zxqconsulting.com'),
+  title: {
+    default: 'Prismatic · 棱镜折射',
+    template: '%s | Prismatic 棱镜折射',
+  },
+  description: '汇聚人类最卓越思维的多智能体协作平台，让乔布斯、马斯克、芒格、费曼同时为你思考。认知蒸馏技术，提取真实思想家的思维模型和表达DNA。',
+  keywords: ['AI', '多智能体', '认知蒸馏', '心智模型', '思维伙伴', '协作', 'ChatGPT', 'LLM', '思想家', '哲学'],
   authors: [{ name: 'Prismatic' }],
+  creator: 'Prismatic',
+  publisher: 'Prismatic',
   openGraph: {
-    title: 'Prismatic · 棱镜之光',
-    description: '汇聚人类最卓越思维的多智能体协作平台',
     type: 'website',
+    locale: 'zh_CN',
+    url: 'https://prismatic.zxqconsulting.com',
+    siteName: 'Prismatic 棱镜折射',
+    title: 'Prismatic · 棱镜折射',
+    description: '汇聚人类最卓越思维的多智能体协作平台',
+    images: [
+      {
+        url: '/og-image.png',
+        width: 1200,
+        height: 630,
+        alt: 'Prismatic 棱镜折射',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Prismatic · 棱镜折射',
+    description: '汇聚人类最卓越思维的多智能体协作平台',
+    images: ['/og-image.png'],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
+  verification: {
+    google: 'your-google-verification-code',
   },
 };
 

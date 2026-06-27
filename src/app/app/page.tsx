@@ -70,8 +70,8 @@ function AppPageFallback() {
 function AppPageContent() {
   const searchParams = useSearchParams();
 
-  const initialPersona = searchParams.get('persona') ?? undefined;
-  const initialMode = (searchParams.get('mode') as Mode) ?? undefined;
+  const initialPersona = searchParams?.get('persona') ?? undefined;
+  const initialMode = (searchParams?.get('mode') as Mode) ?? undefined;
 
   return (
     <div className="h-screen flex flex-col bg-bg-base">

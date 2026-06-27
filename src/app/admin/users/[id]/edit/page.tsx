@@ -21,7 +21,7 @@ const STATUSES = ['ACTIVE', 'SUSPENDED', 'BANNED'] as const;
 export default function UserEditPage() {
   const params = useParams();
   const router = useRouter();
-  const userId = params.id as string;
+  const userId = params?.id as string;
 
   const { data: user, isLoading, error } = useUser(userId);
 

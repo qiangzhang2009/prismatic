@@ -39,7 +39,7 @@ const ERROR_MESSAGES: Record<string, { title: string; description: string }> = {
 
 function AuthErrorContent() {
   const searchParams = useSearchParams();
-  const error = searchParams.get('error') ?? 'default';
+  const error = searchParams?.get('error') ?? 'default';
   const errorInfo = ERROR_MESSAGES[error] ?? ERROR_MESSAGES.default;
 
   return (

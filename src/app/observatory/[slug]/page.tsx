@@ -442,7 +442,7 @@ function CertaintyMeter({ level }: { level: 'high' | 'medium' | 'low' | undefine
 export default function ObservatoryPersonaPage() {
   const router = useRouter();
   const params = useParams();
-  const slug = params.slug as string;
+  const slug = params?.slug as string;
 
   const [persona, setPersona] = useState<ReturnType<typeof getPersonaBySlug>>(undefined);
   const [stats, setStats] = useState<ReturnType<typeof getPersonaStats>>(null);

@@ -23,7 +23,7 @@ import { useUser, useUserActivity, useUpdateUser, useDeleteUser, useAddCredits }
 export default function UserDetailPage() {
   const params = useParams();
   const router = useRouter();
-  const userId = params.id as string;
+  const userId = params?.id as string;
 
   const { data: user, isLoading, error, refetch } = useUser(userId);
   const { data: activity, isLoading: activityLoading } = useUserActivity(userId);
