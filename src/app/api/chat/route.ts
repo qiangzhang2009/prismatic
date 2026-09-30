@@ -609,28 +609,47 @@ async function handleRoundtable(
     `${i + 1}. ${p.nameZh}（${p.strengths.slice(0, 2).map((s: any) => typeof s === 'string' ? s : (s.textZh || s.text || s.description || '')).join('、')}）`
   ).join('\n');
 
-  const systemPrompt = `你是圆桌辩论主持人。多个思想家就话题展开对话，每人说一句（60字以内），2轮，共${speakers.length * 2}条发言，最后一条是总结。
+  // Keep the prompt simple and natural. Over-specifying the format (e.g.
+  // "must output exactly N lines") has been observed to cause DeepSeek to
+  // return an empty string — likely a safety/policy filter response.
+  const systemPrompt = `你是一名圆桌主持人。下面列了几位思想家，请你引导他们围绕用户给出的"话题"展开对话。
 
-格式（markdown，每行一条发言，最后一行是总结）：
+要求：
+- 每人说一句话（不超过 60 字），共进行 2 轮
+- 用中文回复
+- 严格按下面的格式输出 ${speakers.length * 2 + 1} 行（${speakers.length} 人 × 2 轮 + 1 行总结）
+
+格式：
 **人物名**: 发言内容
-...
-**总结**: 盲点+碰撞点（50字以内）
+（最后一行）
+**总结**: 一句话指出各方的盲点与碰撞点（不超过 50 字）
 
-务必：
-1. 严格按上面格式输出 ${speakers.length * 2 + 1} 行（${speakers.length}人 × 2轮 + 1行总结）
-2. 总结行必须以 **总结: 开头
-3. 只输出对话内容，不要任何额外说明`;
+注意：
+- 每行以 ** 开头，后接人物名字，再接冒号（半角":"或全角"："都可以）和发言内容
+- 不要输出任何额外说明、标题或前后缀`;
 
   const userPrompt = `话题：${topic}
-思想家：${speakerList}
+人物：${speakerList}
 
-请生成${speakers.length}人×2轮的对话，最后用 **总结: 总结内容 收尾。`;
+现在请按要求输出对话。`;
 
-  console.log('[Roundtable] userPrompt:', userPrompt.slice(0, 200));
-  const result = await safeLLM(userId, userPlan, provider, apiKey,
+  console.log('[Roundtable] userPrompt:', userPrompt.slice(0, 300));
+  // Retry once on empty content. DeepSeek occasionally returns HTTP 200 with
+  // content="" (observed in production 2026-09-30) — likely a transient
+  // safety filter hit. A second attempt with slightly higher temp usually
+  // succeeds.
+  let result = await safeLLM(userId, userPlan, provider, apiKey,
     [{ role: 'system', content: systemPrompt }, { role: 'user', content: userPrompt }],
     { temperature: 0.7, maxTokens: 1000 }
   );
+  if (result.success && !(result.content || '').trim()) {
+    console.warn('[Roundtable] First attempt returned empty content; retrying with temperature=0.9');
+    await new Promise((r) => setTimeout(r, 1500));
+    result = await safeLLM(userId, userPlan, provider, apiKey,
+      [{ role: 'system', content: systemPrompt }, { role: 'user', content: userPrompt }],
+      { temperature: 0.9, maxTokens: 1000 }
+    );
+  }
   if (!result.success) {
     throw new Error(result.error || 'LLM call failed');
   }
@@ -639,7 +658,7 @@ async function handleRoundtable(
   console.log('[Roundtable] LLM returned content length:', rawContent.length);
   console.log('[Roundtable] LLM raw content:', rawContent.slice(0, 500));
   if (!rawContent) {
-    throw new Error('Roundtable 解析失败：LLM 返回空内容。');
+    throw new Error('Roundtable 解析失败：LLM 返回空内容（已重试一次仍为空）。请稍后再试。');
   }
 
   // Strategy 1: Try markdown speaker pattern (primary)
