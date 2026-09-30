@@ -1,8 +1,29 @@
 import type { Metadata } from 'next';
 import Script from 'next/script';
+import { Inter, Inter_Tight, JetBrains_Mono } from 'next/font/google';
 import './globals.css';
 import { Providers } from '@/components/providers';
 import { NavBar } from '@/components/nav-bar';
+
+// Self-hosted via next/font: Next.js downloads the font files at build time
+// and serves them from Vercel CDN. This eliminates the <link rel="stylesheet">
+// to fonts.googleapis.com which was unreachable from mainland-China mobile
+// networks (caused blank-page / "can't open" on iPad/phone).
+const inter = Inter({
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-inter',
+});
+const interTight = Inter_Tight({
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-inter-tight',
+});
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-jetbrains-mono',
+});
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://prismatic.zxqconsulting.com'),
@@ -64,16 +85,13 @@ export default function RootLayout({
     <html lang="zh" className="dark">
       <head>
         <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
         {/* Prismatic Analytics Tracking SDK — served as static file from Vercel CDN */}
         <Script
           src="/tracking-sdk.js"
           strategy="lazyOnload"
         />
       </head>
-      <body className="min-h-screen bg-bg-base antialiased">
+      <body className={`${inter.variable} ${interTight.variable} ${jetbrainsMono.variable} min-h-screen bg-bg-base antialiased`}>
         <NavBar />
         <Providers>{children}</Providers>
       </body>

@@ -39,9 +39,9 @@ const config: Config = {
         'border-medium': 'rgba(255, 255, 255, 0.12)',
       },
       fontFamily: {
-        sans: ['Inter', 'system-ui', 'sans-serif'],
-        mono: ['JetBrains Mono', 'monospace'],
-        display: ['Inter Tight', 'system-ui', 'sans-serif'],
+        sans: ['var(--font-inter)', 'system-ui', 'sans-serif'],
+        mono: ['var(--font-jetbrains-mono)', 'monospace'],
+        display: ['var(--font-inter-tight)', 'system-ui', 'sans-serif'],
       },
       animation: {
         'prism-spin': 'prismSpin 12s linear infinite',

@@ -85,7 +85,7 @@ body {
 /* ─── Typography ───────────────────────────────────────────────────────────── */
 
 h1, h2, h3, h4, h5, h6 {
-  font-family: 'Inter Tight', system-ui, sans-serif;
+  font-family: var(--font-inter-tight), system-ui, sans-serif;
 }
 
 /* ─── Glass Effect ─────────────────────────────────────────────────────────── */
@@ -218,7 +218,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .prose-markdown code {
-  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  font-family: var(--font-jetbrains-mono), 'Fira Code', monospace;
   font-size: 0.875em;
   background: rgba(77, 150, 255, 0.12);
   border-radius: 0.25rem;
