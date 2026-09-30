@@ -609,34 +609,41 @@ async function handleRoundtable(
     `${i + 1}. ${p.nameZh}（${p.strengths.slice(0, 2).map((s: any) => typeof s === 'string' ? s : (s.textZh || s.text || s.description || '')).join('、')}）`
   ).join('\n');
 
-  const systemPrompt = `你是圆桌辩论主持人。多个思想家就话题展开对话，每人说一句（60字以内），2轮，共${speakers.length * 2}条发言，最后一段50字以内的总结。
+  const systemPrompt = `你是圆桌辩论主持人。多个思想家就话题展开对话，每人说一句（60字以内），2轮，共${speakers.length * 2}条发言，最后一条是总结。
 
-格式（markdown，每行一条发言）：
+格式（markdown，每行一条发言，最后一行是总结）：
 **人物名**: 发言内容
+...
+**总结**: 盲点+碰撞点（50字以内）
 
-最后一行：
-【总结】: 盲点+碰撞点（50字以内）`;
+务必：
+1. 严格按上面格式输出 ${speakers.length * 2 + 1} 行（${speakers.length}人 × 2轮 + 1行总结）
+2. 总结行必须以 **总结: 开头
+3. 只输出对话内容，不要任何额外说明`;
 
   const userPrompt = `话题：${topic}
 思想家：${speakerList}
 
-请生成${speakers.length}人×2轮的对话，最后总结。`;
+请生成${speakers.length}人×2轮的对话，最后用 **总结: 总结内容 收尾。`;
 
+  console.log('[Roundtable] userPrompt:', userPrompt.slice(0, 200));
   const result = await safeLLM(userId, userPlan, provider, apiKey,
     [{ role: 'system', content: systemPrompt }, { role: 'user', content: userPrompt }],
-    { temperature: 0.7, maxTokens: 500 }
+    { temperature: 0.7, maxTokens: 1000 }
   );
   if (!result.success) {
     throw new Error(result.error || 'LLM call failed');
   }
 
   const rawContent = (result.content || '').trim();
+  console.log('[Roundtable] LLM returned content length:', rawContent.length);
+  console.log('[Roundtable] LLM raw content:', rawContent.slice(0, 500));
   if (!rawContent) {
     throw new Error('Roundtable 解析失败：LLM 返回空内容。');
   }
 
   // Strategy 1: Try markdown speaker pattern (primary)
-  const speakerRegex = /^\*(.+?)\*[:：]\s*(.+)$/gm;
+  const speakerRegex = /^\*\*(.+?)\*\*[:：]\s*(.+)$/gm;
   const markdownMatches: { speakerName: string; content: string }[] = [];
   let match;
   while ((match = speakerRegex.exec(rawContent)) !== null) {
