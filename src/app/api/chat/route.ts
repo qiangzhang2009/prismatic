@@ -634,20 +634,21 @@ async function handleRoundtable(
 现在请按要求输出对话。`;
 
   console.log('[Roundtable] userPrompt:', userPrompt.slice(0, 300));
-  // Retry once on empty content. DeepSeek occasionally returns HTTP 200 with
-  // content="" (observed in production 2026-09-30) — likely a transient
-  // safety filter hit. A second attempt with slightly higher temp usually
-  // succeeds.
+  // Retry once on empty content. DeepSeek's `deepseek-v4-flash` is a
+  // reasoning model that consumes most of `max_tokens` on `<think>` and
+  // returns content="" with HTTP 200 when truncated. We now default to
+  // `deepseek-chat` (non-reasoning, faster, cheaper) — this retry is
+  // defensive only.
   let result = await safeLLM(userId, userPlan, provider, apiKey,
     [{ role: 'system', content: systemPrompt }, { role: 'user', content: userPrompt }],
-    { temperature: 0.7, maxTokens: 1000 }
+    { temperature: 0.7, maxTokens: 1500 }
   );
   if (result.success && !(result.content || '').trim()) {
     console.warn('[Roundtable] First attempt returned empty content; retrying with temperature=0.9');
     await new Promise((r) => setTimeout(r, 1500));
     result = await safeLLM(userId, userPlan, provider, apiKey,
       [{ role: 'system', content: systemPrompt }, { role: 'user', content: userPrompt }],
-      { temperature: 0.9, maxTokens: 1000 }
+      { temperature: 0.9, maxTokens: 1500 }
     );
   }
   if (!result.success) {
@@ -658,7 +659,13 @@ async function handleRoundtable(
   console.log('[Roundtable] LLM returned content length:', rawContent.length);
   console.log('[Roundtable] LLM raw content:', rawContent.slice(0, 500));
   if (!rawContent) {
-    throw new Error('Roundtable 解析失败：LLM 返回空内容（已重试一次仍为空）。请稍后再试。');
+    // Include enough diagnostic detail for the user to triage without
+    // needing to open server logs.
+    throw new Error(
+      'Roundtable 解析失败：LLM 返回空内容（已重试一次仍为空）。' +
+      '这通常是 DeepSeek 推理模型被 max_tokens 截断导致。' +
+      '请刷新页面或在控制台查看 [Roundtable] 日志。'
+    );
   }
 
   // Strategy 1: Try markdown speaker pattern (primary)
