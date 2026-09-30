@@ -15,6 +15,16 @@ export interface PersonaListLight {
   gradientTo: string;
 }
 
+/**
+ * Total persona count surfaced to users on the homepage and /personas page.
+ *
+ * The /personas page renders (DB distilled personas ∪ code-only fallback),
+ * which gives 88 entries today. PERSONA_LIST_LIGHT below has 87 entries and
+ * is used for the Edge API and lightweight listing pages. Keep both numbers
+ * in sync when adding new personas.
+ */
+export const PERSONA_DISPLAY_COUNT = 88;
+
 export const PERSONA_LIST_LIGHT: PersonaListLight[] = [
   {
     id: "steve-jobs",

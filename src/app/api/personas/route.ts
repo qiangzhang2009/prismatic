@@ -1,10 +1,12 @@
 /**
  * Personas API
  * List all available personas
+ * Uses the lightweight list (PERSONA_LIST_LIGHT) instead of the heavy 1.4MB
+ * PERSONA_LIST to keep the Edge bundle small and avoid runtime failures.
  */
 
 import { NextResponse } from 'next/server';
-import { PERSONA_LIST } from '@/lib/personas';
+import { PERSONA_LIST_LIGHT } from '@/lib/persona-list-light';
 
 export const runtime = 'edge';
 
@@ -14,36 +16,14 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const domain = searchParams.get('domain');
 
-  let personas = PERSONA_LIST;
+  let personas = PERSONA_LIST_LIGHT;
 
   if (domain) {
     personas = personas.filter((p) => p.domain.includes(domain as Domain));
   }
 
-  // Return lightweight version for listing
-  const lightweight = personas.map((p) => ({
-    id: p.id,
-    slug: p.slug,
-    name: p.name,
-    nameZh: p.nameZh,
-    tagline: p.tagline,
-    taglineZh: p.taglineZh,
-    domain: p.domain,
-    accentColor: p.accentColor,
-    gradientFrom: p.gradientFrom,
-    gradientTo: p.gradientTo,
-    brief: p.brief,
-    briefZh: p.briefZh,
-    mentalModelCount: p.mentalModels.length,
-    heuristicCount: p.decisionHeuristics.length,
-    strengths: p.strengths,
-    blindspots: p.blindspots,
-    version: p.version,
-    researchDate: p.researchDate,
-  }));
-
   return NextResponse.json({
-    personas: lightweight,
-    total: lightweight.length,
+    personas,
+    total: personas.length,
   });
 }

@@ -17,6 +17,7 @@ import { cn, unquote, decodeUnicodeEscapes, getDomainGradient } from '@/lib/util
 import { useAuthStore } from '@/lib/auth-store';
 import type { Domain } from '@/lib/types';
 import { DOMAINS } from '@/lib/constants';
+import { PERSONA_DISPLAY_COUNT } from '@/lib/persona-list-light';
 
 type SortKey = 'default' | 'confidence' | 'influence' | 'name' | 'domain';
 
@@ -139,7 +140,9 @@ export default function PersonasPage() {
   }, [user]);
 
   useEffect(() => {
-    fetch('/api/persona-library?sortBy=score&limit=100')
+    // Fetch enough personas to cover the full library. The DB currently has ~66,
+    // but we ask for 500 to leave headroom and avoid surprises when the library grows.
+    fetch('/api/persona-library?sortBy=score&limit=500')
       .then(r => r.json())
       .then(data => {
         if (data.items && data.items.length > 0) {
