@@ -656,8 +656,7 @@ async function handleRoundtable(
   }
 
   const rawContent = (result.content || '').trim();
-  console.log('[Roundtable] LLM returned content length:', rawContent.length);
-  console.log('[Roundtable] LLM raw content:', rawContent.slice(0, 500));
+  console.log('[Roundtable] provider used:', result.provider, '| content length:', rawContent.length, '| usage:', JSON.stringify(result.usage));
   if (!rawContent) {
     // Include enough diagnostic detail for the user to triage without
     // needing to open server logs.

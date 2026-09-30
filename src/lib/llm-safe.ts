@@ -315,7 +315,7 @@ export async function safeLLMCall(opts: SafeLLMCallOptions): Promise<SafeLLMResu
       const controller = new AbortController();
       timeoutHandle = setTimeout(() => controller.abort(), timeoutMs);
 
-      const modelName = provider === 'deepseek' ? 'deepseek-v4-flash'
+      const modelName = provider === 'deepseek' ? 'deepseek-chat'
         : provider === 'anthropic' ? 'claude-sonnet-4-20250514'
         : 'gpt-4o-mini';
 
