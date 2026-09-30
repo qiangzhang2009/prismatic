@@ -79,11 +79,14 @@ function saveState(state: { selectedIds: string[]; mode: Mode; conversationId?: 
 
 interface ChatInterfaceProps {
   className?: string;
+  /** Legacy single-persona prop. Prefer `initialPersonas` for multi-persona URLs. */
   initialPersona?: string;
+  /** Multi-persona prop from URL `?personas=a,b,c`. Takes precedence over `initialPersona`. */
+  initialPersonas?: string[];
   initialMode?: Mode;
 }
 
-export function ChatInterface({ className, initialPersona, initialMode }: ChatInterfaceProps) {
+export function ChatInterface({ className, initialPersona, initialPersonas, initialMode }: ChatInterfaceProps) {
   const router = useRouter();
   const pathname = usePathname();
   // FIXED: don't update dailyCredits from chat API to avoid incorrect reset logic
@@ -103,7 +106,7 @@ export function ChatInterface({ className, initialPersona, initialMode }: ChatIn
   const hasAnyCredits = dailyCredits > 0 || paidCredits > 0;
   // 用户是否已登录且数据加载完成
   const userLoaded = isInitialized && user !== null;
-  
+
   // DEBUG: Log credit values
   console.log('[ChatInterface] Credits debug:', { dailyCredits, paidCredits, userLoaded, isInitialized });
   // 真正的额度用完：用户数据已加载、没有付费计划且没有任何积分且 localStorage 计数已达上限
@@ -115,11 +118,12 @@ export function ChatInterface({ className, initialPersona, initialMode }: ChatIn
   // CRITICAL: 只有用户数据加载完成后才显示 fallback 值，否则显示加载中状态
   const dailyRemaining = isPaid ? '∞' : dailyCredits > 0 ? String(dailyCredits) : paidCredits > 0 ? String(paidCredits) : userLoaded ? String(Math.max(0, dailyLimit - dailyCount)) : '...';
 
-  // Priority: URL param > saved state > default (steve-jobs for backwards compat)
-  const getInitialPersonaId = () => {
-    if (initialPersona) return initialPersona;
-    if (saved?.selectedIds?.[0]) return saved.selectedIds[0];
-    return 'steve-jobs';
+  // Priority: URL `?personas=a,b,c` > URL `?persona=a` > saved state > default
+  const getInitialPersonaIds = (): string[] => {
+    if (initialPersonas && initialPersonas.length > 0) return initialPersonas;
+    if (initialPersona) return [initialPersona];
+    if (saved?.selectedIds && saved.selectedIds.length > 0) return saved.selectedIds;
+    return ['steve-jobs'];
   };
 
   const getInitialMode = () => {
@@ -130,10 +134,7 @@ export function ChatInterface({ className, initialPersona, initialMode }: ChatIn
 
   const [mode, setModeState] = useState<Mode>(getInitialMode);
   const [conversationId, setConversationId] = useState<string | undefined>(() => saved?.conversationId);
-  const [selectedIds, setSelectedIds] = useState<string[]>(() => {
-    const id = getInitialPersonaId();
-    return saved?.selectedIds?.length > 1 ? saved.selectedIds : [id];
-  });
+  const [selectedIds, setSelectedIds] = useState<string[]>(getInitialPersonaIds);
   const { messages, setMessages, clearHistory } = useRegistryChat(selectedIds, user?.id);
   const { pushSnapshot } = useConversationSync();
   const messagesRef = useRef(messages);
@@ -321,17 +322,21 @@ export function ChatInterface({ className, initialPersona, initialMode }: ChatIn
 
   // React to URL param changes (navigating from persona page or graph → update selection)
   useEffect(() => {
-    if (!initialPersona) return;
-    // Always sync when URL param changes — guard only prevents accidental overwrite
-    // when user has an active conversation and navigated back within the app.
-    if (initialPersona !== selectedIds[0]) {
-      if (hasActiveMessages()) {
-        // Has active conversation — don't switch automatically
-        return;
-      }
-      setSelectedIds([initialPersona]);
+    const wantList = getInitialPersonaIds();
+    // Same set already selected — skip.
+    if (
+      wantList.length === selectedIds.length &&
+      wantList.every((id, i) => id === selectedIds[i])
+    ) {
+      return;
     }
-  }, [initialPersona]);  // eslint-disable-line react-hooks/exhaustive-deps
+    if (hasActiveMessages()) {
+      // Has active conversation — don't switch automatically
+      return;
+    }
+    setSelectedIds(wantList);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialPersonas?.join(','), initialPersona]);
 
   // Helper to check if current conversation has active messages
   function hasActiveMessages(): boolean {
@@ -504,6 +509,25 @@ export function ChatInterface({ className, initialPersona, initialMode }: ChatIn
 
     setMessages((prev) => [...prev, userMessage]);
     setInput('');
+
+    // Frontend guard: roundtable needs ≥2 personas. The backend also enforces
+    // this and would otherwise surface a generic 500 error.
+    if (mode === 'roundtable' && selectedIds.length < 2) {
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: nanoid(),
+          personaId: 'system',
+          role: 'system',
+          content: '⚠️ 圆桌模式需要至少 2 位思想家。请点击右上角的"选择人物"多选几位。',
+          timestamp: new Date(),
+        },
+      ]);
+      setShowPersonaPicker(true);
+      setIsLoading(false);
+      return;
+    }
+
     setIsLoading(true);
 
     // 追踪对话开始（首条消息）
@@ -556,6 +580,19 @@ export function ChatInterface({ className, initialPersona, initialMode }: ChatIn
           setShowLimitModal(true);
         } else if (response.status === 401) {
           router.push('/auth/signin');
+        } else if (response.status === 400 && data?.error) {
+          // Server returned a user-actionable error (e.g. "roundtable needs ≥2 personas")
+          console.warn('[handleSend] Client-facing error:', data.error);
+          setMessages((prev) => [
+            ...prev,
+            {
+              id: nanoid(),
+              personaId: 'system',
+              role: 'system',
+              content: `⚠️ ${data.error}`,
+              timestamp: new Date(),
+            },
+          ]);
         } else {
           console.error('[handleSend] Chat API error:', response.status, data);
           setMessages((prev) => [

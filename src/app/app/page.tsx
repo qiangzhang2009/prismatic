@@ -70,7 +70,13 @@ function AppPageFallback() {
 function AppPageContent() {
   const searchParams = useSearchParams();
 
-  const initialPersona = searchParams?.get('persona') ?? undefined;
+  // Accept both ?personas=a,b,c (preferred) and ?persona=a (legacy single).
+  // Multi-persona URLs are required for roundtable / council / mission modes.
+  const personaParam =
+    searchParams?.get('personas') ?? searchParams?.get('persona') ?? null;
+  const initialPersonas = personaParam
+    ? personaParam.split(',').map((s) => s.trim()).filter(Boolean)
+    : undefined;
   const initialMode = (searchParams?.get('mode') as Mode) ?? undefined;
 
   return (
@@ -113,7 +119,7 @@ function AppPageContent() {
       <div className="flex-1 overflow-hidden">
         <ChatInterface
           className="h-full"
-          initialPersona={initialPersona}
+          initialPersonas={initialPersonas}
           initialMode={initialMode}
         />
       </div>

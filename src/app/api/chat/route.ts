@@ -593,8 +593,13 @@ async function handleRoundtable(
   topic: string
 ) {
 
-  // Limit to 5 personas max for a clean dialogue
+  // Roundtable requires at least 2 personas — a single "debate" has no
+  // collision points to surface, and silently faking one with placeholder text
+  // produced misleading "各方观点已呈现。" messages.
   const speakers = personas.slice(0, 5);
+  if (speakers.length < 2) {
+    throw new Error('圆桌模式需要至少 2 位思想家。请在 picker 中多选几位。');
+  }
 
   // Build a mapping of persona IDs to names for reliable speaker matching
   const speakerMap = Object.fromEntries(speakers.map((p) => [p.nameZh, p.id]));
@@ -626,9 +631,12 @@ async function handleRoundtable(
   }
 
   const rawContent = (result.content || '').trim();
+  if (!rawContent) {
+    throw new Error('Roundtable 解析失败：LLM 返回空内容。');
+  }
 
   // Strategy 1: Try markdown speaker pattern (primary)
-  const speakerRegex = /^\*\*(.+?)\*\*[:：]\s*(.+)$/gm;
+  const speakerRegex = /^\*(.+?)\*[:：]\s*(.+)$/gm;
   const markdownMatches: { speakerName: string; content: string }[] = [];
   let match;
   while ((match = speakerRegex.exec(rawContent)) !== null) {
@@ -638,14 +646,23 @@ async function handleRoundtable(
   let turns: any[] = [];
   let convergence = '';
 
+  // Summary speakers are recognised by name OR by being the last line of the
+  // dialogue block (the system prompt asks for that structure explicitly).
+  const SUMMARY_KEYWORDS = /总结|盲点|碰撞|共识|启示|结论|核心/;
+
   if (markdownMatches.length > 0) {
-    // Find the summary line
-    const summaryMatch = markdownMatches.find(m =>
-      m.speakerName.includes('总结') || m.speakerName.includes('盲点')
+    // Try to find the summary line by:
+    //   (a) speaker name matches summary keywords, OR
+    //   (b) it's the last markdown match (the prompt puts the summary last).
+    // Priority: keyword match first (more reliable), then position-based.
+    const byKeyword = markdownMatches.find((m) =>
+      SUMMARY_KEYWORDS.test(m.speakerName),
     );
-    const dialogueMatches = summaryMatch
-      ? markdownMatches.filter(m => m !== summaryMatch)
-      : markdownMatches;
+    const byPosition = markdownMatches[markdownMatches.length - 1];
+    const summaryMatch =
+      byKeyword && byKeyword !== byPosition ? byKeyword : byPosition;
+
+    const dialogueMatches = markdownMatches.filter((m) => m !== summaryMatch);
 
     turns = dialogueMatches.map((m, i) => ({
       round: Math.floor(i / speakers.length),
@@ -655,11 +672,12 @@ async function handleRoundtable(
       timestamp: new Date().toISOString(),
     }));
 
-    if (summaryMatch) {
-      convergence = summaryMatch.content;
-    } else if (dialogueMatches.length > 0) {
-      convergence = dialogueMatches[dialogueMatches.length - 1].content;
-    }
+    // Only treat the summary as valid if its speaker name matches summary
+    // keywords OR its content contains summary-like phrasing.
+    const isRealSummary =
+      SUMMARY_KEYWORDS.test(summaryMatch.speakerName) ||
+      /盲点|碰撞|共识|启示|结论|核心/.test(summaryMatch.content);
+    convergence = isRealSummary ? summaryMatch.content : '';
   } else {
     // Strategy 2: Try JSON (fallback)
     const jsonMatch = rawContent.match(/\{[\s\S]*\}/);
@@ -675,31 +693,30 @@ async function handleRoundtable(
         }));
         convergence = parsed.convergence ?? '';
       } catch {
-        // JSON parse failed — treat as plain text
-        convergence = rawContent.replace(/[{}]/g, '').trim();
+        // JSON parse failed — treat as plain text, but only use it as
+        // convergence if it looks like summary content (not a long dialogue).
+        const cleaned = rawContent.replace(/[{}]/g, '').trim();
+        convergence = cleaned.length <= 200 ? cleaned : '';
       }
     } else {
-      // Strategy 3: Last resort — use raw content as summary
-      convergence = rawContent;
+      // Strategy 3: No structured match. Try to use raw content only if
+      // it's short enough to plausibly be a summary.
+      convergence = rawContent.length <= 200 ? rawContent : '';
     }
   }
 
-  // If no meaningful turns extracted, create a single summary turn
-  if (turns.length === 0 && convergence) {
-    turns = speakers.map((p, i) => ({
-      round: 0,
-      speakerId: p.id,
-      speakerName: p.nameZh,
-      content: `关于「${topic.slice(0, 20)}...」发表了自己的看法。`,
-      timestamp: new Date().toISOString(),
-    }));
+  if (turns.length === 0) {
+    throw new Error('Roundtable 解析失败：未能从 LLM 返回中提取任何发言。');
+  }
+  if (!convergence) {
+    throw new Error('Roundtable 解析失败：未能从 LLM 返回中提取总结。');
   }
 
   return {
     turns,
     convergence: {
       id: nanoid(),
-      content: convergence || '各方观点已呈现。',
+      content: convergence,
       timestamp: new Date().toISOString(),
     },
   };
@@ -1491,9 +1508,13 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     console.error('[Chat API] Error:', message);
+    // Surface user-actionable errors (e.g. "roundtable needs ≥2 personas",
+    // "Roundtable 解析失败") with their original message and 400 status, so
+    // the frontend can show a meaningful response instead of a generic 500.
+    const isClientFacing = /圆桌模式需要至少|Roundtable 解析失败/.test(message);
     return NextResponse.json(
-      { error: '请求失败，请稍后重试。' },
-      { status: 500 }
+      { error: isClientFacing ? message : '请求失败，请稍后重试。' },
+      { status: isClientFacing ? 400 : 500 },
     );
   }
 }
